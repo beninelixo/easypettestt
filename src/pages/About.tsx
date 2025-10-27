@@ -2,10 +2,8 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Target, Zap, Users } from "lucide-react";
-
 const About = () => {
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navigation />
 
       <section className="pt-32 pb-20 px-4 bg-gradient-to-b from-muted to-background">
@@ -39,29 +37,23 @@ const About = () => {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                icon: Heart,
-                title: "Paixão por Pets",
-                description: "Criado por quem ama e entende o universo pet",
-              },
-              {
-                icon: Target,
-                title: "Foco no Cliente",
-                description: "Cada funcionalidade pensada para facilitar seu dia a dia",
-              },
-              {
-                icon: Zap,
-                title: "Tecnologia de Ponta",
-                description: "Sistema rápido, moderno e sempre atualizado",
-              },
-              {
-                icon: Users,
-                title: "Suporte Dedicado",
-                description: "Equipe pronta para ajudar quando você precisar",
-              },
-            ].map((value, index) => (
-              <Card key={index} className="text-center border-border hover:shadow-lg transition-all">
+            {[{
+            icon: Heart,
+            title: "Paixão por Pets",
+            description: "Criado por quem ama e entende o universo pet"
+          }, {
+            icon: Target,
+            title: "Foco no Cliente",
+            description: "Cada funcionalidade pensada para facilitar seu dia a dia"
+          }, {
+            icon: Zap,
+            title: "Tecnologia de Ponta",
+            description: "Sistema rápido, moderno e sempre atualizado"
+          }, {
+            icon: Users,
+            title: "Suporte Dedicado",
+            description: "Equipe pronta para ajudar quando você precisar"
+          }].map((value, index) => <Card key={index} className="text-center border-border hover:shadow-lg transition-all">
                 <CardHeader>
                   <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                     <value.icon className="h-8 w-8 text-primary" />
@@ -71,8 +63,7 @@ const About = () => {
                 <CardContent>
                   <p className="text-muted-foreground">{value.description}</p>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
 
           <div className="mt-20 bg-muted rounded-3xl p-12 text-center">
@@ -85,11 +76,11 @@ const About = () => {
             </p>
             <div className="grid sm:grid-cols-3 gap-8 mt-12">
               <div>
-                <div className="text-4xl font-bold text-primary mb-2">500+</div>
+                <div className="text-4xl font-bold text-primary mb-2">233+</div>
                 <div className="text-muted-foreground">Pet Shops Atendidos</div>
               </div>
               <div>
-                <div className="text-4xl font-bold text-primary mb-2">50k+</div>
+                <div className="text-4xl font-bold text-primary mb-2">260k+</div>
                 <div className="text-muted-foreground">Agendamentos Realizados</div>
               </div>
               <div>
@@ -102,8 +93,6 @@ const About = () => {
       </section>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default About;
