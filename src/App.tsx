@@ -9,7 +9,12 @@ import About from "./pages/About";
 import Pricing from "./pages/Pricing";
 import Auth from "./pages/Auth";
 import ClientDashboard from "./pages/ClientDashboard";
+import PetShopDashboardLayout from "./pages/PetShopDashboardLayout";
 import PetShopDashboard from "./pages/PetShopDashboard";
+import Clientes from "./pages/petshop/Clientes";
+import Calendario from "./pages/petshop/Calendario";
+import Relatorios from "./pages/petshop/Relatorios";
+import Configuracoes from "./pages/petshop/Configuracoes";
 import AdminDashboard from "./pages/AdminDashboard";
 import NewAppointment from "./pages/NewAppointment";
 import PetProfile from "./pages/PetProfile";
@@ -49,9 +54,15 @@ const App = () => (
           {/* Pet Shop Routes */}
           <Route path="/petshop-dashboard" element={
             <ProtectedRoute allowedRoles={["pet_shop"]}>
-              <PetShopDashboard />
+              <PetShopDashboardLayout />
             </ProtectedRoute>
-          } />
+          }>
+            <Route index element={<PetShopDashboard />} />
+            <Route path="clientes" element={<Clientes />} />
+            <Route path="calendario" element={<Calendario />} />
+            <Route path="relatorios" element={<Relatorios />} />
+            <Route path="configuracoes" element={<Configuracoes />} />
+          </Route>
           
           {/* Admin Routes */}
           <Route path="/admin-dashboard" element={

@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, TrendingUp, Users, DollarSign, Clock, LogOut } from "lucide-react";
+import { Calendar, TrendingUp, Users, DollarSign, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 const PetShopDashboard = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState<any[]>([]);
   
   const stats = [
@@ -56,18 +58,7 @@ const PetShopDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Dashboard Pet Shop</h1>
-          <Button onClick={signOut} variant="outline" size="icon">
-            <LogOut className="h-4 w-4" />
-          </Button>
-        </div>
-      </header>
-
-      <div className="container mx-auto p-6 space-y-8">
+    <div className="container mx-auto p-6 space-y-8">
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -180,24 +171,24 @@ const PetShopDashboard = () => {
           <div className="grid md:grid-cols-3 gap-4">
             <Button 
               variant="outline" 
-              className="h-24 flex flex-col gap-2"
-              onClick={() => alert("Funcionalidade de Gerenciar Clientes em desenvolvimento")}
+              className="h-24 flex flex-col gap-2 hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all"
+              onClick={() => navigate("/petshop-dashboard/clientes")}
             >
               <Users className="h-6 w-6" />
               Gerenciar Clientes
             </Button>
             <Button 
               variant="outline" 
-              className="h-24 flex flex-col gap-2"
-              onClick={() => alert("Funcionalidade de Calendário Completo em desenvolvimento")}
+              className="h-24 flex flex-col gap-2 hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all"
+              onClick={() => navigate("/petshop-dashboard/calendario")}
             >
               <Calendar className="h-6 w-6" />
               Calendário Completo
             </Button>
             <Button 
               variant="outline" 
-              className="h-24 flex flex-col gap-2"
-              onClick={() => alert("Funcionalidade de Relatórios em desenvolvimento")}
+              className="h-24 flex flex-col gap-2 hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all"
+              onClick={() => navigate("/petshop-dashboard/relatorios")}
             >
               <TrendingUp className="h-6 w-6" />
               Relatórios
@@ -205,8 +196,7 @@ const PetShopDashboard = () => {
           </div>
         </section>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 export default PetShopDashboard;
