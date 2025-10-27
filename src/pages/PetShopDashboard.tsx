@@ -178,15 +178,27 @@ const PetShopDashboard = () => {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Ações Rápidas</h2>
           <div className="grid md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-24 flex flex-col gap-2">
+            <Button 
+              variant="outline" 
+              className="h-24 flex flex-col gap-2"
+              onClick={() => alert("Funcionalidade de Gerenciar Clientes em desenvolvimento")}
+            >
               <Users className="h-6 w-6" />
               Gerenciar Clientes
             </Button>
-            <Button variant="outline" className="h-24 flex flex-col gap-2">
+            <Button 
+              variant="outline" 
+              className="h-24 flex flex-col gap-2"
+              onClick={() => alert("Funcionalidade de Calendário Completo em desenvolvimento")}
+            >
               <Calendar className="h-6 w-6" />
               Calendário Completo
             </Button>
-            <Button variant="outline" className="h-24 flex flex-col gap-2">
+            <Button 
+              variant="outline" 
+              className="h-24 flex flex-col gap-2"
+              onClick={() => alert("Funcionalidade de Relatórios em desenvolvimento")}
+            >
               <TrendingUp className="h-6 w-6" />
               Relatórios
             </Button>
