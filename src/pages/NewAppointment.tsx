@@ -140,19 +140,57 @@ const NewAppointment = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="service">Selecione o Serviço</Label>
-                <Select value={selectedService} onValueChange={setSelectedService}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Escolha um serviço" />
-                  </SelectTrigger>
-                  <SelectContent>
+                <Label>Selecione o Serviço</Label>
+                {services.length === 0 ? (
+                  <Card>
+                    <CardContent className="p-4 text-center">
+                      <p className="text-sm text-muted-foreground">Nenhum serviço disponível no momento</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid gap-3">
                     {services.map((service) => (
-                      <SelectItem key={service.id} value={service.id}>
-                        {service.name} - R$ {service.price} ({service.duration_minutes}min)
-                      </SelectItem>
+                      <Card 
+                        key={service.id}
+                        className={`cursor-pointer transition-all ${
+                          selectedService === service.id 
+                            ? 'ring-2 ring-primary bg-primary/5' 
+                            : 'hover:bg-accent/5'
+                        }`}
+                        onClick={() => setSelectedService(service.id)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-lg mb-1">{service.name}</h3>
+                              {service.description && (
+                                <p className="text-sm text-muted-foreground mb-2">
+                                  {service.description}
+                                </p>
+                              )}
+                              <div className="flex items-center gap-4 text-sm">
+                                <span className="font-medium text-primary">
+                                  R$ {Number(service.price).toFixed(2)}
+                                </span>
+                                <span className="text-muted-foreground flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {service.duration_minutes} min
+                                </span>
+                              </div>
+                            </div>
+                            {selectedService === service.id && (
+                              <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                                <svg className="w-4 h-4 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">

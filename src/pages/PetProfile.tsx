@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Save, PawPrint } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +19,8 @@ const PetProfile = () => {
   const { toast } = useToast();
   
   const [loading, setLoading] = useState(false);
+  const [loadingPet, setLoadingPet] = useState(false);
+  const [appointments, setAppointments] = useState<any[]>([]);
   const [pet, setPet] = useState({
     name: "",
     breed: "",
@@ -29,12 +33,14 @@ const PetProfile = () => {
   useEffect(() => {
     if (petId && petId !== "new") {
       loadPet();
+      loadPetHistory();
     }
   }, [petId]);
 
   const loadPet = async () => {
     if (!petId || !user) return;
     
+    setLoadingPet(true);
     const { data, error } = await supabase
       .from("pets")
       .select("*")
@@ -51,6 +57,26 @@ const PetProfile = () => {
         observations: data.observations || "",
         allergies: data.allergies || "",
       });
+    }
+    setLoadingPet(false);
+  };
+
+  const loadPetHistory = async () => {
+    if (!petId || !user) return;
+    
+    const { data, error } = await supabase
+      .from("appointments")
+      .select(`
+        *,
+        service:services(name, price)
+      `)
+      .eq("pet_id", petId)
+      .eq("client_id", user.id)
+      .order("scheduled_date", { ascending: false })
+      .limit(5);
+
+    if (!error && data) {
+      setAppointments(data);
     }
   };
 
@@ -117,84 +143,158 @@ const PetProfile = () => {
         </div>
       </header>
 
-      <div className="container mx-auto p-6 max-w-2xl">
-        <Card>
-          <CardHeader>
-            <CardTitle>Informações do Pet</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome *</Label>
-                <Input
-                  id="name"
-                  value={pet.name}
-                  onChange={(e) => setPet({ ...pet, name: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="breed">Raça</Label>
-                  <Input
-                    id="breed"
-                    value={pet.breed}
-                    onChange={(e) => setPet({ ...pet, breed: e.target.value })}
-                  />
+      <div className="container mx-auto p-6 max-w-4xl">
+        <div className="grid gap-6">
+          {/* Pet Information Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PawPrint className="h-5 w-5 text-primary" />
+                {petId === "new" ? "Cadastrar Novo Pet" : "Informações do Pet"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loadingPet ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Carregando informações...</p>
                 </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Nome *</Label>
+                    <Input
+                      id="name"
+                      value={pet.name}
+                      onChange={(e) => setPet({ ...pet, name: e.target.value })}
+                      required
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="age">Idade (anos)</Label>
-                  <Input
-                    id="age"
-                    type="number"
-                    min="0"
-                    value={pet.age}
-                    onChange={(e) => setPet({ ...pet, age: e.target.value })}
-                  />
-                </div>
-              </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="breed">Raça</Label>
+                      <Input
+                        id="breed"
+                        value={pet.breed}
+                        onChange={(e) => setPet({ ...pet, breed: e.target.value })}
+                      />
+                    </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="weight">Peso (kg)</Label>
-                <Input
-                  id="weight"
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  value={pet.weight}
-                  onChange={(e) => setPet({ ...pet, weight: e.target.value })}
-                />
-              </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="age">Idade (anos)</Label>
+                      <Input
+                        id="age"
+                        type="number"
+                        min="0"
+                        value={pet.age}
+                        onChange={(e) => setPet({ ...pet, age: e.target.value })}
+                      />
+                    </div>
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="allergies">Alergias</Label>
-                <Textarea
-                  id="allergies"
-                  value={pet.allergies}
-                  onChange={(e) => setPet({ ...pet, allergies: e.target.value })}
-                  placeholder="Liste quaisquer alergias conhecidas"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="weight">Peso (kg)</Label>
+                    <Input
+                      id="weight"
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      value={pet.weight}
+                      onChange={(e) => setPet({ ...pet, weight: e.target.value })}
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="observations">Observações</Label>
-                <Textarea
-                  id="observations"
-                  value={pet.observations}
-                  onChange={(e) => setPet({ ...pet, observations: e.target.value })}
-                  placeholder="Comportamento, preferências, ou outras informações importantes"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="allergies">Alergias</Label>
+                    <Textarea
+                      id="allergies"
+                      value={pet.allergies}
+                      onChange={(e) => setPet({ ...pet, allergies: e.target.value })}
+                      placeholder="Liste quaisquer alergias conhecidas"
+                    />
+                  </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                <Save className="h-4 w-4 mr-2" />
-                {loading ? "Salvando..." : "Salvar Pet"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                  <div className="space-y-2">
+                    <Label htmlFor="observations">Observações</Label>
+                    <Textarea
+                      id="observations"
+                      value={pet.observations}
+                      onChange={(e) => setPet({ ...pet, observations: e.target.value })}
+                      placeholder="Comportamento, preferências, ou outras informações importantes"
+                    />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button type="submit" className="flex-1" disabled={loading}>
+                      <Save className="h-4 w-4 mr-2" />
+                      {loading ? "Salvando..." : petId === "new" ? "Cadastrar Pet" : "Salvar Alterações"}
+                    </Button>
+                    {petId !== "new" && (
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        onClick={() => navigate("/new-appointment")}
+                      >
+                        Agendar Serviço
+                      </Button>
+                    )}
+                  </div>
+                </form>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Pet History Card */}
+          {petId !== "new" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Histórico de Serviços</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {appointments.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground mb-4">Nenhum serviço realizado ainda</p>
+                    <Button onClick={() => navigate("/new-appointment")}>
+                      Agendar Primeiro Serviço
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {appointments.map((appointment) => (
+                      <div 
+                        key={appointment.id}
+                        className="flex items-center justify-between p-4 border rounded-lg"
+                      >
+                        <div>
+                          <p className="font-medium">{appointment.service?.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(appointment.scheduled_date).toLocaleDateString('pt-BR')} às {appointment.scheduled_time}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium text-primary">
+                            R$ {Number(appointment.service?.price || 0).toFixed(2)}
+                          </p>
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            appointment.status === "completed" ? "bg-primary/10 text-primary" :
+                            appointment.status === "confirmed" ? "bg-accent/10 text-accent" :
+                            appointment.status === "pending" ? "bg-secondary/10 text-secondary" :
+                            "bg-muted text-muted-foreground"
+                          }`}>
+                            {appointment.status === "completed" ? "Concluído" :
+                             appointment.status === "confirmed" ? "Confirmado" :
+                             appointment.status === "pending" ? "Pendente" :
+                             "Cancelado"}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   );
