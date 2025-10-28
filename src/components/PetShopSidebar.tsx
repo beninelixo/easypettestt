@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Users, Calendar, TrendingUp, Settings, LogOut } from "lucide-react";
+import { Home, Users, Calendar, TrendingUp, Settings, LogOut, Scissors } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 const navigationItems = [
   { title: "Dashboard", url: "/petshop-dashboard", icon: Home },
+  { title: "Serviços", url: "/petshop-dashboard/servicos", icon: Scissors },
   { title: "Clientes", url: "/petshop-dashboard/clientes", icon: Users },
   { title: "Calendário", url: "/petshop-dashboard/calendario", icon: Calendar },
   { title: "Relatórios", url: "/petshop-dashboard/relatorios", icon: TrendingUp },

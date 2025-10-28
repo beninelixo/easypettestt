@@ -15,6 +15,7 @@ import Clientes from "./pages/petshop/Clientes";
 import Calendario from "./pages/petshop/Calendario";
 import Relatorios from "./pages/petshop/Relatorios";
 import Configuracoes from "./pages/petshop/Configuracoes";
+import Servicos from "./pages/petshop/Servicos";
 import AdminDashboard from "./pages/AdminDashboard";
 import NewAppointment from "./pages/NewAppointment";
 import PetProfile from "./pages/PetProfile";
@@ -58,6 +59,7 @@ const App = () => (
             </ProtectedRoute>
           }>
             <Route index element={<PetShopDashboard />} />
+            <Route path="servicos" element={<Servicos />} />
             <Route path="clientes" element={<Clientes />} />
             <Route path="calendario" element={<Calendario />} />
             <Route path="relatorios" element={<Relatorios />} />
