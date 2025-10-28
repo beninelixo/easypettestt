@@ -1,13 +1,31 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, Clock, PawPrint, User } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, PawPrint, User, Plus } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 const Calendario = () => {
   const { user } = useAuth();
@@ -15,12 +33,39 @@ const Calendario = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [services, setServices] = useState<any[]>([]);
+  const [clients, setClients] = useState<any[]>([]);
+  const [pets, setPets] = useState<any[]>([]);
+  const [selectedClient, setSelectedClient] = useState<string>("");
+  const [formData, setFormData] = useState({
+    pet_id: "",
+    service_id: "",
+    scheduled_time: "",
+    notes: "",
+  });
+
+  useEffect(() => {
+    if (user) {
+      loadServices();
+      loadClients();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user && selectedDate) {
       loadAppointments();
     }
   }, [user, selectedDate]);
+
+  useEffect(() => {
+    if (selectedClient) {
+      loadClientPets(selectedClient);
+    } else {
+      setPets([]);
+      setFormData((prev) => ({ ...prev, pet_id: "" }));
+    }
+  }, [selectedClient]);
 
   const loadAppointments = async () => {
     setLoading(true);
@@ -45,6 +90,45 @@ const Calendario = () => {
     setLoading(false);
   };
 
+  const loadServices = async () => {
+    const { data } = await supabase
+      .from("services")
+      .select("*")
+      .eq("pet_shop_id", user?.id)
+      .eq("active", true)
+      .order("name");
+
+    if (data) {
+      setServices(data);
+    }
+  };
+
+  const loadClients = async () => {
+    const { data } = await supabase
+      .from("appointments")
+      .select("client:profiles!appointments_client_id_fkey(id, full_name)")
+      .eq("pet_shop_id", user?.id);
+
+    if (data) {
+      const uniqueClients = Array.from(
+        new Map(data.map((item: any) => [item.client.id, item.client])).values()
+      );
+      setClients(uniqueClients);
+    }
+  };
+
+  const loadClientPets = async (clientId: string) => {
+    const { data } = await supabase
+      .from("pets")
+      .select("*")
+      .eq("owner_id", clientId)
+      .order("name");
+
+    if (data) {
+      setPets(data);
+    }
+  };
+
   const updateStatus = async (appointmentId: string, newStatus: string) => {
     const { error } = await supabase
       .from("appointments")
@@ -60,6 +144,45 @@ const Calendario = () => {
     } else {
       toast({
         title: "Erro ao atualizar",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCreateAppointment = async () => {
+    if (!formData.pet_id || !formData.service_id || !formData.scheduled_time) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha todos os campos obrigatórios.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const { error } = await supabase.from("appointments").insert({
+      pet_id: formData.pet_id,
+      service_id: formData.service_id,
+      pet_shop_id: user?.id,
+      client_id: selectedClient,
+      scheduled_date: format(selectedDate, "yyyy-MM-dd"),
+      scheduled_time: formData.scheduled_time,
+      notes: formData.notes,
+      status: "pending",
+    });
+
+    if (!error) {
+      toast({
+        title: "Agendamento criado",
+        description: "O agendamento foi criado com sucesso.",
+      });
+      setDialogOpen(false);
+      setFormData({ pet_id: "", service_id: "", scheduled_time: "", notes: "" });
+      setSelectedClient("");
+      loadAppointments();
+    } else {
+      toast({
+        title: "Erro ao criar agendamento",
         description: error.message,
         variant: "destructive",
       });
@@ -84,14 +207,121 @@ const Calendario = () => {
           <CardHeader>
             <CardTitle className="text-lg">Selecione uma Data</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-col items-center gap-4">
             <Calendar
               mode="single"
               selected={selectedDate}
               onSelect={(date) => date && setSelectedDate(date)}
               locale={ptBR}
-              className="rounded-md border"
+              className="rounded-md border w-fit"
             />
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="w-full">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Novo Agendamento
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Novo Agendamento</DialogTitle>
+                  <DialogDescription>
+                    Data: {format(selectedDate, "dd 'de' MMMM, yyyy", { locale: ptBR })}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="client">Cliente *</Label>
+                    <Select value={selectedClient} onValueChange={setSelectedClient}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o cliente" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {clients.map((client: any) => (
+                          <SelectItem key={client.id} value={client.id}>
+                            {client.full_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="pet">Pet *</Label>
+                    <Select
+                      value={formData.pet_id}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, pet_id: value }))
+                      }
+                      disabled={!selectedClient}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o pet" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {pets.map((pet: any) => (
+                          <SelectItem key={pet.id} value={pet.id}>
+                            {pet.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="service">Serviço *</Label>
+                    <Select
+                      value={formData.service_id}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, service_id: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o serviço" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {services.map((service) => (
+                          <SelectItem key={service.id} value={service.id}>
+                            {service.name} - R$ {service.price}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="time">Horário *</Label>
+                    <Input
+                      id="time"
+                      type="time"
+                      value={formData.scheduled_time}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, scheduled_time: e.target.value }))
+                      }
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Observações</Label>
+                    <Textarea
+                      id="notes"
+                      value={formData.notes}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, notes: e.target.value }))
+                      }
+                      placeholder="Observações adicionais..."
+                      rows={3}
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button onClick={handleCreateAppointment}>Criar Agendamento</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </CardContent>
         </Card>
 
