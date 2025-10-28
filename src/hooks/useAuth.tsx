@@ -65,7 +65,7 @@ export const useAuth = () => {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string, role: UserRole = "client") => {
+  const signUp = async (email: string, password: string, fullName: string) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
@@ -76,7 +76,6 @@ export const useAuth = () => {
           emailRedirectTo: redirectUrl,
           data: {
             full_name: fullName,
-            role: role,
           }
         }
       });

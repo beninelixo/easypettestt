@@ -16,7 +16,7 @@ const Auth = () => {
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerName, setRegisterName] = useState("");
-  const [registerRole, setRegisterRole] = useState<UserRole>("client");
+  
   
   const { signIn, signUp, user, userRole, loading } = useAuth();
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const Auth = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    await signUp(registerEmail, registerPassword, registerName, registerRole);
+    await signUp(registerEmail, registerPassword, registerName);
     setIsLoading(false);
   };
 
@@ -134,18 +134,6 @@ const Auth = () => {
                       onChange={(e) => setRegisterName(e.target.value)}
                       required 
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="role">Tipo de Conta</Label>
-                    <Select value={registerRole} onValueChange={(value) => setRegisterRole(value as UserRole)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo de conta" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="client">Cliente (Tutor de Pet)</SelectItem>
-                        <SelectItem value="pet_shop">Pet Shop / Profissional</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="register-email">Email</Label>
