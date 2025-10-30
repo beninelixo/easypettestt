@@ -20,6 +20,9 @@ import AdminDashboard from "./pages/AdminDashboard";
 import NewAppointment from "./pages/NewAppointment";
 import PetProfile from "./pages/PetProfile";
 import NotFound from "./pages/NotFound";
+import PetShopSetup from "./pages/PetShopSetup";
+import ClientSelectPetShop from "./pages/ClientSelectPetShop";
+import ClientProfile from "./pages/ClientProfile";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +39,11 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           
           {/* Client Routes */}
+          <Route path="/select-petshop" element={
+            <ProtectedRoute allowedRoles={["client"]}>
+              <ClientSelectPetShop />
+            </ProtectedRoute>
+          } />
           <Route path="/client-dashboard" element={
             <ProtectedRoute allowedRoles={["client"]}>
               <ClientDashboard />
@@ -53,6 +61,11 @@ const App = () => (
           } />
           
           {/* Pet Shop Routes */}
+          <Route path="/petshop-setup" element={
+            <ProtectedRoute allowedRoles={["pet_shop"]}>
+              <PetShopSetup />
+            </ProtectedRoute>
+          } />
           <Route path="/petshop-dashboard" element={
             <ProtectedRoute allowedRoles={["pet_shop"]}>
               <PetShopDashboardLayout />
@@ -61,6 +74,7 @@ const App = () => (
             <Route index element={<PetShopDashboard />} />
             <Route path="servicos" element={<Servicos />} />
             <Route path="clientes" element={<Clientes />} />
+            <Route path="cliente/:clientId" element={<ClientProfile />} />
             <Route path="calendario" element={<Calendario />} />
             <Route path="relatorios" element={<Relatorios />} />
             <Route path="configuracoes" element={<Configuracoes />} />

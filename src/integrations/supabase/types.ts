@@ -17,6 +17,7 @@ export type Database = {
       appointments: {
         Row: {
           client_id: string
+          completed_at: string | null
           created_at: string
           id: string
           notes: string | null
@@ -30,6 +31,7 @@ export type Database = {
         }
         Insert: {
           client_id: string
+          completed_at?: string | null
           created_at?: string
           id?: string
           notes?: string | null
@@ -43,6 +45,7 @@ export type Database = {
         }
         Update: {
           client_id?: string
+          completed_at?: string | null
           created_at?: string
           id?: string
           notes?: string | null
@@ -70,6 +73,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pet_shops: {
+        Row: {
+          address: string | null
+          city: string | null
+          code: string
+          created_at: string
+          id: string
+          logo_url: string | null
+          name: string
+          owner_id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          code: string
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          owner_id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          code?: string
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          owner_id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       pets: {
         Row: {
@@ -202,6 +244,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_pet_shop_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

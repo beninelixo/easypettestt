@@ -333,7 +333,7 @@ const Clientes = () => {
                     variant="outline"
                     size="sm"
                     className="flex-1"
-                    onClick={() => toast({ title: "Funcionalidade em desenvolvimento" })}
+                    onClick={() => navigate(`/petshop-dashboard/cliente/${client.id}`)}
                   >
                     <Eye className="h-3 w-3 mr-1" />
                     Ver Perfil

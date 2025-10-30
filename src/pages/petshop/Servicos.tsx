@@ -49,10 +49,19 @@ const Servicos = () => {
   }, [user]);
 
   const loadServices = async () => {
+    // Get pet shop id first
+    const { data: petShop } = await supabase
+      .from("pet_shops")
+      .select("id")
+      .eq("owner_id", user?.id)
+      .single();
+
+    if (!petShop) return;
+
     const { data, error } = await supabase
       .from("services")
       .select("*")
-      .eq("pet_shop_id", user?.id)
+      .eq("pet_shop_id", petShop.id)
       .order("created_at", { ascending: false });
 
     if (!error && data) {

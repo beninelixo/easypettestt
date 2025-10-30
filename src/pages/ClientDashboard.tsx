@@ -58,7 +58,7 @@ const ClientDashboard = () => {
             Meus Pets
           </h1>
           <div className="flex items-center gap-2">
-            <Button onClick={() => navigate("/new-appointment")}>
+            <Button onClick={() => navigate("/select-petshop")}>
               <Plus className="h-4 w-4 mr-2" />
               Novo Agendamento
             </Button>

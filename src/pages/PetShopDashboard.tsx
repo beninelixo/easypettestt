@@ -12,21 +12,40 @@ const PetShopDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState<any[]>([]);
-  
-  const stats = [
-    { title: "Agendamentos Hoje", value: appointments.length.toString(), icon: Calendar, color: "text-primary" },
-    { title: "Faturamento Mensal", value: "R$ 0,00", icon: DollarSign, color: "text-secondary" },
-    { title: "Clientes Ativos", value: "0", icon: Users, color: "text-accent" },
-    { title: "Taxa de Retorno", value: "0%", icon: TrendingUp, color: "text-primary" },
-  ];
+  const [petShopId, setPetShopId] = useState<string>("");
+  const [stats, setStats] = useState({
+    todayAppointments: 0,
+    monthlyRevenue: "R$ 0,00",
+    activeClients: 0,
+    completedServices: 0,
+  });
 
   useEffect(() => {
     if (user) {
-      loadAppointments();
+      loadPetShopAndData();
     }
   }, [user]);
 
-  const loadAppointments = async () => {
+  const loadPetShopAndData = async () => {
+    // First, get the pet shop owned by this user
+    const { data: petShop, error: petShopError } = await supabase
+      .from("pet_shops")
+      .select("id")
+      .eq("owner_id", user?.id)
+      .single();
+
+    if (petShopError || !petShop) {
+      // If no pet shop exists, redirect to setup
+      navigate("/petshop-setup");
+      return;
+    }
+
+    setPetShopId(petShop.id);
+    await loadAppointments(petShop.id);
+    await loadStats(petShop.id);
+  };
+
+  const loadAppointments = async (shopId: string) => {
     const today = format(new Date(), "yyyy-MM-dd");
     
     const { data, error } = await supabase
@@ -34,10 +53,10 @@ const PetShopDashboard = () => {
       .select(`
         *,
         pet:pets(name, owner_id),
-        service:services(name),
+        service:services(name, price),
         client:profiles!appointments_client_id_fkey(full_name)
       `)
-      .eq("pet_shop_id", user?.id)
+      .eq("pet_shop_id", shopId)
       .eq("scheduled_date", today)
       .order("scheduled_time", { ascending: true });
 
@@ -46,23 +65,79 @@ const PetShopDashboard = () => {
     }
   };
 
+  const loadStats = async (shopId: string) => {
+    // Count today's appointments
+    const today = format(new Date(), "yyyy-MM-dd");
+    const { count: todayCount } = await supabase
+      .from("appointments")
+      .select("*", { count: 'exact', head: true })
+      .eq("pet_shop_id", shopId)
+      .eq("scheduled_date", today);
+
+    // Calculate monthly revenue from completed appointments
+    const startOfMonth = format(new Date(new Date().getFullYear(), new Date().getMonth(), 1), "yyyy-MM-dd");
+    const { data: monthlyAppts } = await supabase
+      .from("appointments")
+      .select("service:services(price)")
+      .eq("pet_shop_id", shopId)
+      .eq("status", "completed")
+      .gte("scheduled_date", startOfMonth);
+
+    const monthlyRevenue = monthlyAppts?.reduce((sum, apt) => sum + (apt.service?.price || 0), 0) || 0;
+
+    // Count unique clients
+    const { data: clientData } = await supabase
+      .from("appointments")
+      .select("client_id")
+      .eq("pet_shop_id", shopId);
+    
+    const uniqueClients = new Set(clientData?.map(a => a.client_id)).size;
+
+    // Count completed services
+    const { count: completedCount } = await supabase
+      .from("appointments")
+      .select("*", { count: 'exact', head: true })
+      .eq("pet_shop_id", shopId)
+      .eq("status", "completed");
+
+    setStats({
+      todayAppointments: todayCount || 0,
+      monthlyRevenue: `R$ ${monthlyRevenue.toFixed(2)}`,
+      activeClients: uniqueClients,
+      completedServices: completedCount || 0,
+    });
+  };
+
   const updateAppointmentStatus = async (appointmentId: string, newStatus: string) => {
+    const updateData: any = { status: newStatus };
+    if (newStatus === 'completed') {
+      updateData.completed_at = new Date().toISOString();
+    }
+
     const { error } = await supabase
       .from("appointments")
-      .update({ status: newStatus })
+      .update(updateData)
       .eq("id", appointmentId);
 
     if (!error) {
-      loadAppointments();
+      await loadAppointments(petShopId);
+      await loadStats(petShopId);
     }
   };
+
+  const statsArray = [
+    { title: "Agendamentos Hoje", value: stats.todayAppointments.toString(), icon: Calendar, color: "text-primary" },
+    { title: "Faturamento Mensal", value: stats.monthlyRevenue, icon: DollarSign, color: "text-secondary" },
+    { title: "Clientes Ativos", value: stats.activeClients.toString(), icon: Users, color: "text-accent" },
+    { title: "Serviços Realizados", value: stats.completedServices.toString(), icon: TrendingUp, color: "text-primary" },
+  ];
 
   return (
     <div className="container mx-auto p-6 space-y-8">
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
+          {statsArray.map((stat, index) => (
             <Card key={index} className="hover:shadow-lg transition-all">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>

@@ -31,9 +31,16 @@ const NewAppointment = () => {
   ];
 
   useEffect(() => {
+    // Check if a pet shop was selected
+    const selectedPetShopId = localStorage.getItem('selected_pet_shop_id');
+    if (!selectedPetShopId) {
+      navigate('/select-petshop');
+      return;
+    }
+    
     loadPets();
-    loadServices();
-  }, [user]);
+    loadServices(selectedPetShopId);
+  }, [user, navigate]);
 
   const loadPets = async () => {
     if (!user) return;
@@ -45,14 +52,21 @@ const NewAppointment = () => {
 
     if (!error && data) {
       setPets(data);
+    } else if (error) {
+      toast({
+        title: "Erro ao carregar pets",
+        description: "Você precisa cadastrar um pet antes de agendar",
+        variant: "destructive",
+      });
     }
   };
 
-  const loadServices = async () => {
+  const loadServices = async (petShopId: string) => {
     const { data, error } = await supabase
       .from("services")
       .select("*")
-      .eq("active", true);
+      .eq("active", true)
+      .eq("pet_shop_id", petShopId);
 
     if (!error && data) {
       setServices(data);
