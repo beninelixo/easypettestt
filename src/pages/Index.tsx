@@ -5,7 +5,10 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Testimonials from "@/components/Testimonials";
 import TrustedBy from "@/components/TrustedBy";
-import { Calendar, Clock, Users, TrendingUp, Shield, Smartphone, PawPrint, Sparkles, FileText, Package, Camera, ArrowRight } from "lucide-react";
+import HowItWorks from "@/components/HowItWorks";
+import ComparisonTable from "@/components/ComparisonTable";
+import FAQ from "@/components/FAQ";
+import { Calendar, Clock, Users, TrendingUp, Shield, Smartphone, PawPrint, Sparkles, FileText, Package, Camera, ArrowRight, Zap } from "lucide-react";
 import heroPet from "@/assets/hero-pet.jpg";
 
 const Index = () => {
@@ -47,49 +50,69 @@ const Index = () => {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 bg-gradient-to-b from-muted to-background">
-        <div className="container mx-auto">
+      <section className="pt-32 pb-20 px-4 bg-gradient-to-b from-muted to-background relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+        <div className="container mx-auto relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 animate-fade-in">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium">
-                <Sparkles className="h-4 w-4" />
-                Sistema Completo para Pet Shops
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-full text-primary text-sm font-medium border border-primary/20">
+                <Zap className="h-4 w-4" />
+                Gestão Profissional para Pet Shops
               </div>
-              <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
-                Gestão Inteligente para{" "}
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Banho e Tosa
-                </span>
+              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+                Transforme Seu{" "}
+                <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-gradient">
+                  Pet Shop
+                </span>{" "}
+                em uma Máquina de Resultados
               </h1>
-              <p className="text-xl text-muted-foreground">
-                Simplifique seus agendamentos, encante seus clientes e aumente seu faturamento com o Bointhosa Pet System
+              <p className="text-xl text-muted-foreground leading-relaxed">
+                Sistema completo de gestão que automatiza agendamentos, organiza clientes, 
+                aumenta suas vendas e transforma a experiência dos tutores.
               </p>
+              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
+                  <span>Teste grátis 14 dias</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
+                  <span>Sem cartão de crédito</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
+                  <span>Cancele quando quiser</span>
+                </div>
+              </div>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Link to="/auth" className="w-full sm:w-auto">
                   <Button 
                     size="lg" 
-                    className="w-full bg-primary hover:bg-primary-light text-lg px-8 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                    className="w-full bg-gradient-to-r from-primary to-primary-light hover:from-primary-light hover:to-primary text-lg px-10 py-6 shadow-2xl hover:shadow-primary/50 hover:-translate-y-1 transition-all duration-300 group"
                   >
-                    Começar Grátis
+                    Começar Agora Grátis
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-2 transition-transform duration-300" />
                   </Button>
                 </Link>
                 <Link to="/pricing" className="w-full sm:w-auto">
                   <Button 
                     size="lg" 
                     variant="outline" 
-                    className="w-full text-lg px-8 hover:bg-primary/10 hover:border-primary transition-all duration-300"
+                    className="w-full text-lg px-10 py-6 border-2 hover:bg-primary/5 hover:border-primary hover:scale-105 transition-all duration-300"
                   >
-                    Ver Planos
+                    Ver Planos e Preços
                   </Button>
                 </Link>
               </div>
             </div>
             <div className="relative animate-scale-in">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-3xl blur-3xl animate-glow" />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-3xl blur-3xl animate-glow" />
+              <div className="absolute -top-4 -right-4 w-24 h-24 bg-secondary rounded-full blur-2xl animate-pulse" />
+              <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-primary rounded-full blur-2xl animate-pulse" style={{ animationDelay: "1s" }} />
               <img
                 src={heroPet}
-                alt="Pet feliz após banho e tosa"
-                className="relative rounded-3xl shadow-2xl w-full h-auto object-cover hover:scale-105 transition-transform duration-500 animate-float"
+                alt="Pet feliz após banho e tosa profissional"
+                className="relative rounded-3xl shadow-2xl w-full h-auto object-cover hover:scale-105 transition-transform duration-500 animate-float border-4 border-white/10"
               />
             </div>
           </div>
@@ -214,36 +237,70 @@ const Index = () => {
       {/* Trusted By Section */}
       <TrustedBy />
 
+      {/* How It Works Section */}
+      <HowItWorks />
+
+      {/* Comparison Table Section */}
+      <ComparisonTable />
+
       {/* Testimonials Section */}
       <Testimonials />
 
+      {/* FAQ Section */}
+      <FAQ />
+
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-primary text-primary-foreground">
-        <div className="container mx-auto text-center space-y-6">
+      <section className="py-24 px-4 bg-gradient-to-br from-primary via-primary-light to-secondary text-primary-foreground relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/30 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary-light/30 rounded-full blur-3xl" />
+        
+        <div className="container mx-auto text-center space-y-8 relative z-10">
           <div className="flex justify-center mb-4">
-            <PawPrint className="h-16 w-16 animate-bounce-subtle" />
+            <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm animate-bounce-subtle">
+              <PawPrint className="h-12 w-12" />
+            </div>
           </div>
-          <h2 className="text-4xl font-bold">Pronto para transformar seu pet shop?</h2>
-          <p className="text-xl opacity-90 max-w-2xl mx-auto">
-            Junte-se a centenas de pet shops que já usam o Bointhosa para gerenciar seus negócios
+          <h2 className="text-4xl lg:text-5xl font-bold">
+            Comece Hoje Mesmo a Revolucionar Seu Pet Shop
+          </h2>
+          <p className="text-xl opacity-95 max-w-2xl mx-auto leading-relaxed">
+            Mais de 350 pet shops já estão economizando tempo e aumentando seus lucros com o Bointhosa. 
+            Não fique para trás!
           </p>
+          
+          <div className="flex flex-wrap justify-center gap-8 text-lg py-4">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-white rounded-full" />
+              <span>14 dias grátis</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-white rounded-full" />
+              <span>Sem cartão</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-white rounded-full" />
+              <span>Suporte incluído</span>
+            </div>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
             <Link to="/auth" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
-                variant="secondary" 
-                className="w-full text-lg px-8 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+                className="w-full text-lg px-10 py-6 bg-white text-primary hover:bg-white/90 hover:scale-105 shadow-2xl hover:shadow-white/20 transition-all duration-300 group"
               >
-                Teste Grátis por 14 dias
+                Começar Teste Gratuito Agora
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-2 transition-transform duration-300" />
               </Button>
             </Link>
-            <Link to="/about" className="w-full sm:w-auto">
+            <Link to="/funcionalidades" className="w-full sm:w-auto">
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full text-lg px-8 bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary hover:shadow-lg transition-all duration-300"
+                className="w-full text-lg px-10 py-6 bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary hover:scale-105 transition-all duration-300"
               >
-                Saiba Mais
+                Ver Todas as Funcionalidades
               </Button>
             </Link>
           </div>
