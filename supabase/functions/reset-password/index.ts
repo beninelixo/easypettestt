@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,23 +15,36 @@ serve(async (req) => {
   }
 
   try {
-    const { email, code, newPassword } = await req.json();
+    // Validate input with Zod schema
+    const requestSchema = z.object({
+      email: z.string()
+        .email('Formato de email inválido')
+        .max(255, 'Email muito longo')
+        .toLowerCase()
+        .trim(),
+      code: z.string()
+        .regex(/^\d{6}$/, 'Código deve ter exatamente 6 dígitos'),
+      newPassword: z.string()
+        .min(8, 'A senha deve ter pelo menos 8 caracteres')
+        .max(128, 'Senha muito longa')
+        .regex(/[A-Z]/, 'A senha deve conter pelo menos uma letra maiúscula')
+        .regex(/[a-z]/, 'A senha deve conter pelo menos uma letra minúscula')
+        .regex(/[0-9]/, 'A senha deve conter pelo menos um número')
+    });
+
+    const body = await req.json();
+    const validation = requestSchema.safeParse(body);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error.issues);
+      return new Response(
+        JSON.stringify({ error: validation.error.issues[0].message }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { email, code, newPassword } = validation.data;
     console.log('Password reset attempt received');
-
-    // Validate inputs
-    if (!email || !code || !newPassword) {
-      return new Response(
-        JSON.stringify({ error: 'Email, código e nova senha são obrigatórios' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    if (newPassword.length < 6) {
-      return new Response(
-        JSON.stringify({ error: 'Senha deve ter no mínimo 6 caracteres' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     // Initialize Supabase client with service role
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
