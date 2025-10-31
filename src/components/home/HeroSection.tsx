@@ -18,15 +18,15 @@ export const HeroSection = () => {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 rounded-full text-primary text-sm font-semibold border border-primary/20 shadow-lg animate-shimmer">
               <Sparkles className="h-4 w-4" aria-hidden="true" />
-              O Melhor Amigo da Sua Clínica Veterinária
+              A Solução Completa para o Seu Negócio Pet
             </div>
 
             {/* Main headline */}
             <h1 className="text-5xl lg:text-7xl font-black leading-[1.1] tracking-tight">
-              Sistema para{" "}
+              Sistema Completo para{" "}
               <span className="relative inline-block">
                 <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-gradient">
-                  clínica veterinária
+                  Clínicas, Pet Shops e Banho & Tosa
                 </span>
                 <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary rounded-full" />
               </span>
@@ -34,8 +34,8 @@ export const HeroSection = () => {
 
             {/* Subheadline */}
             <p className="text-xl lg:text-2xl text-muted-foreground leading-relaxed">
-              Realize atendimentos, emita receitas, agende vacinas e gerencie as finanças, 
-              desde clínicas até hospitais veterinários completos.
+              Gerencie agendamentos, consultas, vendas, estoque e finanças em uma única plataforma. 
+              Perfeito para clínicas veterinárias, pet shops e serviços de banho e tosa.
             </p>
 
             {/* Feature badges */}
@@ -84,7 +84,7 @@ export const HeroSection = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-secondary/30 to-primary/30 rounded-3xl blur-3xl animate-pulse" aria-hidden="true" />
             <img
               src={heroPetShop}
-              alt="Veterinária profissional atendendo pet em clínica moderna com equipamentos de última geração"
+              alt="Sistema de gestão para pet shops, clínicas veterinárias e banho e tosa - interface moderna e profissional"
               className="relative rounded-3xl shadow-2xl w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-700 border-4 border-white/10"
               loading="eager"
               width="800"
