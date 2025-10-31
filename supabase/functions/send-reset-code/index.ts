@@ -170,7 +170,19 @@ serve(async (req) => {
 
     if (!emailResponse.ok) {
       console.error('Resend API error:', emailData);
-      throw new Error('Erro ao enviar email');
+      
+      // Handle specific Resend errors
+      if (emailData.statusCode === 403 && emailData.message?.includes('testing emails')) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Em modo de teste, só é possível enviar para o email cadastrado na conta Resend. Verifique um domínio em resend.com/domains para enviar para qualquer email.',
+            details: emailData.message
+          }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      throw new Error(emailData.message || 'Erro ao enviar email');
     }
 
     console.log('Email sent successfully:', emailData);
