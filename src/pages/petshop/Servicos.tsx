@@ -97,13 +97,29 @@ const Servicos = () => {
 
     if (!user) return;
 
+    // Get pet shop id first
+    const { data: petShop } = await supabase
+      .from("pet_shops")
+      .select("id")
+      .eq("owner_id", user?.id)
+      .single();
+
+    if (!petShop) {
+      toast({
+        title: "Erro",
+        description: "Pet shop não encontrado",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const serviceData = {
       name,
       description: description || null,
       price: parseFloat(price),
       duration_minutes: parseInt(duration),
       active,
-      pet_shop_id: user.id,
+      pet_shop_id: petShop.id,
     };
 
     if (editingService) {
