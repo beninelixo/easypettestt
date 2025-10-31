@@ -5,72 +5,10 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, ArrowRight, TrendingUp, Sparkles, Users } from "lucide-react";
+import { Calendar, Clock, ArrowRight, TrendingUp, Sparkles } from "lucide-react";
+import { blogPosts } from "@/data/blogPosts";
 
 const Blog = () => {
-  const posts = [
-    {
-      id: 1,
-      title: "Como aumentar o faturamento da sua clínica veterinária em 2025",
-      excerpt: "Estratégias comprovadas para crescer sua receita e otimizar processos com tecnologia.",
-      category: "Gestão",
-      date: "15 Jan 2025",
-      readTime: "8 min",
-      image: "https://images.unsplash.com/photo-1530126483408-aa533e55bdb2?w=800&q=80",
-      featured: true
-    },
-    {
-      id: 2,
-      title: "Prontuário eletrônico: Por que sua clínica precisa dele agora",
-      excerpt: "Benefícios da digitalização de prontuários e como implementar na sua prática.",
-      category: "Tecnologia",
-      date: "12 Jan 2025",
-      readTime: "6 min",
-      image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
-      featured: false
-    },
-    {
-      id: 3,
-      title: "Marketing digital para veterinários: Guia completo",
-      excerpt: "Como atrair mais clientes usando redes sociais, Google e WhatsApp Business.",
-      category: "Marketing",
-      date: "10 Jan 2025",
-      readTime: "10 min",
-      image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80",
-      featured: false
-    },
-    {
-      id: 4,
-      title: "Gestão de estoque em pet shops: Evite perdas e maximize lucros",
-      excerpt: "Sistema de controle de estoque inteligente para reduzir custos operacionais.",
-      category: "Gestão",
-      date: "8 Jan 2025",
-      readTime: "7 min",
-      image: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&q=80",
-      featured: false
-    },
-    {
-      id: 5,
-      title: "Fidelização de clientes: Programas que realmente funcionam",
-      excerpt: "Cases de sucesso e estratégias para criar clientes recorrentes na sua clínica.",
-      category: "CRM",
-      date: "5 Jan 2025",
-      readTime: "9 min",
-      image: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=800&q=80",
-      featured: false
-    },
-    {
-      id: 6,
-      title: "Inteligência Artificial na medicina veterinária",
-      excerpt: "Como a IA está revolucionando diagnósticos e atendimentos veterinários.",
-      category: "Tecnologia",
-      date: "3 Jan 2025",
-      readTime: "11 min",
-      image: "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=800&q=80",
-      featured: false
-    },
-  ];
-
   const categories = ["Todos", "Gestão", "Tecnologia", "Marketing", "CRM"];
 
   return (
@@ -119,10 +57,10 @@ const Blog = () => {
       </section>
 
       {/* Featured Post */}
-      {posts.filter(p => p.featured).map((post) => (
+      {blogPosts.filter(p => p.featured).map((post) => (
         <section key={post.id} className="py-16 px-4">
           <div className="container mx-auto max-w-7xl">
-            <Link to={`/blog/${post.id}`}>
+            <Link to={`/blog/${post.slug}`}>
               <Card className="border-2 border-border hover:border-primary hover:shadow-2xl transition-all duration-500 overflow-hidden group cursor-pointer">
                 <div className="grid lg:grid-cols-2 gap-0">
                   <div className="relative h-[300px] lg:h-auto overflow-hidden">
@@ -131,6 +69,8 @@ const Blog = () => {
                       alt={post.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       loading="lazy"
+                      width="800"
+                      height="600"
                     />
                     <Badge className="absolute top-4 left-4 bg-primary text-white">
                       Destaque
@@ -173,8 +113,8 @@ const Blog = () => {
         <div className="container mx-auto max-w-7xl">
           <h2 className="text-3xl font-bold mb-12 text-center">Últimos artigos</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.filter(p => !p.featured).map((post, index) => (
-              <Link key={post.id} to={`/blog/${post.id}`}>
+            {blogPosts.filter(p => !p.featured).map((post, index) => (
+              <Link key={post.id} to={`/blog/${post.slug}`}>
                 <Card 
                   className="border-2 border-border hover:border-primary hover:shadow-2xl transition-all duration-500 overflow-hidden group cursor-pointer h-full animate-fade-in hover-lift"
                   style={{ animationDelay: `${index * 0.1}s` }}
@@ -185,6 +125,8 @@ const Blog = () => {
                       alt={post.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       loading="lazy"
+                      width="400"
+                      height="300"
                     />
                   </div>
                   <CardHeader>
