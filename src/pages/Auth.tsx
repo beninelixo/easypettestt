@@ -8,6 +8,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PawPrint } from "lucide-react";
 import { useAuth, UserRole } from "@/hooks/useAuth";
+import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
+
+const authSchema = z.object({
+  email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
+  password: z.string()
+    .min(8, "Senha deve ter no mínimo 8 caracteres")
+    .max(50, "Senha muito longa")
+    .regex(/[a-z]/, "Senha deve conter pelo menos uma letra minúscula")
+    .regex(/[A-Z]/, "Senha deve conter pelo menos uma letra maiúscula")
+    .regex(/[0-9]/, "Senha deve conter pelo menos um número"),
+  full_name: z.string().trim().min(2, "Nome deve ter no mínimo 2 caracteres").max(100, "Nome muito longo").optional(),
+});
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,11 +29,12 @@ const Auth = () => {
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerName, setRegisterName] = useState("");
-  
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   
   const { signIn, signUp, user, userRole, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!loading && user && userRole) {
@@ -45,6 +59,24 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormErrors({});
+
+    const validation = authSchema.safeParse({
+      email: loginEmail,
+      password: loginPassword,
+    });
+
+    if (!validation.success) {
+      const errors: Record<string, string> = {};
+      validation.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0] as string] = err.message;
+        }
+      });
+      setFormErrors(errors);
+      return;
+    }
+
     setIsLoading(true);
     await signIn(loginEmail, loginPassword);
     setIsLoading(false);
@@ -52,6 +84,30 @@ const Auth = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormErrors({});
+
+    const validation = authSchema.safeParse({
+      email: registerEmail,
+      password: registerPassword,
+      full_name: registerName,
+    });
+
+    if (!validation.success) {
+      const errors: Record<string, string> = {};
+      validation.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0] as string] = err.message;
+        }
+      });
+      setFormErrors(errors);
+      toast({
+        title: "Erro de validação",
+        description: "Por favor, corrija os erros no formulário.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     await signUp(registerEmail, registerPassword, registerName);
     setIsLoading(false);
@@ -93,7 +149,11 @@ const Auth = () => {
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       required 
+                      maxLength={255}
                     />
+                    {formErrors.email && (
+                      <p className="text-sm text-destructive">{formErrors.email}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="password">Senha</Label>
@@ -104,7 +164,11 @@ const Auth = () => {
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       required 
+                      maxLength={50}
                     />
+                    {formErrors.password && (
+                      <p className="text-sm text-destructive">{formErrors.password}</p>
+                    )}
                   </div>
                 </CardContent>
                 <CardFooter>
@@ -133,7 +197,11 @@ const Auth = () => {
                       value={registerName}
                       onChange={(e) => setRegisterName(e.target.value)}
                       required 
+                      maxLength={100}
                     />
+                    {formErrors.full_name && (
+                      <p className="text-sm text-destructive">{formErrors.full_name}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="register-email">Email</Label>
@@ -144,19 +212,26 @@ const Auth = () => {
                       value={registerEmail}
                       onChange={(e) => setRegisterEmail(e.target.value)}
                       required 
+                      maxLength={255}
                     />
+                    {formErrors.email && (
+                      <p className="text-sm text-destructive">{formErrors.email}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="register-password">Senha</Label>
                     <Input 
                       id="register-password" 
                       type="password" 
-                      placeholder="Mínimo 6 caracteres" 
+                      placeholder="Mínimo 8 caracteres (maiúsculas, minúsculas, números)" 
                       value={registerPassword}
                       onChange={(e) => setRegisterPassword(e.target.value)}
                       required 
-                      minLength={6}
+                      maxLength={50}
                     />
+                    {formErrors.password && (
+                      <p className="text-sm text-destructive">{formErrors.password}</p>
+                    )}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Ao criar uma conta, você concorda com nossos Termos de Serviço e Política de Privacidade.

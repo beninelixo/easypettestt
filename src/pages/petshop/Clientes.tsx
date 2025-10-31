@@ -22,7 +22,12 @@ const clientSchema = z.object({
   full_name: z.string().trim().min(3, "Nome deve ter no mínimo 3 caracteres").max(100, "Nome muito longo"),
   email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
   phone: z.string().trim().min(10, "Telefone deve ter no mínimo 10 dígitos").max(20, "Telefone muito longo"),
-  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").max(50, "Senha muito longa"),
+  password: z.string()
+    .min(8, "Senha deve ter no mínimo 8 caracteres")
+    .max(50, "Senha muito longa")
+    .regex(/[a-z]/, "Senha deve conter pelo menos uma letra minúscula")
+    .regex(/[A-Z]/, "Senha deve conter pelo menos uma letra maiúscula")
+    .regex(/[0-9]/, "Senha deve conter pelo menos um número"),
 });
 
 const Clientes = () => {
@@ -50,6 +55,18 @@ const Clientes = () => {
   const loadClients = async () => {
     setLoading(true);
     
+    // Get pet shop id first
+    const { data: petShop } = await supabase
+      .from("pet_shops")
+      .select("id")
+      .eq("owner_id", user?.id)
+      .single();
+
+    if (!petShop) {
+      setLoading(false);
+      return;
+    }
+    
     // Get all appointments for this pet shop to find clients
     const { data: appointments, error } = await supabase
       .from("appointments")
@@ -57,7 +74,7 @@ const Clientes = () => {
         client_id,
         pet:pets(id, name, breed)
       `)
-      .eq("pet_shop_id", user?.id);
+      .eq("pet_shop_id", petShop.id);
 
     if (!error && appointments) {
       // Get unique client IDs
@@ -242,7 +259,7 @@ const Clientes = () => {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, password: e.target.value }))
                   }
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Mínimo 8 caracteres (maiúsculas, minúsculas, números)"
                   maxLength={50}
                 />
                 {formErrors.password && (

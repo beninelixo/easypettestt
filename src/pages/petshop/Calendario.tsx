@@ -71,6 +71,18 @@ const Calendario = () => {
     setLoading(true);
     const dateStr = format(selectedDate, "yyyy-MM-dd");
 
+    // Get pet shop id first
+    const { data: petShop } = await supabase
+      .from("pet_shops")
+      .select("id")
+      .eq("owner_id", user?.id)
+      .single();
+
+    if (!petShop) {
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from("appointments")
       .select(`
@@ -79,7 +91,7 @@ const Calendario = () => {
         service:services(name, duration_minutes),
         client:profiles!appointments_client_id_fkey(full_name, phone)
       `)
-      .eq("pet_shop_id", user?.id)
+      .eq("pet_shop_id", petShop.id)
       .eq("scheduled_date", dateStr)
       .order("scheduled_time", { ascending: true });
 
@@ -91,10 +103,19 @@ const Calendario = () => {
   };
 
   const loadServices = async () => {
+    // Get pet shop id first
+    const { data: petShop } = await supabase
+      .from("pet_shops")
+      .select("id")
+      .eq("owner_id", user?.id)
+      .single();
+
+    if (!petShop) return;
+
     const { data } = await supabase
       .from("services")
       .select("*")
-      .eq("pet_shop_id", user?.id)
+      .eq("pet_shop_id", petShop.id)
       .eq("active", true)
       .order("name");
 
@@ -104,10 +125,19 @@ const Calendario = () => {
   };
 
   const loadClients = async () => {
+    // Get pet shop id first
+    const { data: petShop } = await supabase
+      .from("pet_shops")
+      .select("id")
+      .eq("owner_id", user?.id)
+      .single();
+
+    if (!petShop) return;
+
     const { data } = await supabase
       .from("appointments")
       .select("client:profiles!appointments_client_id_fkey(id, full_name)")
-      .eq("pet_shop_id", user?.id);
+      .eq("pet_shop_id", petShop.id);
 
     if (data) {
       const uniqueClients = Array.from(
@@ -160,10 +190,26 @@ const Calendario = () => {
       return;
     }
 
+    // Get pet shop id first
+    const { data: petShop } = await supabase
+      .from("pet_shops")
+      .select("id")
+      .eq("owner_id", user?.id)
+      .single();
+
+    if (!petShop) {
+      toast({
+        title: "Erro",
+        description: "Pet shop não encontrado",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const { error } = await supabase.from("appointments").insert({
       pet_id: formData.pet_id,
       service_id: formData.service_id,
-      pet_shop_id: user?.id,
+      pet_shop_id: petShop.id,
       client_id: selectedClient,
       scheduled_date: format(selectedDate, "yyyy-MM-dd"),
       scheduled_time: formData.scheduled_time,
