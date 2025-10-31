@@ -172,6 +172,7 @@ export type Database = {
           id: string
           phone: string | null
           updated_at: string
+          user_code: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -180,6 +181,7 @@ export type Database = {
           id: string
           phone?: string | null
           updated_at?: string
+          user_code?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -188,6 +190,7 @@ export type Database = {
           id?: string
           phone?: string | null
           updated_at?: string
+          user_code?: string | null
         }
         Relationships: []
       }
@@ -262,6 +265,7 @@ export type Database = {
     }
     Functions: {
       generate_pet_shop_code: { Args: never; Returns: string }
+      generate_user_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

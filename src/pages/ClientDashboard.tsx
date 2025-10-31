@@ -13,13 +13,29 @@ const ClientDashboard = () => {
   const navigate = useNavigate();
   const [pets, setPets] = useState<any[]>([]);
   const [appointments, setAppointments] = useState<any[]>([]);
+  const [displayName, setDisplayName] = useState("");
 
   useEffect(() => {
     if (user) {
       loadPets();
       loadAppointments();
+      loadUserData();
     }
   }, [user]);
+
+  const loadUserData = async () => {
+    if (!user) return;
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name, user_code")
+      .eq("id", user.id)
+      .single();
+
+    if (profile) {
+      setDisplayName(`${profile.full_name} ${profile.user_code || ""}`);
+    }
+  };
 
   const loadPets = async () => {
     const { data, error } = await supabase
@@ -55,7 +71,7 @@ const ClientDashboard = () => {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <PawPrint className="h-6 w-6 text-primary" />
-            Meus Pets
+            {displayName || "Meus Pets"}
           </h1>
           <div className="flex items-center gap-2">
             <Button onClick={() => navigate("/select-petshop")}>
