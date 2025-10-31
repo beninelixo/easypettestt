@@ -44,6 +44,7 @@ const Auth = () => {
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerName, setRegisterName] = useState("");
+  const [userType, setUserType] = useState<"client" | "pet_shop">("client");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   
   // Password reset states
@@ -72,7 +73,7 @@ const Auth = () => {
       case "client":
         return "/client-dashboard";
       case "pet_shop":
-        return "/petshop-dashboard";
+        return "/petshop-setup";
       case "admin":
         return "/admin-dashboard";
       default:
@@ -132,7 +133,30 @@ const Auth = () => {
     }
 
     setIsLoading(true);
-    await signUp(registerEmail, registerPassword, registerName);
+    const { error } = await supabase.auth.signUp({
+      email: registerEmail,
+      password: registerPassword,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+        data: {
+          full_name: registerName,
+          user_type: userType,
+        }
+      }
+    });
+
+    if (error) {
+      toast({
+        title: "Erro ao criar conta",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Conta criada com sucesso!",
+        description: "Você será redirecionado em instantes...",
+      });
+    }
     setIsLoading(false);
   };
 
@@ -340,8 +364,43 @@ const Auth = () => {
                   <CardDescription>Preencha os dados abaixo para criar sua conta gratuitamente</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <Label>Tipo de Conta</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setUserType("client")}
+                        className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                          userType === "client"
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <span className="text-2xl">🐕</span>
+                        <span className="font-semibold">Cliente</span>
+                        <span className="text-xs text-muted-foreground text-center">
+                          Quero agendar serviços para meu pet
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setUserType("pet_shop")}
+                        className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                          userType === "pet_shop"
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <span className="text-2xl">🧼</span>
+                        <span className="font-semibold">Profissional</span>
+                        <span className="text-xs text-muted-foreground text-center">
+                          Tenho um petshop e quero gerenciar atendimentos
+                        </span>
+                      </button>
+                    </div>
+                  </div>
                   <div className="space-y-2">
-                    <Label htmlFor="name">Nome Completo</Label>
+                    <Label htmlFor="name">{userType === "pet_shop" ? "Nome do Responsável" : "Nome Completo"}</Label>
                     <Input 
                       id="name" 
                       type="text" 

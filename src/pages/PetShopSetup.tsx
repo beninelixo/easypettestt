@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,13 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Store } from "lucide-react";
+import { Store, Loader2 } from "lucide-react";
 
 export default function PetShopSetup() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [checkingPetShop, setCheckingPetShop] = useState(true);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -21,6 +22,39 @@ export default function PetShopSetup() {
     city: "",
     phone: "",
   });
+
+  useEffect(() => {
+    const checkExistingPetShop = async () => {
+      if (!user) return;
+
+      // Check if user already has a pet shop
+      const { data, error } = await supabase
+        .from('pet_shops')
+        .select('id')
+        .eq('owner_id', user.id)
+        .single();
+
+      if (data) {
+        // User already has a pet shop, redirect to dashboard
+        navigate('/petshop-dashboard');
+      } else if (userRole !== 'pet_shop') {
+        // User is not a pet shop professional, redirect to appropriate dashboard
+        navigate('/client-dashboard');
+      }
+
+      setCheckingPetShop(false);
+    };
+
+    checkExistingPetShop();
+  }, [user, userRole, navigate]);
+
+  if (checkingPetShop) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
