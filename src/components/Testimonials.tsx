@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Quote } from "lucide-react";
+import vetCareImg from "@/assets/vet-care.jpg";
 
 const Testimonials = () => {
   const testimonials = [
@@ -37,6 +38,17 @@ const Testimonials = () => {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Histórias reais de profissionais que transformaram sua gestão com o Bointhosa
           </p>
+        </div>
+
+        <div className="mb-16">
+          <div className="relative max-w-4xl mx-auto">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur-xl" />
+            <img
+              src={vetCareImg}
+              alt="Veterinária cuidando de pet com carinho e profissionalismo"
+              className="relative rounded-2xl shadow-xl w-full h-auto object-cover"
+            />
+          </div>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">

@@ -1,6 +1,7 @@
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import managementImg from "@/assets/management-dashboard.jpg";
 
 const HowItWorks = () => {
   const steps = [
@@ -42,6 +43,38 @@ const HowItWorks = () => {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Em apenas 4 passos simples você transforma a gestão do seu pet shop
           </p>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-2xl blur-xl" />
+            <img
+              src={managementImg}
+              alt="Gestão profissional de pet shop com tablet"
+              className="relative rounded-2xl shadow-xl w-full h-auto object-cover"
+            />
+          </div>
+          <div className="space-y-6">
+            <h3 className="text-3xl font-bold">Gerencie Tudo em Um Só Lugar</h3>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              Dashboard intuitivo que centraliza agendamentos, clientes, serviços e relatórios. 
+              Acesse de qualquer dispositivo e tenha controle total do seu negócio na palma da mão.
+            </p>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
+                <span className="text-muted-foreground">Interface moderna e fácil de usar</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
+                <span className="text-muted-foreground">Sincronização automática em tempo real</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
+                <span className="text-muted-foreground">Relatórios e métricas detalhadas</span>
+              </li>
+            </ul>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 mb-12">

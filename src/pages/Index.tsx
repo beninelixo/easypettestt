@@ -9,7 +9,7 @@ import HowItWorks from "@/components/HowItWorks";
 import ComparisonTable from "@/components/ComparisonTable";
 import FAQ from "@/components/FAQ";
 import { Calendar, Clock, Users, TrendingUp, Shield, Smartphone, PawPrint, Sparkles, FileText, Package, Camera, ArrowRight, Zap } from "lucide-react";
-import heroPet from "@/assets/hero-pet.jpg";
+import heroPetShop from "@/assets/hero-petshop.jpg";
 
 const Index = () => {
   const features = [
@@ -106,13 +106,11 @@ const Index = () => {
               </div>
             </div>
             <div className="relative animate-scale-in">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-3xl blur-3xl animate-glow" />
-              <div className="absolute -top-4 -right-4 w-24 h-24 bg-secondary rounded-full blur-2xl animate-pulse" />
-              <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-primary rounded-full blur-2xl animate-pulse" style={{ animationDelay: "1s" }} />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-2xl" />
               <img
-                src={heroPet}
-                alt="Pet feliz após banho e tosa profissional"
-                className="relative rounded-3xl shadow-2xl w-full h-auto object-cover hover:scale-105 transition-transform duration-500 animate-float border-4 border-white/10"
+                src={heroPetShop}
+                alt="Pet feliz em salão de banho e tosa profissional moderno"
+                className="relative rounded-3xl shadow-2xl w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-700 border-4 border-white/10"
               />
             </div>
           </div>

@@ -1,5 +1,6 @@
-import { Building2, Users, TrendingUp, Award } from "lucide-react";
+import { Building2, Users, TrendingUp, Award, CheckCircle2 } from "lucide-react";
 import { useCountUp } from "@/hooks/useCountUp";
+import happyClientsImg from "@/assets/happy-clients.jpg";
 
 const StatCard = ({ stat, index }: { stat: any; index: number }) => {
   const isPercentage = stat.value.includes("%");
@@ -87,28 +88,57 @@ const TrustedBy = () => {
           ))}
         </div>
 
-        <div className="mt-16 bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 rounded-3xl p-8 md:p-12">
-          <div className="grid md:grid-cols-3 gap-8 text-center">
-            <div>
-              <div className="text-3xl font-bold text-primary mb-2">100%</div>
-              <p className="text-foreground font-semibold mb-1">Cloud & Seguro</p>
-              <p className="text-sm text-muted-foreground">
-                Seus dados protegidos e acessíveis de qualquer lugar
-              </p>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-primary mb-2">24/7</div>
-              <p className="text-foreground font-semibold mb-1">Suporte Dedicado</p>
-              <p className="text-sm text-muted-foreground">
-                Equipe pronta para ajudar quando você precisar
-              </p>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-primary mb-2">+50</div>
-              <p className="text-foreground font-semibold mb-1">Atualizações/Ano</p>
-              <p className="text-sm text-muted-foreground">
-                Sistema sempre melhorando com novas funcionalidades
-              </p>
+        <div className="mt-16 grid lg:grid-cols-2 gap-8 items-center">
+          <div className="relative order-2 lg:order-1">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-2xl blur-xl" />
+            <img
+              src={happyClientsImg}
+              alt="Clientes satisfeitos com seus pets em ambiente de pet shop"
+              className="relative rounded-2xl shadow-xl w-full h-auto object-cover"
+            />
+          </div>
+          <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-3xl p-8 md:p-12 order-1 lg:order-2">
+            <h3 className="text-2xl font-bold mb-8 text-center">Por Que Somos Confiáveis</h3>
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <CheckCircle2 className="h-6 w-6 text-primary" />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-foreground font-semibold mb-1">100% Cloud & Seguro</p>
+                  <p className="text-sm text-muted-foreground">
+                    Seus dados protegidos com criptografia e acessíveis de qualquer lugar
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <CheckCircle2 className="h-6 w-6 text-primary" />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-foreground font-semibold mb-1">Suporte 24/7</p>
+                  <p className="text-sm text-muted-foreground">
+                    Equipe especializada pronta para ajudar quando você precisar
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <CheckCircle2 className="h-6 w-6 text-primary" />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-foreground font-semibold mb-1">+50 Atualizações por Ano</p>
+                  <p className="text-sm text-muted-foreground">
+                    Sistema sempre evoluindo com novas funcionalidades
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
