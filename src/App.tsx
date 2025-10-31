@@ -20,6 +20,7 @@ import Calendario from "./pages/petshop/Calendario";
 import Relatorios from "./pages/petshop/Relatorios";
 import Configuracoes from "./pages/petshop/Configuracoes";
 import Servicos from "./pages/petshop/Servicos";
+import ServiceTemplates from "./pages/petshop/ServiceTemplates";
 import AdminDashboard from "./pages/AdminDashboard";
 import NewAppointment from "./pages/NewAppointment";
 import PetProfile from "./pages/PetProfile";
@@ -84,6 +85,7 @@ const App = () => (
           }>
             <Route index element={<PetShopDashboard />} />
             <Route path="servicos" element={<Servicos />} />
+            <Route path="catalogo-servicos" element={<ServiceTemplates />} />
             <Route path="clientes" element={<Clientes />} />
             <Route path="cliente/:clientId" element={<ClientProfile />} />
             <Route path="calendario" element={<Calendario />} />

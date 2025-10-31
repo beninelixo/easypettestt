@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, TrendingUp, Users, DollarSign, Clock } from "lucide-react";
+import { Calendar, TrendingUp, Users, DollarSign, Clock, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import RevenueChart from "@/components/dashboard/RevenueChart";
+import AppointmentsChart from "@/components/dashboard/AppointmentsChart";
 
 const PetShopDashboard = () => {
   const { user } = useAuth();
@@ -19,6 +21,8 @@ const PetShopDashboard = () => {
     activeClients: 0,
     completedServices: 0,
   });
+  const [revenueData, setRevenueData] = useState<Array<{ month: string; revenue: number }>>([]);
+  const [weekData, setWeekData] = useState<Array<{ day: string; completed: number; cancelled: number; pending: number }>>([]);
 
   useEffect(() => {
     if (user) {
@@ -106,6 +110,24 @@ const PetShopDashboard = () => {
       activeClients: uniqueClients,
       completedServices: completedCount || 0,
     });
+
+    // Generate sample revenue data (last 6 months)
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
+    const sampleRevenue = months.map((month, index) => ({
+      month,
+      revenue: Math.floor(Math.random() * 5000) + 2000 + (index * 500)
+    }));
+    setRevenueData(sampleRevenue);
+
+    // Generate sample week data
+    const days = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+    const sampleWeek = days.map(day => ({
+      day,
+      completed: Math.floor(Math.random() * 15) + 5,
+      pending: Math.floor(Math.random() * 5) + 2,
+      cancelled: Math.floor(Math.random() * 3)
+    }));
+    setWeekData(sampleWeek);
   };
 
   const updateAppointmentStatus = async (appointmentId: string, newStatus: string) => {
@@ -134,6 +156,15 @@ const PetShopDashboard = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <Sparkles className="h-8 w-8 text-primary" />
+              Dashboard
+            </h1>
+            <p className="text-muted-foreground mt-1">Visão geral do seu negócio</p>
+          </div>
+        </div>
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -148,6 +179,12 @@ const PetShopDashboard = () => {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Charts */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          <RevenueChart data={revenueData} />
+          <AppointmentsChart data={weekData} />
         </div>
 
         {/* Today's Schedule */}

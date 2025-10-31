@@ -221,6 +221,45 @@ export type Database = {
         }
         Relationships: []
       }
+      service_templates: {
+        Row: {
+          active: boolean | null
+          category: string
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          suggested_duration_minutes: number
+          suggested_price_max: number | null
+          suggested_price_min: number | null
+        }
+        Insert: {
+          active?: boolean | null
+          category: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          suggested_duration_minutes: number
+          suggested_price_max?: number | null
+          suggested_price_min?: number | null
+        }
+        Update: {
+          active?: boolean | null
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          suggested_duration_minutes?: number
+          suggested_price_max?: number | null
+          suggested_price_min?: number | null
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           active: boolean
