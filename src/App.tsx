@@ -23,6 +23,7 @@ import NotFound from "./pages/NotFound";
 import PetShopSetup from "./pages/PetShopSetup";
 import ClientSelectPetShop from "./pages/ClientSelectPetShop";
 import ClientProfile from "./pages/ClientProfile";
+import EditarPetshop from "./pages/petshop/EditarPetshop";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +79,7 @@ const App = () => (
             <Route path="calendario" element={<Calendario />} />
             <Route path="relatorios" element={<Relatorios />} />
             <Route path="configuracoes" element={<Configuracoes />} />
+            <Route path="editar-petshop" element={<EditarPetshop />} />
           </Route>
           
           {/* Admin Routes */}

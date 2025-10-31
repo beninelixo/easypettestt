@@ -2,9 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Settings, Bell, Lock, CreditCard, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const Configuracoes = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const settingsSections = [
     {
@@ -12,24 +14,28 @@ const Configuracoes = () => {
       description: "Edite as informações do seu pet shop",
       icon: Users,
       action: "Editar Perfil",
+      onClick: () => navigate('/petshop-dashboard/editar-petshop'),
     },
     {
       title: "Notificações",
       description: "Configure lembretes e alertas",
       icon: Bell,
       action: "Configurar",
+      onClick: () => toast({ title: "Funcionalidade em desenvolvimento", description: "Configurar notificações estará disponível em breve" }),
     },
     {
       title: "Segurança",
       description: "Altere sua senha e configurações de segurança",
       icon: Lock,
       action: "Gerenciar",
+      onClick: () => toast({ title: "Funcionalidade em desenvolvimento", description: "Gerenciar segurança estará disponível em breve" }),
     },
     {
       title: "Pagamentos",
       description: "Configure métodos de pagamento e planos",
       icon: CreditCard,
       action: "Ver Planos",
+      onClick: () => toast({ title: "Funcionalidade em desenvolvimento", description: "Ver Planos estará disponível em breve" }),
     },
   ];
 
@@ -59,12 +65,7 @@ const Configuracoes = () => {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() =>
-                  toast({
-                    title: "Funcionalidade em desenvolvimento",
-                    description: `${section.action} estará disponível em breve`,
-                  })
-                }
+                onClick={section.onClick}
               >
                 {section.action}
               </Button>

@@ -8,14 +8,16 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Store, Loader2 } from "lucide-react";
+import { Store, Loader2, ArrowLeft } from "lucide-react";
 
-export default function PetShopSetup() {
+export default function EditarPetshop() {
   const navigate = useNavigate();
-  const { user, userRole } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [checkingPetShop, setCheckingPetShop] = useState(true);
+  const [loadingData, setLoadingData] = useState(true);
+  const [petShopId, setPetShopId] = useState<string>("");
+  const [petShopCode, setPetShopCode] = useState<string>("");
   
   const [formData, setFormData] = useState({
     name: "",
@@ -28,45 +30,53 @@ export default function PetShopSetup() {
   });
 
   useEffect(() => {
-    const checkExistingPetShop = async () => {
+    const loadPetShop = async () => {
       if (!user) return;
 
-      // Check if user already has a pet shop
-      const { data, error } = await supabase
-        .from('pet_shops')
-        .select('id')
-        .eq('owner_id', user.id)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('pet_shops')
+          .select('*')
+          .eq('owner_id', user.id)
+          .single();
 
-      if (data) {
-        // User already has a pet shop, redirect to dashboard
-        navigate('/petshop-dashboard');
-      } else if (userRole !== 'pet_shop') {
-        // User is not a pet shop professional, redirect to appropriate dashboard
-        navigate('/client-dashboard');
+        if (error) throw error;
+
+        if (data) {
+          setPetShopId(data.id);
+          setPetShopCode(data.code);
+          setFormData({
+            name: data.name || "",
+            address: data.address || "",
+            city: data.city || "",
+            phone: data.phone || "",
+            email: data.email || "",
+            description: data.description || "",
+            hours: data.hours || "",
+          });
+        }
+      } catch (error: any) {
+        console.error('Error loading pet shop:', error);
+        toast({
+          title: "Erro ao carregar dados",
+          description: error.message,
+          variant: "destructive",
+        });
+      } finally {
+        setLoadingData(false);
       }
-
-      setCheckingPetShop(false);
     };
 
-    checkExistingPetShop();
-  }, [user, userRole, navigate]);
-
-  if (checkingPetShop) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+    loadPetShop();
+  }, [user, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user) {
+    if (!user || !petShopId) {
       toast({
         title: "Erro",
-        description: "Você precisa estar logado",
+        description: "Dados do petshop não encontrados",
         variant: "destructive",
       });
       return;
@@ -75,16 +85,9 @@ export default function PetShopSetup() {
     setLoading(true);
 
     try {
-      // Generate unique code
-      const { data: codeData, error: codeError } = await supabase.rpc('generate_pet_shop_code');
-      
-      if (codeError) throw codeError;
-
-      // Create pet shop
-      const { error: insertError } = await supabase
+      const { error } = await supabase
         .from('pet_shops')
-        .insert({
-          owner_id: user.id,
+        .update({
           name: formData.name,
           address: formData.address,
           city: formData.city,
@@ -92,22 +95,21 @@ export default function PetShopSetup() {
           email: formData.email,
           description: formData.description,
           hours: formData.hours,
-          code: codeData,
-        });
+        })
+        .eq('id', petShopId);
 
-      if (insertError) throw insertError;
+      if (error) throw error;
 
       toast({
-        title: "🎉 Pet Shop cadastrado com sucesso!",
-        description: `Seu código exclusivo é ${codeData} — compartilhe com seus clientes para que possam escolher seu petshop.`,
-        duration: 5000,
+        title: "✅ Alterações salvas!",
+        description: "As informações do seu petshop foram atualizadas com sucesso.",
       });
 
-      navigate('/petshop-dashboard');
+      navigate('/petshop-dashboard/configuracoes');
     } catch (error: any) {
-      console.error('Error creating pet shop:', error);
+      console.error('Error updating pet shop:', error);
       toast({
-        title: "Erro ao criar Pet Shop",
+        title: "Erro ao salvar alterações",
         description: error.message,
         variant: "destructive",
       });
@@ -116,17 +118,38 @@ export default function PetShopSetup() {
     }
   };
 
+  if (loadingData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      <Card className="w-full max-w-2xl">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-            <Store className="w-8 h-8 text-primary" />
+    <div className="space-y-6">
+      <Button
+        variant="ghost"
+        onClick={() => navigate('/petshop-dashboard/configuracoes')}
+        className="flex items-center gap-2"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Voltar para Configurações
+      </Button>
+
+      <Card className="max-w-3xl mx-auto">
+        <CardHeader>
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <Store className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-2xl">🏪 Editar Informações do Petshop</CardTitle>
+              <CardDescription>
+                Código do Petshop: <span className="font-semibold text-primary">{petShopCode}</span>
+              </CardDescription>
+            </div>
           </div>
-          <CardTitle className="text-3xl">🏪 Cadastrar Meu Petshop</CardTitle>
-          <CardDescription>
-            Preencha as informações do seu estabelecimento para começar a receber clientes
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -221,16 +244,27 @@ export default function PetShopSetup() {
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Salvando Petshop...
-                </>
-              ) : (
-                "💾 Salvar Petshop"
-              )}
-            </Button>
+            <div className="flex gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={() => navigate('/petshop-dashboard/configuracoes')}
+                disabled={loading}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" className="flex-1" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  "💾 Salvar Alterações"
+                )}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
