@@ -14,11 +14,8 @@ const emailSchema = z.string().trim().email("Email inválido").max(255, "Email m
 
 const passwordSchema = z.object({
   password: z.string()
-    .min(8, "Senha deve ter no mínimo 8 caracteres")
-    .max(50, "Senha muito longa")
-    .regex(/[a-z]/, "Senha deve conter pelo menos uma letra minúscula")
-    .regex(/[A-Z]/, "Senha deve conter pelo menos uma letra maiúscula")
-    .regex(/[0-9]/, "Senha deve conter pelo menos um número"),
+    .min(6, "Senha deve ter no mínimo 6 caracteres")
+    .max(50, "Senha muito longa"),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",
@@ -50,21 +47,28 @@ const ResetPassword = () => {
 
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      // Call edge function to send reset code
+      const { data, error } = await supabase.functions.invoke('send-reset-code', {
+        body: { email: email.toLowerCase().trim() }
       });
 
       if (error) throw error;
 
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
       toast({
         title: "✉️ Código enviado!",
-        description: "Verifique seu email para o código de verificação de 6 dígitos.",
+        description: "Enviamos um código de 6 dígitos para seu email. Válido por 10 minutos.",
       });
       setStep("otp");
     } catch (error: any) {
+      const errorMessage = error.message || "Não foi possível enviar o código. Tente novamente.";
+      
       toast({
         title: "Erro ao enviar código",
-        description: error.message || "Não foi possível enviar o código. Tente novamente.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -83,13 +87,24 @@ const ResetPassword = () => {
 
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token: otpCode,
-        type: "email",
-      });
+      // Verify code from database
+      const { data: resetData, error: queryError } = await supabase
+        .from('password_resets')
+        .select('*')
+        .eq('email', email.toLowerCase().trim())
+        .eq('code', otpCode)
+        .eq('used', false)
+        .gt('expires_at', new Date().toISOString())
+        .maybeSingle();
 
-      if (error) throw error;
+      if (queryError) {
+        console.error('Query error:', queryError);
+        throw new Error('Erro ao verificar código');
+      }
+
+      if (!resetData) {
+        throw new Error('Código inválido ou expirado');
+      }
 
       toast({
         title: "✅ Código verificado!",
@@ -98,8 +113,8 @@ const ResetPassword = () => {
       setStep("password");
     } catch (error: any) {
       toast({
-        title: "Código inválido",
-        description: "Verifique se digitou o código corretamente.",
+        title: "❌ Código inválido",
+        description: error.message || "Verifique se digitou o código corretamente ou se ele ainda é válido.",
         variant: "destructive",
       });
     } finally {
@@ -129,14 +144,23 @@ const ResetPassword = () => {
 
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword,
+      // Call edge function to reset password
+      const { data, error } = await supabase.functions.invoke('reset-password', {
+        body: { 
+          email: email.toLowerCase().trim(),
+          code: otpCode,
+          newPassword: newPassword
+        }
       });
 
       if (error) throw error;
 
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
       toast({
-        title: "🎉 Senha alterada com sucesso!",
+        title: "🎉 Senha redefinida com sucesso!",
         description: "Você já pode fazer login com sua nova senha.",
       });
 
@@ -146,7 +170,7 @@ const ResetPassword = () => {
     } catch (error: any) {
       toast({
         title: "Erro ao redefinir senha",
-        description: error.message,
+        description: error.message || "Não foi possível redefinir a senha. Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -310,13 +334,8 @@ const ResetPassword = () => {
 
               <div className="bg-muted/50 p-3 rounded-lg">
                 <p className="text-xs text-muted-foreground">
-                  A senha deve conter:
+                  A senha deve ter no mínimo 6 caracteres.
                 </p>
-                <ul className="text-xs text-muted-foreground list-disc list-inside mt-1 space-y-1">
-                  <li>Mínimo de 8 caracteres</li>
-                  <li>Letras maiúsculas e minúsculas</li>
-                  <li>Pelo menos um número</li>
-                </ul>
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>
