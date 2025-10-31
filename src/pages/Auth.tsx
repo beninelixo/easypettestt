@@ -75,7 +75,7 @@ const Auth = () => {
       case "client":
         return "/client-dashboard";
       case "pet_shop":
-        return "/petshop-dashboard";
+        return "/petshop-setup";
       case "admin":
         return "/admin-dashboard";
       default:
@@ -166,39 +166,24 @@ const Auth = () => {
           data: {
             full_name: registerName,
             user_type: userType,
+            pet_shop_name: userType === "pet_shop" ? petShopName.trim() : undefined,
+            pet_shop_city: userType === "pet_shop" ? petShopCity.trim() : undefined,
           }
         }
       });
 
       if (error) throw error;
 
-      // Se for profissional, criar o petshop imediatamente
-      if (userType === "pet_shop" && data.user) {
-        const { data: codeData, error: codeError } = await supabase.rpc('generate_pet_shop_code');
-        
-        if (codeError) throw codeError;
+      toast({
+        title: "Conta criada com sucesso!",
+        description: "Você será redirecionado em instantes...",
+      });
 
-        const { error: insertError } = await supabase
-          .from('pet_shops')
-          .insert({
-            owner_id: data.user.id,
-            name: petShopName.trim(),
-            city: petShopCity.trim(),
-            code: codeData,
-          });
-
-        if (insertError) throw insertError;
-
-        toast({
-          title: "🎉 Conta e Petshop cadastrados!",
-          description: `Seu código exclusivo é ${codeData}`,
-          duration: 5000,
-        });
-      } else {
-        toast({
-          title: "Conta criada com sucesso!",
-          description: "Você será redirecionado em instantes...",
-        });
+      // Redirect with pre-filled data for pet shop
+      if (userType === "pet_shop") {
+        setTimeout(() => {
+          navigate(`/petshop-setup?name=${encodeURIComponent(petShopName)}&city=${encodeURIComponent(petShopCity)}`);
+        }, 1500);
       }
     } catch (error: any) {
       toast({

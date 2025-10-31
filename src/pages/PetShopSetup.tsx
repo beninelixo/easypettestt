@@ -28,25 +28,54 @@ export default function PetShopSetup() {
   });
 
   useEffect(() => {
+    // Pre-fill from signup if available
+    const urlParams = new URLSearchParams(window.location.search);
+    const prefilledName = urlParams.get('name');
+    const prefilledCity = urlParams.get('city');
+    
+    if (prefilledName || prefilledCity) {
+      setFormData(prev => ({
+        ...prev,
+        name: prefilledName || prev.name,
+        city: prefilledCity || prev.city,
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
     const checkExistingPetShop = async () => {
-      if (!user) return;
-
-      // Check if user already has a pet shop
-      const { data, error } = await supabase
-        .from('pet_shops')
-        .select('id')
-        .eq('owner_id', user.id)
-        .single();
-
-      if (data) {
-        // User already has a pet shop, redirect to dashboard
-        navigate('/petshop-dashboard');
-      } else if (userRole !== 'pet_shop') {
-        // User is not a pet shop professional, redirect to appropriate dashboard
-        navigate('/client-dashboard');
+      if (!user) {
+        setCheckingPetShop(false);
+        return;
       }
 
-      setCheckingPetShop(false);
+      if (userRole !== 'pet_shop') {
+        // User is not a pet shop professional, redirect to appropriate dashboard
+        navigate('/client-dashboard');
+        return;
+      }
+
+      try {
+        // Check if user already has a pet shop
+        const { data, error } = await supabase
+          .from('pet_shops')
+          .select('id')
+          .eq('owner_id', user.id)
+          .maybeSingle();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error checking pet shop:', error);
+        }
+
+        if (data) {
+          // User already has a pet shop, redirect to dashboard
+          navigate('/petshop-dashboard');
+        }
+      } catch (error) {
+        console.error('Error in checkExistingPetShop:', error);
+      } finally {
+        setCheckingPetShop(false);
+      }
     };
 
     checkExistingPetShop();
