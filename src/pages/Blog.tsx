@@ -43,15 +43,23 @@ const Blog = () => {
       <section className="py-8 px-4 border-b border-border">
         <div className="container mx-auto max-w-7xl">
           <div className="flex flex-wrap gap-3 justify-center">
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={category === "Todos" ? "default" : "outline"}
-                className="rounded-full px-6"
-              >
-                {category}
-              </Button>
-            ))}
+            {categories.map((category) => {
+              const categorySlug = category.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+              return (
+                <Link 
+                  key={category} 
+                  to={category === "Todos" ? "/blog" : `/blog/categoria/${categorySlug}`}
+                >
+                  <Button
+                    variant={category === "Todos" ? "default" : "outline"}
+                    className="rounded-full px-6"
+                    aria-label={`Filtrar por ${category}`}
+                  >
+                    {category}
+                  </Button>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>

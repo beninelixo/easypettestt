@@ -34,6 +34,40 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- FAQ -->
+  <url>
+    <loc>https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/faq</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog Categories -->
+  <url>
+    <loc>https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/blog/categoria/gestao</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/blog/categoria/tecnologia</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/blog/categoria/marketing</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/blog/categoria/crm</loc>
+    <lastmod>2025-01-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <!-- Blog -->
   <url>
     <loc>https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/blog</loc>

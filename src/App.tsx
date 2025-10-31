@@ -16,6 +16,8 @@ import PetShops from "./pages/PetShops";
 import BanhoTosa from "./pages/BanhoTosa";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import BlogCategory from "./pages/BlogCategory";
+import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import ClientDashboard from "./pages/ClientDashboard";
 import PetShopDashboardLayout from "./pages/PetShopDashboardLayout";
@@ -62,7 +64,9 @@ const App = () => (
             <Route path="/petshops" element={<PetShops />} />
             <Route path="/banho-tosa" element={<BanhoTosa />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/categoria/:category" element={<BlogCategory />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/faq" element={<FAQ />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
