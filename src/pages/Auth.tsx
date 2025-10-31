@@ -45,6 +45,8 @@ const Auth = () => {
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerName, setRegisterName] = useState("");
   const [userType, setUserType] = useState<"client" | "pet_shop">("client");
+  const [petShopName, setPetShopName] = useState("");
+  const [petShopCity, setPetShopCity] = useState("");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   
   // Password reset states
@@ -73,7 +75,7 @@ const Auth = () => {
       case "client":
         return "/client-dashboard";
       case "pet_shop":
-        return "/petshop-setup";
+        return "/petshop-dashboard";
       case "admin":
         return "/admin-dashboard";
       default:
@@ -110,6 +112,28 @@ const Auth = () => {
     e.preventDefault();
     setFormErrors({});
 
+    // Validação adicional para profissionais
+    if (userType === "pet_shop") {
+      if (!petShopName.trim()) {
+        setFormErrors({ petShopName: "Nome do petshop é obrigatório" });
+        toast({
+          title: "Erro de validação",
+          description: "Por favor, preencha o nome do petshop.",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!petShopCity.trim()) {
+        setFormErrors({ petShopCity: "Cidade é obrigatória" });
+        toast({
+          title: "Erro de validação",
+          description: "Por favor, preencha a cidade.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     const validation = authSchema.safeParse({
       email: registerEmail,
       password: registerPassword,
@@ -133,31 +157,58 @@ const Auth = () => {
     }
 
     setIsLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email: registerEmail,
-      password: registerPassword,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-        data: {
-          full_name: registerName,
-          user_type: userType,
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: registerEmail,
+        password: registerPassword,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            full_name: registerName,
+            user_type: userType,
+          }
         }
-      }
-    });
+      });
 
-    if (error) {
+      if (error) throw error;
+
+      // Se for profissional, criar o petshop imediatamente
+      if (userType === "pet_shop" && data.user) {
+        const { data: codeData, error: codeError } = await supabase.rpc('generate_pet_shop_code');
+        
+        if (codeError) throw codeError;
+
+        const { error: insertError } = await supabase
+          .from('pet_shops')
+          .insert({
+            owner_id: data.user.id,
+            name: petShopName.trim(),
+            city: petShopCity.trim(),
+            code: codeData,
+          });
+
+        if (insertError) throw insertError;
+
+        toast({
+          title: "🎉 Conta e Petshop cadastrados!",
+          description: `Seu código exclusivo é ${codeData}`,
+          duration: 5000,
+        });
+      } else {
+        toast({
+          title: "Conta criada com sucesso!",
+          description: "Você será redirecionado em instantes...",
+        });
+      }
+    } catch (error: any) {
       toast({
         title: "Erro ao criar conta",
         description: error.message,
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Conta criada com sucesso!",
-        description: "Você será redirecionado em instantes...",
-      });
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleSendResetEmail = async (e: React.FormEvent) => {
@@ -414,6 +465,47 @@ const Auth = () => {
                       <p className="text-sm text-destructive">{formErrors.full_name}</p>
                     )}
                   </div>
+
+                  {userType === "pet_shop" && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="petshop-name" className="flex items-center gap-2">
+                          🏪 Nome do Petshop *
+                        </Label>
+                        <Input 
+                          id="petshop-name" 
+                          type="text" 
+                          placeholder="Ex: PetChop do Zé" 
+                          value={petShopName}
+                          onChange={(e) => setPetShopName(e.target.value)}
+                          required 
+                          maxLength={100}
+                        />
+                        {formErrors.petShopName && (
+                          <p className="text-sm text-destructive">{formErrors.petShopName}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="petshop-city" className="flex items-center gap-2">
+                          🌆 Cidade *
+                        </Label>
+                        <Input 
+                          id="petshop-city" 
+                          type="text" 
+                          placeholder="Ex: São Luís/MA" 
+                          value={petShopCity}
+                          onChange={(e) => setPetShopCity(e.target.value)}
+                          required 
+                          maxLength={100}
+                        />
+                        {formErrors.petShopCity && (
+                          <p className="text-sm text-destructive">{formErrors.petShopCity}</p>
+                        )}
+                      </div>
+                    </>
+                  )}
+
                   <div className="space-y-2">
                     <Label htmlFor="register-email">Email</Label>
                     <Input 
