@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Calendar, Clock, Users, TrendingUp, Shield, Smartphone, PawPrint, Sparkles } from "lucide-react";
+import Testimonials from "@/components/Testimonials";
+import TrustedBy from "@/components/TrustedBy";
+import { Calendar, Clock, Users, TrendingUp, Shield, Smartphone, PawPrint, Sparkles, FileText, Package, Camera, ArrowRight } from "lucide-react";
 import heroPet from "@/assets/hero-pet.jpg";
 
 const Index = () => {
@@ -94,13 +96,84 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Segmentation Section */}
       <section className="py-20 px-4">
-        <div className="container mx-auto">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-16 space-y-4">
+            <h2 className="text-4xl font-bold">Ideal para qualquer negócio pet</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Soluções específicas pensadas para atender as necessidades do seu segmento
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <Link to="/clinicas">
+              <Card className="border-border hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group">
+                <CardHeader>
+                  <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <FileText className="h-8 w-8 text-primary" />
+                  </div>
+                  <CardTitle className="text-2xl">Clínicas Veterinárias</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <CardDescription className="text-base">
+                    Prontuário digital completo, controle de vacinas e agenda veterinária integrada.
+                  </CardDescription>
+                  <div className="flex items-center text-primary font-medium group-hover:gap-3 transition-all">
+                    Saiba mais <ArrowRight className="h-4 w-4 ml-2" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/petshops">
+              <Card className="border-border hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group">
+                <CardHeader>
+                  <div className="w-14 h-14 bg-secondary/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <Package className="h-8 w-8 text-secondary" />
+                  </div>
+                  <CardTitle className="text-2xl">Pet Shops</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <CardDescription className="text-base">
+                    Controle de estoque inteligente, PDV integrado e análise de vendas em tempo real.
+                  </CardDescription>
+                  <div className="flex items-center text-secondary font-medium group-hover:gap-3 transition-all">
+                    Saiba mais <ArrowRight className="h-4 w-4 ml-2" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/banho-tosa">
+              <Card className="border-border hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group">
+                <CardHeader>
+                  <div className="w-14 h-14 bg-accent/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <Camera className="h-8 w-8 text-accent" />
+                  </div>
+                  <CardTitle className="text-2xl">Banho e Tosa</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <CardDescription className="text-base">
+                    Agenda especializada, galeria de fotos e comunicação automática com tutores.
+                  </CardDescription>
+                  <div className="flex items-center text-accent font-medium group-hover:gap-3 transition-all">
+                    Saiba mais <ArrowRight className="h-4 w-4 ml-2" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 px-4 bg-muted">
+        <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-4xl font-bold">Tudo que você precisa em um só lugar</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Funcionalidades completas para transformar a gestão do seu pet shop
+              Funcionalidades completas para transformar a gestão do seu negócio
             </p>
           </div>
 
@@ -108,7 +181,7 @@ const Index = () => {
             {features.map((feature, index) => (
               <Card
                 key={index}
-                className="border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-fade-in"
+                className="border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-fade-in bg-background"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <CardHeader>
@@ -123,8 +196,22 @@ const Index = () => {
               </Card>
             ))}
           </div>
+
+          <div className="text-center mt-12">
+            <Link to="/funcionalidades">
+              <Button size="lg" variant="outline" className="text-lg px-8">
+                Ver Todas as Funcionalidades
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
+
+      {/* Trusted By Section */}
+      <TrustedBy />
+
+      {/* Testimonials Section */}
+      <Testimonials />
 
       {/* CTA Section */}
       <section className="py-20 px-4 bg-primary text-primary-foreground">

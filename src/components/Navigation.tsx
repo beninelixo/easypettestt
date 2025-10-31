@@ -9,8 +9,9 @@ const Navigation = () => {
 
   const navLinks = [
     { to: "/", label: "Início" },
-    { to: "/about", label: "Sobre" },
+    { to: "/funcionalidades", label: "Funcionalidades" },
     { to: "/pricing", label: "Planos" },
+    { to: "/about", label: "Sobre" },
   ];
 
   return (

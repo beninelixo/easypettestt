@@ -8,6 +8,10 @@ import Index from "./pages/Index";
 import About from "./pages/About";
 import Pricing from "./pages/Pricing";
 import Auth from "./pages/Auth";
+import Funcionalidades from "./pages/Funcionalidades";
+import Clinicas from "./pages/Clinicas";
+import PetShops from "./pages/PetShops";
+import BanhoTosa from "./pages/BanhoTosa";
 import ClientDashboard from "./pages/ClientDashboard";
 import PetShopDashboardLayout from "./pages/PetShopDashboardLayout";
 import PetShopDashboard from "./pages/PetShopDashboard";
@@ -38,6 +42,10 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/funcionalidades" element={<Funcionalidades />} />
+          <Route path="/clinicas" element={<Clinicas />} />
+          <Route path="/petshops" element={<PetShops />} />
+          <Route path="/banho-tosa" element={<BanhoTosa />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           
