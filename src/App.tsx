@@ -44,6 +44,7 @@ import EditarPetshop from "./pages/petshop/EditarPetshop";
 import ResetPassword from "./pages/ResetPassword";
 import { TenantDashboard } from "./features/tenant/pages/TenantDashboard";
 import { FranchiseDashboard } from "./features/franchise/pages/FranchiseDashboard";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
