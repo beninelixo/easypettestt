@@ -180,6 +180,7 @@ serve(async (req) => {
             testMode: true,
             message: 'Em modo de teste, só é possível enviar para o email cadastrado na conta Resend. Verifique um domínio em resend.com/domains para enviar para qualquer email.',
             details: emailData.message,
+            devCode: code,
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );

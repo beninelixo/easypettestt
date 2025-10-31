@@ -93,9 +93,14 @@ const ResetPassword = () => {
       }
 
       toast({
-        title: "✉️ Código enviado!",
-        description: "Enviamos um código de 6 dígitos para seu email. Válido por 10 minutos.",
+        title: data?.testMode ? "✉️ Código (modo teste)" : "✉️ Código enviado!",
+        description: data?.testMode
+          ? `Como o envio por email está bloqueado em modo de teste, use este código: ${data.devCode}`
+          : "Enviamos um código de 6 dígitos para seu email. Válido por 10 minutos.",
       });
+      if (data?.testMode && data?.devCode) {
+        setOtpCode(String(data.devCode));
+      }
       setStep("otp");
     } catch (error: any) {
       const errorMessage = error.message || "Não foi possível enviar o código. Tente novamente.";
