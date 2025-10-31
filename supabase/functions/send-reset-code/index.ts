@@ -152,7 +152,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'PetChopShop <noreply@seudominio.com>', // ⚠️ SUBSTITUA "seudominio.com" pelo domínio verificado no Resend
+        from: 'PetChopShop <noreply@petchopshop.app>',
         to: [email.toLowerCase()],
         subject: '🔐 Código de Verificação - PetChopShop 🐾',
         html: emailHtml,
