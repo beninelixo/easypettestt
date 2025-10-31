@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Users, Calendar, TrendingUp, Settings, LogOut, Scissors, BookOpen } from "lucide-react";
+import { Home, Users, Calendar, TrendingUp, Settings, LogOut, Scissors, BookOpen, Package, DollarSign, Star, Megaphone } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -20,6 +20,10 @@ const navigationItems = [
   { title: "Catálogo de Serviços", url: "/petshop-dashboard/catalogo-servicos", icon: BookOpen },
   { title: "Clientes", url: "/petshop-dashboard/clientes", icon: Users },
   { title: "Calendário", url: "/petshop-dashboard/calendario", icon: Calendar },
+  { title: "Estoque", url: "/petshop-dashboard/estoque", icon: Package },
+  { title: "Financeiro", url: "/petshop-dashboard/financeiro", icon: DollarSign },
+  { title: "Fidelidade", url: "/petshop-dashboard/fidelidade", icon: Star },
+  { title: "Marketing", url: "/petshop-dashboard/marketing", icon: Megaphone },
   { title: "Relatórios", url: "/petshop-dashboard/relatorios", icon: TrendingUp },
   { title: "Configurações", url: "/petshop-dashboard/configuracoes", icon: Settings },
 ];

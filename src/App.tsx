@@ -21,6 +21,10 @@ import Relatorios from "./pages/petshop/Relatorios";
 import Configuracoes from "./pages/petshop/Configuracoes";
 import Servicos from "./pages/petshop/Servicos";
 import ServiceTemplates from "./pages/petshop/ServiceTemplates";
+import Estoque from "./pages/petshop/Estoque";
+import Financeiro from "./pages/petshop/Financeiro";
+import Fidelidade from "./pages/petshop/Fidelidade";
+import Marketing from "./pages/petshop/Marketing";
 import AdminDashboard from "./pages/AdminDashboard";
 import NewAppointment from "./pages/NewAppointment";
 import PetProfile from "./pages/PetProfile";
@@ -89,6 +93,10 @@ const App = () => (
             <Route path="clientes" element={<Clientes />} />
             <Route path="cliente/:clientId" element={<ClientProfile />} />
             <Route path="calendario" element={<Calendario />} />
+            <Route path="estoque" element={<Estoque />} />
+            <Route path="financeiro" element={<Financeiro />} />
+            <Route path="fidelidade" element={<Fidelidade />} />
+            <Route path="marketing" element={<Marketing />} />
             <Route path="relatorios" element={<Relatorios />} />
             <Route path="configuracoes" element={<Configuracoes />} />
             <Route path="editar-petshop" element={<EditarPetshop />} />
