@@ -146,6 +146,7 @@ const Clientes = () => {
           data: {
             full_name: formData.full_name,
             phone: formData.phone,
+            user_type: 'client',
           },
         },
       });
