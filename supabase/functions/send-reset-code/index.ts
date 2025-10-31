@@ -164,14 +164,17 @@ serve(async (req) => {
     if (!emailResponse.ok) {
       console.error('Resend API error:', emailData);
       
-      // Handle specific Resend errors
-      if (emailData.statusCode === 403 && emailData.message?.includes('testing emails')) {
-        // Do not propagate 403 to client to avoid error overlays in frontend
+      // Handle specific Resend errors - domain not verified or testing mode
+      if (emailData.statusCode === 403 || 
+          emailData.message?.includes('not verified') ||
+          emailData.message?.includes('testing emails') ||
+          emailData.name === 'validation_error') {
+        // Return success with test mode flag to avoid crashes
         return new Response(
           JSON.stringify({ 
             success: true,
             testMode: true,
-            message: 'Em modo de teste, só é possível enviar para o email cadastrado na conta Resend. Verifique um domínio em resend.com/domains para enviar para qualquer email.',
+            message: 'Domínio não verificado. Verifique um domínio em resend.com/domains para enviar emails reais.',
             details: emailData.message,
             devCode: code,
           }),
