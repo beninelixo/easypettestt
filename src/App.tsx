@@ -25,6 +25,7 @@ import Estoque from "./pages/petshop/Estoque";
 import Financeiro from "./pages/petshop/Financeiro";
 import Fidelidade from "./pages/petshop/Fidelidade";
 import Marketing from "./pages/petshop/Marketing";
+import Funcionarios from "./pages/petshop/Funcionarios";
 import AdminDashboard from "./pages/AdminDashboard";
 import NewAppointment from "./pages/NewAppointment";
 import PetProfile from "./pages/PetProfile";
@@ -92,6 +93,7 @@ const App = () => (
             <Route path="catalogo-servicos" element={<ServiceTemplates />} />
             <Route path="clientes" element={<Clientes />} />
             <Route path="cliente/:clientId" element={<ClientProfile />} />
+            <Route path="funcionarios" element={<Funcionarios />} />
             <Route path="calendario" element={<Calendario />} />
             <Route path="estoque" element={<Estoque />} />
             <Route path="financeiro" element={<Financeiro />} />

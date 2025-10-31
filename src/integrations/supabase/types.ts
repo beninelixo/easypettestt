@@ -521,6 +521,47 @@ export type Database = {
         }
         Relationships: []
       }
+      petshop_employees: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          hired_at: string | null
+          id: string
+          pet_shop_id: string
+          position: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          hired_at?: string | null
+          id?: string
+          pet_shop_id: string
+          position?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          hired_at?: string | null
+          id?: string
+          pet_shop_id?: string
+          position?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "petshop_employees_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           active: boolean | null
@@ -872,9 +913,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_employee_of_petshop: {
+        Args: { _pet_shop_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      app_role: "client" | "pet_shop" | "admin"
+      app_role:
+        | "client"
+        | "pet_shop"
+        | "admin"
+        | "professional"
+        | "petshop_owner"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1002,7 +1052,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["client", "pet_shop", "admin"],
+      app_role: [
+        "client",
+        "pet_shop",
+        "admin",
+        "professional",
+        "petshop_owner",
+      ],
     },
   },
 } as const
