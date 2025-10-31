@@ -1,4 +1,41 @@
 import { Building2, Users, TrendingUp, Award } from "lucide-react";
+import { useCountUp } from "@/hooks/useCountUp";
+
+const StatCard = ({ stat, index }: { stat: any; index: number }) => {
+  const isPercentage = stat.value.includes("%");
+  const isYears = stat.label === "No Mercado";
+  const numValue = parseInt(stat.value.replace(/[^0-9]/g, ""));
+  
+  const { count, ref } = useCountUp({ 
+    end: numValue, 
+    duration: 2500,
+    start: 0 
+  });
+
+  const formatValue = () => {
+    if (isPercentage) return `${count}%`;
+    if (isYears) return `${count} Anos`;
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}k+`;
+    return `${count}+`;
+  };
+
+  return (
+    <div
+      ref={ref}
+      className="text-center space-y-3 p-6 rounded-2xl hover:bg-muted transition-all duration-500 hover:scale-105 hover:shadow-lg cursor-pointer group animate-slide-up"
+      style={{ animationDelay: `${index * 0.1}s` }}
+    >
+      <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+        <stat.icon className="h-7 w-7 text-primary group-hover:scale-110 transition-transform duration-300" />
+      </div>
+      <div className="text-4xl font-bold text-primary transition-all duration-300 group-hover:scale-110">
+        {formatValue()}
+      </div>
+      <div className="font-semibold text-foreground">{stat.label}</div>
+      <p className="text-sm text-muted-foreground">{stat.description}</p>
+    </div>
+  );
+};
 
 const TrustedBy = () => {
   const stats = [
@@ -10,7 +47,7 @@ const TrustedBy = () => {
     },
     {
       icon: Users,
-      value: "15.000+",
+      value: "15000+",
       label: "Pets Cadastrados",
       description: "Animais em nossa plataforma",
     },
@@ -22,7 +59,7 @@ const TrustedBy = () => {
     },
     {
       icon: Award,
-      value: "3 Anos",
+      value: "3",
       label: "No Mercado",
       description: "Evoluindo constantemente",
     },
@@ -46,17 +83,7 @@ const TrustedBy = () => {
 
         <div className="grid md:grid-cols-4 gap-8">
           {stats.map((stat, index) => (
-            <div
-              key={index}
-              className="text-center space-y-3 p-6 rounded-2xl hover:bg-muted transition-all duration-300"
-            >
-              <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <stat.icon className="h-7 w-7 text-primary" />
-              </div>
-              <div className="text-4xl font-bold text-primary">{stat.value}</div>
-              <div className="font-semibold text-foreground">{stat.label}</div>
-              <p className="text-sm text-muted-foreground">{stat.description}</p>
-            </div>
+            <StatCard key={index} stat={stat} index={index} />
           ))}
         </div>
 

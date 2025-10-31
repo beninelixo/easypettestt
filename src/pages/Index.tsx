@@ -85,11 +85,11 @@ const Index = () => {
               </div>
             </div>
             <div className="relative animate-scale-in">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-3xl blur-3xl" />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-3xl blur-3xl animate-glow" />
               <img
                 src={heroPet}
                 alt="Pet feliz após banho e tosa"
-                className="relative rounded-3xl shadow-2xl w-full h-auto object-cover"
+                className="relative rounded-3xl shadow-2xl w-full h-auto object-cover hover:scale-105 transition-transform duration-500 animate-float"
               />
             </div>
           </div>
@@ -107,58 +107,61 @@ const Index = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <Link to="/clinicas">
-              <Card className="border-border hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group">
-                <CardHeader>
-                  <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <Link to="/clinicas" className="group">
+              <Card className="border-border hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 cursor-pointer h-full relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <CardHeader className="relative">
+                  <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500">
                     <FileText className="h-8 w-8 text-primary" />
                   </div>
-                  <CardTitle className="text-2xl">Clínicas Veterinárias</CardTitle>
+                  <CardTitle className="text-2xl group-hover:text-primary transition-colors duration-300">Clínicas Veterinárias</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-4 relative">
                   <CardDescription className="text-base">
                     Prontuário digital completo, controle de vacinas e agenda veterinária integrada.
                   </CardDescription>
-                  <div className="flex items-center text-primary font-medium group-hover:gap-3 transition-all">
-                    Saiba mais <ArrowRight className="h-4 w-4 ml-2" />
+                  <div className="flex items-center text-primary font-medium group-hover:gap-3 transition-all duration-300">
+                    Saiba mais <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-2 transition-transform duration-300" />
                   </div>
                 </CardContent>
               </Card>
             </Link>
 
-            <Link to="/petshops">
-              <Card className="border-border hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group">
-                <CardHeader>
-                  <div className="w-14 h-14 bg-secondary/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <Link to="/petshops" className="group">
+              <Card className="border-border hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 cursor-pointer h-full relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <CardHeader className="relative">
+                  <div className="w-14 h-14 bg-secondary/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500">
                     <Package className="h-8 w-8 text-secondary" />
                   </div>
-                  <CardTitle className="text-2xl">Pet Shops</CardTitle>
+                  <CardTitle className="text-2xl group-hover:text-secondary transition-colors duration-300">Pet Shops</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-4 relative">
                   <CardDescription className="text-base">
                     Controle de estoque inteligente, PDV integrado e análise de vendas em tempo real.
                   </CardDescription>
-                  <div className="flex items-center text-secondary font-medium group-hover:gap-3 transition-all">
-                    Saiba mais <ArrowRight className="h-4 w-4 ml-2" />
+                  <div className="flex items-center text-secondary font-medium group-hover:gap-3 transition-all duration-300">
+                    Saiba mais <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-2 transition-transform duration-300" />
                   </div>
                 </CardContent>
               </Card>
             </Link>
 
-            <Link to="/banho-tosa">
-              <Card className="border-border hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group">
-                <CardHeader>
-                  <div className="w-14 h-14 bg-accent/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <Link to="/banho-tosa" className="group">
+              <Card className="border-border hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 cursor-pointer h-full relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <CardHeader className="relative">
+                  <div className="w-14 h-14 bg-accent/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500">
                     <Camera className="h-8 w-8 text-accent" />
                   </div>
-                  <CardTitle className="text-2xl">Banho e Tosa</CardTitle>
+                  <CardTitle className="text-2xl group-hover:text-accent transition-colors duration-300">Banho e Tosa</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-4 relative">
                   <CardDescription className="text-base">
                     Agenda especializada, galeria de fotos e comunicação automática com tutores.
                   </CardDescription>
-                  <div className="flex items-center text-accent font-medium group-hover:gap-3 transition-all">
-                    Saiba mais <ArrowRight className="h-4 w-4 ml-2" />
+                  <div className="flex items-center text-accent font-medium group-hover:gap-3 transition-all duration-300">
+                    Saiba mais <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-2 transition-transform duration-300" />
                   </div>
                 </CardContent>
               </Card>
@@ -181,16 +184,17 @@ const Index = () => {
             {features.map((feature, index) => (
               <Card
                 key={index}
-                className="border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-fade-in bg-background"
+                className="border-border hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 animate-fade-in bg-background group cursor-pointer relative overflow-hidden"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <CardHeader>
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                    <feature.icon className="h-6 w-6 text-primary" />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <CardHeader className="relative">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                    <feature.icon className="h-6 w-6 text-primary group-hover:scale-110 transition-transform duration-300" />
                   </div>
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                  <CardTitle className="text-xl group-hover:text-primary transition-colors duration-300">{feature.title}</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="relative">
                   <CardDescription className="text-base">{feature.description}</CardDescription>
                 </CardContent>
               </Card>
