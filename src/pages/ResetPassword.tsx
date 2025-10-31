@@ -55,6 +55,15 @@ const ResetPassword = () => {
       if (error) throw error;
 
       if (data?.error) {
+        // Handle Resend limitations in test mode
+        if (data.error.includes('modo de teste')) {
+          toast({
+            title: "⚠️ Limitação do Resend",
+            description: "Em modo de teste, só é possível enviar emails para raulepic23@gmail.com. Para usar outros emails, verifique um domínio em resend.com/domains",
+            variant: "destructive",
+          });
+          return;
+        }
         throw new Error(data.error);
       }
 
@@ -205,12 +214,18 @@ const ResetPassword = () => {
           {/* Step 1: Email */}
           {step === "email" && (
             <form onSubmit={handleSendCode} className="space-y-4">
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4">
+                <p className="text-xs text-amber-800 dark:text-amber-200">
+                  ⚠️ <strong>Modo de teste:</strong> Atualmente, só é possível enviar códigos para <strong>raulepic23@gmail.com</strong>. Para usar outros emails, é necessário verificar um domínio no Resend.
+                </p>
+              </div>
+              
               <div className="space-y-2">
                 <Label htmlFor="email">📧 Email</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="seu@email.com"
+                  placeholder="raulepic23@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
