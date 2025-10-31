@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth, UserRole } from "@/hooks/useAuth";
+import { useTenant } from "@/lib/tenant-context";
 import { Loader2 } from "lucide-react";
 
 interface ProtectedRouteProps {
@@ -9,25 +10,33 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
-  const { user, userRole, loading } = useAuth();
+  const { user, userRole, loading: authLoading } = useAuth();
+  const { userRole: tenantRole, loading: tenantLoading } = useTenant();
   const navigate = useNavigate();
+  
+  const loading = authLoading || tenantLoading;
+  const effectiveRole = tenantRole || userRole;
 
   useEffect(() => {
     if (!loading) {
       if (!user) {
         navigate("/auth");
-      } else if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
+      } else if (allowedRoles && effectiveRole && !allowedRoles.includes(effectiveRole as UserRole)) {
         // Redirect to appropriate dashboard based on role
-        if (userRole === "client") {
-          navigate("/client-dashboard");
-        } else if (userRole === "pet_shop") {
+        if (effectiveRole === "tenant_admin") {
+          navigate("/tenant-dashboard");
+        } else if (effectiveRole === "franchise_owner") {
+          navigate("/franchise-dashboard");
+        } else if (effectiveRole === "unit_manager" || effectiveRole === "pet_shop") {
           navigate("/petshop-dashboard");
-        } else if (userRole === "admin") {
+        } else if (effectiveRole === "client") {
+          navigate("/client-dashboard");
+        } else if (effectiveRole === "admin") {
           navigate("/admin-dashboard");
         }
       }
     }
-  }, [user, userRole, loading, navigate, allowedRoles]);
+  }, [user, effectiveRole, loading, navigate, allowedRoles]);
 
   if (loading) {
     return (
@@ -41,7 +50,7 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
     return null;
   }
 
-  if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
+  if (allowedRoles && effectiveRole && !allowedRoles.includes(effectiveRole as UserRole)) {
     return null;
   }
 

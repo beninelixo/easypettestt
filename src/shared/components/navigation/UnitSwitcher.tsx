@@ -58,7 +58,7 @@ export const UnitSwitcher = () => {
                 key={franchise.id} 
                 heading={franchise.name}
               >
-                {franchise.units.map((unit) => (
+                {franchise.units?.map((unit) => (
                   <CommandItem
                     key={unit.id}
                     value={unit.id}
