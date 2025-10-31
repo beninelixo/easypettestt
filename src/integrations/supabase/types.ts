@@ -74,6 +74,33 @@ export type Database = {
           },
         ]
       }
+      password_resets: {
+        Row: {
+          code: string
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          used: boolean | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          used?: boolean | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          used?: boolean | null
+        }
+        Relationships: []
+      }
       pet_shops: {
         Row: {
           address: string | null
@@ -264,6 +291,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       generate_pet_shop_code: { Args: never; Returns: string }
       generate_user_code: { Args: never; Returns: string }
       has_role: {
