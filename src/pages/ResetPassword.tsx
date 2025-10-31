@@ -52,7 +52,22 @@ const ResetPassword = () => {
         body: { email: email.toLowerCase().trim() }
       });
 
-      if (error) throw error;
+      // Handle invoke errors without throwing to avoid overlay
+      if (error) {
+        const status = (error as any).status;
+        const msg = (error as any).message || "Não foi possível enviar o código. Tente novamente.";
+
+        if (status === 403 || msg.toLowerCase().includes('modo de teste') || msg.toLowerCase().includes('testing emails')) {
+          toast({
+            title: "⚠️ Limitação do Resend",
+            description: "Em modo de teste, só é possível enviar emails para raulepic23@gmail.com. Para usar outros emails, verifique um domínio em resend.com/domains",
+            variant: "destructive",
+          });
+        } else {
+          toast({ title: "Erro ao enviar código", description: msg, variant: "destructive" });
+        }
+        return;
+      }
 
       if (data?.error) {
         // Handle Resend limitations in test mode
