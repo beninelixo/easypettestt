@@ -100,41 +100,12 @@ const ResetPassword = () => {
       return;
     }
 
-    setIsLoading(true);
-    try {
-      // Verify code from database
-      const { data: resetData, error: queryError } = await supabase
-        .from('password_resets')
-        .select('*')
-        .eq('email', email.toLowerCase().trim())
-        .eq('code', otpCode)
-        .eq('used', false)
-        .gt('expires_at', new Date().toISOString())
-        .maybeSingle();
-
-      if (queryError) {
-        console.error('Query error:', queryError);
-        throw new Error('Erro ao verificar código');
-      }
-
-      if (!resetData) {
-        throw new Error('Código inválido ou expirado');
-      }
-
-      toast({
-        title: "✅ Código verificado!",
-        description: "Agora defina sua nova senha.",
-      });
-      setStep("password");
-    } catch (error: any) {
-      toast({
-        title: "❌ Código inválido",
-        description: error.message || "Verifique se digitou o código corretamente ou se ele ainda é válido.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    // Move directly to password step - verification will happen server-side when resetting password
+    toast({
+      title: "✅ Código confirmado!",
+      description: "Agora defina sua nova senha.",
+    });
+    setStep("password");
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {

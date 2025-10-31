@@ -10,6 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Megaphone, Plus, Send, Users } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const campaignSchema = z.object({
+  name: z.string().trim().min(3, "Nome deve ter no mínimo 3 caracteres").max(100, "Nome deve ter no máximo 100 caracteres"),
+  message: z.string().trim().min(10, "Mensagem deve ter no mínimo 10 caracteres").max(1000, "Mensagem deve ter no máximo 1000 caracteres"),
+  target_audience: z.enum(["todos", "frequentes", "inativos", "vip"]),
+  channel: z.enum(["whatsapp", "sms", "email"]),
+});
 
 const Marketing = () => {
   const { user } = useAuth();
@@ -56,6 +64,16 @@ const Marketing = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form data
+    try {
+      campaignSchema.parse(formData);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+        return;
+      }
+    }
     
     const { error } = await supabase.from("marketing_campaigns").insert({
       ...formData,
@@ -110,6 +128,7 @@ const Marketing = () => {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Ex: Promoção de Verão"
+                  maxLength={100}
                 />
               </div>
 
@@ -122,9 +141,10 @@ const Marketing = () => {
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   placeholder="Digite a mensagem que será enviada aos clientes..."
+                  maxLength={1000}
                 />
                 <p className="text-xs text-muted-foreground">
-                  {formData.message.length} caracteres
+                  {formData.message.length}/1000 caracteres
                 </p>
               </div>
 

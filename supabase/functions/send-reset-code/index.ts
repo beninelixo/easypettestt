@@ -15,7 +15,7 @@ serve(async (req) => {
 
   try {
     const { email } = await req.json();
-    console.log('Password reset requested for:', email);
+    console.log('Password reset request received');
 
     // Validate email
     if (!email || !email.includes('@')) {
@@ -64,7 +64,7 @@ serve(async (req) => {
 
     // Generate 6-digit code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log('Generated code:', code);
+    console.log('Verification code generated and stored');
 
     // Delete old codes for this email
     await supabase

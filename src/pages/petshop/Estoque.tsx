@@ -9,6 +9,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Package, Plus, TrendingDown, AlertTriangle, Search } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const productSchema = z.object({
+  name: z.string().trim().min(2, "Nome deve ter no mínimo 2 caracteres").max(100, "Nome deve ter no máximo 100 caracteres"),
+  description: z.string().trim().max(500, "Descrição deve ter no máximo 500 caracteres").optional(),
+  category: z.enum(["racao", "petisco", "higiene", "brinquedo", "acessorio", "medicamento"]),
+  sku: z.string().trim().max(50, "SKU deve ter no máximo 50 caracteres").regex(/^[A-Za-z0-9-]*$/, "SKU deve conter apenas letras, números e hífens").optional().or(z.literal("")),
+  barcode: z.string().trim().max(50, "Código de barras deve ter no máximo 50 caracteres").regex(/^[0-9]*$/, "Código de barras deve conter apenas números").optional().or(z.literal("")),
+  cost_price: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, "Preço de custo deve ser maior que zero"),
+  sale_price: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, "Preço de venda deve ser maior que zero"),
+  stock_quantity: z.string().refine((val) => !isNaN(parseInt(val)) && parseInt(val) >= 0, "Quantidade deve ser um número positivo"),
+  min_stock_quantity: z.string().refine((val) => !isNaN(parseInt(val)) && parseInt(val) >= 0, "Estoque mínimo deve ser um número positivo"),
+});
 
 const Estoque = () => {
   const { user } = useAuth();
@@ -62,6 +75,16 @@ const Estoque = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form data
+    try {
+      productSchema.parse(formData);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+        return;
+      }
+    }
     
     const { error } = await supabase.from("products").insert({
       ...formData,
@@ -131,6 +154,7 @@ const Estoque = () => {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    maxLength={100}
                   />
                 </div>
                 <div className="space-y-2">
@@ -157,6 +181,7 @@ const Estoque = () => {
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  maxLength={500}
                 />
               </div>
 
@@ -167,6 +192,8 @@ const Estoque = () => {
                     id="sku"
                     value={formData.sku}
                     onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                    maxLength={50}
+                    pattern="[A-Za-z0-9-]*"
                   />
                 </div>
                 <div className="space-y-2">
@@ -175,6 +202,8 @@ const Estoque = () => {
                     id="barcode"
                     value={formData.barcode}
                     onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
+                    maxLength={50}
+                    pattern="[0-9]*"
                   />
                 </div>
                 <div className="space-y-2">
@@ -195,6 +224,8 @@ const Estoque = () => {
                     id="cost_price"
                     type="number"
                     step="0.01"
+                    min="0.01"
+                    max="999999.99"
                     required
                     value={formData.cost_price}
                     onChange={(e) => setFormData({ ...formData, cost_price: e.target.value })}
@@ -206,6 +237,8 @@ const Estoque = () => {
                     id="sale_price"
                     type="number"
                     step="0.01"
+                    min="0.01"
+                    max="999999.99"
                     required
                     value={formData.sale_price}
                     onChange={(e) => setFormData({ ...formData, sale_price: e.target.value })}
@@ -219,6 +252,8 @@ const Estoque = () => {
                   <Input
                     id="stock_quantity"
                     type="number"
+                    min="0"
+                    max="999999"
                     required
                     value={formData.stock_quantity}
                     onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
@@ -229,6 +264,8 @@ const Estoque = () => {
                   <Input
                     id="min_stock_quantity"
                     type="number"
+                    min="0"
+                    max="999999"
                     required
                     value={formData.min_stock_quantity}
                     onChange={(e) => setFormData({ ...formData, min_stock_quantity: e.target.value })}

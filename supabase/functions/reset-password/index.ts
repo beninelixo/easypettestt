@@ -15,7 +15,7 @@ serve(async (req) => {
 
   try {
     const { email, code, newPassword } = await req.json();
-    console.log('Password reset attempt for:', email);
+    console.log('Password reset attempt received');
 
     // Validate inputs
     if (!email || !code || !newPassword) {
@@ -106,7 +106,7 @@ serve(async (req) => {
       );
     }
 
-    console.log('Password reset successful for:', email);
+    console.log('Password reset completed successfully');
 
     return new Response(
       JSON.stringify({ 
