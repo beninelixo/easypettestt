@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { TenantProvider } from "./lib/tenant-context";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { ThemeToggle } from "./components/ThemeToggle";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Pricing from "./pages/Pricing";
@@ -55,6 +56,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <ThemeToggle />
           <BrowserRouter>
             <ScrollToTop />
           <Routes>
