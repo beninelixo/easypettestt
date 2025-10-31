@@ -216,7 +216,15 @@ export type Database = {
           price?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "services_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
