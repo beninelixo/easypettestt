@@ -2,10 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#8B5CF6" />
     <title>Bointhosa Pet System - Gestão Inteligente para Banho e Tosa</title>
     <meta name="description" content="Sistema completo de gestão para pet shops, banho e tosa. Agendamentos automáticos, controle de clientes e pets, dashboard completo. Simplifique seu negócio pet." />
     <meta name="author" content="Bointhosa Pet System" />
+    
+    <!-- Performance optimizations -->
+    <link rel="preconnect" href="https://xkfkrdorghyagtwbxory.supabase.co" />
+    <link rel="dns-prefetch" href="https://xkfkrdorghyagtwbxory.supabase.co" />
 
     <meta property="og:title" content="Bointhosa Pet System - Gestão Inteligente para Banho e Tosa" />
     <meta property="og:description" content="Sistema completo de gestão para pet shops, banho e tosa. Agendamentos automáticos, controle de clientes e pets, dashboard completo." />
@@ -20,5 +27,14 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Register service worker for PWA
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .catch(() => console.log('Service worker registration failed'));
+        });
+      }
+    </script>
   </body>
 </html>
