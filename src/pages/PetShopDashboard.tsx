@@ -70,64 +70,51 @@ const PetShopDashboard = () => {
   };
 
   const loadStats = async (shopId: string) => {
-    // Count today's appointments
-    const today = format(new Date(), "yyyy-MM-dd");
-    const { count: todayCount } = await supabase
-      .from("appointments")
-      .select("*", { count: 'exact', head: true })
-      .eq("pet_shop_id", shopId)
-      .eq("scheduled_date", today);
+    // Use otimized database function for dashboard stats
+    const { data: statsData, error: statsError } = await supabase
+      .rpc('get_dashboard_stats', { 
+        _pet_shop_id: shopId,
+        _date: format(new Date(), "yyyy-MM-dd")
+      });
 
-    // Calculate monthly revenue from completed appointments
-    const startOfMonth = format(new Date(new Date().getFullYear(), new Date().getMonth(), 1), "yyyy-MM-dd");
-    const { data: monthlyAppts } = await supabase
-      .from("appointments")
-      .select("service:services(price)")
-      .eq("pet_shop_id", shopId)
-      .eq("status", "completed")
-      .gte("scheduled_date", startOfMonth);
+    if (!statsError && statsData) {
+      const stats = statsData as any;
+      setStats({
+        todayAppointments: stats.today_appointments || 0,
+        monthlyRevenue: `R$ ${Number(stats.monthly_revenue || 0).toFixed(2)}`,
+        activeClients: stats.active_clients || 0,
+        completedServices: stats.completed_services || 0,
+      });
+    }
 
-    const monthlyRevenue = monthlyAppts?.reduce((sum, apt) => sum + (apt.service?.price || 0), 0) || 0;
+    // Load real revenue data from last 6 months
+    const { data: revenueDataFromDb, error: revenueError } = await supabase
+      .rpc('get_monthly_revenue', { 
+        _pet_shop_id: shopId,
+        _months: 6
+      });
 
-    // Count unique clients
-    const { data: clientData } = await supabase
-      .from("appointments")
-      .select("client_id")
-      .eq("pet_shop_id", shopId);
-    
-    const uniqueClients = new Set(clientData?.map(a => a.client_id)).size;
+    if (!revenueError && revenueDataFromDb) {
+      setRevenueData(revenueDataFromDb.map(item => ({
+        month: item.month,
+        revenue: Number(item.revenue)
+      })));
+    }
 
-    // Count completed services
-    const { count: completedCount } = await supabase
-      .from("appointments")
-      .select("*", { count: 'exact', head: true })
-      .eq("pet_shop_id", shopId)
-      .eq("status", "completed");
+    // Load real weekly appointments data
+    const { data: weekDataFromDb, error: weekError } = await supabase
+      .rpc('get_weekly_appointments', { 
+        _pet_shop_id: shopId
+      });
 
-    setStats({
-      todayAppointments: todayCount || 0,
-      monthlyRevenue: `R$ ${monthlyRevenue.toFixed(2)}`,
-      activeClients: uniqueClients,
-      completedServices: completedCount || 0,
-    });
-
-    // Generate sample revenue data (last 6 months)
-    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
-    const sampleRevenue = months.map((month, index) => ({
-      month,
-      revenue: Math.floor(Math.random() * 5000) + 2000 + (index * 500)
-    }));
-    setRevenueData(sampleRevenue);
-
-    // Generate sample week data
-    const days = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-    const sampleWeek = days.map(day => ({
-      day,
-      completed: Math.floor(Math.random() * 15) + 5,
-      pending: Math.floor(Math.random() * 5) + 2,
-      cancelled: Math.floor(Math.random() * 3)
-    }));
-    setWeekData(sampleWeek);
+    if (!weekError && weekDataFromDb) {
+      setWeekData(weekDataFromDb.map(item => ({
+        day: item.day,
+        completed: Number(item.completed),
+        pending: Number(item.pending),
+        cancelled: Number(item.cancelled)
+      })));
+    }
   };
 
   const updateAppointmentStatus = async (appointmentId: string, newStatus: string) => {

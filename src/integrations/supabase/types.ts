@@ -845,6 +845,26 @@ export type Database = {
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       generate_pet_shop_code: { Args: never; Returns: string }
       generate_user_code: { Args: never; Returns: string }
+      get_dashboard_stats: {
+        Args: { _date?: string; _pet_shop_id: string }
+        Returns: Json
+      }
+      get_monthly_revenue: {
+        Args: { _months?: number; _pet_shop_id: string }
+        Returns: {
+          month: string
+          revenue: number
+        }[]
+      }
+      get_weekly_appointments: {
+        Args: { _pet_shop_id: string }
+        Returns: {
+          cancelled: number
+          completed: number
+          day: string
+          pending: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
