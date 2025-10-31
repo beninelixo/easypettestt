@@ -1,17 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { PawPrint, Loader2, Shield, Lock } from "lucide-react";
 import { useAuth, UserRole } from "@/hooks/useAuth";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useRateLimit } from "@/hooks/useRateLimit";
+import { useRememberMe } from "@/hooks/useRememberMe";
 import { AuthIllustration } from "@/components/auth/AuthIllustration";
+import { PasswordInput } from "@/components/auth/PasswordInput";
+import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
 
 const authSchema = z.object({
   email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
@@ -40,6 +44,12 @@ const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { rememberMe, savedEmail, saveRememberMe } = useRememberMe();
+  const [rememberMeChecked, setRememberMeChecked] = useState(false);
+
+  // Refs for auto-focus
+  const loginEmailRef = useRef<HTMLInputElement>(null);
+  const registerNameRef = useRef<HTMLInputElement>(null);
 
   // Rate limiting for login attempts
   const loginRateLimit = useRateLimit('login', {
@@ -47,6 +57,14 @@ const Auth = () => {
     windowMs: 60000,
     blockDurationMs: 300000,
   });
+
+  // Load saved email on mount
+  useEffect(() => {
+    if (savedEmail) {
+      setLoginEmail(savedEmail);
+      setRememberMeChecked(true);
+    }
+  }, [savedEmail]);
 
   useEffect(() => {
     if (!loading && user) {
@@ -101,10 +119,12 @@ const Auth = () => {
     }
 
     setIsLoading(true);
-    const result = await signIn(loginEmail, loginPassword);
+    const result = await signIn(loginEmail, loginPassword, rememberMeChecked);
     
     if (result.data) {
       loginRateLimit.reset();
+      // Save remember me preference
+      saveRememberMe(rememberMeChecked, loginEmail);
     }
     
     setIsLoading(false);
@@ -256,6 +276,7 @@ const Auth = () => {
                     <div className="space-y-2">
                       <Label htmlFor="email" className="text-sm font-medium">Email</Label>
                       <Input 
+                        ref={loginEmailRef}
                         id="email" 
                         type="email" 
                         placeholder="seu@email.com" 
@@ -264,6 +285,7 @@ const Auth = () => {
                         required 
                         maxLength={255}
                         className="h-12 bg-background/50 border-2 focus:border-primary transition-colors"
+                        autoFocus
                       />
                       {formErrors.email && (
                         <p className="text-sm text-destructive flex items-center gap-1">
@@ -274,9 +296,8 @@ const Auth = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="password" className="text-sm font-medium">Senha</Label>
-                      <Input 
+                      <PasswordInput
                         id="password" 
-                        type="password" 
                         placeholder="••••••••" 
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
@@ -290,6 +311,21 @@ const Auth = () => {
                           {formErrors.password}
                         </p>
                       )}
+                    </div>
+
+                    {/* Remember Me Checkbox */}
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="remember-me"
+                        checked={rememberMeChecked}
+                        onCheckedChange={(checked) => setRememberMeChecked(checked as boolean)}
+                      />
+                      <label
+                        htmlFor="remember-me"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Permanecer conectado
+                      </label>
                     </div>
 
                     {loginRateLimit.isBlocked && (
@@ -475,9 +511,8 @@ const Auth = () => {
                     {/* Password Field */}
                     <div className="space-y-2">
                       <Label htmlFor="register-password" className="text-sm font-medium">Senha</Label>
-                      <Input 
+                      <PasswordInput
                         id="register-password" 
-                        type="password" 
                         placeholder="Mínimo 8 caracteres (maiúsculas, minúsculas, números)" 
                         value={registerPassword}
                         onChange={(e) => setRegisterPassword(e.target.value)}
@@ -492,6 +527,11 @@ const Auth = () => {
                         </p>
                       )}
                     </div>
+
+                    {/* Password Strength Indicator */}
+                    {registerPassword && (
+                      <PasswordStrengthIndicator password={registerPassword} />
+                    )}
 
                     <p className="text-xs text-muted-foreground pt-2">
                       Ao criar uma conta, você concorda com nossos Termos de Serviço e Política de Privacidade.

@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { ArrowLeft, KeyRound, Loader2, Mail, ShieldCheck } from "lucide-react";
+import { PasswordInput } from "@/components/auth/PasswordInput";
+import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
 
 const emailSchema = z.string().trim().email("Email inválido").max(255, "Email muito longo");
 
@@ -289,51 +291,66 @@ const ResetPassword = () => {
           {step === "password" && (
             <form onSubmit={handleResetPassword} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="newPassword">🔑 Nova Senha</Label>
-                <Input
+                <Label htmlFor="newPassword" className="text-sm font-medium">🔑 Nova Senha</Label>
+                <PasswordInput
                   id="newPassword"
-                  type="password"
                   placeholder="••••••••"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
                   disabled={isLoading}
+                  className="h-12"
+                  autoFocus
                 />
                 {formErrors.password && (
-                  <p className="text-sm text-destructive">{formErrors.password}</p>
+                  <p className="text-sm text-destructive flex items-center gap-1">
+                    <span className="text-xs">⚠️</span>
+                    {formErrors.password}
+                  </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">✅ Confirmar Senha</Label>
-                <Input
+                <Label htmlFor="confirmPassword" className="text-sm font-medium">✅ Confirmar Senha</Label>
+                <PasswordInput
                   id="confirmPassword"
-                  type="password"
                   placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   disabled={isLoading}
+                  className="h-12"
                 />
                 {formErrors.confirmPassword && (
-                  <p className="text-sm text-destructive">{formErrors.confirmPassword}</p>
+                  <p className="text-sm text-destructive flex items-center gap-1">
+                    <span className="text-xs">⚠️</span>
+                    {formErrors.confirmPassword}
+                  </p>
                 )}
               </div>
 
-                   <div className="bg-muted/50 p-3 rounded-lg">
+              {/* Password Strength Indicator */}
+              {newPassword && (
+                <PasswordStrengthIndicator password={newPassword} />
+              )}
+
+              <div className="bg-muted/50 p-3 rounded-lg">
                 <p className="text-xs text-muted-foreground">
-                  A senha deve ter no mínimo 8 caracteres, incluindo maiúsculas, minúsculas e números.
+                  💡 Dica: Use uma senha forte com pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.
                 </p>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full h-12 font-semibold" disabled={isLoading}>
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Salvando...
                   </>
                 ) : (
-                  "Redefinir Senha"
+                  <>
+                    <KeyRound className="mr-2 h-5 w-5" />
+                    Redefinir Senha
+                  </>
                 )}
               </Button>
             </form>

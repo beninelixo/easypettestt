@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -14,12 +14,44 @@ export const useAuth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Memoize fetchUserRole to avoid recreation
+  const fetchUserRole = useCallback(async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') throw error;
+
+      if (data?.role) {
+        setUserRole(data.role as UserRole);
+      }
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+
+        // Handle token refresh
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('Token refreshed successfully');
+        }
+
+        // Handle sign out
+        if (event === 'SIGNED_OUT') {
+          setUserRole(null);
+          setLoading(false);
+        }
 
         // Provisional role from user metadata to avoid navigation deadlocks
         const metaRole = (session?.user?.user_metadata?.user_type as UserRole) || null;
@@ -50,27 +82,7 @@ export const useAuth = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
-
-  const fetchUserRole = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      if (error && error.code !== 'PGRST116') throw error;
-
-      if (data?.role) {
-        setUserRole(data.role as UserRole);
-      }
-    } catch (error) {
-      console.error("Error fetching user role:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [fetchUserRole]);
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
@@ -105,7 +117,7 @@ export const useAuth = () => {
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -114,16 +126,29 @@ export const useAuth = () => {
 
       if (error) throw error;
 
+      // Save email for remember me if enabled
+      if (rememberMe) {
+        localStorage.setItem('bointhosa_remember_me', 'true');
+        localStorage.setItem('bointhosa_saved_email', email);
+      }
+
+      // Get user's name for personalized welcome
+      const userName = data.user?.user_metadata?.full_name || 'usuário';
+
       toast({
-        title: "Login realizado com sucesso!",
-        description: "Bem-vindo de volta!",
+        title: `Bem-vindo de volta, ${userName}!`,
+        description: rememberMe ? "Você será conectado automaticamente na próxima visita." : "Login realizado com sucesso.",
       });
 
       return { data, error: null };
     } catch (error: any) {
+      const errorMessage = error.message === 'Invalid login credentials' 
+        ? 'Email ou senha incorretos'
+        : error.message;
+      
       toast({
         title: "Erro ao fazer login",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
       return { data: null, error };
@@ -132,18 +157,26 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
+      // Clear remember me data
+      localStorage.removeItem('bointhosa_remember_me');
+      localStorage.removeItem('bointhosa_saved_email');
+      
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
 
       setUser(null);
       setSession(null);
       setUserRole(null);
+      
+      // Navigate first, then show toast to avoid navigation issues
       navigate("/");
-
-      toast({
-        title: "Logout realizado",
-        description: "Até logo!",
-      });
+      
+      setTimeout(() => {
+        toast({
+          title: "Logout realizado",
+          description: "Até logo!",
+        });
+      }, 100);
     } catch (error: any) {
       toast({
         title: "Erro ao fazer logout",
