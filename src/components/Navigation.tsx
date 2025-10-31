@@ -12,6 +12,8 @@ const Navigation = () => {
     { to: "/funcionalidades", label: "Funcionalidades" },
     { to: "/pricing", label: "Planos" },
     { to: "/about", label: "Sobre" },
+    { to: "/blog", label: "Blog" },
+    { to: "/contact", label: "Contato" },
   ];
 
   return (

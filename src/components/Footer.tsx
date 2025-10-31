@@ -21,14 +21,22 @@ const Footer = () => {
 
           {/* Links */}
           <div>
-            <h3 className="font-semibold mb-4">Produto</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold mb-4 text-foreground">Produto</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link
+                  to="/funcionalidades"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Funcionalidades
+                </Link>
+              </li>
               <li>
                 <Link
                   to="/pricing"
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Planos
+                  Planos e Preços
                 </Link>
               </li>
               <li>
@@ -36,19 +44,35 @@ const Footer = () => {
                   to="/about"
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Sobre
+                  Sobre Nós
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Support */}
+          {/* Resources */}
           <div>
-            <h3 className="font-semibold mb-4">Suporte</h3>
-            <ul className="space-y-2">
-              <li className="text-sm text-muted-foreground">Documentação</li>
-              <li className="text-sm text-muted-foreground">FAQ</li>
-              <li className="text-sm text-muted-foreground">Contato</li>
+            <h3 className="font-semibold mb-4 text-foreground">Recursos</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link
+                  to="/blog"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/contact"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Contato
+                </Link>
+              </li>
+              <li className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer">
+                FAQ
+              </li>
             </ul>
           </div>
 

@@ -13,6 +13,8 @@ import Funcionalidades from "./pages/Funcionalidades";
 import Clinicas from "./pages/Clinicas";
 import PetShops from "./pages/PetShops";
 import BanhoTosa from "./pages/BanhoTosa";
+import Blog from "./pages/Blog";
+import Contact from "./pages/Contact";
 import ClientDashboard from "./pages/ClientDashboard";
 import PetShopDashboardLayout from "./pages/PetShopDashboardLayout";
 import PetShopDashboard from "./pages/PetShopDashboard";
@@ -56,6 +58,8 @@ const App = () => (
             <Route path="/clinicas" element={<Clinicas />} />
             <Route path="/petshops" element={<PetShops />} />
             <Route path="/banho-tosa" element={<BanhoTosa />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             
