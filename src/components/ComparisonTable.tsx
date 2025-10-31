@@ -25,42 +25,42 @@ const ComparisonTable = () => {
           </p>
         </div>
 
-        <Card className="border-2 shadow-2xl overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-primary to-primary-light text-primary-foreground">
+        <Card className="border shadow-lg overflow-hidden bg-card">
+          <CardHeader className="bg-primary text-primary-foreground py-6">
             <div className="grid grid-cols-3 gap-4">
-              <CardTitle className="text-lg">Funcionalidade</CardTitle>
-              <CardTitle className="text-lg text-center">Bointhosa</CardTitle>
-              <CardTitle className="text-lg text-center">Agenda Tradicional</CardTitle>
+              <CardTitle className="text-base md:text-lg font-semibold">Funcionalidade</CardTitle>
+              <CardTitle className="text-base md:text-lg font-semibold text-center">Bointhosa</CardTitle>
+              <CardTitle className="text-base md:text-lg font-semibold text-center">Métodos Tradicionais</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="p-0">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className={`grid grid-cols-3 gap-4 p-4 hover:bg-muted/50 transition-colors duration-200 ${
-                  index !== features.length - 1 ? "border-b" : ""
-                }`}
+                className={`grid grid-cols-3 gap-4 p-4 hover:bg-accent/5 transition-colors duration-200 ${
+                  index !== features.length - 1 ? "border-b border-border" : ""
+                } ${index % 2 === 0 ? "bg-muted/30" : "bg-card"}`}
               >
-                <div className="font-medium text-foreground">{feature.name}</div>
-                <div className="flex justify-center">
+                <div className="font-medium text-card-foreground flex items-center">{feature.name}</div>
+                <div className="flex justify-center items-center">
                   {feature.bointhosa ? (
-                    <div className="w-8 h-8 bg-accent/20 rounded-full flex items-center justify-center">
-                      <Check className="h-5 w-5 text-accent" />
+                    <div className="w-10 h-10 bg-green-100 dark:bg-green-950 rounded-full flex items-center justify-center border-2 border-green-500">
+                      <Check className="h-6 w-6 text-green-600 dark:text-green-400 stroke-[3]" />
                     </div>
                   ) : (
-                    <div className="w-8 h-8 bg-destructive/20 rounded-full flex items-center justify-center">
-                      <X className="h-5 w-5 text-destructive" />
+                    <div className="w-10 h-10 bg-red-100 dark:bg-red-950 rounded-full flex items-center justify-center border-2 border-red-500">
+                      <X className="h-6 w-6 text-red-600 dark:text-red-400 stroke-[3]" />
                     </div>
                   )}
                 </div>
-                <div className="flex justify-center">
+                <div className="flex justify-center items-center">
                   {feature.traditional ? (
-                    <div className="w-8 h-8 bg-accent/20 rounded-full flex items-center justify-center">
-                      <Check className="h-5 w-5 text-accent" />
+                    <div className="w-10 h-10 bg-green-100 dark:bg-green-950 rounded-full flex items-center justify-center border-2 border-green-500">
+                      <Check className="h-6 w-6 text-green-600 dark:text-green-400 stroke-[3]" />
                     </div>
                   ) : (
-                    <div className="w-8 h-8 bg-destructive/20 rounded-full flex items-center justify-center">
-                      <X className="h-5 w-5 text-destructive" />
+                    <div className="w-10 h-10 bg-red-100 dark:bg-red-950 rounded-full flex items-center justify-center border-2 border-red-500">
+                      <X className="h-6 w-6 text-red-600 dark:text-red-400 stroke-[3]" />
                     </div>
                   )}
                 </div>
