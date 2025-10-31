@@ -1,14 +1,34 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
 Allow: /
+
+# Páginas que não devem ser indexadas
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /admin-dashboard
+Disallow: /client-dashboard
+Disallow: /petshop-dashboard
+Disallow: /tenant-dashboard
+Disallow: /franchise-dashboard
+Disallow: /select-petshop
+Disallow: /petshop-setup
+Disallow: /new-appointment
+
+# Sitemap
+Sitemap: https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/sitemap.xml
+
+# Crawl-delay para bots agressivos
+User-agent: Baiduspider
+Crawl-delay: 5
+
+User-agent: Yandex
+Crawl-delay: 5
+
+# Bloquear bots maliciosos
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /

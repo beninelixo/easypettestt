@@ -8,6 +8,7 @@ import TrustedBy from "@/components/TrustedBy";
 import HowItWorks from "@/components/HowItWorks";
 import ComparisonTable from "@/components/ComparisonTable";
 import FAQ from "@/components/FAQ";
+import { SEO } from "@/components/SEO";
 import { useCountUp } from "@/hooks/useCountUp";
 import { 
   Calendar, 
@@ -81,6 +82,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title="Bointhosa Pet System - Sistema Completo para Clínicas Veterinárias"
+        description="Sistema completo de gestão para clínicas veterinárias, pet shops e banho & tosa. +2.500 usuários ativos, +650 cidades. Agendamento com IA, CRM veterinário, controle financeiro. Teste grátis 14 dias."
+        url="https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com"
+      />
       <Navigation />
 
       {/* Hero Section - Inspired by LoopVet but more premium */}

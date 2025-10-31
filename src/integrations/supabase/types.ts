@@ -74,6 +74,53 @@ export type Database = {
           },
         ]
       }
+      brand_standards: {
+        Row: {
+          active: boolean
+          category: string
+          checklist_items: Json | null
+          created_at: string
+          description: string | null
+          id: string
+          required: boolean
+          tenant_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          category: string
+          checklist_items?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          required?: boolean
+          tenant_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          checklist_items?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          required?: boolean
+          tenant_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_standards_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commissions: {
         Row: {
           amount_earned: number
@@ -140,6 +187,123 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      compliance_audits: {
+        Row: {
+          audit_date: string
+          auditor_id: string
+          compliance_score: number
+          created_at: string
+          findings: Json | null
+          id: string
+          standard_id: string
+          status: string
+          unit_id: string
+          updated_at: string
+        }
+        Insert: {
+          audit_date: string
+          auditor_id: string
+          compliance_score: number
+          created_at?: string
+          findings?: Json | null
+          id?: string
+          standard_id: string
+          status?: string
+          unit_id: string
+          updated_at?: string
+        }
+        Update: {
+          audit_date?: string
+          auditor_id?: string
+          compliance_score?: number
+          created_at?: string
+          findings?: Json | null
+          id?: string
+          standard_id?: string
+          status?: string
+          unit_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_audits_standard_id_fkey"
+            columns: ["standard_id"]
+            isOneToOne: false
+            referencedRelation: "brand_standards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compliance_audits_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      franchises: {
+        Row: {
+          active: boolean
+          address: string | null
+          city: string | null
+          cnpj: string | null
+          code: string
+          contract_end_date: string | null
+          contract_start_date: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          owner_id: string
+          phone: string | null
+          royalty_percentage: number
+          settings: Json | null
+          state: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          address?: string | null
+          city?: string | null
+          cnpj?: string | null
+          code: string
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          phone?: string | null
+          royalty_percentage?: number
+          settings?: Json | null
+          state?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          address?: string | null
+          city?: string | null
+          cnpj?: string | null
+          code?: string
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          phone?: string | null
+          royalty_percentage?: number
+          settings?: Json | null
+          state?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       loyalty_points: {
         Row: {
@@ -654,6 +818,66 @@ export type Database = {
         }
         Relationships: []
       }
+      royalties: {
+        Row: {
+          created_at: string
+          franchise_id: string
+          gross_revenue: number
+          id: string
+          notes: string | null
+          paid_at: string | null
+          reference_month: string
+          royalty_amount: number
+          royalty_percentage: number
+          status: string
+          unit_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          franchise_id: string
+          gross_revenue?: number
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          reference_month: string
+          royalty_amount: number
+          royalty_percentage: number
+          status?: string
+          unit_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          franchise_id?: string
+          gross_revenue?: number
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          reference_month?: string
+          royalty_amount?: number
+          royalty_percentage?: number
+          status?: string
+          unit_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "royalties_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "royalties_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       satisfaction_surveys: {
         Row: {
           appointment_id: string
@@ -857,6 +1081,106 @@ export type Database = {
           },
         ]
       }
+      tenants: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          logo_url: string | null
+          name: string
+          primary_color: string
+          settings: Json | null
+          slug: string
+          subscription_plan: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          primary_color?: string
+          settings?: Json | null
+          slug: string
+          subscription_plan?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          primary_color?: string
+          settings?: Json | null
+          slug?: string
+          subscription_plan?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_hierarchy: {
+        Row: {
+          active: boolean
+          created_at: string
+          franchise_id: string | null
+          id: string
+          permissions: string[] | null
+          role: string
+          tenant_id: string | null
+          unit_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          franchise_id?: string | null
+          id?: string
+          permissions?: string[] | null
+          role: string
+          tenant_id?: string | null
+          unit_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          franchise_id?: string | null
+          id?: string
+          permissions?: string[] | null
+          role?: string
+          tenant_id?: string | null
+          unit_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_hierarchy_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_hierarchy_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_hierarchy_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -886,6 +1210,17 @@ export type Database = {
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       generate_pet_shop_code: { Args: never; Returns: string }
       generate_user_code: { Args: never; Returns: string }
+      get_consolidated_metrics: {
+        Args: {
+          _end_date: string
+          _franchise_ids?: string[]
+          _start_date: string
+          _tenant_id: string
+          _unit_ids?: string[]
+        }
+        Returns: Json
+      }
+      get_current_tenant: { Args: never; Returns: string }
       get_dashboard_stats: {
         Args: { _date?: string; _pet_shop_id: string }
         Returns: Json
@@ -913,10 +1248,23 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_tenant_access: {
+        Args: { _tenant_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_employee_of_petshop: {
         Args: { _pet_shop_id: string; _user_id: string }
         Returns: boolean
       }
+      is_franchise_owner: {
+        Args: { _franchise_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_tenant_admin: {
+        Args: { _tenant_id: string; _user_id: string }
+        Returns: boolean
+      }
+      set_current_tenant: { Args: { _tenant_id: string }; Returns: undefined }
     }
     Enums: {
       app_role:

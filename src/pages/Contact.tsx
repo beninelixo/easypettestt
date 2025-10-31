@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -85,6 +86,11 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title="Contato - Bointhosa Pet System | Fale Conosco"
+        description="Entre em contato com nossa equipe de especialistas. Tire dúvidas, agende uma demonstração ou solicite consultoria gratuita. Atendimento de segunda a sábado."
+        url="https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/contact"
+      />
       <Navigation />
 
       {/* Hero Section */}
