@@ -29,8 +29,13 @@ const PetShopDashboardLayout = () => {
         .single();
 
       if (profile) {
-        const name = `${profile.full_name} ${profile.user_code || ""}`;
+        const name = `${profile.full_name} ${profile.user_code || ""}`.trim();
         const fullDisplay = petShop ? `${name} (${petShop.name})` : name;
+        setDisplayName(fullDisplay);
+      } else if (user) {
+        // Fallback to auth metadata if profile hasn't been created yet
+        const metaName = (user.user_metadata?.full_name as string) || "";
+        const fullDisplay = petShop ? `${metaName} (${petShop?.name})` : metaName;
         setDisplayName(fullDisplay);
       }
     };

@@ -20,9 +20,13 @@ export const useAuth = () => {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+
+        // Provisional role from user metadata to avoid navigation deadlocks
+        const metaRole = (session?.user?.user_metadata?.user_type as UserRole) || null;
+        if (metaRole) setUserRole(metaRole);
         
         if (session?.user) {
-          // Fetch user role after session is set
+          // Fetch role from DB after session is set (authoritative)
           setTimeout(() => {
             fetchUserRole(session.user.id);
           }, 0);
@@ -54,10 +58,13 @@ export const useAuth = () => {
         .from("user_roles")
         .select("role")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
-      setUserRole(data?.role as UserRole);
+      if (error && error.code !== 'PGRST116') throw error;
+
+      if (data?.role) {
+        setUserRole(data.role as UserRole);
+      }
     } catch (error) {
       console.error("Error fetching user role:", error);
     } finally {

@@ -63,9 +63,10 @@ const Auth = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!loading && user && userRole) {
-      // Redirect to appropriate dashboard based on role
-      const redirectTo = searchParams.get("redirect") || getDashboardRoute(userRole);
+    if (!loading && user) {
+      const metaRole = (user.user_metadata?.user_type as UserRole) || null;
+      const role = userRole || metaRole || "client";
+      const redirectTo = searchParams.get("redirect") || getDashboardRoute(role);
       navigate(redirectTo);
     }
   }, [user, userRole, loading, navigate, searchParams]);
