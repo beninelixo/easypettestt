@@ -53,9 +53,12 @@ const About = () => {
             icon: Users,
             title: "Suporte Dedicado",
             description: "Equipe pronta para ajudar quando você precisar"
-          }].map((value, index) => <Card key={index} className="text-center border-border hover:shadow-lg transition-all">
+          }].map((value, index) => <Card 
+              key={index} 
+              className="text-center border-border hover:shadow-lg hover:-translate-y-2 transition-all duration-300"
+            >
                 <CardHeader>
-                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 transition-transform duration-300 group-hover:scale-110">
                     <value.icon className="h-8 w-8 text-primary" />
                   </div>
                   <CardTitle className="text-lg">{value.title}</CardTitle>

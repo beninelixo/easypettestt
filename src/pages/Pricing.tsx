@@ -79,7 +79,7 @@ const Pricing = () => {
             {plans.map((plan, index) => (
               <Card
                 key={index}
-                className={`relative border-border transition-all hover:shadow-xl ${
+                className={`relative border-border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
                   plan.highlighted ? "border-primary border-2 shadow-lg scale-105" : ""
                 }`}
               >
@@ -109,10 +109,10 @@ const Pricing = () => {
                 <CardFooter>
                   <Link to="/auth" className="w-full">
                     <Button
-                      className={`w-full ${
+                      className={`w-full transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${
                         plan.highlighted
                           ? "bg-primary hover:bg-primary-light"
-                          : "bg-secondary hover:bg-secondary/80"
+                          : "bg-secondary hover:bg-secondary/90"
                       }`}
                       size="lg"
                     >

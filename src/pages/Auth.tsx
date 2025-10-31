@@ -248,12 +248,23 @@ const Auth = () => {
                   </div>
                 </CardContent>
                 <CardFooter className="flex flex-col gap-4">
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Entrando..." : "Entrar"}
+                  <Button 
+                    type="submit" 
+                    className="w-full transition-all duration-300 hover:shadow-lg" 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Entrando...
+                      </div>
+                    ) : (
+                      "Entrar"
+                    )}
                   </Button>
                   <Link
                     to="/reset-password"
-                    className="text-sm text-primary hover:underline text-center w-full block"
+                    className="text-sm text-primary hover:text-primary-light hover:underline text-center w-full block transition-colors"
                   >
                     Esqueci minha senha
                   </Link>
@@ -396,8 +407,19 @@ const Auth = () => {
                   </p>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Criando conta..." : "Criar Conta Grátis"}
+                  <Button 
+                    type="submit" 
+                    className="w-full transition-all duration-300 hover:shadow-lg" 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Criando conta...
+                      </div>
+                    ) : (
+                      "Criar Conta Grátis"
+                    )}
                   </Button>
                 </CardFooter>
               </form>

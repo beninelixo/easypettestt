@@ -63,13 +63,20 @@ const Index = () => {
                 Simplifique seus agendamentos, encante seus clientes e aumente seu faturamento com o Bointhosa Pet System
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Link to="/auth">
-                  <Button size="lg" className="w-full sm:w-auto bg-primary hover:bg-primary-light text-lg px-8 shadow-lg hover:shadow-xl transition-all">
+                <Link to="/auth" className="w-full sm:w-auto">
+                  <Button 
+                    size="lg" 
+                    className="w-full bg-primary hover:bg-primary-light text-lg px-8 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                  >
                     Começar Grátis
                   </Button>
                 </Link>
-                <Link to="/pricing">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg px-8">
+                <Link to="/pricing" className="w-full sm:w-auto">
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="w-full text-lg px-8 hover:bg-primary/10 hover:border-primary transition-all duration-300"
+                  >
                     Ver Planos
                   </Button>
                 </Link>
@@ -130,16 +137,20 @@ const Index = () => {
             Junte-se a centenas de pet shops que já usam o Bointhosa para gerenciar seus negócios
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-            <Link to="/auth">
-              <Button size="lg" variant="secondary" className="w-full sm:w-auto text-lg px-8">
+            <Link to="/auth" className="w-full sm:w-auto">
+              <Button 
+                size="lg" 
+                variant="secondary" 
+                className="w-full text-lg px-8 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+              >
                 Teste Grátis por 14 dias
               </Button>
             </Link>
-            <Link to="/about">
+            <Link to="/about" className="w-full sm:w-auto">
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto text-lg px-8 bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                className="w-full text-lg px-8 bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary hover:shadow-lg transition-all duration-300"
               >
                 Saiba Mais
               </Button>

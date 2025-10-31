@@ -1,13 +1,24 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PawPrint } from "lucide-react";
+import { PawPrint, Menu, X } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const Navigation = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const navLinks = [
+    { to: "/", label: "Início" },
+    { to: "/about", label: "Sobre" },
+    { to: "/pricing", label: "Planos" },
+  ];
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="bg-primary text-primary-foreground p-2 rounded-lg transition-transform group-hover:scale-110">
+          <div className="bg-primary text-primary-foreground p-2 rounded-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg">
             <PawPrint className="h-5 w-5" />
           </div>
           <span className="font-bold text-xl text-foreground">
@@ -15,38 +26,91 @@ const Navigation = () => {
           </span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-6">
-          <Link
-            to="/"
-            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-          >
-            Início
-          </Link>
-          <Link
-            to="/about"
-            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-          >
-            Sobre
-          </Link>
-          <Link
-            to="/pricing"
-            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-          >
-            Planos
-          </Link>
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-8">
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className="relative text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-300 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Desktop Auth Buttons */}
+        <div className="hidden md:flex items-center gap-3">
           <Link to="/auth">
-            <Button variant="ghost" size="sm">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="hover:bg-primary/10 transition-all duration-300"
+            >
               Entrar
             </Button>
           </Link>
           <Link to="/auth">
-            <Button size="sm" className="bg-primary hover:bg-primary-light">
+            <Button 
+              size="sm" 
+              className="bg-primary hover:bg-primary-light shadow-md hover:shadow-lg transition-all duration-300"
+            >
               Começar Grátis
             </Button>
           </Link>
+        </div>
+
+        {/* Mobile Menu */}
+        <div className="md:hidden">
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="sm" className="p-2">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[280px] sm:w-[350px]">
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-2">
+                  <div className="bg-primary text-primary-foreground p-2 rounded-lg">
+                    <PawPrint className="h-5 w-5" />
+                  </div>
+                  <span className="text-lg">Menu</span>
+                </SheetTitle>
+              </SheetHeader>
+              
+              <div className="flex flex-col gap-4 mt-8">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    onClick={() => setIsOpen(false)}
+                    className="text-base font-medium text-foreground hover:text-primary transition-colors py-2 px-4 rounded-lg hover:bg-primary/10"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                
+                <div className="border-t border-border my-4" />
+                
+                <Link to="/auth" onClick={() => setIsOpen(false)}>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-center"
+                  >
+                    Entrar
+                  </Button>
+                </Link>
+                
+                <Link to="/auth" onClick={() => setIsOpen(false)}>
+                  <Button 
+                    className="w-full justify-center bg-primary hover:bg-primary-light"
+                  >
+                    Começar Grátis
+                  </Button>
+                </Link>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </nav>
