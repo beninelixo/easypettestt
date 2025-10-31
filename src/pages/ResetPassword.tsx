@@ -82,20 +82,11 @@ const ResetPassword = () => {
         throw new Error(data.error);
       }
 
-      // If function returned testMode flag, inform and do not proceed
-      if (data?.testMode) {
-        toast({
-          title: "⚠️ Limitação do Resend",
-          description: "Em modo de teste, só é possível enviar emails para raulepic23@gmail.com. Para usar outros emails, verifique um domínio em resend.com/domains",
-          variant: "destructive",
-        });
-        return;
-      }
-
+      // Inform user and proceed to verification step
       toast({
-        title: data?.testMode ? "✉️ Código (modo teste)" : "✉️ Código enviado!",
+        title: data?.testMode ? "✉️ Código (modo de teste)" : "✉️ Código enviado!",
         description: data?.testMode
-          ? `Como o envio por email está bloqueado em modo de teste, use este código: ${data.devCode}`
+          ? `Envio real bloqueado no modo de teste. Use este código: ${data.devCode}`
           : "Enviamos um código de 6 dígitos para seu email. Válido por 10 minutos.",
       });
       if (data?.testMode && data?.devCode) {
