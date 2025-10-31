@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,6 +35,19 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+  useEffect(() => {
+    const hash = window.location.hash;
+    const params = new URLSearchParams(hash.replace('#', '?'));
+    if (params.get('type') === 'recovery') {
+      setStep('password');
+      toast({
+        title: "🔐 Link verificado",
+        description: "Defina sua nova senha abaixo.",
+      });
+      history.replaceState(null, '', window.location.pathname);
+    }
+  }, []);
+
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormErrors({});
@@ -47,52 +60,26 @@ const ResetPassword = () => {
 
     setIsLoading(true);
     try {
-      // Call edge function to send reset code
-      const { data, error } = await supabase.functions.invoke('send-reset-code', {
-        body: { email: email.toLowerCase().trim() }
+      // Envia email de recuperação nativo do backend (sem precisar de remetente personalizado)
+      const { error } = await supabase.auth.resetPasswordForEmail(email.toLowerCase().trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
       });
 
-      // Handle invoke errors without throwing to avoid overlay
       if (error) {
-        const status = (error as any).status;
-        const msg = (error as any).message || "Não foi possível enviar o código. Tente novamente.";
-
-        if (status === 403 || msg.toLowerCase().includes('modo de teste') || msg.toLowerCase().includes('testing emails')) {
-          toast({
-            title: "⚠️ Limitação do Resend",
-            description: "Em modo de teste, só é possível enviar emails para raulepic23@gmail.com. Para usar outros emails, verifique um domínio em resend.com/domains",
-            variant: "destructive",
-          });
-        } else {
-          toast({ title: "Erro ao enviar código", description: msg, variant: "destructive" });
-        }
+        toast({
+          title: "Erro ao enviar email",
+          description: (error as any).message || "Tente novamente em instantes.",
+          variant: "destructive",
+        });
         return;
       }
 
-      if (data?.error) {
-        // Handle Resend limitations in test mode
-        if (data.error.includes('modo de teste')) {
-          toast({
-            title: "⚠️ Limitação do Resend",
-            description: "Em modo de teste, só é possível enviar emails para raulepic23@gmail.com. Para usar outros emails, verifique um domínio em resend.com/domains",
-            variant: "destructive",
-          });
-          return;
-        }
-        throw new Error(data.error);
-      }
-
-      // Inform user and proceed to verification step
       toast({
-        title: data?.testMode ? "✉️ Código (modo de teste)" : "✉️ Código enviado!",
-        description: data?.testMode
-          ? `Envio real bloqueado no modo de teste. Use este código: ${data.devCode}`
-          : "Enviamos um código de 6 dígitos para seu email. Válido por 10 minutos.",
+        title: "✉️ Email enviado!",
+        description: "Enviamos um link para redefinir sua senha. Verifique sua caixa de entrada.",
       });
-      if (data?.testMode && data?.devCode) {
-        setOtpCode(String(data.devCode));
-      }
-      setStep("otp");
+
+      // Não avançamos de etapa aqui; o usuário usará o link recebido no email.
     } catch (error: any) {
       const errorMessage = error.message || "Não foi possível enviar o código. Tente novamente.";
       
@@ -174,20 +161,9 @@ const ResetPassword = () => {
 
     setIsLoading(true);
     try {
-      // Call edge function to reset password
-      const { data, error } = await supabase.functions.invoke('reset-password', {
-        body: { 
-          email: email.toLowerCase().trim(),
-          code: otpCode,
-          newPassword: newPassword
-        }
-      });
-
+      // Atualiza a senha usando a sessão do link de recuperação
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-
-      if (data?.error) {
-        throw new Error(data.error);
-      }
 
       toast({
         title: "🎉 Senha redefinida com sucesso!",
@@ -196,7 +172,7 @@ const ResetPassword = () => {
 
       setTimeout(() => {
         navigate("/auth");
-      }, 2000);
+      }, 1500);
     } catch (error: any) {
       toast({
         title: "Erro ao redefinir senha",
@@ -224,7 +200,7 @@ const ResetPassword = () => {
               {step === "password" && "Nova Senha"}
             </CardTitle>
             <CardDescription>
-              {step === "email" && "Digite seu email para receber o código de verificação"}
+              {step === "email" && "Digite seu email para receber o link de recuperação"}
               {step === "otp" && "Digite o código de 6 dígitos enviado para seu email"}
               {step === "password" && "Defina sua nova senha de acesso"}
             </CardDescription>
@@ -235,9 +211,9 @@ const ResetPassword = () => {
           {/* Step 1: Email */}
           {step === "email" && (
             <form onSubmit={handleSendCode} className="space-y-4">
-              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4">
-                <p className="text-xs text-amber-800 dark:text-amber-200">
-                  ⚠️ <strong>Modo de teste:</strong> Atualmente, só é possível enviar códigos para <strong>raulepic23@gmail.com</strong>. Para usar outros emails, é necessário verificar um domínio no Resend.
+              <div className="bg-muted/40 border border-border rounded-lg p-3 mb-4">
+                <p className="text-xs text-muted-foreground">
+                  Enviaremos um link de recuperação para o seu email. Siga o link para definir uma nova senha.
                 </p>
               </div>
               
@@ -264,7 +240,7 @@ const ResetPassword = () => {
                     Enviando...
                   </>
                 ) : (
-                  "Enviar Código"
+                  "Enviar link de recuperação"
                 )}
               </Button>
 
