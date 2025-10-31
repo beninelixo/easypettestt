@@ -190,30 +190,39 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-muted to-background p-4">
-      <div className="w-full max-w-md space-y-8 animate-scale-in">
-        <div className="text-center space-y-2">
-          <Link to="/" className="inline-flex items-center gap-2 group">
-            <div className="bg-primary text-primary-foreground p-3 rounded-xl transition-transform group-hover:scale-110">
-              <PawPrint className="h-8 w-8" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 relative overflow-hidden">
+      <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
+      <div className="w-full max-w-md space-y-6 animate-scale-in relative z-10">
+        <div className="text-center space-y-3">
+          <Link to="/" className="inline-flex items-center justify-center gap-3 group">
+            <div className="bg-gradient-to-br from-primary to-primary-light text-primary-foreground p-4 rounded-2xl transition-all group-hover:scale-110 group-hover:shadow-xl">
+              <PawPrint className="h-10 w-10" />
             </div>
           </Link>
-          <h1 className="text-3xl font-bold mt-4">Bem-vindo ao Bointhosa</h1>
-          <p className="text-muted-foreground">Entre ou crie sua conta para começar</p>
+          <div>
+            <h1 className="text-4xl font-bold mt-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Bointhosa Pet System
+            </h1>
+            <p className="text-muted-foreground mt-2 text-lg">Gestão profissional para seu negócio pet</p>
+          </div>
         </div>
 
         <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">Entrar</TabsTrigger>
-            <TabsTrigger value="register">Cadastrar</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 p-1 bg-muted/50">
+            <TabsTrigger value="login" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-light data-[state=active]:text-primary-foreground">
+              Entrar
+            </TabsTrigger>
+            <TabsTrigger value="register" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-light data-[state=active]:text-primary-foreground">
+              Cadastrar
+            </TabsTrigger>
           </TabsList>
 
             <TabsContent value="login">
-            <Card>
+            <Card className="border-2 shadow-xl">
               <form onSubmit={handleLogin}>
-                <CardHeader>
-                  <CardTitle>Login</CardTitle>
-                  <CardDescription>Entre com suas credenciais para acessar o sistema</CardDescription>
+                <CardHeader className="space-y-3">
+                  <CardTitle className="text-2xl">Acesse sua Conta</CardTitle>
+                  <CardDescription className="text-base">Entre com suas credenciais para continuar</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -274,11 +283,11 @@ const Auth = () => {
           </TabsContent>
 
           <TabsContent value="register">
-            <Card>
+            <Card className="border-2 shadow-xl">
               <form onSubmit={handleRegister}>
-                <CardHeader>
-                  <CardTitle>Criar Conta</CardTitle>
-                  <CardDescription>Preencha os dados abaixo para criar sua conta gratuitamente</CardDescription>
+                <CardHeader className="space-y-3">
+                  <CardTitle className="text-2xl">Crie sua Conta Grátis</CardTitle>
+                  <CardDescription className="text-base">Comece agora - sem cartão de crédito necessário</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-3">
