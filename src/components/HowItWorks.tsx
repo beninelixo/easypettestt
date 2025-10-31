@@ -1,7 +1,7 @@
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import managementImg from "@/assets/management-dashboard.jpg";
+import systemDashboardImg from "@/assets/system-dashboard.jpg";
 
 const HowItWorks = () => {
   const steps = [
@@ -49,8 +49,8 @@ const HowItWorks = () => {
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-2xl blur-xl" />
             <img
-              src={managementImg}
-              alt="Gestão profissional de pet shop com tablet"
+              src={systemDashboardImg}
+              alt="Gestão profissional de pet shop com sistema moderno"
               className="relative rounded-2xl shadow-xl w-full h-auto object-cover"
             />
           </div>
