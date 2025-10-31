@@ -82,6 +82,16 @@ const ResetPassword = () => {
         throw new Error(data.error);
       }
 
+      // If function returned testMode flag, inform and do not proceed
+      if (data?.testMode) {
+        toast({
+          title: "⚠️ Limitação do Resend",
+          description: "Em modo de teste, só é possível enviar emails para raulepic23@gmail.com. Para usar outros emails, verifique um domínio em resend.com/domains",
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
         title: "✉️ Código enviado!",
         description: "Enviamos um código de 6 dígitos para seu email. Válido por 10 minutos.",

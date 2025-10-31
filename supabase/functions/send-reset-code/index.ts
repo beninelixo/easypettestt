@@ -173,12 +173,15 @@ serve(async (req) => {
       
       // Handle specific Resend errors
       if (emailData.statusCode === 403 && emailData.message?.includes('testing emails')) {
+        // Do not propagate 403 to client to avoid error overlays in frontend
         return new Response(
           JSON.stringify({ 
-            error: 'Em modo de teste, só é possível enviar para o email cadastrado na conta Resend. Verifique um domínio em resend.com/domains para enviar para qualquer email.',
-            details: emailData.message
+            success: true,
+            testMode: true,
+            message: 'Em modo de teste, só é possível enviar para o email cadastrado na conta Resend. Verifique um domínio em resend.com/domains para enviar para qualquer email.',
+            details: emailData.message,
           }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
