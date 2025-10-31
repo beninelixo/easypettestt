@@ -24,6 +24,7 @@ import PetShopSetup from "./pages/PetShopSetup";
 import ClientSelectPetShop from "./pages/ClientSelectPetShop";
 import ClientProfile from "./pages/ClientProfile";
 import EditarPetshop from "./pages/petshop/EditarPetshop";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           
           {/* Client Routes */}
           <Route path="/select-petshop" element={

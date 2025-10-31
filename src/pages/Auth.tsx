@@ -49,14 +49,6 @@ const Auth = () => {
   const [petShopCity, setPetShopCity] = useState("");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   
-  // Password reset states
-  const [showPasswordReset, setShowPasswordReset] = useState(false);
-  const [resetStep, setResetStep] = useState<"email" | "otp" | "newPassword">("email");
-  const [resetEmail, setResetEmail] = useState("");
-  const [otpCode, setOtpCode] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  
   const { signIn, signUp, user, userRole, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -197,127 +189,6 @@ const Auth = () => {
     }
   };
 
-  const handleSendResetEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormErrors({});
-
-    const emailValidation = z.string().email("Email inválido").safeParse(resetEmail);
-    if (!emailValidation.success) {
-      setFormErrors({ resetEmail: "Email inválido" });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/auth`,
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Código enviado!",
-        description: "Verifique seu email para o código de recuperação.",
-      });
-      setResetStep("otp");
-    } catch (error: any) {
-      toast({
-        title: "Erro ao enviar código",
-        description: "Não foi possível enviar o código. Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleVerifyOTP = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormErrors({});
-
-    if (otpCode.length !== 6) {
-      setFormErrors({ otp: "Código deve ter 6 dígitos" });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        email: resetEmail,
-        token: otpCode,
-        type: "recovery",
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Código validado!",
-        description: "Agora você pode definir sua nova senha.",
-      });
-      setResetStep("newPassword");
-    } catch (error: any) {
-      toast({
-        title: "Código inválido",
-        description: "Verifique o código e tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormErrors({});
-
-    const validation = resetPasswordSchema.safeParse({
-      password: newPassword,
-      confirmPassword: confirmPassword,
-    });
-
-    if (!validation.success) {
-      const errors: Record<string, string> = {};
-      validation.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          errors[err.path[0] as string] = err.message;
-        }
-      });
-      setFormErrors(errors);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword,
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Senha alterada com sucesso!",
-        description: "Você pode fazer login com sua nova senha.",
-      });
-      
-      // Reset states and return to login
-      setShowPasswordReset(false);
-      setResetStep("email");
-      setResetEmail("");
-      setOtpCode("");
-      setNewPassword("");
-      setConfirmPassword("");
-      setFormErrors({});
-    } catch (error: any) {
-      toast({
-        title: "Erro ao alterar senha",
-        description: "Não foi possível alterar sua senha. Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-muted to-background p-4">
       <div className="w-full max-w-md space-y-8 animate-scale-in">
@@ -331,12 +202,11 @@ const Auth = () => {
           <p className="text-muted-foreground">Entre ou crie sua conta para começar</p>
         </div>
 
-        {!showPasswordReset ? (
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Entrar</TabsTrigger>
-              <TabsTrigger value="register">Cadastrar</TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="login" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="login">Entrar</TabsTrigger>
+            <TabsTrigger value="register">Cadastrar</TabsTrigger>
+          </TabsList>
 
             <TabsContent value="login">
             <Card>
@@ -381,13 +251,12 @@ const Auth = () => {
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? "Entrando..." : "Entrar"}
                   </Button>
-                  <button
-                    type="button"
-                    onClick={() => setShowPasswordReset(true)}
-                    className="text-sm text-primary hover:underline"
+                  <Link
+                    to="/reset-password"
+                    className="text-sm text-primary hover:underline text-center w-full block"
                   >
                     Esqueci minha senha
-                  </button>
+                  </Link>
                 </CardFooter>
               </form>
             </Card>
@@ -534,146 +403,7 @@ const Auth = () => {
               </form>
             </Card>
           </TabsContent>
-          </Tabs>
-        ) : (
-          <Card>
-            {resetStep === "email" && (
-              <form onSubmit={handleSendResetEmail}>
-                <CardHeader>
-                  <CardTitle>Recuperar Senha</CardTitle>
-                  <CardDescription>
-                    Digite seu email para receber o código de recuperação
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="reset-email">Email</Label>
-                    <Input
-                      id="reset-email"
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={resetEmail}
-                      onChange={(e) => setResetEmail(e.target.value)}
-                      required
-                      maxLength={255}
-                    />
-                    {formErrors.resetEmail && (
-                      <p className="text-sm text-destructive">{formErrors.resetEmail}</p>
-                    )}
-                  </div>
-                </CardContent>
-                <CardFooter className="flex flex-col gap-2">
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Enviando..." : "Enviar Código"}
-                  </Button>
-                  <button
-                    type="button"
-                    onClick={() => setShowPasswordReset(false)}
-                    className="text-sm text-muted-foreground hover:text-primary"
-                  >
-                    ← Voltar para login
-                  </button>
-                </CardFooter>
-              </form>
-            )}
-
-            {resetStep === "otp" && (
-              <form onSubmit={handleVerifyOTP}>
-                <CardHeader>
-                  <CardTitle>Digite o Código</CardTitle>
-                  <CardDescription>
-                    Insira o código de 6 dígitos enviado para {resetEmail}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2 flex flex-col items-center">
-                    <Label htmlFor="otp">Código de Verificação</Label>
-                    <InputOTP
-                      maxLength={6}
-                      value={otpCode}
-                      onChange={setOtpCode}
-                    >
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                        <InputOTPSlot index={3} />
-                        <InputOTPSlot index={4} />
-                        <InputOTPSlot index={5} />
-                      </InputOTPGroup>
-                    </InputOTP>
-                    {formErrors.otp && (
-                      <p className="text-sm text-destructive">{formErrors.otp}</p>
-                    )}
-                  </div>
-                </CardContent>
-                <CardFooter className="flex flex-col gap-2">
-                  <Button type="submit" className="w-full" disabled={isLoading || otpCode.length !== 6}>
-                    {isLoading ? "Verificando..." : "Verificar Código"}
-                  </Button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setResetStep("email");
-                      setOtpCode("");
-                    }}
-                    className="text-sm text-muted-foreground hover:text-primary"
-                  >
-                    ← Voltar
-                  </button>
-                </CardFooter>
-              </form>
-            )}
-
-            {resetStep === "newPassword" && (
-              <form onSubmit={handleResetPassword}>
-                <CardHeader>
-                  <CardTitle>Nova Senha</CardTitle>
-                  <CardDescription>
-                    Defina uma nova senha para sua conta
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="new-password">Nova Senha</Label>
-                    <Input
-                      id="new-password"
-                      type="password"
-                      placeholder="Mínimo 8 caracteres"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      required
-                      maxLength={50}
-                    />
-                    {formErrors.password && (
-                      <p className="text-sm text-destructive">{formErrors.password}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirmar Senha</Label>
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      placeholder="Repita a senha"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                      maxLength={50}
-                    />
-                    {formErrors.confirmPassword && (
-                      <p className="text-sm text-destructive">{formErrors.confirmPassword}</p>
-                    )}
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Alterando..." : "Alterar Senha"}
-                  </Button>
-                </CardFooter>
-              </form>
-            )}
-          </Card>
-        )}
+        </Tabs>
 
         <div className="text-center text-sm text-muted-foreground">
           <Link to="/" className="hover:text-primary transition-colors">
