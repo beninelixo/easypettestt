@@ -44,6 +44,7 @@ import ClientProfile from "./pages/ClientProfile";
 import EditarPetshop from "./pages/petshop/EditarPetshop";
 import ResetPassword from "./pages/ResetPassword";
 import SystemMonitoring from "./pages/SystemMonitoring";
+import SystemAnalysis from "./pages/SystemAnalysis";
 import { TenantDashboard } from "./features/tenant/pages/TenantDashboard";
 import { FranchiseDashboard } from "./features/franchise/pages/FranchiseDashboard";
 import ScrollToTop from "./components/ScrollToTop";
@@ -149,6 +150,12 @@ const App = () => (
           <Route path="/system-monitoring" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <SystemMonitoring />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/system-analysis" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <SystemAnalysis />
             </ProtectedRoute>
           } />
             

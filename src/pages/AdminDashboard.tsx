@@ -1,10 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Building2, Calendar, DollarSign, TrendingUp, Settings } from "lucide-react";
+import { Users, Building2, Calendar, DollarSign, TrendingUp, Settings, Activity, Brain } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const { signOut } = useAuth();
+  const navigate = useNavigate();
 
   const stats = [
     { title: "Pet Shops Ativos", value: "24", icon: Building2, color: "text-primary" },
@@ -46,6 +48,22 @@ const AdminDashboard = () => {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Ações Administrativas</h2>
           <div className="grid md:grid-cols-3 gap-4">
+            <Button 
+              variant="outline" 
+              className="h-24 flex flex-col gap-2"
+              onClick={() => navigate('/system-monitoring')}
+            >
+              <Activity className="h-6 w-6" />
+              Monitoramento do Sistema
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-24 flex flex-col gap-2"
+              onClick={() => navigate('/system-analysis')}
+            >
+              <Brain className="h-6 w-6" />
+              Análise com IA
+            </Button>
             <Button variant="outline" className="h-24 flex flex-col gap-2">
               <Building2 className="h-6 w-6" />
               Gerenciar Pet Shops

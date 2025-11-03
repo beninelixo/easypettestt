@@ -5,3 +5,12 @@ verify_jwt = false
 
 [functions.reset-password]
 verify_jwt = false
+
+[functions.health-check]
+verify_jwt = false
+
+[functions.cleanup-job]
+verify_jwt = false
+
+[functions.system-analysis]
+verify_jwt = true
