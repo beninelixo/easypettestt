@@ -25,11 +25,8 @@ serve(async (req) => {
       code: z.string()
         .regex(/^\d{6}$/, 'Código deve ter exatamente 6 dígitos'),
       newPassword: z.string()
-        .min(8, 'A senha deve ter pelo menos 8 caracteres')
+        .min(6, 'A senha deve ter pelo menos 6 caracteres')
         .max(128, 'Senha muito longa')
-        .regex(/[A-Z]/, 'A senha deve conter pelo menos uma letra maiúscula')
-        .regex(/[a-z]/, 'A senha deve conter pelo menos uma letra minúscula')
-        .regex(/[0-9]/, 'A senha deve conter pelo menos um número')
     });
 
     const body = await req.json();

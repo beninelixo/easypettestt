@@ -17,34 +17,72 @@ import { AuthIllustration } from "@/components/auth/AuthIllustration";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
 
-const authSchema = z.object({
+// Validation Schemas
+const loginSchema = z.object({
+  email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
+  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").max(50, "Senha muito longa"),
+});
+
+const registerClientSchema = z.object({
   email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
   password: z.string()
-    .min(8, "Senha deve ter no mínimo 8 caracteres")
-    .max(50, "Senha muito longa")
-    .regex(/[a-z]/, "Senha deve conter pelo menos uma letra minúscula")
-    .regex(/[A-Z]/, "Senha deve conter pelo menos uma letra maiúscula")
-    .regex(/[0-9]/, "Senha deve conter pelo menos um número"),
-  full_name: z.string().trim().min(2, "Nome deve ter no mínimo 2 caracteres").max(100, "Nome muito longo").optional(),
+    .min(6, "Senha deve ter no mínimo 6 caracteres")
+    .max(50, "Senha muito longa"),
+  confirmPassword: z.string(),
+  full_name: z.string().trim().min(2, "Nome completo é obrigatório").max(100, "Nome muito longo"),
+  phone: z.string().trim().min(10, "Telefone inválido").max(15, "Telefone muito longo"),
+  acceptTerms: z.boolean().refine(val => val === true, "Você deve aceitar os termos"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "As senhas não coincidem",
+  path: ["confirmPassword"],
+});
+
+const registerProfessionalSchema = z.object({
+  email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
+  password: z.string()
+    .min(6, "Senha deve ter no mínimo 6 caracteres")
+    .max(50, "Senha muito longa"),
+  confirmPassword: z.string(),
+  full_name: z.string().trim().min(2, "Nome do responsável é obrigatório").max(100, "Nome muito longo"),
+  phone: z.string().trim().min(10, "Telefone inválido").max(15, "Telefone muito longo"),
+  petShopName: z.string().trim().min(2, "Nome do petshop é obrigatório").max(100, "Nome muito longo"),
+  petShopAddress: z.string().trim().min(5, "Endereço é obrigatório").max(200, "Endereço muito longo"),
+  petShopCity: z.string().trim().min(2, "Cidade é obrigatória").max(100, "Cidade muito longa"),
+  petShopState: z.string().trim().length(2, "Estado deve ter 2 letras (ex: SP)").toUpperCase(),
+  acceptTerms: z.boolean().refine(val => val === true, "Você deve aceitar os termos"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "As senhas não coincidem",
+  path: ["confirmPassword"],
 });
 
 const Auth = () => {
+  // Login states
   const [isLoading, setIsLoading] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  
+  // Register common states
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [registerName, setRegisterName] = useState("");
+  const [registerPhone, setRegisterPhone] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [userType, setUserType] = useState<"client" | "pet_shop">("client");
+  
+  // Professional-specific states
   const [petShopName, setPetShopName] = useState("");
+  const [petShopAddress, setPetShopAddress] = useState("");
   const [petShopCity, setPetShopCity] = useState("");
+  const [petShopState, setPetShopState] = useState("");
+  
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   
-  const { signIn, signUp, user, userRole, loading } = useAuth();
+  const { signIn, user, userRole, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const { rememberMe, savedEmail, saveRememberMe } = useRememberMe();
+  const { savedEmail, saveRememberMe } = useRememberMe();
   const [rememberMeChecked, setRememberMeChecked] = useState(false);
 
   // Refs for auto-focus
@@ -80,7 +118,7 @@ const Auth = () => {
       case "client":
         return "/client-dashboard";
       case "pet_shop":
-        return "/petshop-setup";
+        return "/petshop-dashboard";
       case "admin":
         return "/admin-dashboard";
       default:
@@ -102,7 +140,7 @@ const Auth = () => {
       return;
     }
 
-    const validation = authSchema.safeParse({
+    const validation = loginSchema.safeParse({
       email: loginEmail,
       password: loginPassword,
     });
@@ -123,7 +161,6 @@ const Auth = () => {
     
     if (result.data) {
       loginRateLimit.reset();
-      // Save remember me preference
       saveRememberMe(rememberMeChecked, loginEmail);
     }
     
@@ -134,32 +171,32 @@ const Auth = () => {
     e.preventDefault();
     setFormErrors({});
 
-    if (userType === "pet_shop") {
-      if (!petShopName.trim()) {
-        setFormErrors({ petShopName: "Nome do petshop é obrigatório" });
-        toast({
-          title: "Erro de validação",
-          description: "Por favor, preencha o nome do petshop.",
-          variant: "destructive",
-        });
-        return;
-      }
-      if (!petShopCity.trim()) {
-        setFormErrors({ petShopCity: "Cidade é obrigatória" });
-        toast({
-          title: "Erro de validação",
-          description: "Por favor, preencha a cidade.",
-          variant: "destructive",
-        });
-        return;
-      }
-    }
+    // Validate based on user type
+    const schema = userType === "client" ? registerClientSchema : registerProfessionalSchema;
+    
+    const dataToValidate = userType === "client" 
+      ? {
+          email: registerEmail,
+          password: registerPassword,
+          confirmPassword,
+          full_name: registerName,
+          phone: registerPhone,
+          acceptTerms,
+        }
+      : {
+          email: registerEmail,
+          password: registerPassword,
+          confirmPassword,
+          full_name: registerName,
+          phone: registerPhone,
+          petShopName,
+          petShopAddress,
+          petShopCity,
+          petShopState,
+          acceptTerms,
+        };
 
-    const validation = authSchema.safeParse({
-      email: registerEmail,
-      password: registerPassword,
-      full_name: registerName,
-    });
+    const validation = schema.safeParse(dataToValidate);
 
     if (!validation.success) {
       const errors: Record<string, string> = {};
@@ -186,9 +223,14 @@ const Auth = () => {
           emailRedirectTo: `${window.location.origin}/`,
           data: {
             full_name: registerName,
+            phone: registerPhone,
             user_type: userType,
-            pet_shop_name: userType === "pet_shop" ? petShopName.trim() : undefined,
-            pet_shop_city: userType === "pet_shop" ? petShopCity.trim() : undefined,
+            ...(userType === "pet_shop" && {
+              pet_shop_name: petShopName.trim(),
+              pet_shop_address: petShopAddress.trim(),
+              pet_shop_city: petShopCity.trim(),
+              pet_shop_state: petShopState.trim().toUpperCase(),
+            }),
           }
         }
       });
@@ -196,19 +238,30 @@ const Auth = () => {
       if (error) throw error;
 
       toast({
-        title: "Conta criada com sucesso!",
-        description: "Você será redirecionado em instantes...",
+        title: "🎉 Conta criada com sucesso!",
+        description: userType === "client" 
+          ? "Bem-vindo! Você será redirecionado para adicionar seus pets."
+          : "Petshop cadastrado! Configure agora os serviços do seu negócio.",
       });
 
-      if (userType === "pet_shop") {
-        setTimeout(() => {
-          navigate(`/petshop-setup?name=${encodeURIComponent(petShopName)}&city=${encodeURIComponent(petShopCity)}`);
-        }, 1500);
-      }
+      // Redirect based on user type
+      setTimeout(() => {
+        if (userType === "pet_shop") {
+          navigate("/petshop-dashboard");
+        } else {
+          navigate("/client-dashboard");
+        }
+      }, 1500);
     } catch (error: any) {
+      let errorMessage = error.message;
+      
+      if (error.message.includes("already registered")) {
+        errorMessage = "Este email já está cadastrado. Tente fazer login.";
+      }
+      
       toast({
         title: "Erro ao criar conta",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -237,7 +290,7 @@ const Auth = () => {
             </Link>
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Bointhosa Pet System
+                PetChopShop
               </h1>
               <p className="text-muted-foreground text-sm">Gestão profissional para seu negócio pet</p>
             </div>
@@ -313,7 +366,6 @@ const Auth = () => {
                       )}
                     </div>
 
-                    {/* Remember Me Checkbox */}
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="remember-me"
@@ -380,7 +432,7 @@ const Auth = () => {
                   <CardContent className="space-y-5">
                     {/* Account Type Selection */}
                     <div className="space-y-3">
-                      <Label className="text-sm font-medium">Tipo de Conta</Label>
+                      <Label className="text-sm font-medium">Você é:</Label>
                       <div className="grid grid-cols-2 gap-3">
                         <button
                           type="button"
@@ -415,15 +467,16 @@ const Auth = () => {
                       </div>
                     </div>
 
-                    {/* Name Field */}
+                    {/* Common Fields */}
                     <div className="space-y-2">
-                      <Label htmlFor="name" className="text-sm font-medium">
-                        {userType === "pet_shop" ? "Nome do Responsável" : "Nome Completo"}
+                      <Label htmlFor="register-name" className="text-sm font-medium">
+                        {userType === "pet_shop" ? "Nome do Responsável *" : "Nome Completo *"}
                       </Label>
                       <Input 
-                        id="name" 
+                        ref={registerNameRef}
+                        id="register-name" 
                         type="text" 
-                        placeholder="Seu nome" 
+                        placeholder={userType === "pet_shop" ? "João Silva" : "Seu nome completo"} 
                         value={registerName}
                         onChange={(e) => setRegisterName(e.target.value)}
                         required 
@@ -431,65 +484,31 @@ const Auth = () => {
                         className="h-12 bg-background/50 border-2 focus:border-primary transition-colors"
                       />
                       {formErrors.full_name && (
-                        <p className="text-sm text-destructive flex items-center gap-1">
-                          <span className="text-xs">⚠️</span>
-                          {formErrors.full_name}
-                        </p>
+                        <p className="text-sm text-destructive">⚠️ {formErrors.full_name}</p>
                       )}
                     </div>
 
-                    {/* Pet Shop Fields */}
-                    {userType === "pet_shop" && (
-                      <>
-                        <div className="space-y-2">
-                          <Label htmlFor="petshop-name" className="flex items-center gap-2 text-sm font-medium">
-                            🏪 Nome do Petshop *
-                          </Label>
-                          <Input 
-                            id="petshop-name" 
-                            type="text" 
-                            placeholder="Ex: PetChop do Zé" 
-                            value={petShopName}
-                            onChange={(e) => setPetShopName(e.target.value)}
-                            required 
-                            maxLength={100}
-                            className="h-12 bg-background/50 border-2 focus:border-primary transition-colors"
-                          />
-                          {formErrors.petShopName && (
-                            <p className="text-sm text-destructive flex items-center gap-1">
-                              <span className="text-xs">⚠️</span>
-                              {formErrors.petShopName}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="petshop-city" className="flex items-center gap-2 text-sm font-medium">
-                            🌆 Cidade *
-                          </Label>
-                          <Input 
-                            id="petshop-city" 
-                            type="text" 
-                            placeholder="Ex: São Luís/MA" 
-                            value={petShopCity}
-                            onChange={(e) => setPetShopCity(e.target.value)}
-                            required 
-                            maxLength={100}
-                            className="h-12 bg-background/50 border-2 focus:border-primary transition-colors"
-                          />
-                          {formErrors.petShopCity && (
-                            <p className="text-sm text-destructive flex items-center gap-1">
-                              <span className="text-xs">⚠️</span>
-                              {formErrors.petShopCity}
-                            </p>
-                          )}
-                        </div>
-                      </>
-                    )}
-
-                    {/* Email Field */}
                     <div className="space-y-2">
-                      <Label htmlFor="register-email" className="text-sm font-medium">Email</Label>
+                      <Label htmlFor="register-phone" className="text-sm font-medium">
+                        Telefone *
+                      </Label>
+                      <Input 
+                        id="register-phone" 
+                        type="tel" 
+                        placeholder="(11) 99999-9999" 
+                        value={registerPhone}
+                        onChange={(e) => setRegisterPhone(e.target.value)}
+                        required 
+                        maxLength={15}
+                        className="h-12 bg-background/50 border-2 focus:border-primary transition-colors"
+                      />
+                      {formErrors.phone && (
+                        <p className="text-sm text-destructive">⚠️ {formErrors.phone}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="register-email" className="text-sm font-medium">Email *</Label>
                       <Input 
                         id="register-email" 
                         type="email" 
@@ -501,19 +520,91 @@ const Auth = () => {
                         className="h-12 bg-background/50 border-2 focus:border-primary transition-colors"
                       />
                       {formErrors.email && (
-                        <p className="text-sm text-destructive flex items-center gap-1">
-                          <span className="text-xs">⚠️</span>
-                          {formErrors.email}
-                        </p>
+                        <p className="text-sm text-destructive">⚠️ {formErrors.email}</p>
                       )}
                     </div>
 
-                    {/* Password Field */}
+                    {/* Professional-specific fields */}
+                    {userType === "pet_shop" && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="petshop-name" className="text-sm font-medium">Nome do Petshop *</Label>
+                          <Input 
+                            id="petshop-name" 
+                            type="text" 
+                            placeholder="PetShop do João" 
+                            value={petShopName}
+                            onChange={(e) => setPetShopName(e.target.value)}
+                            required 
+                            maxLength={100}
+                            className="h-12 bg-background/50 border-2 focus:border-primary transition-colors"
+                          />
+                          {formErrors.petShopName && (
+                            <p className="text-sm text-destructive">⚠️ {formErrors.petShopName}</p>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="petshop-address" className="text-sm font-medium">Endereço do Petshop *</Label>
+                          <Input 
+                            id="petshop-address" 
+                            type="text" 
+                            placeholder="Rua Exemplo, 123" 
+                            value={petShopAddress}
+                            onChange={(e) => setPetShopAddress(e.target.value)}
+                            required 
+                            maxLength={200}
+                            className="h-12 bg-background/50 border-2 focus:border-primary transition-colors"
+                          />
+                          {formErrors.petShopAddress && (
+                            <p className="text-sm text-destructive">⚠️ {formErrors.petShopAddress}</p>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-2">
+                            <Label htmlFor="petshop-city" className="text-sm font-medium">Cidade *</Label>
+                            <Input 
+                              id="petshop-city" 
+                              type="text" 
+                              placeholder="São Paulo" 
+                              value={petShopCity}
+                              onChange={(e) => setPetShopCity(e.target.value)}
+                              required 
+                              maxLength={100}
+                              className="h-12 bg-background/50 border-2 focus:border-primary transition-colors"
+                            />
+                            {formErrors.petShopCity && (
+                              <p className="text-sm text-destructive">⚠️ {formErrors.petShopCity}</p>
+                            )}
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="petshop-state" className="text-sm font-medium">Estado *</Label>
+                            <Input 
+                              id="petshop-state" 
+                              type="text" 
+                              placeholder="SP" 
+                              value={petShopState}
+                              onChange={(e) => setPetShopState(e.target.value.toUpperCase())}
+                              required 
+                              maxLength={2}
+                              className="h-12 bg-background/50 border-2 focus:border-primary transition-colors uppercase"
+                            />
+                            {formErrors.petShopState && (
+                              <p className="text-sm text-destructive">⚠️ {formErrors.petShopState}</p>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Password Fields */}
                     <div className="space-y-2">
-                      <Label htmlFor="register-password" className="text-sm font-medium">Senha</Label>
+                      <Label htmlFor="register-password" className="text-sm font-medium">Senha *</Label>
                       <PasswordInput
                         id="register-password" 
-                        placeholder="Mínimo 8 caracteres (maiúsculas, minúsculas, números)" 
+                        placeholder="••••••••" 
                         value={registerPassword}
                         onChange={(e) => setRegisterPassword(e.target.value)}
                         required 
@@ -521,21 +612,44 @@ const Auth = () => {
                         className="h-12 bg-background/50 border-2 focus:border-primary transition-colors"
                       />
                       {formErrors.password && (
-                        <p className="text-sm text-destructive flex items-center gap-1">
-                          <span className="text-xs">⚠️</span>
-                          {formErrors.password}
-                        </p>
+                        <p className="text-sm text-destructive">⚠️ {formErrors.password}</p>
+                      )}
+                      {registerPassword && <PasswordStrengthIndicator password={registerPassword} />}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm-password" className="text-sm font-medium">Confirmar Senha *</Label>
+                      <PasswordInput
+                        id="confirm-password" 
+                        placeholder="••••••••" 
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required 
+                        maxLength={50}
+                        className="h-12 bg-background/50 border-2 focus:border-primary transition-colors"
+                      />
+                      {formErrors.confirmPassword && (
+                        <p className="text-sm text-destructive">⚠️ {formErrors.confirmPassword}</p>
                       )}
                     </div>
 
-                    {/* Password Strength Indicator */}
-                    {registerPassword && (
-                      <PasswordStrengthIndicator password={registerPassword} />
+                    {/* Terms acceptance */}
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        id="accept-terms"
+                        checked={acceptTerms}
+                        onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
+                      />
+                      <label
+                        htmlFor="accept-terms"
+                        className="text-sm leading-tight peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Aceito os <Link to="/termos" className="text-primary hover:underline">Termos de Uso</Link> e a <Link to="/privacidade" className="text-primary hover:underline">Política de Privacidade</Link>
+                      </label>
+                    </div>
+                    {formErrors.acceptTerms && (
+                      <p className="text-sm text-destructive">⚠️ {formErrors.acceptTerms}</p>
                     )}
-
-                    <p className="text-xs text-muted-foreground pt-2">
-                      Ao criar uma conta, você concorda com nossos Termos de Serviço e Política de Privacidade.
-                    </p>
                   </CardContent>
                   <CardFooter className="pt-6">
                     <Button 
@@ -560,12 +674,6 @@ const Auth = () => {
               </Card>
             </TabsContent>
           </Tabs>
-
-          <div className="text-center text-sm text-muted-foreground">
-            <Link to="/" className="hover:text-primary transition-colors font-medium">
-              ← Voltar para o início
-            </Link>
-          </div>
         </div>
       </div>
     </div>
