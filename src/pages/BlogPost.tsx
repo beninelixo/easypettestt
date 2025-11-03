@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import DOMPurify from "dompurify";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { SEO } from "@/components/SEO";
@@ -197,7 +198,12 @@ const BlogPost = () => {
               {/* Content */}
               <div 
                 className="prose prose-lg max-w-none prose-headings:font-bold prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6 prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4 prose-p:text-lg prose-p:leading-relaxed prose-p:mb-6 prose-ul:my-6 prose-li:my-2 prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-muted-foreground"
-                dangerouslySetInnerHTML={{ __html: post.content }}
+                dangerouslySetInnerHTML={{ 
+                  __html: DOMPurify.sanitize(post.content, {
+                    ALLOWED_TAGS: ['p', 'h2', 'h3', 'h4', 'ul', 'ol', 'li', 'blockquote', 'strong', 'em', 'a', 'br', 'code', 'pre'],
+                    ALLOWED_ATTR: ['href', 'target', 'rel']
+                  })
+                }}
               />
 
               {/* Tags */}
