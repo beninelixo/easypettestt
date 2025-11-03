@@ -72,6 +72,14 @@ const AdminDashboard = () => {
               <Shield className="h-6 w-6" />
               Monitoramento de Auth
             </Button>
+            <Button 
+              variant="outline" 
+              className="h-24 flex flex-col gap-2"
+              onClick={() => navigate('/system-health')}
+            >
+              <Activity className="h-6 w-6 text-green-500" />
+              Saúde do Sistema
+            </Button>
             <Button variant="outline" className="h-24 flex flex-col gap-2">
               <Building2 className="h-6 w-6" />
               Gerenciar Pet Shops

@@ -46,6 +46,7 @@ import ResetPassword from "./pages/ResetPassword";
 import SystemMonitoring from "./pages/SystemMonitoring";
 import SystemAnalysis from "./pages/SystemAnalysis";
 import AuthMonitoring from "./pages/AuthMonitoring";
+import SystemHealth from "./pages/SystemHealth";
 import { TenantDashboard } from "./features/tenant/pages/TenantDashboard";
 import { FranchiseDashboard } from "./features/franchise/pages/FranchiseDashboard";
 import ScrollToTop from "./components/ScrollToTop";
@@ -165,7 +166,13 @@ const App = () => (
               <AuthMonitoring />
             </ProtectedRoute>
           } />
-            
+
+          <Route path="/system-health" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <SystemHealth />
+            </ProtectedRoute>
+          } />
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
