@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Activity, Database, Shield, Trash2, RefreshCw, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Activity, Database, Shield, Trash2, RefreshCw, AlertCircle, CheckCircle, AlertTriangle, Wrench, Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface SystemStats {
@@ -124,6 +124,36 @@ export default function SystemMonitoring() {
     } catch (error: any) {
       toast({
         title: 'Erro na Limpeza',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setRunningJob(null);
+    }
+  };
+
+  const runAutoFix = async () => {
+    setRunningJob('auto-fix');
+    try {
+      toast({
+        title: 'Correções Automáticas',
+        description: 'Iniciando correções automáticas...',
+      });
+      
+      const { data, error } = await supabase.functions.invoke('auto-fix');
+      if (error) throw error;
+      
+      const result = data as { total_fixed: number; execution_time_ms: number };
+      
+      toast({
+        title: 'Correções Concluídas',
+        description: `✅ ${result.total_fixed} problemas corrigidos em ${result.execution_time_ms}ms. Backup criado e notificação enviada!`,
+      });
+      
+      await loadData();
+    } catch (error: any) {
+      toast({
+        title: 'Erro nas Correções',
         description: error.message,
         variant: 'destructive',
       });
@@ -298,22 +328,42 @@ export default function SystemMonitoring() {
           <CardTitle>Ações Manuais</CardTitle>
           <CardDescription>Execute tarefas de manutenção sob demanda</CardDescription>
         </CardHeader>
-        <CardContent className="flex gap-4">
+        <CardContent className="flex flex-wrap gap-4">
           <Button
             onClick={runHealthCheck}
-            disabled={runningJob === 'health-check'}
+            disabled={!!runningJob}
             variant="outline"
           >
-            <Database className="h-4 w-4 mr-2" />
+            {runningJob === 'health-check' ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Database className="h-4 w-4 mr-2" />
+            )}
             {runningJob === 'health-check' ? 'Executando...' : 'Rodar Health Check'}
           </Button>
           <Button
             onClick={runCleanup}
-            disabled={runningJob === 'cleanup'}
+            disabled={!!runningJob}
             variant="outline"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
+            {runningJob === 'cleanup' ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4 mr-2" />
+            )}
             {runningJob === 'cleanup' ? 'Executando...' : 'Executar Limpeza'}
+          </Button>
+          <Button
+            onClick={runAutoFix}
+            disabled={!!runningJob}
+            className="bg-gradient-to-r from-primary to-primary/80"
+          >
+            {runningJob === 'auto-fix' ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Wrench className="h-4 w-4 mr-2" />
+            )}
+            {runningJob === 'auto-fix' ? 'Corrigindo...' : '🔧 Corrigir + Backup + E-mail'}
           </Button>
         </CardContent>
       </Card>

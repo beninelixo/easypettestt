@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.system-analysis]
 verify_jwt = true
+
+[functions.auto-fix]
+verify_jwt = true
+
+[functions.send-notification]
+verify_jwt = true
