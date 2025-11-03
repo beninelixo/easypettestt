@@ -26,3 +26,21 @@ verify_jwt = false
 
 [functions.record-login-attempt]
 verify_jwt = false
+
+[functions.auto-diagnostico]
+verify_jwt = true
+
+[functions.backup-critical-data]
+verify_jwt = true
+
+[functions.check-expiring-products]
+verify_jwt = true
+
+[functions.process-overdue-appointments]
+verify_jwt = true
+
+[functions.reconcile-payments]
+verify_jwt = true
+
+[functions.send-alert-email]
+verify_jwt = true
