@@ -106,17 +106,7 @@ serve(async (req) => {
       );
     }
 
-    // Mark code as used
-    const { error: updateCodeError } = await supabase
-      .from('password_resets')
-      .update({ used: true })
-      .eq('id', resetData.id);
-
-    if (updateCodeError) {
-      console.error('Error marking code as used:', updateCodeError);
-    }
-
-    // Update password using admin API
+    // Update password using admin API FIRST
     const { error: updateError } = await supabase.auth.admin.updateUserById(
       user.id,
       { password: newPassword }
@@ -139,6 +129,16 @@ serve(async (req) => {
         JSON.stringify({ error: 'Erro ao atualizar senha' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Only mark code as used AFTER password is successfully updated
+    const { error: updateCodeError } = await supabase
+      .from('password_resets')
+      .update({ used: true })
+      .eq('id', resetData.id);
+
+    if (updateCodeError) {
+      console.error('Error marking code as used:', updateCodeError);
     }
 
     console.log('Password reset completed successfully');
