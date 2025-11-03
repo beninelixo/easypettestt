@@ -11,6 +11,39 @@ import { ptBR } from "date-fns/locale";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+
+// Validation schema for pet data
+const petSchema = z.object({
+  name: z.string()
+    .trim()
+    .min(2, "Nome deve ter no mínimo 2 caracteres")
+    .max(50, "Nome deve ter no máximo 50 caracteres"),
+  breed: z.string()
+    .trim()
+    .max(50, "Raça deve ter no máximo 50 caracteres")
+    .nullable()
+    .optional(),
+  age: z.number()
+    .int("Idade deve ser um número inteiro")
+    .min(0, "Idade não pode ser negativa")
+    .max(50, "Idade máxima é 50 anos")
+    .nullable()
+    .optional(),
+  weight: z.number()
+    .min(0.1, "Peso deve ser maior que 0")
+    .max(500, "Peso máximo é 500 kg")
+    .nullable()
+    .optional(),
+  allergies: z.string()
+    .max(500, "Alergias deve ter no máximo 500 caracteres")
+    .nullable()
+    .optional(),
+  observations: z.string()
+    .max(1000, "Observações deve ter no máximo 1000 caracteres")
+    .nullable()
+    .optional(),
+});
 
 const PetProfile = () => {
   const navigate = useNavigate();
@@ -87,45 +120,75 @@ const PetProfile = () => {
     
     setLoading(true);
 
-    const petData = {
-      owner_id: user.id,
-      name: pet.name,
-      breed: pet.breed || null,
-      age: pet.age ? parseInt(pet.age) : null,
-      weight: pet.weight ? parseFloat(pet.weight) : null,
-      observations: pet.observations || null,
-      allergies: pet.allergies || null,
-    };
-
-    let error;
-    if (petId && petId !== "new") {
-      const result = await supabase
-        .from("pets")
-        .update(petData)
-        .eq("id", petId)
-        .eq("owner_id", user.id);
-      error = result.error;
-    } else {
-      const result = await supabase
-        .from("pets")
-        .insert(petData);
-      error = result.error;
-    }
-
-    setLoading(false);
-
-    if (error) {
-      toast({
-        title: "Erro ao salvar pet",
-        description: error.message,
-        variant: "destructive",
+    try {
+      // Validate input data
+      const validatedData = petSchema.parse({
+        name: pet.name,
+        breed: pet.breed || null,
+        age: pet.age ? parseInt(pet.age) : null,
+        weight: pet.weight ? parseFloat(pet.weight) : null,
+        observations: pet.observations || null,
+        allergies: pet.allergies || null,
       });
-    } else {
+
+      const petData = {
+        owner_id: user.id,
+        ...validatedData,
+      };
+
+      let error;
+      if (petId && petId !== "new") {
+        const result = await supabase
+          .from("pets")
+          .update({
+            name: validatedData.name,
+            breed: validatedData.breed,
+            age: validatedData.age,
+            weight: validatedData.weight,
+            observations: validatedData.observations,
+            allergies: validatedData.allergies,
+          })
+          .eq("id", petId)
+          .eq("owner_id", user.id);
+        error = result.error;
+      } else {
+        const result = await supabase
+          .from("pets")
+          .insert({
+            owner_id: user.id,
+            name: validatedData.name,
+            breed: validatedData.breed,
+            age: validatedData.age,
+            weight: validatedData.weight,
+            observations: validatedData.observations,
+            allergies: validatedData.allergies,
+          });
+        error = result.error;
+      }
+
+      if (error) throw error;
+
       toast({
         title: petId === "new" ? "Pet cadastrado!" : "Pet atualizado!",
         description: "As informações foram salvas com sucesso.",
       });
       navigate("/client-dashboard");
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Dados inválidos",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro ao salvar pet",
+          description: error instanceof Error ? error.message : "Erro desconhecido",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setLoading(false);
     }
   };
 

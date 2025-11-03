@@ -11,6 +11,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { z } from "zod";
+
+// Validation schema for appointment creation
+const appointmentSchema = z.object({
+  pet_id: z.string().uuid("Pet inválido"),
+  service_id: z.string().uuid("Serviço inválido"),
+  pet_shop_id: z.string().uuid("Pet shop inválido"),
+  scheduled_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida"),
+  scheduled_time: z.string().regex(/^\d{2}:\d{2}$/, "Horário inválido"),
+});
 
 const NewAppointment = () => {
   const navigate = useNavigate();
@@ -87,35 +97,54 @@ const NewAppointment = () => {
 
     setLoading(true);
 
-    // Get pet shop id from service
-    const service = services.find(s => s.id === selectedService);
-    
-    const { error } = await supabase
-      .from("appointments")
-      .insert({
+    try {
+      // Get pet shop id from service
+      const service = services.find(s => s.id === selectedService);
+      
+      // Validate input data
+      const appointmentData = appointmentSchema.parse({
         pet_id: selectedPet,
         service_id: selectedService,
         pet_shop_id: service?.pet_shop_id,
-        client_id: user.id,
         scheduled_date: format(selectedDate, "yyyy-MM-dd"),
         scheduled_time: selectedTime,
-        status: "pending",
       });
 
-    setLoading(false);
+      const { error } = await supabase
+        .from("appointments")
+        .insert({
+          pet_id: appointmentData.pet_id,
+          service_id: appointmentData.service_id,
+          pet_shop_id: appointmentData.pet_shop_id,
+          scheduled_date: appointmentData.scheduled_date,
+          scheduled_time: appointmentData.scheduled_time,
+          client_id: user.id,
+          status: "pending",
+        });
 
-    if (error) {
-      toast({
-        title: "Erro ao criar agendamento",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
+      if (error) throw error;
+
       toast({
         title: "Agendamento criado!",
         description: "Seu agendamento foi realizado com sucesso.",
       });
       navigate("/client-dashboard");
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Dados inválidos",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro ao criar agendamento",
+          description: error instanceof Error ? error.message : "Erro desconhecido",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
