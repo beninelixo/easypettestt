@@ -60,7 +60,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
         .eq('active', true)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (hierarchy && !hierarchyError) {
         const h = hierarchy as unknown as UserHierarchy;
