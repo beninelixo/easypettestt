@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Building2, Calendar, DollarSign, TrendingUp, Settings, Activity, Brain, Shield } from "lucide-react";
+import { Users, Building2, Calendar, DollarSign, TrendingUp, Settings, Activity, Brain, Shield, Zap } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
@@ -79,6 +79,14 @@ const AdminDashboard = () => {
             >
               <Activity className="h-6 w-6 text-green-500" />
               Saúde do Sistema
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-24 flex flex-col gap-2"
+              onClick={() => navigate('/system-diagnostics')}
+            >
+              <Zap className="h-6 w-6 text-blue-500" />
+              Diagnóstico Automático
             </Button>
             <Button variant="outline" className="h-24 flex flex-col gap-2">
               <Building2 className="h-6 w-6" />
