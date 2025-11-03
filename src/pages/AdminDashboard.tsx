@@ -50,6 +50,14 @@ const AdminDashboard = () => {
           <div className="grid md:grid-cols-3 gap-4">
             <Button 
               variant="outline" 
+              className="h-24 flex flex-col gap-2 hover:bg-destructive/10 hover:border-destructive hover:text-destructive transition-all"
+              onClick={() => navigate('/god-mode-dashboard')}
+            >
+              <Shield className="h-6 w-6 text-destructive" />
+              🔥 MODO DEUS - Correção Total
+            </Button>
+            <Button 
+              variant="outline" 
               className="h-24 flex flex-col gap-2"
               onClick={() => navigate('/system-monitoring')}
             >
