@@ -1091,6 +1091,105 @@ export type Database = {
           },
         ]
       }
+      system_health: {
+        Row: {
+          error_message: string | null
+          id: string
+          last_check: string
+          metadata: Json | null
+          response_time_ms: number | null
+          service_name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          error_message?: string | null
+          id?: string
+          last_check?: string
+          metadata?: Json | null
+          response_time_ms?: number | null
+          service_name: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          error_message?: string | null
+          id?: string
+          last_check?: string
+          metadata?: Json | null
+          response_time_ms?: number | null
+          service_name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      system_logs: {
+        Row: {
+          created_at: string
+          details: Json | null
+          id: string
+          log_type: string
+          message: string
+          module: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          id?: string
+          log_type: string
+          message: string
+          module: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          id?: string
+          log_type?: string
+          message?: string
+          module?: string
+        }
+        Relationships: []
+      }
+      system_metrics: {
+        Row: {
+          avg_response_time_ms: number | null
+          created_at: string
+          errors_count: number | null
+          failed_logins: number | null
+          id: string
+          metric_date: string
+          successful_logins: number | null
+          total_appointments: number | null
+          total_pet_shops: number | null
+          total_users: number | null
+        }
+        Insert: {
+          avg_response_time_ms?: number | null
+          created_at?: string
+          errors_count?: number | null
+          failed_logins?: number | null
+          id?: string
+          metric_date?: string
+          successful_logins?: number | null
+          total_appointments?: number | null
+          total_pet_shops?: number | null
+          total_users?: number | null
+        }
+        Update: {
+          avg_response_time_ms?: number | null
+          created_at?: string
+          errors_count?: number | null
+          failed_logins?: number | null
+          id?: string
+          metric_date?: string
+          successful_logins?: number | null
+          total_appointments?: number | null
+          total_pet_shops?: number | null
+          total_users?: number | null
+        }
+        Relationships: []
+      }
       tenants: {
         Row: {
           active: boolean
@@ -1218,6 +1317,7 @@ export type Database = {
     }
     Functions: {
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
+      cleanup_old_logs: { Args: never; Returns: number }
       generate_pet_shop_code: { Args: never; Returns: string }
       generate_user_code: { Args: never; Returns: string }
       get_consolidated_metrics: {
@@ -1242,6 +1342,7 @@ export type Database = {
           revenue: number
         }[]
       }
+      get_system_stats: { Args: never; Returns: Json }
       get_weekly_appointments: {
         Args: { _pet_shop_id: string }
         Returns: {

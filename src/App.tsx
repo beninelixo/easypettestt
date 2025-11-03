@@ -43,6 +43,7 @@ import ClientSelectPetShop from "./pages/ClientSelectPetShop";
 import ClientProfile from "./pages/ClientProfile";
 import EditarPetshop from "./pages/petshop/EditarPetshop";
 import ResetPassword from "./pages/ResetPassword";
+import SystemMonitoring from "./pages/SystemMonitoring";
 import { TenantDashboard } from "./features/tenant/pages/TenantDashboard";
 import { FranchiseDashboard } from "./features/franchise/pages/FranchiseDashboard";
 import ScrollToTop from "./components/ScrollToTop";
@@ -142,6 +143,12 @@ const App = () => (
           <Route path="/admin-dashboard" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/system-monitoring" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <SystemMonitoring />
             </ProtectedRoute>
           } />
             
