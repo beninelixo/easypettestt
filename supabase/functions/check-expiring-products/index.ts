@@ -89,6 +89,32 @@ Deno.serve(async (req) => {
         message: `Alertas de validade: ${expired?.length || 0} vencidos, ${expiring?.length || 0} a vencer`,
         details: { alerts }
       });
+
+      // Enviar alerta crítico por email se houver produtos vencidos
+      if (expired && expired.length > 0) {
+        try {
+          await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-alert-email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+            },
+            body: JSON.stringify({
+              severity: 'critical',
+              module: 'check_expiring_products',
+              subject: `${expired.length} produtos vencidos detectados!`,
+              message: `O sistema detectou ${expired.length} produto(s) com validade expirada que foram desativados automaticamente.`,
+              details: {
+                expired_count: expired.length,
+                expiring_count: expiring?.length || 0,
+                action_taken: 'Produtos desativados automaticamente'
+              }
+            })
+          });
+        } catch (emailError) {
+          console.error('Erro ao enviar email de alerta:', emailError);
+        }
+      }
     }
 
     return new Response(

@@ -124,6 +124,34 @@ Deno.serve(async (req) => {
         message: `Reconciliação de pagamentos: ${result.fixed} corrigidos, ${result.discrepancies - result.fixed} requerem atenção`,
         details: result
       });
+
+      // Enviar alerta se houver problemas críticos
+      const criticalIssues = result.issues.filter(i => i.severity === 'high');
+      if (criticalIssues.length > 0) {
+        try {
+          await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-alert-email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+            },
+            body: JSON.stringify({
+              severity: 'critical',
+              module: 'reconcile_payments',
+              subject: 'Problemas críticos em pagamentos detectados',
+              message: `A reconciliação de pagamentos detectou ${criticalIssues.length} problema(s) crítico(s) que requerem atenção imediata.`,
+              details: {
+                total_issues: result.issues.length,
+                critical_issues: criticalIssues.length,
+                fixed: result.fixed,
+                pending: result.discrepancies - result.fixed
+              }
+            })
+          });
+        } catch (emailError) {
+          console.error('Erro ao enviar email de alerta:', emailError);
+        }
+      }
     }
 
     return new Response(

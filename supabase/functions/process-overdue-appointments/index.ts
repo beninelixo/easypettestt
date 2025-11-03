@@ -64,6 +64,31 @@ Deno.serve(async (req) => {
       }
     });
 
+    // Enviar alerta por email se houver muitos agendamentos atrasados
+    if (overdueAppointments.length >= 5) {
+      try {
+        await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-alert-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+          },
+          body: JSON.stringify({
+            severity: 'warning',
+            module: 'process_overdue_appointments',
+            subject: `${overdueAppointments.length} agendamentos atrasados cancelados`,
+            message: `O sistema detectou e cancelou automaticamente ${overdueAppointments.length} agendamentos com data passada.`,
+            details: {
+              count: overdueAppointments.length,
+              oldest_date: overdueAppointments[0]?.scheduled_date
+            }
+          })
+        });
+      } catch (emailError) {
+        console.error('Erro ao enviar email de alerta:', emailError);
+      }
+    }
+
     // TODO: Enviar notificações para clientes
     // for (const appointment of overdueAppointments) {
     //   await supabase.from('notifications').insert({
