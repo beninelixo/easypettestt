@@ -44,12 +44,20 @@ serve(async (req) => {
     }
 
     const { email, code, newPassword } = validation.data;
-    console.log('Password reset attempt received');
+    console.log('Password reset attempt received', { email, codeLength: code.length });
 
     // Initialize Supabase client with service role
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Debug: Check what codes exist for this email
+    const { data: allCodes } = await supabase
+      .from('password_resets')
+      .select('*')
+      .eq('email', email.toLowerCase().trim());
+    
+    console.log('All codes for email:', allCodes);
 
     // Verify code from database
     const { data: resetData, error: queryError } = await supabase
@@ -60,6 +68,8 @@ serve(async (req) => {
       .eq('used', false)
       .gt('expires_at', new Date().toISOString())
       .maybeSingle();
+    
+    console.log('Query result:', { resetData, queryError });
 
     if (queryError) {
       console.error('Query error:', queryError);
