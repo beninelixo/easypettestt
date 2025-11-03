@@ -81,6 +81,45 @@ export type Database = {
           },
         ]
       }
+      audit_logs: {
+        Row: {
+          created_at: string
+          id: string
+          ip_address: string | null
+          new_data: Json | null
+          old_data: Json | null
+          operation: string
+          record_id: string
+          table_name: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_data?: Json | null
+          old_data?: Json | null
+          operation: string
+          record_id: string
+          table_name: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_data?: Json | null
+          old_data?: Json | null
+          operation?: string
+          record_id?: string
+          table_name?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       brand_standards: {
         Row: {
           active: boolean
@@ -1370,6 +1409,7 @@ export type Database = {
           revenue: number
         }[]
       }
+      get_system_health: { Args: never; Returns: Json }
       get_system_stats: { Args: never; Returns: Json }
       get_weekly_appointments: {
         Args: { _pet_shop_id: string }
