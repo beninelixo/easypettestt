@@ -20,14 +20,17 @@ import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthInd
 // Validation Schemas
 const loginSchema = z.object({
   email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
-  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").max(50, "Senha muito longa"),
+  password: z.string().min(8, "Senha deve ter no mínimo 8 caracteres").max(50, "Senha muito longa"),
 });
 
 const registerClientSchema = z.object({
   email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
   password: z.string()
-    .min(6, "Senha deve ter no mínimo 6 caracteres")
-    .max(50, "Senha muito longa"),
+    .min(8, "Senha deve ter no mínimo 8 caracteres")
+    .max(50, "Senha muito longa")
+    .regex(/[a-z]/, "Deve conter pelo menos uma letra minúscula")
+    .regex(/[A-Z]/, "Deve conter pelo menos uma letra maiúscula")
+    .regex(/[0-9]/, "Deve conter pelo menos um número"),
   confirmPassword: z.string(),
   full_name: z.string().trim().min(2, "Nome completo é obrigatório").max(100, "Nome muito longo"),
   phone: z.string().trim().min(10, "Telefone inválido").max(15, "Telefone muito longo"),
@@ -40,8 +43,11 @@ const registerClientSchema = z.object({
 const registerProfessionalSchema = z.object({
   email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
   password: z.string()
-    .min(6, "Senha deve ter no mínimo 6 caracteres")
-    .max(50, "Senha muito longa"),
+    .min(8, "Senha deve ter no mínimo 8 caracteres")
+    .max(50, "Senha muito longa")
+    .regex(/[a-z]/, "Deve conter pelo menos uma letra minúscula")
+    .regex(/[A-Z]/, "Deve conter pelo menos uma letra maiúscula")
+    .regex(/[0-9]/, "Deve conter pelo menos um número"),
   confirmPassword: z.string(),
   full_name: z.string().trim().min(2, "Nome do responsável é obrigatório").max(100, "Nome muito longo"),
   phone: z.string().trim().min(10, "Telefone inválido").max(15, "Telefone muito longo"),
@@ -130,16 +136,6 @@ const Auth = () => {
     e.preventDefault();
     setFormErrors({});
 
-    const rateLimitCheck = loginRateLimit.checkLimit();
-    if (!rateLimitCheck.allowed) {
-      toast({
-        title: "Muitas tentativas",
-        description: rateLimitCheck.message,
-        variant: "destructive",
-      });
-      return;
-    }
-
     const validation = loginSchema.safeParse({
       email: loginEmail,
       password: loginPassword,
@@ -157,11 +153,54 @@ const Auth = () => {
     }
 
     setIsLoading(true);
-    const result = await signIn(loginEmail, loginPassword, rememberMeChecked);
-    
-    if (result.data) {
-      loginRateLimit.reset();
-      saveRememberMe(rememberMeChecked, loginEmail);
+
+    try {
+      // Server-side rate limiting check
+      const { data: rateLimitData, error: rateLimitError } = await supabase.functions.invoke(
+        'validate-login',
+        {
+          body: {
+            email: loginEmail,
+            ip_address: window.location.hostname,
+            user_agent: navigator.userAgent,
+          },
+        }
+      );
+
+      if (rateLimitError || (rateLimitData && !rateLimitData.allowed)) {
+        toast({
+          title: "Muitas tentativas",
+          description: rateLimitData?.message || "Por favor, aguarde antes de tentar novamente.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Attempt login
+      const result = await signIn(loginEmail, loginPassword, rememberMeChecked);
+      
+      // Record login attempt
+      await supabase.functions.invoke('record-login-attempt', {
+        body: {
+          email: loginEmail,
+          success: !!result.data,
+          ip_address: window.location.hostname,
+          user_agent: navigator.userAgent,
+        },
+      });
+
+      if (result.data) {
+        loginRateLimit.reset();
+        saveRememberMe(rememberMeChecked, loginEmail);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao tentar fazer login. Tente novamente.",
+        variant: "destructive",
+      });
     }
     
     setIsLoading(false);

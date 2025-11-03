@@ -16,8 +16,11 @@ const emailSchema = z.string().trim().email("Email inválido").max(255, "Email m
 
 const passwordSchema = z.object({
   password: z.string()
-    .min(6, "Senha deve ter no mínimo 6 caracteres")
-    .max(50, "Senha muito longa"),
+    .min(8, "Senha deve ter no mínimo 8 caracteres")
+    .max(50, "Senha muito longa")
+    .regex(/[a-z]/, "Deve conter pelo menos uma letra minúscula")
+    .regex(/[A-Z]/, "Deve conter pelo menos uma letra maiúscula")
+    .regex(/[0-9]/, "Deve conter pelo menos um número"),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",

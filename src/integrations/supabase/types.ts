@@ -312,6 +312,33 @@ export type Database = {
         }
         Relationships: []
       }
+      login_attempts: {
+        Row: {
+          attempt_time: string
+          email: string
+          id: string
+          ip_address: string | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          attempt_time?: string
+          email: string
+          id?: string
+          ip_address?: string | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          attempt_time?: string
+          email?: string
+          id?: string
+          ip_address?: string | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       loyalty_points: {
         Row: {
           client_id: string
@@ -1317,6 +1344,7 @@ export type Database = {
     }
     Functions: {
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
+      cleanup_old_login_attempts: { Args: never; Returns: undefined }
       cleanup_old_logs: { Args: never; Returns: number }
       generate_pet_shop_code: { Args: never; Returns: string }
       generate_user_code: { Args: never; Returns: string }
