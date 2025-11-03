@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { PetShopSidebar } from "@/components/PetShopSidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 import { PawPrint } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,9 +44,9 @@ const PetShopDashboardLayout = () => {
   }, [user]);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen>
       <div className="min-h-screen flex w-full">
-        <PetShopSidebar />
+        <AppSidebar />
         
         <div className="flex-1 flex flex-col">
           {/* Header */}
@@ -59,7 +59,7 @@ const PetShopDashboardLayout = () => {
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 p-6">
+          <main className="flex-1 p-6 bg-background">
             <Outlet />
           </main>
         </div>

@@ -62,7 +62,11 @@ export function TenantProvider({ children }: { children: ReactNode }) {
         .limit(1)
         .maybeSingle();
 
-      if (hierarchy && !hierarchyError) {
+      if (hierarchyError) {
+        console.error('Error fetching hierarchy:', hierarchyError);
+      }
+
+      if (hierarchy) {
         const h = hierarchy as unknown as UserHierarchy;
         setTenantId(h.tenant_id);
         setFranchiseId(h.franchise_id);
@@ -76,9 +80,13 @@ export function TenantProvider({ children }: { children: ReactNode }) {
           .select('id')
           .eq('owner_id', userId)
           .limit(1)
-          .single();
+          .maybeSingle();
 
-        if (petShop && !petShopError) {
+        if (petShopError) {
+          console.error('Error fetching pet shop:', petShopError);
+        }
+
+        if (petShop) {
           setUnitId(petShop.id);
           setUserRole('unit_manager');
         }

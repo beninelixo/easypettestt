@@ -44,3 +44,6 @@ verify_jwt = true
 
 [functions.send-alert-email]
 verify_jwt = true
+
+[functions.ai-monitor]
+verify_jwt = true

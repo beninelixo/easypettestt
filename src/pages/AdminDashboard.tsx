@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Building2, Calendar, DollarSign, TrendingUp, Settings, Activity, Brain, Shield, Zap } from "lucide-react";
+import { Users, Building2, Calendar, DollarSign, TrendingUp, Settings, Activity, Brain, Shield, Zap, Cpu } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
@@ -48,6 +48,14 @@ const AdminDashboard = () => {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Ações Administrativas</h2>
           <div className="grid md:grid-cols-3 gap-4">
+            <Button 
+              variant="outline" 
+              className="h-24 flex flex-col gap-2 hover:bg-purple-500/10 hover:border-purple-500 hover:text-purple-500 transition-all"
+              onClick={() => navigate('/ai-monitor')}
+            >
+              <Cpu className="h-6 w-6 text-purple-500" />
+              🤖 AI Monitor - Auditoria Automática
+            </Button>
             <Button 
               variant="outline" 
               className="h-24 flex flex-col gap-2 hover:bg-destructive/10 hover:border-destructive hover:text-destructive transition-all"

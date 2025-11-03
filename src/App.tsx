@@ -49,6 +49,7 @@ import AuthMonitoring from "./pages/AuthMonitoring";
 import SystemHealth from "./pages/SystemHealth";
 import SystemDiagnostics from "./pages/SystemDiagnostics";
 import SystemMonitoringDashboard from "./pages/SystemMonitoringDashboard";
+import AIMonitorDashboard from "./pages/AIMonitorDashboard";
 import { TenantDashboard } from "./features/tenant/pages/TenantDashboard";
 import { FranchiseDashboard } from "./features/franchise/pages/FranchiseDashboard";
 import ScrollToTop from "./components/ScrollToTop";
@@ -182,6 +183,12 @@ const App = () => (
           <Route path="/god-mode-dashboard" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <SystemMonitoringDashboard />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/ai-monitor" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AIMonitorDashboard />
             </ProtectedRoute>
           } />
 
