@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PawPrint, Calendar, Clock, Plus, LogOut } from "lucide-react";
+import { PawPrint, Calendar, Clock, Plus, LogOut, User, Shield, Receipt } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { NotificationsPanel } from "@/components/NotificationsPanel";
 
 const ClientDashboard = () => {
   const { user, signOut } = useAuth();
@@ -78,6 +79,7 @@ const ClientDashboard = () => {
               <Plus className="h-4 w-4 mr-2" />
               Novo Agendamento
             </Button>
+            <NotificationsPanel />
             <Button onClick={signOut} variant="outline" size="icon">
               <LogOut className="h-4 w-4" />
             </Button>
@@ -86,6 +88,55 @@ const ClientDashboard = () => {
       </header>
 
       <div className="container mx-auto p-6 space-y-8">
+        {/* Quick Actions */}
+        <section>
+          <div className="grid md:grid-cols-3 gap-4">
+            <Card 
+              className="border-2 hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer"
+              onClick={() => navigate('/user-profile')}
+            >
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                  <User className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Meu Perfil</h3>
+                  <p className="text-sm text-muted-foreground">Editar informações</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="border-2 hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer"
+              onClick={() => navigate('/user-privacy')}
+            >
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center">
+                  <Shield className="h-6 w-6 text-secondary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Privacidade</h3>
+                  <p className="text-sm text-muted-foreground">Gerenciar dados</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="border-2 hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer"
+              onClick={() => navigate('/payment-history')}
+            >
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center">
+                  <Receipt className="h-6 w-6 text-accent" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Pagamentos</h3>
+                  <p className="text-sm text-muted-foreground">Ver histórico</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
 
         {/* Pets Section */}
         <section>

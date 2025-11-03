@@ -53,6 +53,9 @@ import AIMonitorDashboard from "./pages/AIMonitorDashboard";
 import { TenantDashboard } from "./features/tenant/pages/TenantDashboard";
 import { FranchiseDashboard } from "./features/franchise/pages/FranchiseDashboard";
 import ScrollToTop from "./components/ScrollToTop";
+import UserProfile from "./pages/UserProfile";
+import UserPrivacy from "./pages/UserPrivacy";
+import PaymentHistory from "./pages/PaymentHistory";
 
 const queryClient = new QueryClient();
 
@@ -115,6 +118,21 @@ const App = () => (
           <Route path="/pet/:petId" element={
             <ProtectedRoute allowedRoles={["client"]}>
               <PetProfile />
+            </ProtectedRoute>
+          } />
+          <Route path="/user-profile" element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          } />
+          <Route path="/user-privacy" element={
+            <ProtectedRoute>
+              <UserPrivacy />
+            </ProtectedRoute>
+          } />
+          <Route path="/payment-history" element={
+            <ProtectedRoute>
+              <PaymentHistory />
             </ProtectedRoute>
           } />
           
