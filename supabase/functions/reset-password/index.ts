@@ -114,6 +114,17 @@ serve(async (req) => {
 
     if (updateError) {
       console.error('Error updating password:', updateError);
+      
+      // Handle specific error types
+      if (updateError.code === 'weak_password') {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Senha muito fraca. Por favor, escolha uma senha mais forte e diferente.' 
+          }),
+          { status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
       return new Response(
         JSON.stringify({ error: 'Erro ao atualizar senha' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
