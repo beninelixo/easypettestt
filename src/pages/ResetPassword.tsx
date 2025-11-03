@@ -16,11 +16,12 @@ const emailSchema = z.string().trim().email("Email inválido").max(255, "Email m
 
 const passwordSchema = z.object({
   password: z.string()
-    .min(8, "Senha deve ter no mínimo 8 caracteres")
+    .min(12, "Senha deve ter no mínimo 12 caracteres")
     .max(50, "Senha muito longa")
     .regex(/[a-z]/, "Senha deve conter pelo menos uma letra minúscula")
     .regex(/[A-Z]/, "Senha deve conter pelo menos uma letra maiúscula")
-    .regex(/[0-9]/, "Senha deve conter pelo menos um número"),
+    .regex(/[0-9]/, "Senha deve conter pelo menos um número")
+    .regex(/[^A-Za-z0-9]/, "Senha deve conter pelo menos um caractere especial"),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",
@@ -152,9 +153,24 @@ const ResetPassword = () => {
         navigate("/auth");
       }, 1500);
     } catch (error: any) {
+      const message: string = error?.message || "Não foi possível redefinir a senha. Tente novamente.";
+
+      // Map backend errors to field errors and guidance
+      const lower = message.toLowerCase();
+      if (lower.includes("fraca") || lower.includes("weak")) {
+        setFormErrors((prev) => ({
+          ...prev,
+          password: "Senha muito fraca. Use 12+ caracteres com maiúsculas, minúsculas, números e símbolo, evitando palavras comuns.",
+        }));
+      }
+      if (lower.includes("inválido") || lower.includes("invalido") || lower.includes("expirado")) {
+        setFormErrors((prev) => ({ ...prev, otp: "Código inválido ou expirado. Solicite um novo código." }));
+        setStep("otp");
+      }
+
       toast({
         title: "Erro ao redefinir senha",
-        description: error.message || "Não foi possível redefinir a senha. Tente novamente.",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -336,7 +352,7 @@ const ResetPassword = () => {
 
               <div className="bg-muted/50 p-3 rounded-lg">
                 <p className="text-xs text-muted-foreground">
-                  💡 Dica: Use uma senha forte com pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.
+                  💡 Dica: Use uma senha forte com pelo menos 12 caracteres, incluindo maiúsculas, minúsculas, números e caracteres especiais. Evite palavras comuns, datas e senhas já usadas.
                 </p>
               </div>
 
