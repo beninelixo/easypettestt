@@ -56,6 +56,8 @@ import ScrollToTop from "./components/ScrollToTop";
 import UserProfile from "./pages/UserProfile";
 import UserPrivacy from "./pages/UserPrivacy";
 import PaymentHistory from "./pages/PaymentHistory";
+import NotificationQueue from "./pages/admin/NotificationQueue";
+import SystemMonitor from "./pages/admin/SystemMonitor";
 
 const queryClient = new QueryClient();
 
@@ -207,6 +209,18 @@ const App = () => (
           <Route path="/ai-monitor" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AIMonitorDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/admin/notifications" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <NotificationQueue />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/admin/monitor" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <SystemMonitor />
             </ProtectedRoute>
           } />
 

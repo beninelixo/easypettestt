@@ -511,6 +511,42 @@ export type Database = {
           },
         ]
       }
+      monitoramento_sistema: {
+        Row: {
+          id: string
+          metadata: Json | null
+          metric_type: string
+          service_name: string
+          status: string
+          threshold_critical: number | null
+          threshold_warning: number | null
+          timestamp: string | null
+          value: number
+        }
+        Insert: {
+          id?: string
+          metadata?: Json | null
+          metric_type: string
+          service_name: string
+          status?: string
+          threshold_critical?: number | null
+          threshold_warning?: number | null
+          timestamp?: string | null
+          value: number
+        }
+        Update: {
+          id?: string
+          metadata?: Json | null
+          metric_type?: string
+          service_name?: string
+          status?: string
+          threshold_critical?: number | null
+          threshold_warning?: number | null
+          timestamp?: string | null
+          value?: number
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           appointment_id: string | null
@@ -551,6 +587,62 @@ export type Database = {
             columns: ["appointment_id"]
             isOneToOne: false
             referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications_log: {
+        Row: {
+          attempt_count: number | null
+          channel: string
+          created_at: string | null
+          id: string
+          last_error: string | null
+          max_attempts: number | null
+          message: string
+          notification_id: string | null
+          recipient: string
+          scheduled_for: string | null
+          sent_at: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          attempt_count?: number | null
+          channel: string
+          created_at?: string | null
+          id?: string
+          last_error?: string | null
+          max_attempts?: number | null
+          message: string
+          notification_id?: string | null
+          recipient: string
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          attempt_count?: number | null
+          channel?: string
+          created_at?: string | null
+          id?: string
+          last_error?: string | null
+          max_attempts?: number | null
+          message?: string
+          notification_id?: string | null
+          recipient?: string
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_log_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
             referencedColumns: ["id"]
           },
         ]
@@ -1409,6 +1501,7 @@ export type Database = {
           revenue: number
         }[]
       }
+      get_notification_queue_stats: { Args: never; Returns: Json }
       get_system_health: { Args: never; Returns: Json }
       get_system_stats: { Args: never; Returns: Json }
       get_weekly_appointments: {
