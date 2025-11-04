@@ -16,26 +16,27 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   
   const loading = authLoading || tenantLoading;
   const effectiveRole = tenantRole || userRole;
+  const normalizedRole = effectiveRole === "unit_manager" ? "pet_shop" : effectiveRole;
 
   useEffect(() => {
     if (!loading) {
       if (!user) {
         navigate("/auth", { replace: true });
-      } else if (allowedRoles && effectiveRole && !allowedRoles.includes(effectiveRole as UserRole)) {
+      } else if (allowedRoles && normalizedRole && !allowedRoles.includes(normalizedRole as UserRole)) {
         // Redirect to appropriate dashboard based on role
         const targetPath = (() => {
-          if (effectiveRole === "tenant_admin") return "/tenant-dashboard";
-          if (effectiveRole === "franchise_owner") return "/franchise-dashboard";
-          if (effectiveRole === "unit_manager" || effectiveRole === "pet_shop") return "/petshop-dashboard";
-          if (effectiveRole === "client") return "/client-dashboard";
-          if (effectiveRole === "admin") return "/admin-dashboard";
+          if (normalizedRole === "tenant_admin") return "/tenant-dashboard";
+          if (normalizedRole === "franchise_owner") return "/franchise-dashboard";
+          if (normalizedRole === "pet_shop") return "/petshop-dashboard";
+          if (normalizedRole === "client") return "/client-dashboard";
+          if (normalizedRole === "admin") return "/admin-dashboard";
           return "/";
         })();
         
         navigate(targetPath, { replace: true });
       }
     }
-  }, [user, effectiveRole, loading, navigate, allowedRoles]);
+  }, [user, normalizedRole, loading, navigate, allowedRoles]);
 
   if (loading) {
     return (
@@ -49,7 +50,7 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
     return null;
   }
 
-  if (allowedRoles && effectiveRole && !allowedRoles.includes(effectiveRole as UserRole)) {
+  if (allowedRoles && normalizedRole && !allowedRoles.includes(normalizedRole as UserRole)) {
     return null;
   }
 
