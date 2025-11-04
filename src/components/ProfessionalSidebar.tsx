@@ -35,7 +35,7 @@ export function ProfessionalSidebar() {
       <SidebarContent className="bg-card border-r border-border">
         <SidebarGroup>
           <SidebarGroupLabel className="text-primary font-bold text-lg px-4 py-3">
-            {!isCollapsed && "PetChopShop"}
+            {!isCollapsed && "PetchopShop"}
           </SidebarGroupLabel>
           
           <SidebarGroupContent>

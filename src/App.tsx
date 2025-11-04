@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { TenantProvider } from "./lib/tenant-context";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -187,7 +187,7 @@ const App = () => (
               <PetShopDashboardLayout />
             </ProtectedRoute>
           }>
-            <Route index element={<PetShopDashboard />} />
+            <Route index element={<Navigate to="/professional/dashboard" replace />} />
             <Route path="servicos" element={<Servicos />} />
             <Route path="catalogo-servicos" element={<ServiceTemplates />} />
             <Route path="clientes" element={<Clientes />} />
