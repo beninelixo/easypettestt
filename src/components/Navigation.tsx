@@ -45,23 +45,14 @@ const Navigation = () => {
 
         {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <Link to="/auth">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="hover:bg-primary/10 transition-all duration-300"
-            >
-              Entrar
-            </Button>
-          </Link>
-          <Link to="/auth">
+          <a href="https://pay.cakto.com.br/f72gob9_634441" target="_blank" rel="noopener noreferrer">
             <Button 
               size="sm" 
-              className="bg-primary hover:bg-primary-light shadow-md hover:shadow-lg transition-all duration-300"
+              className="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 shadow-md hover:shadow-lg transition-all duration-300 text-white"
             >
-              Começar Grátis
+              🏆 Plano Pet Gold - R$ 79,90
             </Button>
-          </Link>
+          </a>
         </div>
 
         {/* Mobile Menu */}
@@ -96,22 +87,13 @@ const Navigation = () => {
                 
                 <div className="border-t border-border my-4" />
                 
-                <Link to="/auth" onClick={() => setIsOpen(false)}>
+                <a href="https://pay.cakto.com.br/f72gob9_634441" target="_blank" rel="noopener noreferrer">
                   <Button 
-                    variant="outline" 
-                    className="w-full justify-center"
+                    className="w-full justify-center bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white"
                   >
-                    Entrar
+                    🏆 Garantir Acesso - R$ 79,90
                   </Button>
-                </Link>
-                
-                <Link to="/auth" onClick={() => setIsOpen(false)}>
-                  <Button 
-                    className="w-full justify-center bg-primary hover:bg-primary-light"
-                  >
-                    Começar Grátis
-                  </Button>
-                </Link>
+                </a>
               </div>
             </SheetContent>
           </Sheet>

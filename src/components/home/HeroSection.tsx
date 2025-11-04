@@ -1,90 +1,81 @@
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ArrowRight } from "lucide-react";
-import heroPetShop from "@/assets/hero-petshop.jpg";
+import { ArrowRight, Award } from "lucide-react";
+import heroImage from "@/assets/hero-petshop.jpg";
 
 export const HeroSection = () => {
   return (
     <section className="relative pt-32 pb-24 px-4 overflow-hidden">
       {/* Animated background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-background" />
+      <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-amber-500/5 to-background" />
       <div className="absolute inset-0 bg-dot-pattern opacity-40" />
-      <div className="absolute top-20 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+      <div className="absolute top-20 right-0 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
       
       <div className="container mx-auto relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8 animate-fade-in">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 rounded-full text-primary text-sm font-semibold border border-primary/20 shadow-lg animate-shimmer">
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
-              A Solução Completa para o Seu Negócio Pet
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-yellow-500/20 via-amber-500/20 to-yellow-500/20 rounded-full text-yellow-700 dark:text-yellow-400 text-sm font-semibold border border-yellow-500/30 animate-shimmer">
+              <Award className="h-4 w-4" />
+              🏆 Plano Pet Gold - Acesso Completo ao Sistema
             </div>
 
             {/* Main headline */}
             <h1 className="text-5xl lg:text-7xl font-black leading-[1.1] tracking-tight">
-              Sistema Completo para{" "}
+              Tenha Acesso Completo ao{" "}
               <span className="relative inline-block">
-                <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-gradient">
-                  Clínicas, Pet Shops e Banho & Tosa
+                <span className="bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600 bg-clip-text text-transparent animate-gradient">
+                  Sistema Bointhosa Pet
                 </span>
-                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary rounded-full" />
+                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600 rounded-full" />
               </span>
             </h1>
 
+            {/* Price Highlight */}
+            <div className="inline-block bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border-2 border-yellow-500/30 rounded-2xl p-6 animate-pulse-glow">
+              <p className="text-sm text-muted-foreground mb-2">Investimento mensal:</p>
+              <p className="text-5xl font-black">
+                <span className="text-yellow-600 dark:text-yellow-500">R$ 79</span>
+                <span className="text-3xl text-muted-foreground">,90</span>
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">💳 Pagamento único via Cakto</p>
+            </div>
+
             {/* Subheadline */}
             <p className="text-xl lg:text-2xl text-muted-foreground leading-relaxed">
-              Gerencie agendamentos, consultas, vendas, estoque e finanças em uma única plataforma. 
-              Perfeito para clínicas veterinárias, pet shops e serviços de banho e tosa.
+              Acesso imediato e completo ao sistema profissional de gestão veterinária. 
+              <span className="text-foreground font-semibold"> Gerencie agendamentos, consultas, estoque, finanças</span> e muito mais em uma única plataforma.
             </p>
-
-            {/* Feature badges */}
-            <div className="flex flex-wrap gap-3" role="list">
-              <div className="flex items-center gap-2 px-4 py-2 bg-muted rounded-full text-sm font-medium" role="listitem">
-                <div className="w-2 h-2 bg-accent rounded-full animate-pulse" aria-hidden="true" />
-                Teste grátis por 14 dias
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-muted rounded-full text-sm font-medium" role="listitem">
-                <div className="w-2 h-2 bg-accent rounded-full animate-pulse" aria-hidden="true" />
-                Sem cartão de crédito
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-muted rounded-full text-sm font-medium" role="listitem">
-                <div className="w-2 h-2 bg-accent rounded-full animate-pulse" aria-hidden="true" />
-                Cancele quando quiser
-              </div>
-            </div>
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link to="/auth" className="w-full sm:w-auto">
+              <a href="https://pay.cakto.com.br/f72gob9_634441" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
                 <Button 
                   size="lg" 
-                  className="w-full text-lg px-12 py-7 bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] hover:bg-[position:100%_0] text-white shadow-2xl hover:shadow-purple animate-pulse-glow group font-bold"
-                  aria-label="Iniciar teste grátis de 14 dias com desconto exclusivo"
+                  className="w-full text-lg px-10 py-7 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 hover:shadow-2xl hover:scale-[1.05] transition-all duration-300 font-bold group shadow-xl text-white"
                 >
-                  Iniciar Teste Grátis + Desconto Exclusivo
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-2 transition-transform duration-300" aria-hidden="true" />
+                  🏆 Garantir Acesso Agora - R$ 79,90
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-2 transition-transform duration-300" />
                 </Button>
-              </Link>
-              <Link to="/pricing" className="w-full sm:w-auto">
+              </a>
+              <a href="#detalhes-plano" className="w-full sm:w-auto">
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="w-full text-lg px-12 py-7 border-2 border-primary hover:bg-primary/5 hover:scale-[1.02] transition-all duration-300 font-semibold"
-                  aria-label="Ver planos e preços disponíveis"
+                  className="w-full text-lg px-10 py-7 border-2 hover:bg-accent hover:scale-[1.05] transition-all duration-300 font-semibold"
                 >
-                  Ver Planos
+                  Ver Mais Detalhes
                 </Button>
-              </Link>
+              </a>
             </div>
           </div>
 
           {/* Hero Image */}
           <div className="relative animate-scale-in">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-secondary/30 to-primary/30 rounded-3xl blur-3xl animate-pulse" aria-hidden="true" />
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/30 via-amber-500/30 to-yellow-500/30 rounded-3xl blur-3xl animate-pulse" />
             <img
-              src={heroPetShop}
-              alt="Sistema de gestão para pet shops, clínicas veterinárias e banho e tosa - interface moderna e profissional"
+              src={heroImage}
+              alt="Sistema de gestão Bointhosa Pet - Plano Pet Gold"
               className="relative rounded-3xl shadow-2xl w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-700 border-4 border-white/10"
               loading="eager"
               width="800"
