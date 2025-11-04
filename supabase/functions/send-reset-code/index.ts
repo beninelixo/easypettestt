@@ -182,14 +182,14 @@ serve(async (req) => {
           emailData.message?.includes('not verified') ||
           emailData.message?.includes('testing emails') ||
           emailData.name === 'validation_error') {
+        console.log('TEST MODE - Code stored in database for email:', email.substring(0, 3) + '***');
         // Return success with test mode flag to avoid crashes
         return new Response(
           JSON.stringify({ 
             success: true,
             testMode: true,
-            message: 'Domínio não verificado. Verifique um domínio em resend.com/domains para enviar emails reais.',
+            message: 'Domínio não verificado. Verifique um domínio em resend.com/domains para enviar emails reais. Para testes, consulte a tabela password_resets no banco de dados.',
             details: emailData.message,
-            devCode: code,
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );

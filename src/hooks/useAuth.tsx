@@ -119,12 +119,42 @@ export const useAuth = () => {
 
   const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      // Get client IP and user agent for rate limiting
+      let ipAddress = 'unknown';
+      try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        ipAddress = ipData.ip;
+      } catch (ipError) {
+        console.warn('Could not fetch IP address:', ipError);
+      }
+
+      // Call rate-limited login Edge Function
+      const { data: functionData, error: functionError } = await supabase.functions.invoke('login-with-rate-limit', {
+        body: {
+          email,
+          password,
+          ip_address: ipAddress,
+          user_agent: navigator.userAgent
+        }
       });
 
-      if (error) throw error;
+      if (functionError) throw functionError;
+      
+      if (functionData.error) {
+        // Handle rate limiting specifically
+        if (functionData.blocked) {
+          throw new Error(functionData.message || 'Muitas tentativas de login');
+        }
+        throw new Error(functionData.error);
+      }
+
+      // Set session from Edge Function response
+      const { session: returnedSession, user: returnedUser } = functionData;
+      await supabase.auth.setSession({
+        access_token: returnedSession.access_token,
+        refresh_token: returnedSession.refresh_token
+      });
 
       // Save email for remember me if enabled
       if (rememberMe) {
@@ -133,14 +163,14 @@ export const useAuth = () => {
       }
 
       // Get user's name for personalized welcome
-      const userName = data.user?.user_metadata?.full_name || 'usuário';
+      const userName = returnedUser?.user_metadata?.full_name || 'usuário';
 
       toast({
         title: `Bem-vindo de volta, ${userName}!`,
         description: rememberMe ? "Você será conectado automaticamente na próxima visita." : "Login realizado com sucesso.",
       });
 
-      return { data, error: null };
+      return { data: functionData, error: null };
     } catch (error: any) {
       const errorMessage = error.message === 'Invalid login credentials' 
         ? 'Email ou senha incorretos'
