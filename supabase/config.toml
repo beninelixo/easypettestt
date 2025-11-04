@@ -21,6 +21,9 @@ verify_jwt = true
 [functions.send-notification]
 verify_jwt = true
 
+[functions.login-with-rate-limit]
+verify_jwt = false
+
 [functions.validate-login]
 verify_jwt = false
 
@@ -47,3 +50,9 @@ verify_jwt = true
 
 [functions.ai-monitor]
 verify_jwt = true
+
+[functions.cakto-checkout]
+verify_jwt = true
+
+[functions.cakto-webhook]
+verify_jwt = false
