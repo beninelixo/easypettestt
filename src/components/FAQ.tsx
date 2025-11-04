@@ -9,8 +9,24 @@ import { HelpCircle } from "lucide-react";
 const FAQ = () => {
   const faqs = [
     {
-      question: "Como funciona o pagamento do Plano Pet Gold?",
-      answer: "O Plano Pet Gold custa R$ 79,90/mês. O pagamento é processado de forma 100% segura através da plataforma Cakto. Após o pagamento, você recebe acesso imediato ao sistema completo."
+      question: "Qual a diferença entre os planos?",
+      answer: "O Pet Gold (R$ 79,90/mês) é ideal para clínicas em crescimento com até 5 usuários. O Pet Platinum (R$ 149,90/mês) oferece usuários ilimitados, multi-unidades e white label. O Platinum Anual (R$ 1.798/ano) tem o melhor custo-benefício com economia de R$ 200,80 no ano."
+    },
+    {
+      question: "Posso mudar de plano depois?",
+      answer: "Sim! Você pode fazer upgrade ou downgrade a qualquer momento. No upgrade, você paga proporcionalmente. No downgrade, o novo valor começa a valer no próximo ciclo de cobrança."
+    },
+    {
+      question: "Como funciona o pagamento anual?",
+      answer: "No plano anual, você paga R$ 1.798,00 de uma única vez e tem acesso ao sistema por 12 meses completos. Isso equivale a pagar 10 meses e ganhar 2 de graça, economizando R$ 200,80 no ano."
+    },
+    {
+      question: "Qual a economia do plano anual?",
+      answer: "No plano mensal Platinum você pagaria R$ 149,90 x 12 = R$ 1.998,80. No anual você paga R$ 1.798,00, economizando R$ 200,80 (equivalente a 2 meses grátis)."
+    },
+    {
+      question: "Como funciona o pagamento?",
+      answer: "O pagamento é processado de forma 100% segura através da plataforma Cakto. Aceitamos cartão de crédito, PIX e boleto. Após a confirmação, você recebe acesso imediato ao sistema."
     },
     {
       question: "Quais formas de pagamento são aceitas?",
@@ -22,7 +38,11 @@ const FAQ = () => {
     },
     {
       question: "Posso cancelar a qualquer momento?",
-      answer: "Sim, sem burocracia! Você pode cancelar sua assinatura quando quiser, sem taxas ou multas. Nosso objetivo é que você fique porque ama o sistema, não por estar preso."
+      answer: "Sim, sem burocracia! Nos planos mensais, você pode cancelar quando quiser sem taxas. No plano anual, você mantém o acesso até o fim do período contratado, mas não há renovação automática se cancelar."
+    },
+    {
+      question: "O que acontece se eu cancelar no meio do ano?",
+      answer: "No plano anual, você mantém o acesso até o fim dos 12 meses contratados, mas não há reembolso proporcional. Por isso recomendamos começar com o plano mensal se ainda estiver testando."
     },
     {
       question: "Há garantia de reembolso?",
