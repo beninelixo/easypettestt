@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { timingSafeEqual } from "https://deno.land/std@0.177.0/crypto/timing_safe_equal.ts";
+import { crypto } from "https://deno.land/std@0.177.0/crypto/crypto.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,10 +19,15 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Verify webhook signature
+    // Verify webhook signature with HMAC-SHA256
     const signature = req.headers.get('x-cakto-signature');
     const webhookSecret = Deno.env.get('CAKTO_WEBHOOK_SECRET');
     
+    if (!signature) {
+      console.error('Missing webhook signature');
+      throw new Error('Missing webhook signature');
+    }
+
     if (!webhookSecret) {
       console.error('CAKTO_WEBHOOK_SECRET not configured');
       throw new Error('Webhook secret not configured');
@@ -28,9 +35,39 @@ serve(async (req) => {
 
     const body = await req.text();
     
-    // Verify signature (simplified - adjust based on Cakto's signature method)
-    if (signature !== webhookSecret && signature) {
-      console.error('Invalid webhook signature');
+    // Compute HMAC-SHA256 of the request body
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(webhookSecret),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
+    
+    const signatureBytes = await crypto.subtle.sign(
+      'HMAC',
+      key,
+      encoder.encode(body)
+    );
+    
+    const expectedSignature = Array.from(new Uint8Array(signatureBytes))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    
+    // Use timing-safe comparison to prevent timing attacks
+    try {
+      const signatureMatches = timingSafeEqual(
+        encoder.encode(signature.toLowerCase()),
+        encoder.encode(expectedSignature.toLowerCase())
+      );
+      
+      if (!signatureMatches) {
+        console.error('Invalid webhook signature');
+        throw new Error('Invalid signature');
+      }
+    } catch (e) {
+      console.error('Signature validation failed:', e);
       throw new Error('Invalid signature');
     }
 
