@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useEffect, useState } from "react";
-import { Store, Clock, MapPin, Phone, Mail, FileText, Camera, Save } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { Store, Clock, MapPin, Phone, Mail, FileText, Plus, Save, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 const ProfessionalProfile = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -62,6 +64,103 @@ const ProfessionalProfile = () => {
       console.error("Erro ao carregar dados:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione uma imagem válida.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Erro",
+        description: "A imagem deve ter no máximo 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const { data: petShop } = await supabase
+        .from("pet_shops")
+        .select("id")
+        .eq("owner_id", user?.id)
+        .single();
+
+      if (!petShop) {
+        toast({
+          title: "Erro",
+          description: "PetShop não encontrado.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Delete old avatar if exists
+      if (formData.logo_url) {
+        const oldPath = formData.logo_url.split('/').pop();
+        if (oldPath) {
+          await supabase.storage
+            .from('avatars')
+            .remove([`${user?.id}/${oldPath}`]);
+        }
+      }
+
+      // Upload new avatar
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${user?.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update database
+      const { error: updateError } = await supabase
+        .from("pet_shops")
+        .update({ logo_url: publicUrl })
+        .eq("id", petShop.id);
+
+      if (updateError) throw updateError;
+
+      setFormData({ ...formData, logo_url: publicUrl });
+
+      toast({
+        title: "Foto atualizada!",
+        description: "Sua foto de perfil foi atualizada com sucesso.",
+      });
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível fazer upload da imagem.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -132,30 +231,47 @@ const ProfessionalProfile = () => {
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Camera className="h-5 w-5" />
-              Imagem de Perfil
-            </CardTitle>
+            <CardTitle className="text-center">Foto de Perfil</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {formData.logo_url && (
-              <div className="flex justify-center">
-                <img
-                  src={formData.logo_url}
-                  alt="Logo"
-                  className="h-32 w-32 rounded-full object-cover border-4 border-primary"
-                />
-              </div>
-            )}
-            <div>
-              <Label>URL da Logo</Label>
-              <Input
-                value={formData.logo_url}
-                onChange={(e) =>
-                  setFormData({ ...formData, logo_url: e.target.value })
-                }
-                placeholder="https://exemplo.com/logo.png"
+          <CardContent className="flex justify-center">
+            <div className="relative">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
               />
+              <button
+                onClick={handleAvatarClick}
+                disabled={uploading}
+                className="relative group h-32 w-32 rounded-full overflow-hidden border-4 border-primary/20 hover:border-primary transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-primary/50"
+              >
+                {formData.logo_url ? (
+                  <img
+                    src={formData.logo_url}
+                    alt="Foto de perfil"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-muted flex items-center justify-center">
+                    <User className="h-12 w-12 text-muted-foreground" />
+                  </div>
+                )}
+                
+                {/* Overlay on hover */}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  {uploading ? (
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
+                  ) : (
+                    <Plus className="h-12 w-12 text-white" />
+                  )}
+                </div>
+              </button>
+              
+              <p className="text-center text-sm text-muted-foreground mt-2">
+                Clique para alterar a foto
+              </p>
             </div>
           </CardContent>
         </Card>
