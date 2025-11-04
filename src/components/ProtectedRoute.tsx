@@ -20,20 +20,19 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        navigate("/auth");
+        navigate("/auth", { replace: true });
       } else if (allowedRoles && effectiveRole && !allowedRoles.includes(effectiveRole as UserRole)) {
         // Redirect to appropriate dashboard based on role
-        if (effectiveRole === "tenant_admin") {
-          navigate("/tenant-dashboard");
-        } else if (effectiveRole === "franchise_owner") {
-          navigate("/franchise-dashboard");
-        } else if (effectiveRole === "unit_manager" || effectiveRole === "pet_shop") {
-          navigate("/petshop-dashboard");
-        } else if (effectiveRole === "client") {
-          navigate("/client-dashboard");
-        } else if (effectiveRole === "admin") {
-          navigate("/admin-dashboard");
-        }
+        const targetPath = (() => {
+          if (effectiveRole === "tenant_admin") return "/tenant-dashboard";
+          if (effectiveRole === "franchise_owner") return "/franchise-dashboard";
+          if (effectiveRole === "unit_manager" || effectiveRole === "pet_shop") return "/petshop-dashboard";
+          if (effectiveRole === "client") return "/client-dashboard";
+          if (effectiveRole === "admin") return "/admin-dashboard";
+          return "/";
+        })();
+        
+        navigate(targetPath, { replace: true });
       }
     }
   }, [user, effectiveRole, loading, navigate, allowedRoles]);
