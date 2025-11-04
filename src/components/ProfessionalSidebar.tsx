@@ -32,12 +32,10 @@ export function ProfessionalSidebar() {
 
   return (
     <Sidebar className={isCollapsed ? "w-14" : "w-64"} collapsible="icon">
-      <SidebarTrigger className="m-2 self-end" />
-      
       <SidebarContent className="bg-card border-r border-border">
         <SidebarGroup>
           <SidebarGroupLabel className="text-primary font-bold text-lg px-4 py-3">
-            {!isCollapsed && "PetchopShop"}
+            {!isCollapsed && "PetChopShop"}
           </SidebarGroupLabel>
           
           <SidebarGroupContent>
