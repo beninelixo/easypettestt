@@ -351,7 +351,7 @@ const ResetPassword = () => {
 
               <div className="bg-muted/50 p-3 rounded-lg">
                 <p className="text-xs text-muted-foreground">
-                  💡 Dica: Use uma senha com pelo menos 6 caracteres. Quanto mais forte, melhor!
+                  💡 Dica: Use uma senha com pelo menos 8 caracteres, incluindo maiúsculas, minúsculas e números. Quanto mais forte, melhor!
                 </p>
               </div>
 

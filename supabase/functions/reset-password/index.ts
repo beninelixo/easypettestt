@@ -25,8 +25,11 @@ serve(async (req) => {
       code: z.string()
         .regex(/^\d{6}$/, 'Código deve ter exatamente 6 dígitos'),
       newPassword: z.string()
-        .min(6, 'A senha deve ter pelo menos 6 caracteres')
+        .min(8, 'A senha deve ter pelo menos 8 caracteres')
         .max(128, 'Senha muito longa')
+        .regex(/[a-z]/, 'Deve conter pelo menos uma letra minúscula')
+        .regex(/[A-Z]/, 'Deve conter pelo menos uma letra maiúscula')
+        .regex(/[0-9]/, 'Deve conter pelo menos um número')
     });
 
     const body = await req.json();
@@ -48,13 +51,13 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Debug: Check what codes exist for this email
+    // Check codes exist (no sensitive data logged)
     const { data: allCodes } = await supabase
       .from('password_resets')
-      .select('*')
+      .select('id, expires_at, used')
       .eq('email', email.toLowerCase().trim());
     
-    console.log('All codes for email:', allCodes);
+    console.log('Codes found for email:', allCodes?.length || 0);
 
     // Verify code from database
     const { data: resetData, error: queryError } = await supabase
@@ -66,7 +69,7 @@ serve(async (req) => {
       .gt('expires_at', new Date().toISOString())
       .maybeSingle();
     
-    console.log('Query result:', { resetData, queryError });
+    console.log('Code validation result:', queryError ? 'error' : (resetData ? 'valid' : 'invalid'));
 
     if (queryError) {
       console.error('Query error:', queryError);
