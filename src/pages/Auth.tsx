@@ -111,10 +111,8 @@ const Auth = () => {
   }, [savedEmail]);
 
   useEffect(() => {
-    if (!loading && user) {
-      const metaRole = (user.user_metadata?.user_type as UserRole) || null;
-      const role = userRole || metaRole || "client";
-      const redirectTo = searchParams.get("redirect") || getDashboardRoute(role);
+    if (!loading && user && userRole) {
+      const redirectTo = searchParams.get("redirect") || getDashboardRoute(userRole);
       navigate(redirectTo, { replace: true });
     }
   }, [user, userRole, loading, navigate, searchParams]);
@@ -122,9 +120,9 @@ const Auth = () => {
   const getDashboardRoute = (role: UserRole) => {
     switch (role) {
       case "client":
-        return "/client-dashboard";
+        return "/client/pets";
       case "pet_shop":
-        return "/petshop-dashboard";
+        return "/professional/dashboard";
       case "admin":
         return "/admin-dashboard";
       default:

@@ -58,6 +58,18 @@ import UserPrivacy from "./pages/UserPrivacy";
 import PaymentHistory from "./pages/PaymentHistory";
 import NotificationQueue from "./pages/admin/NotificationQueue";
 import SystemMonitor from "./pages/admin/SystemMonitor";
+import ClientLayout from "./pages/client/ClientLayout";
+import ClientPets from "./pages/client/ClientPets";
+import ClientSchedule from "./pages/client/ClientSchedule";
+import ClientAppointments from "./pages/client/ClientAppointments";
+import ClientProfilePage from "./pages/client/ClientProfilePage";
+import ProfessionalLayout from "./pages/professional/ProfessionalLayout";
+import ProfessionalDashboard from "./pages/professional/ProfessionalDashboard";
+import ProfessionalCalendar from "./pages/professional/ProfessionalCalendar";
+import ProfessionalServices from "./pages/professional/ProfessionalServices";
+import ProfessionalClients from "./pages/professional/ProfessionalClients";
+import ProfessionalReports from "./pages/professional/ProfessionalReports";
+import ProfessionalProfile from "./pages/professional/ProfessionalProfile";
 
 const queryClient = new QueryClient();
 
@@ -102,6 +114,18 @@ const App = () => (
             } />
           
           {/* Client Routes */}
+          <Route path="/client" element={
+            <ProtectedRoute allowedRoles={["client"]}>
+              <ClientLayout />
+            </ProtectedRoute>
+          }>
+            <Route path="pets" element={<ClientPets />} />
+            <Route path="schedule" element={<ClientSchedule />} />
+            <Route path="appointments" element={<ClientAppointments />} />
+            <Route path="profile" element={<ClientProfilePage />} />
+          </Route>
+          
+          {/* Legacy Client Routes for backward compatibility */}
           <Route path="/select-petshop" element={
             <ProtectedRoute allowedRoles={["client"]}>
               <ClientSelectPetShop />
@@ -138,7 +162,21 @@ const App = () => (
             </ProtectedRoute>
           } />
           
-          {/* Pet Shop Routes */}
+          {/* Professional Routes */}
+          <Route path="/professional" element={
+            <ProtectedRoute allowedRoles={["pet_shop"]}>
+              <ProfessionalLayout />
+            </ProtectedRoute>
+          }>
+            <Route path="dashboard" element={<ProfessionalDashboard />} />
+            <Route path="calendar" element={<ProfessionalCalendar />} />
+            <Route path="services" element={<ProfessionalServices />} />
+            <Route path="clients" element={<ProfessionalClients />} />
+            <Route path="reports" element={<ProfessionalReports />} />
+            <Route path="profile" element={<ProfessionalProfile />} />
+          </Route>
+          
+          {/* Legacy Pet Shop Routes for backward compatibility */}
           <Route path="/petshop-setup" element={
             <ProtectedRoute allowedRoles={["pet_shop"]}>
               <PetShopSetup />
