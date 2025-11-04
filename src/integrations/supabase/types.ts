@@ -763,6 +763,8 @@ export type Database = {
       pet_shops: {
         Row: {
           address: string | null
+          cakto_customer_id: string | null
+          cakto_subscription_id: string | null
           city: string | null
           code: string
           created_at: string
@@ -775,10 +777,14 @@ export type Database = {
           owner_id: string
           phone: string | null
           state: string | null
+          subscription_expires_at: string | null
+          subscription_plan: string | null
           updated_at: string
         }
         Insert: {
           address?: string | null
+          cakto_customer_id?: string | null
+          cakto_subscription_id?: string | null
           city?: string | null
           code: string
           created_at?: string
@@ -791,10 +797,14 @@ export type Database = {
           owner_id: string
           phone?: string | null
           state?: string | null
+          subscription_expires_at?: string | null
+          subscription_plan?: string | null
           updated_at?: string
         }
         Update: {
           address?: string | null
+          cakto_customer_id?: string | null
+          cakto_subscription_id?: string | null
           city?: string | null
           code?: string
           created_at?: string
@@ -807,6 +817,8 @@ export type Database = {
           owner_id?: string
           phone?: string | null
           state?: string | null
+          subscription_expires_at?: string | null
+          subscription_plan?: string | null
           updated_at?: string
         }
         Relationships: []

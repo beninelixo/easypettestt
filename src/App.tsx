@@ -70,6 +70,7 @@ import ProfessionalServices from "./pages/professional/ProfessionalServices";
 import ProfessionalClients from "./pages/professional/ProfessionalClients";
 import ProfessionalReports from "./pages/professional/ProfessionalReports";
 import ProfessionalProfile from "./pages/professional/ProfessionalProfile";
+import ProfessionalPlans from "./pages/professional/ProfessionalPlans";
 
 const queryClient = new QueryClient();
 
@@ -173,6 +174,7 @@ const App = () => (
             <Route path="services" element={<ProfessionalServices />} />
             <Route path="clients" element={<ProfessionalClients />} />
             <Route path="reports" element={<ProfessionalReports />} />
+            <Route path="plans" element={<ProfessionalPlans />} />
             <Route path="profile" element={<ProfessionalProfile />} />
           </Route>
           

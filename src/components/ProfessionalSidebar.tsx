@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, Calendar, Scissors, Users, BarChart3, User, LogOut } from "lucide-react";
+import { Home, Calendar, Scissors, Users, BarChart3, User, CreditCard, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +22,7 @@ const professionalMenuItems = [
   { title: "Serviços", url: "/professional/services", icon: Scissors },
   { title: "Clientes", url: "/professional/clients", icon: Users },
   { title: "Relatórios", url: "/professional/reports", icon: BarChart3 },
+  { title: "Plano", url: "/professional/plans", icon: CreditCard },
   { title: "Perfil", url: "/professional/profile", icon: User },
 ];
 
