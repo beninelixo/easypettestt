@@ -47,8 +47,8 @@ const BlogCategory = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title={`${categoryName} - Blog Bointhosa | Artigos sobre ${categoryName}`}
-        description={`Confira todos os artigos sobre ${categoryName} no blog da Bointhosa. Dicas, insights e estratégias para sua clínica veterinária.`}
+        title={`${categoryName} - Blog PetHub | Artigos sobre ${categoryName}`}
+        description={`Confira todos os artigos sobre ${categoryName} no blog do PetHub. Dicas, insights e estratégias para sua clínica veterinária.`}
         url={`https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/blog/categoria/${category}`}
       />
       <Navigation />

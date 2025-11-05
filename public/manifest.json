@@ -1,6 +1,6 @@
 {
-  "name": "Bointhosa Pet System",
-  "short_name": "Bointhosa",
+  "name": "PetHub",
+  "short_name": "PetHub",
   "description": "Sistema completo de gestão para clínicas veterinárias, pet shops e banho & tosa",
   "start_url": "/",
   "display": "standalone",

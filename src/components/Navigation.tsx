@@ -26,7 +26,7 @@ const Navigation = () => {
             <PawPrint className="h-5 w-5" />
           </div>
           <span className="font-bold text-xl text-foreground">
-            Bointhosa <span className="text-primary">Pet System</span>
+            <span className="text-primary">PetHub</span>
           </span>
         </Link>
 
@@ -45,14 +45,16 @@ const Navigation = () => {
 
         {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <a href="https://pay.cakto.com.br/f72gob9_634441" target="_blank" rel="noopener noreferrer">
-            <Button 
-              size="sm" 
-              className="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 shadow-md hover:shadow-lg transition-all duration-300 text-white"
-            >
-              🏆 Plano Pet Gold - R$ 79,90
+          <Link to="/auth">
+            <Button variant="outline" size="sm">
+              Entrar
             </Button>
-          </a>
+          </Link>
+          <Link to="/auth">
+            <Button size="sm">
+              Cadastrar
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile Menu */}
@@ -87,13 +89,16 @@ const Navigation = () => {
                 
                 <div className="border-t border-border my-4" />
                 
-                <a href="https://pay.cakto.com.br/f72gob9_634441" target="_blank" rel="noopener noreferrer">
-                  <Button 
-                    className="w-full justify-center bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white"
-                  >
-                    🏆 Garantir Acesso - R$ 79,90
+                <Link to="/auth" onClick={() => setIsOpen(false)}>
+                  <Button variant="outline" className="w-full justify-center">
+                    Entrar
                   </Button>
-                </a>
+                </Link>
+                <Link to="/auth" onClick={() => setIsOpen(false)}>
+                  <Button className="w-full justify-center">
+                    Cadastrar
+                  </Button>
+                </Link>
               </div>
             </SheetContent>
           </Sheet>

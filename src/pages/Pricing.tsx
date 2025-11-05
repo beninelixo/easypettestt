@@ -91,7 +91,7 @@ const Pricing = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title="Planos e Preços - Bointhosa Pet System | A partir de R$ 79,90/mês"
+        title="Planos e Preços - PetHub | A partir de R$ 79,90/mês"
         description="Escolha o plano ideal: Pet Gold (R$ 79,90/mês), Pet Platinum (R$ 149,90/mês) ou Anual (R$ 1.798/ano). Garantia de 7 dias. Cancele quando quiser."
         url="https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/pricing"
       />
@@ -106,7 +106,7 @@ const Pricing = () => {
           </div>
           <h1 className="text-5xl lg:text-6xl font-black">Planos e Preços Transparentes</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Do básico ao enterprise. Todos os planos incluem suporte em português e cancelamento sem burocracia.
+            Todos os planos incluem suporte em português e cancelamento sem burocracia.
           </p>
         </div>
       </section>
@@ -128,8 +128,8 @@ const Pricing = () => {
                   </div>
                 )}
                 {plan.savings && (
-                  <div className="absolute -top-4 right-4 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1 rounded-full text-xs font-bold">
-                    {plan.savings}
+                  <div className="absolute -top-4 -right-4 bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-black shadow-lg animate-pulse z-10">
+                    💰 {plan.savings}
                   </div>
                 )}
                 <CardHeader className="text-center pb-8 pt-8">
@@ -146,9 +146,15 @@ const Pricing = () => {
                       <span className="text-muted-foreground text-lg">{plan.period}</span>
                     </div>
                     {plan.savings && (
-                      <p className="text-green-600 dark:text-green-500 font-semibold text-sm">
-                        💰 {plan.savings} no ano
-                      </p>
+                      <div className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-green-500 rounded-xl p-4 mt-4">
+                        <p className="text-green-700 dark:text-green-400 font-black text-xl flex items-center justify-center gap-2">
+                          <TrendingDown className="h-6 w-6" />
+                          Economize R$ 200,80 no ano
+                        </p>
+                        <p className="text-sm text-green-600 dark:text-green-500 mt-1 text-center">
+                          Equivalente a 2 meses grátis
+                        </p>
+                      </div>
                     )}
                   </div>
                 </CardHeader>

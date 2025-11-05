@@ -27,7 +27,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title="Bointhosa Pet System - Sistema Completo para Clínicas Veterinárias"
+        title="PetHub - Sistema Completo para Clínicas Veterinárias e Pet Shops"
         description="Sistema completo de gestão para clínicas veterinárias, pet shops e banho & tosa. +2.500 usuários ativos, +650 cidades. Agendamento com IA, CRM veterinário, controle financeiro. Teste grátis 14 dias."
         url="https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com"
       />
@@ -78,9 +78,6 @@ const Index = () => {
       
       {/* Comparison Table */}
       <ComparisonTable />
-
-      {/* FAQ */}
-      <FAQ />
 
       {/* Final CTA - Simple */}
       <section className="py-20 px-4 bg-gradient-to-r from-primary to-accent">

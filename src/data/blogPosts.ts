@@ -72,6 +72,212 @@ export const blogPosts: BlogPost[] = [
   },
   {
     id: 2,
+    slug: "tecnicas-modernas-grooming-pet-2025",
+    title: "7 Técnicas Modernas de Grooming Que Todo Profissional Precisa Conhecer",
+    excerpt: "Descubra as técnicas mais avançadas de banho e tosa que estão revolucionando o mercado pet em 2025.",
+    category: "Banho & Tosa",
+    date: "25 Dez 2024",
+    readTime: "12 min",
+    image: "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=1200&q=80",
+    featured: false,
+    author: {
+      name: "Carla Mendes",
+      avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100&q=80",
+      role: "Especialista em Grooming Profissional"
+    },
+    tags: ["Banho & Tosa", "Grooming", "Técnicas", "Profissional"],
+    content: `
+      <h2>O grooming vai muito além do banho básico</h2>
+      <p>O mercado de grooming movimentou R$ 850 milhões em 2024 no Brasil e projeta crescer 7,8% ao ano até 2030. Profissionais atualizados com técnicas modernas conquistam clientes premium e fidelizam tutores exigentes.</p>
+      
+      <h3>1. Tosa Criativa com Stencil e Coloração Pet-Safe</h3>
+      <p>A tosa criativa permite personalização extrema usando stencils para criar padrões únicos e tinturas específicas para pets. Produtos veganos e hipoalergênicos garantem segurança.</p>
+      <ul>
+        <li>Tintas vegetais certificadas pela ANVISA</li>
+        <li>Stencils reutilizáveis com designs exclusivos</li>
+        <li>Técnicas de sombreamento e degradê</li>
+        <li>Preços 40-60% maiores que tosas tradicionais</li>
+      </ul>
+      
+      <h3>2. Asian Fusion Style (Estilo Kawaii)</h3>
+      <p>Inspirado no grooming japonês e coreano, cria aparências "fofas" com rostos redondos, orelhas em formato de cogumelo e linhas arredondadas. Muito popular em redes sociais.</p>
+      
+      <h3>3. Spa Day Completo para Pets</h3>
+      <p>Tratamentos que vão além do banho básico:</p>
+      <ul>
+        <li>Hidratação profunda com óleos essenciais</li>
+        <li>Massagem terapêutica durante o banho</li>
+        <li>Aromaterapia pet-safe</li>
+        <li>Escovação de dentes com ultrassom</li>
+        <li>Hidratação de coxins</li>
+      </ul>
+      
+      <h3>4. Grooming Terapêutico para Pets Idosos</h3>
+      <p>Técnicas especiais para animais com mobilidade reduzida ou condições especiais de saúde. Mesas hidráulicas, água morna controlada e produtos hipoalergênicos.</p>
+      
+      <h3>5. Tosa Higiênica Veterinária</h3>
+      <p>Indicada por veterinários para casos de dermatites, alergias ou pós-cirúrgico. Requer conhecimento técnico de anatomia e condições de pele.</p>
+      
+      <h3>6. Grooming Mobile (Atendimento Domiciliar)</h3>
+      <p>Trailers e vans equipadas levam o serviço até a casa do cliente. Reduz estresse do pet e agrega valor ao serviço. Investimento inicial: R$ 80-150 mil.</p>
+      
+      <h3>7. Fotografia Profissional Pós-Grooming</h3>
+      <p>Sessões de fotos após o grooming criam conteúdo para redes sociais e fidelizam clientes. Tutores compartilham e geram marketing gratuito.</p>
+      
+      <h2>Tendências de produtos em 2025</h2>
+      <ul>
+        <li><strong>Shampoos naturais e veganos:</strong> Crescimento de 45% na demanda</li>
+        <li><strong>Secadores silenciosos:</strong> Reduzem estresse do pet</li>
+        <li><strong>Mesas anti-derrapante aquecidas:</strong> Conforto e segurança</li>
+        <li><strong>Máquinas com velocidades variáveis:</strong> Precisão no acabamento</li>
+      </ul>
+      
+      <blockquote>
+        "Investi em curso de Asian Fusion e minha receita triplicou em 6 meses. Tutores pagam 3x mais por tosas exclusivas." - Juliana Costa, Groomer em SP
+      </blockquote>
+    `
+  },
+  {
+    id: 3,
+    slug: "produtos-essenciais-pet-shop-2025",
+    title: "Top 15 Produtos Mais Vendidos em Pet Shops em 2025",
+    excerpt: "Análise de mercado: quais produtos geram mais lucro e como otimizar seu estoque.",
+    category: "Pet Shop",
+    date: "22 Dez 2024",
+    readTime: "9 min",
+    image: "https://images.unsplash.com/photo-1601758125946-6ec2ef64daf8?w=1200&q=80",
+    featured: false,
+    author: {
+      name: "Roberto Almeida",
+      avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&q=80",
+      role: "Consultor de Varejo Pet"
+    },
+    tags: ["Pet Shop", "Produtos", "Estoque", "Vendas"],
+    content: `
+      <h2>Os produtos que não podem faltar em 2025</h2>
+      <p>Baseado em dados de vendas de +1.200 pet shops brasileiras, identificamos os produtos com maior giro e margem de lucro.</p>
+      
+      <h3>Categoria Ração (40% do faturamento)</h3>
+      <ol>
+        <li><strong>Ração Super Premium:</strong> Margem 25-35%, principais marcas: Royal Canin, Hill's, N&D</li>
+        <li><strong>Ração Natural/Grain-Free:</strong> Crescimento 60% em 2024, margem 30-40%</li>
+        <li><strong>Sachês e Patês:</strong> Alto giro, margem 40-50%</li>
+      </ol>
+      
+      <h3>Categoria Acessórios (25% do faturamento)</h3>
+      <ol>
+        <li><strong>Coleiras e guias inteligentes:</strong> GPS integrado, preço médio R$ 180</li>
+        <li><strong>Camas ortopédicas:</strong> Para pets idosos, margem 50%</li>
+        <li><strong>Bebedouros automáticos com filtro:</strong> Ticket médio R$ 250</li>
+        <li><strong>Arranhadores para gatos:</strong> Diferentes tamanhos e materiais</li>
+      </ol>
+      
+      <h3>Categoria Higiene (20% do faturamento)</h3>
+      <ol>
+        <li><strong>Tapetes higiênicos descartáveis:</strong> Pacotes com 30-80 unidades</li>
+        <li><strong>Areia sanitária premium:</strong> Marcas importadas com margem 35%</li>
+        <li><strong>Lenços umedecidos pet:</strong> Embalagens práticas, alto giro</li>
+        <li><strong>Desodorizantes e neutralizadores:</strong> Enzimáticos profissionais</li>
+      </ol>
+      
+      <h3>Categoria Saúde (10% do faturamento)</h3>
+      <ol>
+        <li><strong>Antipulgas e carrapatos:</strong> Pipetas e coleiras, margem 30%</li>
+        <li><strong>Vermífugos:</strong> Alto valor agregado</li>
+        <li><strong>Suplementos e vitaminas:</strong> Para articulações, pelagem, imunidade</li>
+      </ol>
+      
+      <h3>Categoria Brinquedos (5% do faturamento)</h3>
+      <ol>
+        <li><strong>Brinquedos interativos:</strong> Dispensam petiscos, estimulam cognitivo</li>
+        <li><strong>Mordedores duráveis:</strong> Para raças de porte grande</li>
+        <li><strong>Varinhas e arranhadores para gatos:</strong> Enriquecimento ambiental</li>
+      </ol>
+      
+      <h2>Tendências de consumo em 2025</h2>
+      <ul>
+        <li><strong>Produtos sustentáveis:</strong> +70% de procura</li>
+        <li><strong>Snacks naturais:</strong> Desidratados, sem conservantes</li>
+        <li><strong>Tecnologia pet:</strong> Comedouros automáticos, câmeras, GPS</li>
+        <li><strong>Assinaturas mensais:</strong> Clubes de ração e produtos recorrentes</li>
+      </ul>
+      
+      <h2>Dicas de gestão de estoque</h2>
+      <p>Nossa plataforma automatiza reposição inteligente baseada em histórico de vendas. Reduz ruptura em 85% e excesso de estoque em 60%. Alertas de validade evitam perdas de até 12% da receita.</p>
+    `
+  },
+  {
+    id: 4,
+    slug: "comportamento-felino-gatos-entenda-seu-pet",
+    title: "Comportamento Felino: 12 Atitudes Que Todo Tutor Precisa Entender",
+    excerpt: "Descifre os mistérios do comportamento dos gatos e melhore a relação com seu felino.",
+    category: "Comportamento",
+    date: "20 Dez 2024",
+    readTime: "10 min",
+    image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=1200&q=80",
+    featured: false,
+    author: {
+      name: "Dra. Patricia Gomes",
+      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&q=80",
+      role: "Médica Veterinária Comportamentalista"
+    },
+    tags: ["Comportamento", "Gatos", "Bem-estar", "Tutores"],
+    content: `
+      <h2>Por que meu gato faz isso?</h2>
+      <p>Gatos têm comportamentos únicos que muitas vezes confundem tutores. Entender essas atitudes fortalece o vínculo e previne problemas comportamentais.</p>
+      
+      <h3>1. Amassa paninho (kneading)</h3>
+      <p>Comportamento de filhote que estimulava produção de leite materno. Quando adultos, fazem isso quando extremamente relaxados e felizes. É uma demonstração de afeto e confiança.</p>
+      
+      <h3>2. Traz "presentes" (presas)</h3>
+      <p>Instinto de caça ativado. Gatos domésticos não precisam caçar para comer, mas o instinto permanece. Trazer a presa é ensinar o "filhote humano" a caçar.</p>
+      
+      <h3>3. Morde durante carinho</h3>
+      <p>Overstimulation bite - quando o carinho se torna excessivo. Sinais antes da mordida: cauda balançando, orelhas para trás, pupilas dilatadas. Respeite os limites do gato.</p>
+      
+      <h3>4. Corre pela casa de madrugada</h3>
+      <p>"Zoomies" ou "hora da loucura". Pico de energia natural. Gatos são crepusculares (mais ativos ao amanhecer e anoitecer). Brinque antes de dormir para cansar.</p>
+      
+      <h3>5. Senta em laptops e teclados</h3>
+      <p>Busca por atenção + calor do equipamento + querer estar no centro da sua atenção. Ofereça alternativas aquecidas próximas.</p>
+      
+      <h3>6. Empurra objetos da mesa</h3>
+      <p>Curiosidade felina + teste de causa e efeito. Também pode ser pedido de atenção ou tédio. Enriquecimento ambiental reduz esse comportamento.</p>
+      
+      <h3>7. Ronrona (não apenas quando feliz)</h3>
+      <p>Gatos ronronam quando felizes, mas também quando estão doentes, estressados ou com dor. É uma forma de auto-acalmar. Observe outros sinais.</p>
+      
+      <h3>8. Pisca lentamente para você</h3>
+      <p>"Beijo de gato". Sinal de confiança e afeto. Pisque lentamente de volta para fortalecer vínculo.</p>
+      
+      <h3>9. Mostra a barriga mas não quer carinho</h3>
+      <p>Barriga exposta = confiança e vulnerabilidade, NÃO é convite para carinho. Respeite! Acaricie cabeça e costas.</p>
+      
+      <h3>10. Arranha móveis</h3>
+      <p>Marcação de território + manutenção das unhas + alongamento muscular. Providencie arranhadores adequados (verticais e horizontais) com diferentes texturas.</p>
+      
+      <h3>11. Bate com a pata na água antes de beber</h3>
+      <p>Teste de profundidade + preferência por água corrente (instinto de buscar água fresca). Ofereça fonte de água corrente.</p>
+      
+      <h3>12. Faz grooming excessivo</h3>
+      <p>Pode ser estresse, ansiedade, alergias ou parasitas. Se formar áreas sem pelo, consulte veterinário imediatamente.</p>
+      
+      <h2>Enriquecimento ambiental felino</h2>
+      <ul>
+        <li><strong>Prateleiras em diferentes alturas:</strong> Gatos adoram altura</li>
+        <li><strong>Esconderijos:</strong> Caixas, túneis, casinhas</li>
+        <li><strong>Brinquedos interativos:</strong> Varinhas, bolinhas, lasers</li>
+        <li><strong>Plantas cat-friendly:</strong> Grama de gato, catnip</li>
+        <li><strong>Janelas com vista:</strong> "TV para gatos"</li>
+      </ul>
+      
+      <blockquote>
+        "90% dos problemas comportamentais felinos são resolvidos com enriquecimento ambiental adequado." - Dra. Patricia Gomes
+      </blockquote>
+    `
+  },
+  {
+    id: 5,
     slug: "prontuario-eletronico-clinica-veterinaria",
     title: "Prontuário eletrônico: Por que sua clínica precisa dele agora",
     excerpt: "Benefícios da digitalização de prontuários e como implementar na sua prática.",
@@ -107,7 +313,7 @@ export const blogPosts: BlogPost[] = [
     `
   },
   {
-    id: 3,
+    id: 6,
     slug: "marketing-digital-veterinarios-guia-completo",
     title: "Marketing digital para veterinários: Guia completo",
     excerpt: "Como atrair mais clientes usando redes sociais, Google e WhatsApp Business.",
@@ -146,7 +352,7 @@ export const blogPosts: BlogPost[] = [
     `
   },
   {
-    id: 4,
+    id: 7,
     slug: "gestao-estoque-pet-shops-evite-perdas",
     title: "Gestão de estoque em pet shops: Evite perdas e maximize lucros",
     excerpt: "Sistema de controle de estoque inteligente para reduzir custos operacionais.",
@@ -176,7 +382,7 @@ export const blogPosts: BlogPost[] = [
     `
   },
   {
-    id: 5,
+    id: 8,
     slug: "fidelizacao-clientes-programas-que-funcionam",
     title: "Fidelização de clientes: Programas que realmente funcionam",
     excerpt: "Cases de sucesso e estratégias para criar clientes recorrentes na sua clínica.",
@@ -211,7 +417,7 @@ export const blogPosts: BlogPost[] = [
     `
   },
   {
-    id: 6,
+    id: 9,
     slug: "inteligencia-artificial-medicina-veterinaria",
     title: "Inteligência Artificial na medicina veterinária",
     excerpt: "Como a IA está revolucionando diagnósticos e atendimentos veterinários.",
