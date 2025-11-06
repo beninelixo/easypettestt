@@ -12,7 +12,7 @@ const Footer = () => {
               <div className="bg-primary text-primary-foreground p-2 rounded-lg">
                 <PawPrint className="h-5 w-5" />
               </div>
-              <span className="font-bold text-lg">PetHub</span>
+              <span className="font-bold text-lg">EasyPet</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Gestão inteligente para pet shops, clínicas e banho & tosa. Simplifique seu negócio.
@@ -87,7 +87,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="h-4 w-4 text-primary" />
-                contato@pethub.com.br
+                contato@easypet.com.br
               </li>
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="h-4 w-4 text-primary" />
@@ -101,8 +101,13 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; 2025 PetHub. Todos os direitos reservados.</p>
+        <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center text-sm text-muted-foreground">
+          <p>&copy; 2025 EasyPet. Todos os direitos reservados.</p>
+          <div className="flex items-center gap-4">
+            <Link to="/terms" className="hover:text-primary transition-colors">Termos de Uso</Link>
+            <span>•</span>
+            <Link to="/privacy" className="hover:text-primary transition-colors">Política de Privacidade</Link>
+          </div>
         </div>
       </div>
     </footer>

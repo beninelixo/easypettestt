@@ -15,15 +15,15 @@ interface SEOProps {
 }
 
 export const SEO = ({
-  title = 'Bointhosa Pet System - Sistema Completo para Clínicas Veterinárias',
+  title = 'EasyPet - Sistema Completo para Clínicas Veterinárias e Pet Shops',
   description = 'Sistema completo de gestão para clínicas veterinárias, pet shops e banho & tosa. Agendamento inteligente, CRM, controle financeiro e muito mais. Teste grátis por 14 dias.',
   image = 'https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/og-image.jpg',
   url = 'https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com',
   type = 'website',
   article,
 }: SEOProps) => {
-  const siteName = 'Bointhosa Pet System';
-  const twitterHandle = '@bointhosa';
+  const siteName = 'EasyPet';
+  const twitterHandle = '@easypet';
 
   return (
     <Helmet>
@@ -73,7 +73,7 @@ export const SEO = ({
       <meta name="googlebot" content="index, follow" />
       <meta name="language" content="Portuguese" />
       <meta name="revisit-after" content="7 days" />
-      <meta name="author" content="Bointhosa Pet System" />
+      <meta name="author" content="EasyPet" />
 
       {/* Canonical URL */}
       <link rel="canonical" href={url} />
@@ -143,19 +143,19 @@ export const SEO = ({
             addressRegion: 'SP',
             addressCountry: 'BR',
           },
-          contactPoint: {
-            '@type': 'ContactPoint',
-            telephone: '+55-11-99999-9999',
-            contactType: 'Sales',
-            email: 'contato@bointhosa.com',
-            areaServed: 'BR',
-            availableLanguage: ['Portuguese'],
-          },
-          sameAs: [
-            'https://facebook.com/bointhosa',
-            'https://instagram.com/bointhosa',
-            'https://linkedin.com/company/bointhosa',
-          ],
+            contactPoint: {
+              '@type': 'ContactPoint',
+              telephone: '+55-11-99999-9999',
+              contactType: 'Sales',
+              email: 'contato@easypet.com.br',
+              areaServed: 'BR',
+              availableLanguage: ['Portuguese'],
+            },
+            sameAs: [
+              'https://facebook.com/easypet',
+              'https://instagram.com/easypet',
+              'https://linkedin.com/company/easypet',
+            ],
         })}
       </script>
 

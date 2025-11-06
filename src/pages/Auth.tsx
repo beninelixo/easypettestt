@@ -327,7 +327,7 @@ const Auth = () => {
             </Link>
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                PetChopShop
+                EasyPet
               </h1>
               <p className="text-muted-foreground text-sm">Gestão profissional para seu negócio pet</p>
             </div>
@@ -498,7 +498,7 @@ const Auth = () => {
                           <span className="text-3xl">🧼</span>
                           <span className="font-bold">Profissional</span>
                           <span className="text-xs text-muted-foreground text-center leading-tight">
-                            Tenho um petshop e quero gerenciar atendimentos
+                            Tenho um Comércio e quero gerenciar atendimentos
                           </span>
                         </button>
                       </div>
@@ -681,7 +681,7 @@ const Auth = () => {
                         htmlFor="accept-terms"
                         className="text-sm leading-tight peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                       >
-                        Aceito os <Link to="/termos" className="text-primary hover:underline">Termos de Uso</Link> e a <Link to="/privacidade" className="text-primary hover:underline">Política de Privacidade</Link>
+                        Aceito os <Link to="/terms" className="text-primary hover:underline">Termos de Uso</Link> e a <Link to="/privacy" className="text-primary hover:underline">Política de Privacidade</Link>
                       </label>
                     </div>
                     {formErrors.acceptTerms && (

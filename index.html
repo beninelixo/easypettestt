@@ -1,14 +1,24 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#8B5CF6" />
-    <title>Bointhosa Pet System - Gestão Inteligente para Banho e Tosa</title>
-    <meta name="description" content="Sistema completo de gestão para pet shops,  clínicas veterinárias e banho e tosa. Agendamentos automáticos, controle de clientes e pets, dashboard completo. Simplifique seu negócio pet.">
-    <meta name="author" content="Bointhosa Pet System" />
+    <title>EasyPet - Gestão Inteligente para Pet Shops e Clínicas Veterinárias</title>
+    <meta name="description" content="Sistema completo de gestão para pet shops, clínicas veterinárias e banho & tosa. Agendamentos automáticos, controle de clientes e pets, dashboard completo. Simplifique seu negócio pet.">
+    <meta name="author" content="EasyPet" />
+    
+    <!-- Force dark mode on initial load -->
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'dark';
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
     
     <!-- Performance optimizations -->
     <link rel="preconnect" href="https://xkfkrdorghyagtwbxory.supabase.co" />
@@ -20,12 +30,12 @@
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
+    <meta name="twitter:site" content="@easypet" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    <meta property="og:title" content="Bointhosa Pet System - Gestão Inteligente para Banho e Tosa">
-  <meta name="twitter:title" content="Bointhosa Pet System - Gestão Inteligente para Banho e Tosa">
-  <meta property="og:description" content="Sistema completo de gestão para pet shops,  clínicas veterinárias e banho e tosa. Agendamentos automáticos, controle de clientes e pets, dashboard completo. Simplifique seu negócio pet.">
-  <meta name="twitter:description" content="Sistema completo de gestão para pet shops,  clínicas veterinárias e banho e tosa. Agendamentos automáticos, controle de clientes e pets, dashboard completo. Simplifique seu negócio pet.">
+    <meta property="og:title" content="EasyPet - Gestão Inteligente para Pet Shops e Clínicas Veterinárias">
+  <meta name="twitter:title" content="EasyPet - Gestão Inteligente para Pet Shops e Clínicas Veterinárias">
+  <meta property="og:description" content="Sistema completo de gestão para pet shops, clínicas veterinárias e banho & tosa. Agendamentos automáticos, controle de clientes e pets, dashboard completo. Simplifique seu negócio pet.">
+  <meta name="twitter:description" content="Sistema completo de gestão para pet shops, clínicas veterinárias e banho & tosa. Agendamentos automáticos, controle de clientes e pets, dashboard completo. Simplifique seu negócio pet.">
 </head>
 
   <body>

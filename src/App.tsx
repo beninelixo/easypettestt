@@ -43,6 +43,8 @@ import ClientSelectPetShop from "./pages/ClientSelectPetShop";
 import ClientProfile from "./pages/ClientProfile";
 import EditarPetshop from "./pages/petshop/EditarPetshop";
 import ResetPassword from "./pages/ResetPassword";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import SystemMonitoring from "./pages/SystemMonitoring";
 import SystemAnalysis from "./pages/SystemAnalysis";
 import AuthMonitoring from "./pages/AuthMonitoring";
@@ -99,6 +101,8 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
             
             {/* Tenant Dashboard */}
             <Route path="/tenant-dashboard" element={

@@ -26,7 +26,7 @@ const Navigation = () => {
             <PawPrint className="h-5 w-5" />
           </div>
           <span className="font-bold text-xl text-foreground">
-            <span className="text-primary">PetHub</span>
+            <span className="text-primary">EasyPet</span>
           </span>
         </Link>
 

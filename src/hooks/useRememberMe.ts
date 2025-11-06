@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
-const REMEMBER_ME_KEY = 'bointhosa_remember_me';
-const REMEMBER_EMAIL_KEY = 'bointhosa_saved_email';
+const REMEMBER_ME_KEY = 'easypet_remember_me';
+const REMEMBER_EMAIL_KEY = 'easypet_saved_email';
 
 export const useRememberMe = () => {
   const [rememberMe, setRememberMe] = useState(false);

@@ -7,20 +7,19 @@ export const useTheme = () => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    
-    // Check for saved theme preference or default to dark
+    // Get saved theme or default to dark IMMEDIATELY
     const savedTheme = localStorage.getItem('theme') as Theme;
     const initialTheme = savedTheme || 'dark';
     
-    setTheme(initialTheme);
-    
-    // Apply theme to document
+    // Apply theme to document BEFORE any render
     if (initialTheme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
+    
+    setTheme(initialTheme);
+    setMounted(true);
   }, []);
 
   const toggleTheme = () => {

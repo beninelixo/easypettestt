@@ -158,8 +158,11 @@ export const useAuth = () => {
 
       // Save email for remember me if enabled
       if (rememberMe) {
-        localStorage.setItem('bointhosa_remember_me', 'true');
-        localStorage.setItem('bointhosa_saved_email', email);
+        localStorage.setItem('easypet_remember_me', 'true');
+        localStorage.setItem('easypet_saved_email', email);
+      } else {
+        // If not remember me, mark session as temporary
+        localStorage.setItem('easypet_session_temporary', 'true');
       }
 
       // Get user's name for personalized welcome
@@ -188,8 +191,9 @@ export const useAuth = () => {
   const signOut = async () => {
     try {
       // Clear remember me data
-      localStorage.removeItem('bointhosa_remember_me');
-      localStorage.removeItem('bointhosa_saved_email');
+      localStorage.removeItem('easypet_remember_me');
+      localStorage.removeItem('easypet_saved_email');
+      localStorage.removeItem('easypet_session_temporary');
       
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
