@@ -111,8 +111,8 @@ const App = () => {
             <Toaster />
             <Sonner />
             <ThemeToggle />
-            <PushNotificationButton />
             <BrowserRouter>
+              <PushNotificationButton />
               <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
