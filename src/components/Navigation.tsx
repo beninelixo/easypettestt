@@ -3,20 +3,32 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PawPrint, Menu, X } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useHasSuccessStories } from "@/hooks/useSuccessStories";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: hasSuccessStories } = useHasSuccessStories();
 
-  const navLinks = [
+  const baseLinks = [
     { to: "/", label: "Início" },
     { to: "/funcionalidades", label: "Funcionalidades" },
-    { to: "/casos-de-sucesso", label: "Casos de Sucesso" },
     { to: "/pricing", label: "Planos" },
     { to: "/about", label: "Sobre" },
     { to: "/faq", label: "FAQ" },
     { to: "/blog", label: "Blog" },
     { to: "/contact", label: "Contato" },
   ];
+
+  const successStoriesLink = { to: "/casos-de-sucesso", label: "Casos de Sucesso" };
+
+  const navLinks = hasSuccessStories
+    ? [
+        baseLinks[0],
+        baseLinks[1],
+        successStoriesLink,
+        ...baseLinks.slice(2)
+      ]
+    : baseLinks;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">

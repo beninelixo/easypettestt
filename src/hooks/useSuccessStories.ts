@@ -119,3 +119,19 @@ export const useDeleteSuccessStory = () => {
     },
   });
 };
+
+export const useHasSuccessStories = () => {
+  return useQuery({
+    queryKey: ['has-success-stories'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('success_stories')
+        .select('*', { count: 'exact', head: true })
+        .eq('approved', true);
+
+      if (error) throw error;
+      return (count ?? 0) > 0;
+    },
+    staleTime: 5 * 60 * 1000, // Cache por 5 minutos
+  });
+};
