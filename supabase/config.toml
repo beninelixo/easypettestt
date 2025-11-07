@@ -65,3 +65,6 @@ verify_jwt = true
 
 [functions.worker-notifications]
 verify_jwt = true
+
+[functions.update-global-metrics]
+verify_jwt = false

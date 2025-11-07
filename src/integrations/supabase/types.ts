@@ -351,6 +351,36 @@ export type Database = {
         }
         Relationships: []
       }
+      global_metrics: {
+        Row: {
+          description: string | null
+          id: string
+          last_calculated_at: string | null
+          metric_name: string
+          metric_type: string
+          metric_value: number
+          updated_at: string | null
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          last_calculated_at?: string | null
+          metric_name: string
+          metric_type: string
+          metric_value: number
+          updated_at?: string | null
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          last_calculated_at?: string | null
+          metric_name?: string
+          metric_type?: string
+          metric_value?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       login_attempts: {
         Row: {
           attempt_time: string
@@ -1261,6 +1291,77 @@ export type Database = {
           },
         ]
       }
+      success_stories: {
+        Row: {
+          approved: boolean | null
+          business_name: string
+          created_at: string | null
+          display_order: number | null
+          featured: boolean | null
+          highlight: string
+          id: string
+          image_url: string | null
+          location: string
+          owner_name: string
+          pet_shop_id: string | null
+          revenue_growth_percent: number | null
+          satisfaction_rating: number | null
+          segment: string
+          testimonial: string
+          total_clients: number | null
+          updated_at: string | null
+          video_url: string | null
+        }
+        Insert: {
+          approved?: boolean | null
+          business_name: string
+          created_at?: string | null
+          display_order?: number | null
+          featured?: boolean | null
+          highlight: string
+          id?: string
+          image_url?: string | null
+          location: string
+          owner_name: string
+          pet_shop_id?: string | null
+          revenue_growth_percent?: number | null
+          satisfaction_rating?: number | null
+          segment: string
+          testimonial: string
+          total_clients?: number | null
+          updated_at?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          approved?: boolean | null
+          business_name?: string
+          created_at?: string | null
+          display_order?: number | null
+          featured?: boolean | null
+          highlight?: string
+          id?: string
+          image_url?: string | null
+          location?: string
+          owner_name?: string
+          pet_shop_id?: string | null
+          revenue_growth_percent?: number | null
+          satisfaction_rating?: number | null
+          segment?: string
+          testimonial?: string
+          total_clients?: number | null
+          updated_at?: string | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "success_stories_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       system_health: {
         Row: {
           error_message: string | null
@@ -1593,6 +1694,7 @@ export type Database = {
         Returns: boolean
       }
       set_current_tenant: { Args: { _tenant_id: string }; Returns: undefined }
+      update_global_metrics: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role:

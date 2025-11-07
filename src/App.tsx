@@ -83,6 +83,8 @@ import ConsolidatedDashboard from "./pages/multi-unit/ConsolidatedDashboard";
 import UnitsManagement from "./pages/multi-unit/UnitsManagement";
 import Analytics from "@/pages/petshop/Analytics";
 import SuccessStories from "@/pages/SuccessStories";
+import SuccessStoriesManager from "@/pages/admin/SuccessStoriesManager";
+import SubmitSuccessStory from "@/pages/petshop/SubmitSuccessStory";
 
 const queryClient = new QueryClient();
 
@@ -250,6 +252,7 @@ const App = () => {
             <Route path="relatorios" element={<Relatorios />} />
             <Route path="configuracoes" element={<Configuracoes />} />
             <Route path="editar-petshop" element={<EditarPetshop />} />
+            <Route path="submit-success-story" element={<SubmitSuccessStory />} />
           </Route>
           
           {/* Admin Routes */}
@@ -308,6 +311,24 @@ const App = () => {
           <Route path="/admin/monitor" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <SystemMonitor />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/system-overview" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <SystemOverview />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/admin/success-stories" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <SuccessStoriesManager />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/admin/regenerate-images" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <RegenerateImages />
             </ProtectedRoute>
           } />
 
