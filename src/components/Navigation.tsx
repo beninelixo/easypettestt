@@ -10,6 +10,7 @@ const Navigation = () => {
   const navLinks = [
     { to: "/", label: "Início" },
     { to: "/funcionalidades", label: "Funcionalidades" },
+    { to: "/casos-de-sucesso", label: "Casos de Sucesso" },
     { to: "/pricing", label: "Planos" },
     { to: "/about", label: "Sobre" },
     { to: "/faq", label: "FAQ" },

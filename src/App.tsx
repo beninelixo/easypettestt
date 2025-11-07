@@ -7,6 +7,7 @@ import { TenantProvider } from "./lib/tenant-context";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ThemeToggle } from "./components/ThemeToggle";
+import { PushNotificationButton } from "./components/PushNotificationButton";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Pricing from "./pages/Pricing";
@@ -80,6 +81,8 @@ import SystemOverview from "./pages/SystemOverview";
 import RegenerateImages from "./pages/admin/RegenerateImages";
 import ConsolidatedDashboard from "./pages/multi-unit/ConsolidatedDashboard";
 import UnitsManagement from "./pages/multi-unit/UnitsManagement";
+import Analytics from "@/pages/petshop/Analytics";
+import SuccessStories from "@/pages/SuccessStories";
 
 const queryClient = new QueryClient();
 
@@ -106,6 +109,7 @@ const App = () => {
             <Toaster />
             <Sonner />
             <ThemeToggle />
+            <PushNotificationButton />
             <BrowserRouter>
               <ScrollToTop />
           <Routes>
@@ -116,6 +120,7 @@ const App = () => {
             <Route path="/clinicas" element={<Clinicas />} />
             <Route path="/petshops" element={<PetShops />} />
             <Route path="/banho-tosa" element={<BanhoTosa />} />
+            <Route path="/casos-de-sucesso" element={<SuccessStories />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/categoria/:category" element={<BlogCategory />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
@@ -233,6 +238,7 @@ const App = () => {
             <Route path="servicos" element={<Servicos />} />
             <Route path="catalogo-servicos" element={<ServiceTemplates />} />
             <Route path="whatsapp" element={<WhatsAppSettings />} />
+            <Route path="analytics" element={<Analytics />} />
             <Route path="clientes" element={<Clientes />} />
             <Route path="cliente/:clientId" element={<ClientProfile />} />
             <Route path="funcionarios" element={<Funcionarios />} />
