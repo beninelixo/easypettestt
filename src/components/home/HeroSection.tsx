@@ -40,7 +40,7 @@ export const HeroSection = () => {
                   <ArrowRight className="ml-2 h-6 w-6 group-hover:translate-x-2 transition-transform" />
                 </Button>
               </Link>
-              <a href="#features">
+              <Link to="/system-overview">
                 <Button 
                   size="lg" 
                   variant="outline"
@@ -48,7 +48,7 @@ export const HeroSection = () => {
                 >
                   Conhecer o Sistema
                 </Button>
-              </a>
+              </Link>
             </div>
 
             {/* Trust Indicators */}

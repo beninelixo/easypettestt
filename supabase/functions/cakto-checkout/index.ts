@@ -27,10 +27,37 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
+    // 1. Extract and verify JWT token
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('ERROR: No authorization header provided');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - No token provided' }), 
+        { status: 401, headers: corsHeaders }
+      );
+    }
+    
+    const token = authHeader.replace('Bearer ', '');
+    console.log('Authorization token extracted');
+    
+    // 2. Create admin client for operations
+    const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
+    
+    // 3. Get authenticated user from JWT
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+    
+    if (authError || !user) {
+      console.error('ERROR: Authentication failed', { error: authError?.message });
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - Invalid token' }), 
+        { status: 401, headers: corsHeaders }
+      );
+    }
+    
+    console.log('User authenticated', { user_id: user.id, email: user.email });
 
     const { plan, petshop_id }: CheckoutRequest = await req.json();
 
@@ -42,16 +69,36 @@ serve(async (req) => {
       throw new Error('Invalid plan');
     }
 
-    // Get pet shop details
-    const { data: petShop, error: petShopError } = await supabaseClient
+    // 4. CRITICAL: Verify ownership before proceeding
+    const { data: petShop, error: petShopError } = await supabaseAdmin
       .from('pet_shops')
       .select('*, profiles:owner_id(*)')
       .eq('id', petshop_id)
+      .eq('owner_id', user.id)  // ← OWNERSHIP CHECK
       .single();
 
     if (petShopError || !petShop) {
-      throw new Error('Pet shop not found');
+      console.error('Pet shop access denied', { 
+        error: petShopError, 
+        user_id: user.id, 
+        petshop_id 
+      });
+      return new Response(
+        JSON.stringify({ 
+          error: 'Pet shop not found or you do not have permission to manage it' 
+        }), 
+        { status: 403, headers: corsHeaders }
+      );
     }
+    
+    // 5. Add audit logging
+    await supabaseAdmin.from('audit_logs').insert({
+      user_id: user.id,
+      table_name: 'pet_shops',
+      operation: 'PAYMENT_CHECKOUT_CREATED',
+      record_id: petshop_id,
+      new_data: { plan, checkout_initiated_at: new Date().toISOString() }
+    });
 
     const caktoApiKey = Deno.env.get('CAKTO_API_KEY');
     if (!caktoApiKey) {
@@ -86,7 +133,7 @@ serve(async (req) => {
       caktoCustomerId = customerData.id;
 
       // Update pet_shops with cakto_customer_id
-      await supabaseClient
+      await supabaseAdmin
         .from('pet_shops')
         .update({ cakto_customer_id: caktoCustomerId })
         .eq('id', petshop_id);

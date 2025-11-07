@@ -55,6 +55,8 @@ import AIMonitorDashboard from "./pages/AIMonitorDashboard";
 import { TenantDashboard } from "./features/tenant/pages/TenantDashboard";
 import { FranchiseDashboard } from "./features/franchise/pages/FranchiseDashboard";
 import ScrollToTop from "./components/ScrollToTop";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import UserProfile from "./pages/UserProfile";
 import UserPrivacy from "./pages/UserPrivacy";
 import PaymentHistory from "./pages/PaymentHistory";
@@ -73,19 +75,35 @@ import ProfessionalClients from "./pages/professional/ProfessionalClients";
 import ProfessionalReports from "./pages/professional/ProfessionalReports";
 import ProfessionalProfile from "./pages/professional/ProfessionalProfile";
 import ProfessionalPlans from "./pages/professional/ProfessionalPlans";
+import SystemOverview from "./pages/SystemOverview";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TenantProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <ThemeToggle />
-          <BrowserRouter>
-            <ScrollToTop />
+const App = () => {
+  // Enforce temporary session cleanup on browser close
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const isTemporary = localStorage.getItem('easypet_session_temporary') === 'true';
+      if (isTemporary) {
+        supabase.auth.signOut();
+        localStorage.clear();
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TenantProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <ThemeToggle />
+            <BrowserRouter>
+              <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
@@ -103,6 +121,7 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/system-overview" element={<SystemOverview />} />
             
             {/* Tenant Dashboard */}
             <Route path="/tenant-dashboard" element={
@@ -276,6 +295,7 @@ const App = () => (
       </TenantProvider>
     </QueryClientProvider>
   </ErrorBoundary>
-);
+  );
+};
 
 export default App;
