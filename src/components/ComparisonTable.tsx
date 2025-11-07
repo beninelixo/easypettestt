@@ -5,15 +5,19 @@ import { Button } from "@/components/ui/button";
 const ComparisonTable = () => {
   const features = [
     { name: "Agendamento Online 24/7", gold: true, platinum: true, annual: true, traditional: false },
-    { name: "Lembretes Automáticos WhatsApp", gold: true, platinum: true, annual: true, traditional: false },
-    { name: "Dashboard de Análises", gold: true, platinum: true, annual: true, traditional: false },
-    { name: "Cadastro de Clientes e Pets", gold: true, platinum: true, annual: true, traditional: true },
-    { name: "Controle Financeiro", gold: true, platinum: true, annual: true, traditional: false },
-    { name: "Relatórios em Tempo Real", gold: true, platinum: true, annual: true, traditional: false },
+    { name: "Gestão de Clientes e Pets", gold: true, platinum: true, annual: true, traditional: true },
+    { name: "Calendário e Agenda", gold: true, platinum: true, annual: true, traditional: true },
+    { name: "Controle de Estoque", gold: true, platinum: true, annual: true, traditional: false },
+    { name: "Relatórios Financeiros", gold: true, platinum: true, annual: true, traditional: false },
+    { name: "Lembretes Automáticos Email", gold: true, platinum: true, annual: true, traditional: false },
+    { name: "Lembretes WhatsApp Business", gold: false, platinum: true, annual: true, traditional: false },
+    { name: "Programa de Fidelidade", gold: false, platinum: true, annual: true, traditional: false },
+    { name: "Multi-unidades (Franquias)", gold: false, platinum: true, annual: true, traditional: false },
+    { name: "API para Integrações", gold: false, platinum: true, annual: true, traditional: false },
+    { name: "White Label (Marca Própria)", gold: false, platinum: true, annual: true, traditional: false },
     { name: "Backup Automático", gold: true, platinum: true, annual: true, traditional: false },
     { name: "Suporte Especializado", gold: true, platinum: true, annual: true, traditional: false },
     { name: "App Mobile", gold: true, platinum: true, annual: true, traditional: false },
-    { name: "Atualizações Constantes", gold: true, platinum: true, annual: true, traditional: false },
   ];
 
   return (
@@ -134,10 +138,11 @@ const ComparisonTable = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
+                  <li className="flex items-center gap-2">✅ Agendamentos ilimitados</li>
                   <li className="flex items-center gap-2">✅ Até 5 usuários</li>
-                  <li className="flex items-center gap-2">✅ 1 unidade</li>
-                  <li className="flex items-center gap-2">✅ Suporte prioritário</li>
-                  <li className="flex items-center gap-2">✅ Todos os recursos essenciais</li>
+                  <li className="flex items-center gap-2">✅ Gestão completa de clientes</li>
+                  <li className="flex items-center gap-2">✅ Relatórios básicos</li>
+                  <li className="flex items-center gap-2">✅ Lembretes por email</li>
                 </ul>
                 <a href="https://pay.cakto.com.br/f72gob9_634441" target="_blank" rel="noopener noreferrer" className="block mt-6">
                   <Button className="w-full bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white font-bold">
@@ -156,10 +161,11 @@ const ComparisonTable = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
+                  <li className="flex items-center gap-2">✅ Tudo do Gold +</li>
                   <li className="flex items-center gap-2">✅ Usuários ilimitados</li>
+                  <li className="flex items-center gap-2">✅ WhatsApp Business</li>
+                  <li className="flex items-center gap-2">✅ Programa de fidelidade</li>
                   <li className="flex items-center gap-2">✅ Multi-unidades</li>
-                  <li className="flex items-center gap-2">✅ White label</li>
-                  <li className="flex items-center gap-2">✅ Gerente dedicado</li>
                 </ul>
                 <a href="https://pay.cakto.com.br/qym84js_634453" target="_blank" rel="noopener noreferrer" className="block mt-6">
                   <Button className="w-full bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white font-bold">
