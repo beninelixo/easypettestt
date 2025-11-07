@@ -15,7 +15,7 @@ export const HeroSection = () => {
           {/* Left Content */}
           <div className="space-y-8 animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary font-semibold text-sm">
-              🐾 Sistema Completo de Gestão Veterinária
+              🐾 Sistema Completo para Pet Shops, Banho & Tosa e Clínicas
             </div>
             
             <h1 className="text-5xl lg:text-7xl font-black leading-tight">
@@ -26,7 +26,7 @@ export const HeroSection = () => {
             </h1>
             
             <p className="text-xl text-muted-foreground leading-relaxed">
-              Sistema completo para clínicas veterinárias, pet shops e banho & tosa. 
+              Sistema completo de gestão para seu pet shop, banho e tosa ou clínica veterinária. 
               Agendamento inteligente, gestão financeira, controle de estoque e muito mais.
             </p>
 

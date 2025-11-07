@@ -27,8 +27,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title="PetHub - Sistema Completo para Clínicas Veterinárias e Pet Shops"
-        description="Sistema completo de gestão para clínicas veterinárias, pet shops e banho & tosa. +2.500 usuários ativos, +650 cidades. Agendamento com IA, CRM veterinário, controle financeiro. Teste grátis 14 dias."
+        title="PetHub - Sistema Completo de Gestão para Pet Shops, Banho & Tosa e Clínicas"
+        description="Sistema completo de gestão para seu pet shop, banho e tosa ou clínica veterinária. +2.500 usuários ativos, +650 cidades. Agendamento inteligente, CRM, controle financeiro. Teste grátis 14 dias."
         url="https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com"
       />
       <Navigation />
@@ -46,7 +46,7 @@ const Index = () => {
               Diferenciais que fazem a diferença
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Recursos exclusivos que transformam sua gestão veterinária
+              Recursos exclusivos que transformam a gestão do seu negócio pet
             </p>
           </div>
 
