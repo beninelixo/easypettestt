@@ -29,6 +29,7 @@ import Relatorios from "./pages/petshop/Relatorios";
 import Configuracoes from "./pages/petshop/Configuracoes";
 import Servicos from "./pages/petshop/Servicos";
 import ServiceTemplates from "./pages/petshop/ServiceTemplates";
+import WhatsAppSettings from "./pages/petshop/WhatsAppSettings";
 import Estoque from "./pages/petshop/Estoque";
 import Financeiro from "./pages/petshop/Financeiro";
 import Fidelidade from "./pages/petshop/Fidelidade";
@@ -231,6 +232,7 @@ const App = () => {
             <Route index element={<Navigate to="/professional/dashboard" replace />} />
             <Route path="servicos" element={<Servicos />} />
             <Route path="catalogo-servicos" element={<ServiceTemplates />} />
+            <Route path="whatsapp" element={<WhatsAppSettings />} />
             <Route path="clientes" element={<Clientes />} />
             <Route path="cliente/:clientId" element={<ClientProfile />} />
             <Route path="funcionarios" element={<Funcionarios />} />

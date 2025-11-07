@@ -1481,6 +1481,50 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_settings: {
+        Row: {
+          auto_confirmation: boolean
+          auto_reminder: boolean
+          business_phone: string | null
+          created_at: string
+          id: string
+          pet_shop_id: string
+          reminder_hours_before: number
+          updated_at: string
+          welcome_message: string | null
+        }
+        Insert: {
+          auto_confirmation?: boolean
+          auto_reminder?: boolean
+          business_phone?: string | null
+          created_at?: string
+          id?: string
+          pet_shop_id: string
+          reminder_hours_before?: number
+          updated_at?: string
+          welcome_message?: string | null
+        }
+        Update: {
+          auto_confirmation?: boolean
+          auto_reminder?: boolean
+          business_phone?: string | null
+          created_at?: string
+          id?: string
+          pet_shop_id?: string
+          reminder_hours_before?: number
+          updated_at?: string
+          welcome_message?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_settings_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: true
+            referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
