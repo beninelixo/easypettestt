@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, Calendar, Scissors, Users, BarChart3, User, CreditCard, LogOut } from "lucide-react";
+import { Home, Calendar, Scissors, Users, BarChart3, User, CreditCard, LogOut, Building2, LayoutDashboard } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useTenant } from "@/lib/tenant-context";
+import { Separator } from "@/components/ui/separator";
 
 const professionalMenuItems = [
   { title: "Dashboard", url: "/professional/dashboard", icon: Home },
@@ -26,10 +28,19 @@ const professionalMenuItems = [
   { title: "Perfil", url: "/professional/profile", icon: User },
 ];
 
+const multiUnitMenuItems = [
+  { title: "Dashboard Consolidado", url: "/multi-unit/dashboard", icon: LayoutDashboard },
+  { title: "Gestão de Unidades", url: "/multi-unit/management", icon: Building2 },
+];
+
 export function ProfessionalSidebar() {
   const { state } = useSidebar();
   const { signOut } = useAuth();
+  const { can, tenantId } = useTenant();
   const isCollapsed = state === "collapsed";
+  
+  // Show multi-unit menu if user has tenant access
+  const showMultiUnit = tenantId && (can('view_consolidated') || can('manage_units'));
 
   return (
     <Sidebar className={isCollapsed ? "w-14" : "w-64"} collapsible="icon">
@@ -64,6 +75,43 @@ export function ProfessionalSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        
+        {/* Multi-Unit Management Section */}
+        {showMultiUnit && (
+          <>
+            <Separator className="my-2" />
+            <SidebarGroup>
+              <SidebarGroupLabel className="text-muted-foreground px-4 py-2">
+                {!isCollapsed && "Multi-Unidades"}
+              </SidebarGroupLabel>
+              
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {multiUnitMenuItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <NavLink
+                          to={item.url}
+                          end
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                              isActive
+                                ? "bg-primary text-primary-foreground font-medium shadow-sm"
+                                : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                            }`
+                          }
+                        >
+                          <item.icon className="h-5 w-5 flex-shrink-0" />
+                          {!isCollapsed && <span>{item.title}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </>
+        )}
       </SidebarContent>
       
       <SidebarFooter className="border-t border-border bg-card p-4">

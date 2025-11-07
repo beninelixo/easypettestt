@@ -77,6 +77,8 @@ import ProfessionalProfile from "./pages/professional/ProfessionalProfile";
 import ProfessionalPlans from "./pages/professional/ProfessionalPlans";
 import SystemOverview from "./pages/SystemOverview";
 import RegenerateImages from "./pages/admin/RegenerateImages";
+import ConsolidatedDashboard from "./pages/multi-unit/ConsolidatedDashboard";
+import UnitsManagement from "./pages/multi-unit/UnitsManagement";
 
 const queryClient = new QueryClient();
 
@@ -122,8 +124,20 @@ const App = () => {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/system-overview" element={<SystemOverview />} />
-          <Route path="/admin/regenerate-images" element={<RegenerateImages />} />
+            <Route path="/system-overview" element={<SystemOverview />} />
+            <Route path="/admin/regenerate-images" element={<RegenerateImages />} />
+            
+            {/* Multi-Unit Management Routes */}
+            <Route path="/multi-unit/dashboard" element={
+              <ProtectedRoute>
+                <ConsolidatedDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/multi-unit/management" element={
+              <ProtectedRoute>
+                <UnitsManagement />
+              </ProtectedRoute>
+            } />
             
             {/* Tenant Dashboard */}
             <Route path="/tenant-dashboard" element={
