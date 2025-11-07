@@ -10,6 +10,45 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { z } from 'zod';
+
+const successStorySchema = z.object({
+  business_name: z.string()
+    .trim()
+    .min(3, 'Nome deve ter no mínimo 3 caracteres')
+    .max(200, 'Nome deve ter no máximo 200 caracteres'),
+  owner_name: z.string()
+    .trim()
+    .min(3, 'Nome deve ter no mínimo 3 caracteres')
+    .max(200, 'Nome deve ter no máximo 200 caracteres'),
+  location: z.string()
+    .trim()
+    .min(3, 'Localização inválida')
+    .max(200, 'Localização muito longa'),
+  segment: z.enum(['petshop', 'banhotosa', 'clinica']),
+  revenue_growth_percent: z.number()
+    .min(0, 'Crescimento não pode ser negativo')
+    .max(1000, 'Valor muito alto')
+    .optional(),
+  total_clients: z.number()
+    .int('Deve ser número inteiro')
+    .min(0, 'Não pode ser negativo')
+    .max(1000000, 'Valor muito alto')
+    .optional(),
+  satisfaction_rating: z.number()
+    .min(0, 'Avaliação mínima é 0')
+    .max(5, 'Avaliação máxima é 5')
+    .optional(),
+  testimonial: z.string()
+    .trim()
+    .min(50, 'Depoimento muito curto (mínimo 50 caracteres)')
+    .max(2000, 'Depoimento muito longo (máximo 2000 caracteres)'),
+  highlight: z.string()
+    .trim()
+    .min(10, 'Destaque muito curto (mínimo 10 caracteres)')
+    .max(300, 'Destaque muito longo (máximo 300 caracteres)'),
+  image_url: z.string().url('URL inválida').optional().or(z.literal('')),
+});
 
 export default function SubmitSuccessStory() {
   const { user } = useAuth();
@@ -69,8 +108,8 @@ export default function SubmitSuccessStory() {
     }
 
     try {
-      await createStory.mutateAsync({
-        pet_shop_id: petShopId,
+      // Validate input data with Zod schema
+      const validatedData = successStorySchema.parse({
         business_name: formData.business_name,
         owner_name: formData.owner_name,
         location: formData.location,
@@ -81,6 +120,20 @@ export default function SubmitSuccessStory() {
         testimonial: formData.testimonial,
         highlight: formData.highlight,
         image_url: formData.image_url || undefined,
+      });
+
+      await createStory.mutateAsync({
+        pet_shop_id: petShopId,
+        business_name: validatedData.business_name,
+        owner_name: validatedData.owner_name,
+        location: validatedData.location,
+        segment: validatedData.segment,
+        revenue_growth_percent: validatedData.revenue_growth_percent,
+        total_clients: validatedData.total_clients,
+        satisfaction_rating: validatedData.satisfaction_rating,
+        testimonial: validatedData.testimonial,
+        highlight: validatedData.highlight,
+        image_url: validatedData.image_url,
         approved: false,
         featured: false,
         display_order: 0,
@@ -89,6 +142,11 @@ export default function SubmitSuccessStory() {
       toast.success('Caso de sucesso enviado para aprovação!');
       navigate('/petshop-dashboard');
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+        return;
+      }
+      console.error('Erro ao enviar caso de sucesso:', error);
       toast.error('Erro ao enviar caso de sucesso');
     }
   };
