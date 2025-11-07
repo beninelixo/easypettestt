@@ -76,6 +76,7 @@ import ProfessionalReports from "./pages/professional/ProfessionalReports";
 import ProfessionalProfile from "./pages/professional/ProfessionalProfile";
 import ProfessionalPlans from "./pages/professional/ProfessionalPlans";
 import SystemOverview from "./pages/SystemOverview";
+import RegenerateImages from "./pages/admin/RegenerateImages";
 
 const queryClient = new QueryClient();
 
@@ -121,7 +122,8 @@ const App = () => {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/system-overview" element={<SystemOverview />} />
+          <Route path="/system-overview" element={<SystemOverview />} />
+          <Route path="/admin/regenerate-images" element={<RegenerateImages />} />
             
             {/* Tenant Dashboard */}
             <Route path="/tenant-dashboard" element={
