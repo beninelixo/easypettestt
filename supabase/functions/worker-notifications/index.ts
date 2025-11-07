@@ -152,14 +152,49 @@ async function sendEmail(notification: any): Promise<boolean> {
 }
 
 async function sendWhatsApp(notification: any): Promise<boolean> {
-  // Placeholder - integrar com WhatsApp Business API
   const apiKey = Deno.env.get('WHATSAPP_API_KEY');
   if (!apiKey) {
     console.warn('⚠️ WHATSAPP_API_KEY não configurada');
     return false;
   }
-  
-  // Simular sucesso para teste
-  await new Promise(resolve => setTimeout(resolve, 100));
-  return true;
+
+  try {
+    // WhatsApp Business API integration
+    const response = await fetch('https://graph.facebook.com/v18.0/YOUR_PHONE_NUMBER_ID/messages', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: notification.recipient.replace(/\D/g, ''), // Remove non-digits
+        type: 'template',
+        template: {
+          name: 'appointment_reminder', // Template must be approved by WhatsApp
+          language: { code: 'pt_BR' },
+          components: [
+            {
+              type: 'body',
+              parameters: [
+                { type: 'text', text: notification.message }
+              ]
+            }
+          ]
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('WhatsApp API error:', error);
+      return false;
+    }
+
+    console.log('✅ WhatsApp enviado com sucesso');
+    return true;
+  } catch (error) {
+    console.error('Erro ao enviar WhatsApp:', error);
+    return false;
+  }
 }

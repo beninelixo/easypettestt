@@ -62,3 +62,6 @@ verify_jwt = false
 
 [functions.generate-image]
 verify_jwt = true
+
+[functions.worker-notifications]
+verify_jwt = true
