@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Building2, Calendar, DollarSign, TrendingUp, Settings, Activity, Brain, Shield, Zap, Cpu } from "lucide-react";
+import { Users, Building2, Calendar, DollarSign, TrendingUp, Settings, Activity, Brain, Shield, Zap, Cpu, Database, FileText } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
@@ -50,6 +50,14 @@ const AdminDashboard = () => {
           <div className="grid md:grid-cols-3 gap-4">
             <Button 
               variant="outline" 
+              className="h-24 flex flex-col gap-2 hover:bg-primary/10 hover:border-primary hover:text-primary transition-all"
+              onClick={() => navigate('/admin/security')}
+            >
+              <Shield className="h-6 w-6 text-primary" />
+              🔒 Dashboard de Segurança Consolidado
+            </Button>
+            <Button 
+              variant="outline" 
               className="h-24 flex flex-col gap-2 hover:bg-purple-500/10 hover:border-purple-500 hover:text-purple-500 transition-all"
               onClick={() => navigate('/ai-monitor')}
             >
@@ -63,6 +71,22 @@ const AdminDashboard = () => {
             >
               <Shield className="h-6 w-6 text-destructive" />
               🔥 MODO DEUS - Correção Total
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-24 flex flex-col gap-2"
+              onClick={() => navigate('/admin/security-monitoring')}
+            >
+              <Shield className="h-6 w-6 text-red-500" />
+              Monitoramento de Segurança
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-24 flex flex-col gap-2"
+              onClick={() => navigate('/admin/backups')}
+            >
+              <Database className="h-6 w-6 text-green-500" />
+              Gerenciamento de Backups
             </Button>
             <Button 
               variant="outline" 

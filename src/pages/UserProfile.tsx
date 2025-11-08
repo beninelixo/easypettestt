@@ -3,13 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { MFASetupWizard } from "@/components/mfa/MFASetupWizard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, User, Mail, Phone, Camera, Save } from "lucide-react";
+import { ArrowLeft, Loader2, User, Mail, Phone, Camera, Save, Shield, Lock } from "lucide-react";
 import { z } from "zod";
+import { useMFA } from "@/hooks/useMFA";
 
 const profileSchema = z.object({
   full_name: z.string().trim().min(2, "Nome deve ter no mínimo 2 caracteres").max(100, "Nome muito longo"),
@@ -22,6 +25,9 @@ const UserProfile = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
+  const [showMFASetup, setShowMFASetup] = useState(false);
+  const [mfaEnabled, setMfaEnabled] = useState(false);
+  const { checkMFAStatus } = useMFA();
   const [formData, setFormData] = useState({
     full_name: "",
     phone: "",
@@ -31,7 +37,13 @@ const UserProfile = () => {
 
   useEffect(() => {
     loadProfile();
+    loadMFAStatus();
   }, [user]);
+
+  const loadMFAStatus = async () => {
+    const status = await checkMFAStatus();
+    setMfaEnabled(status);
+  };
 
   const loadProfile = async () => {
     if (!user) return;
@@ -229,6 +241,39 @@ const UserProfile = () => {
                 )}
               </div>
 
+              {/* MFA Section */}
+              <div className="space-y-4 pt-6 border-t">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                      <Shield className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Autenticação de Dois Fatores (MFA)</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Proteja sua conta com verificação em duas etapas
+                      </p>
+                    </div>
+                  </div>
+                  {mfaEnabled ? (
+                    <Badge variant="default" className="gap-1">
+                      <Lock className="h-3 w-3" />
+                      Ativo
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline">Inativo</Badge>
+                  )}
+                </div>
+                <Button 
+                  type="button"
+                  variant={mfaEnabled ? "outline" : "default"}
+                  onClick={() => setShowMFASetup(true)}
+                  className="w-full"
+                >
+                  {mfaEnabled ? "Reconfigurar MFA" : "Ativar MFA"}
+                </Button>
+              </div>
+
               {/* Action Buttons */}
               <div className="flex gap-4 pt-6">
                 <Button
@@ -261,6 +306,15 @@ const UserProfile = () => {
             </form>
           </CardContent>
         </Card>
+
+        <MFASetupWizard 
+          open={showMFASetup}
+          onOpenChange={setShowMFASetup}
+          onComplete={() => {
+            setShowMFASetup(false);
+            loadMFAStatus();
+          }}
+        />
       </div>
     </div>
   );

@@ -71,3 +71,9 @@ verify_jwt = false
 
 [functions.backup-full-database]
 verify_jwt = false
+
+[functions.send-security-alert-email]
+verify_jwt = false
+
+[functions.restore-backup]
+verify_jwt = true

@@ -84,10 +84,40 @@ export function useBackupManagement() {
     };
   }, []);
 
+  const restoreBackup = async (backupId: string, tables?: string[]) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('restore-backup', {
+        body: { backup_id: backupId, tables }
+      });
+      
+      if (error) throw error;
+
+      toast({
+        title: "✅ Backup Restaurado",
+        description: data.message,
+      });
+
+      await loadBackups();
+      return true;
+    } catch (error) {
+      console.error('Restore backup error:', error);
+      toast({
+        title: "Erro na Restauração",
+        description: "Não foi possível restaurar o backup.",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     backups,
     loading,
     loadBackups,
     createBackup,
+    restoreBackup,
   };
 }
