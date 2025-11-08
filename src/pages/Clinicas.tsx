@@ -175,7 +175,7 @@ const Clinicas = () => {
                 />
                 <div className="space-y-4 flex-1 text-center md:text-left">
                   <p className="text-lg leading-relaxed">
-                    "Depois de testar vários sistemas, finalmente encontrei o Bointhosa. O prontuário é intuitivo, a agenda funciona perfeitamente e minha equipe se adaptou em poucos dias. Recomendo para qualquer clínica veterinária!"
+                    "Depois de testar vários sistemas, finalmente encontrei o EasyPet. O prontuário é intuitivo, a agenda funciona perfeitamente e minha equipe se adaptou em poucos dias. Recomendo para qualquer clínica veterinária!"
                   </p>
                   <div>
                     <p className="font-bold text-lg">Dr. Rodrigo Alves</p>

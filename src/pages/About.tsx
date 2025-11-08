@@ -40,7 +40,7 @@ const About = () => {
   ];
 
   const timeline = [
-    { year: "2023", title: "Fundação", description: "Nasceu o Easy Pet com a missão de revolucionar a gestão pet no Brasil" },
+    { year: "2023", title: "Fundação", description: "Nasceu o EasyPet com a missão de revolucionar a gestão pet no Brasil" },
     { year: "2024", title: "Crescimento Acelerado", description: "Alcançamos 500+ pet shops e lançamos o sistema multi-unidades" },
     { year: "2025", title: "Expansão Nacional", description: "Presentes em 32 cidades, +5.000 usuários ativos e novos recursos de IA" }
   ];
@@ -54,8 +54,8 @@ const About = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title="Sobre o Easy Pet - Nossa História, Missão e Valores"
-        description="Conheça a história do Easy Pet, o sistema de gestão veterinária que já ajudou 520+ pet shops a crescerem. Tecnologia brasileira, suporte humanizado e resultados reais."
+        title="Sobre o EasyPet - Nossa História, Missão e Valores"
+        description="Conheça a história do EasyPet, o sistema de gestão veterinária que já ajudou 520+ pet shops a crescerem. Tecnologia brasileira, suporte humanizado e resultados reais."
         url="https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/about"
       />
       <Navigation />
@@ -68,7 +68,7 @@ const About = () => {
             Nossa História
           </div>
           <h1 className="text-5xl lg:text-6xl font-black leading-tight">
-            Sobre o <span className="text-primary">Easy Pet</span>
+            Sobre o <span className="text-primary">EasyPet</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Desenvolvido com amor e tecnologia de ponta para facilitar a vida de quem cuida de pets
@@ -140,7 +140,7 @@ const About = () => {
         <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-black mb-4">Nossa Jornada</h2>
-            <p className="text-xl text-muted-foreground">A evolução do Easy Pet ao longo dos anos</p>
+            <p className="text-xl text-muted-foreground">A evolução do EasyPet ao longo dos anos</p>
           </div>
           
           <div className="space-y-12">
@@ -175,7 +175,7 @@ const About = () => {
           <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10 rounded-3xl p-12">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-black mb-4">Números que Impressionam</h2>
-              <p className="text-xl text-muted-foreground">Resultados reais de quem confia no Easy Pet</p>
+              <p className="text-xl text-muted-foreground">Resultados reais de quem confia no EasyPet</p>
             </div>
             
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">

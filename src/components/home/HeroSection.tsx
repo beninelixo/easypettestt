@@ -73,7 +73,7 @@ export const HeroSection = () => {
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-accent/20 rounded-3xl" />
             <img
               src={heroImage}
-              alt="Sistema Easy Pet em ação"
+              alt="Sistema EasyPet em ação"
               className="rounded-3xl shadow-2xl object-cover w-full h-full border-4 border-primary/10"
             />
             

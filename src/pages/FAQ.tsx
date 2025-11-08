@@ -75,8 +75,8 @@ const FAQ = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title="Perguntas Frequentes - FAQ | Bointhosa Pet System"
-        description="Tire suas dúvidas sobre agendamentos, pagamentos, suporte técnico, franquias e integrações. Encontre respostas rápidas para as perguntas mais comuns sobre o Bointhosa Pet System."
+        title="Perguntas Frequentes - FAQ | EasyPet"
+        description="Tire suas dúvidas sobre agendamentos, pagamentos, suporte técnico, franquias e integrações. Encontre respostas rápidas para as perguntas mais comuns sobre o EasyPet."
         url="https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/faq"
       />
       <Navigation />
@@ -201,7 +201,7 @@ const FAQ = () => {
                   </Card>
                 </a>
 
-                <a href="mailto:contato@bointhosa.com" className="group">
+                <a href="mailto:contato@easypet.com.br" className="group">
                   <Card className="border-2 border-border hover:border-primary hover:shadow-xl transition-all duration-300 cursor-pointer h-full">
                     <CardContent className="p-6 text-center space-y-3">
                       <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
@@ -209,7 +209,7 @@ const FAQ = () => {
                       </div>
                       <div className="font-bold">E-mail</div>
                       <div className="text-sm text-muted-foreground">
-                        contato@bointhosa.com
+                        contato@easypet.com.br
                       </div>
                     </CardContent>
                   </Card>

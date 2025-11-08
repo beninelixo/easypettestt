@@ -21,7 +21,7 @@ export const AuthIllustration = () => {
         
         <div className="text-center space-y-3 max-w-md">
           <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Easy Pet
+            EasyPet
           </h2>
           <p className="text-muted-foreground text-lg">
             A solução completa para gestão profissional de clínicas veterinárias, pet shops e banho & tosa

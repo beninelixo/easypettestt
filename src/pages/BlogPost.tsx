@@ -65,7 +65,7 @@ const BlogPost = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title={`${post.title} - Blog Easy Pet`}
+        title={`${post.title} - Blog EasyPet`}
         description={post.excerpt}
         url={`https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/blog/${post.slug}`}
         image={post.image}

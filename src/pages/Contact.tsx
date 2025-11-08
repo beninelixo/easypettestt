@@ -57,7 +57,7 @@ const Contact = () => {
     {
       icon: Mail,
       title: "E-mail",
-      content: "contato@bointhosa.com",
+      content: "contato@easypet.com.br",
       description: "Resposta em até 24h",
       color: "primary"
     },
@@ -87,7 +87,7 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title="Contato - Bointhosa Pet System | Fale Conosco"
+        title="Contato - EasyPet | Fale Conosco"
         description="Entre em contato com nossa equipe de especialistas. Tire dúvidas, agende uma demonstração ou solicite consultoria gratuita. Atendimento de segunda a sábado."
         url="https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/contact"
       />

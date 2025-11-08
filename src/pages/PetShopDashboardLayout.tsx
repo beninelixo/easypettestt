@@ -54,7 +54,7 @@ const PetShopDashboardLayout = () => {
             <SidebarTrigger />
             <div className="flex items-center gap-2 flex-1">
               <PawPrint className="h-6 w-6 text-primary" />
-              <span className="font-bold text-lg">{displayName || "Bointhosa Pet System"}</span>
+              <span className="font-bold text-lg">{displayName || "EasyPet"}</span>
             </div>
           </header>
 

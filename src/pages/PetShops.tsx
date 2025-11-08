@@ -169,7 +169,7 @@ const PetShops = () => {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Resultados Reais</h2>
               <p className="text-muted-foreground text-lg">
-                Veja o impacto do Bointhosa em pet shops como o seu
+                Veja o impacto do EasyPet em pet shops como o seu
               </p>
             </div>
             <div className="grid md:grid-cols-3 gap-8 text-center">
@@ -212,7 +212,7 @@ const PetShops = () => {
                 />
                 <div className="space-y-4 flex-1 text-center md:text-left">
                   <p className="text-lg leading-relaxed">
-                    "O controle de estoque do Bointhosa revolucionou minha gestão. Sei exatamente quando repor produtos, economizei muito com perdas por vencimento e aumentei minhas vendas em 40% no primeiro ano!"
+                    "O controle de estoque do EasyPet revolucionou minha gestão. Sei exatamente quando repor produtos, economizei muito com perdas por vencimento e aumentei minhas vendas em 40% no primeiro ano!"
                   </p>
                   <div>
                     <p className="font-bold text-lg">Mariana Costa</p>

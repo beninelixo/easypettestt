@@ -50,7 +50,7 @@ const FAQ = () => {
     },
     {
       question: "Preciso de conhecimentos técnicos para usar o sistema?",
-      answer: "Não! O Easy Pet foi desenvolvido para ser extremamente intuitivo. Qualquer pessoa consegue usar sem treinamento técnico. Além disso, oferecemos suporte completo para tirar qualquer dúvida."
+      answer: "Não! O EasyPet foi desenvolvido para ser extremamente intuitivo. Qualquer pessoa consegue usar sem treinamento técnico. Além disso, oferecemos suporte completo para tirar qualquer dúvida."
     },
     {
       question: "Meus dados estão seguros?",
@@ -88,7 +88,7 @@ const FAQ = () => {
           </div>
           <h2 className="text-4xl font-bold">Tire Suas Dúvidas</h2>
           <p className="text-xl text-muted-foreground">
-            Respostas para as perguntas mais comuns sobre o Easy Pet
+            Respostas para as perguntas mais comuns sobre o EasyPet
           </p>
         </div>
 
