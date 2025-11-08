@@ -89,6 +89,7 @@ import ConsolidatedSecurityDashboard from "./pages/admin/ConsolidatedSecurityDas
 import SecurityMonitoring from "./pages/admin/SecurityMonitoring";
 import PerformanceDashboard from "./pages/admin/PerformanceDashboard";
 import BackupManagement from "./pages/admin/BackupManagement";
+import PerformanceDashboard from "./pages/admin/PerformanceDashboard";
 
 const queryClient = new QueryClient();
 
