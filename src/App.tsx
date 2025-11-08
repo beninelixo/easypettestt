@@ -87,6 +87,7 @@ import SuccessStoriesManager from "@/pages/admin/SuccessStoriesManager";
 import SubmitSuccessStory from "@/pages/petshop/SubmitSuccessStory";
 import ConsolidatedSecurityDashboard from "./pages/admin/ConsolidatedSecurityDashboard";
 import SecurityMonitoring from "./pages/admin/SecurityMonitoring";
+import PerformanceDashboard from "./pages/admin/PerformanceDashboard";
 import BackupManagement from "./pages/admin/BackupManagement";
 
 const queryClient = new QueryClient();

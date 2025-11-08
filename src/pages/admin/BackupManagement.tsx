@@ -3,12 +3,28 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useBackupManagement } from "@/hooks/useBackupManagement";
-import { Database, Download, Clock, HardDrive, CheckCircle2, XCircle, Loader2, Info } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Database, Download, Clock, HardDrive, CheckCircle2, XCircle, Loader2, Info, Cloud } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 export default function BackupManagement() {
   const { backups, loading, createBackup } = useBackupManagement();
+
+  const exportToCloud = async (backupId: string) => {
+    try {
+      const { error } = await supabase.functions.invoke('backup-to-cloud', {
+        body: { backupId }
+      });
+
+      if (error) throw error;
+      toast.success('Backup exportado para cloud storage');
+    } catch (error) {
+      console.error('Error exporting backup:', error);
+      toast.error('Erro ao exportar backup para cloud');
+    }
+  };
 
   const lastBackup = backups.find(b => b.status === 'completed');
   const completedBackups = backups.filter(b => b.status === 'completed');
@@ -150,7 +166,19 @@ export default function BackupManagement() {
                         {backup.tables_backed_up.length} tabelas
                       </div>
                     </div>
-                    {getStatusBadge(backup.status)}
+                    <div className="flex gap-2">
+                      {getStatusBadge(backup.status)}
+                      {backup.status === 'completed' && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => exportToCloud(backup.backup_id)}
+                        >
+                          <Cloud className="h-4 w-4 mr-1" />
+                          Cloud
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))

@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSecurityMonitoring } from "@/hooks/useSecurityMonitoring";
 import { useSecurityReport } from "@/hooks/useSecurityReport";
-import { AlertTriangle, CheckCircle, Clock, Shield, Activity, Ban, Download } from "lucide-react";
+import { SMSVerificationDialog } from "@/components/sms/SMSVerificationDialog";
+import { PushNotificationSettings } from "@/components/notifications/PushNotificationSettings";
+import { AlertTriangle, CheckCircle, Clock, Shield, Activity, Ban, Download, Phone, RefreshCw, FileText, Loader2, Unlock } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,7 +22,8 @@ export default function SecurityMonitoring() {
     runSecurityAnalysis,
   } = useSecurityMonitoring();
 
-  const { loading: reportLoading, generateReport } = useSecurityReport();
+  const { generateReport, loading: reportLoading } = useSecurityReport();
+  const [showSMSDialog, setShowSMSDialog] = useState(false);
 
   const unresolvedCount = alerts.filter((a) => !a.resolved).length;
 
@@ -61,7 +65,39 @@ export default function SecurityMonitoring() {
             Executar Análise
           </Button>
         </div>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => setShowSMSDialog(true)}
+            variant="outline"
+          >
+            <Phone className="mr-2 h-4 w-4" />
+            Verificar SMS
+          </Button>
+          <Button
+            onClick={() => generateReport()}
+            disabled={reportLoading}
+            variant="outline"
+          >
+            {reportLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <FileText className="mr-2 h-4 w-4" />
+            )}
+            Relatório Mensal
+          </Button>
+          <Button onClick={runSecurityAnalysis}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Analisar Agora
+          </Button>
+        </div>
       </div>
+
+      <SMSVerificationDialog 
+        open={showSMSDialog}
+        onOpenChange={setShowSMSDialog}
+      />
+
+      <PushNotificationSettings />
 
       <Tabs defaultValue="alerts" className="space-y-4">
         <TabsList>
