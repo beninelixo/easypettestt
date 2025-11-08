@@ -22,9 +22,19 @@ interface LoginAttempt {
   user_agent?: string;
 }
 
+interface BlockedIP {
+  id: string;
+  ip_address: string;
+  blocked_at: string;
+  blocked_until: string;
+  reason: string;
+  auto_blocked: boolean;
+}
+
 export function useSecurityMonitoring() {
   const [alerts, setAlerts] = useState<SecurityAlert[]>([]);
   const [loginAttempts, setLoginAttempts] = useState<LoginAttempt[]>([]);
+  const [blockedIps, setBlockedIps] = useState<BlockedIP[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -55,6 +65,46 @@ export function useSecurityMonitoring() {
       setLoginAttempts(data || []);
     } catch (error) {
       console.error('Load login attempts error:', error);
+    }
+  };
+
+  const loadBlockedIps = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('blocked_ips')
+        .select('*')
+        .order('blocked_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setBlockedIps(data || []);
+    } catch (error) {
+      console.error('Load blocked IPs error:', error);
+    }
+  };
+
+  const unblockIp = async (ipAddress: string) => {
+    try {
+      const { error } = await supabase
+        .from('blocked_ips')
+        .delete()
+        .eq('ip_address', ipAddress);
+
+      if (error) throw error;
+
+      toast({
+        title: "IP Desbloqueado",
+        description: `O IP ${ipAddress} foi desbloqueado.`,
+      });
+
+      await loadBlockedIps();
+    } catch (error) {
+      console.error('Unblock IP error:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível desbloquear o IP.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -115,6 +165,7 @@ export function useSecurityMonitoring() {
   useEffect(() => {
     loadAlerts();
     loadLoginAttempts();
+    loadBlockedIps();
 
     // Realtime para novos alertas
     const channel = supabase
@@ -145,10 +196,13 @@ export function useSecurityMonitoring() {
   return {
     alerts,
     loginAttempts,
+    blockedIps,
     loading,
     loadAlerts,
     loadLoginAttempts,
+    loadBlockedIps,
     resolveAlert,
+    unblockIp,
     runSecurityAnalysis,
   };
 }

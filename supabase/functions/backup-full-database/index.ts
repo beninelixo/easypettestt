@@ -91,11 +91,21 @@ Deno.serve(async (req) => {
     const jsonData = JSON.stringify(backup, null, 2);
     const dataSize = new Blob([jsonData]).size;
 
-    // TODO: Em produção, implementar:
-    // 1. Compressão GZIP
-    // 2. Criptografia AES-256
-    // 3. Upload para Supabase Storage bucket 'backups'
-    // 4. Limpeza de backups antigos (manter últimos 30 dias)
+    // Upload para Supabase Storage
+    const fileName = `${backupId}.json`;
+    const filePath = `backups/${fileName}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('backups')
+      .upload(filePath, new Blob([jsonData], { type: 'application/json' }), {
+        contentType: 'application/json',
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      throw new Error(`Falha ao fazer upload do backup: ${uploadError.message}`);
+    }
 
     // Atualizar registro de backup
     await supabase
@@ -105,12 +115,40 @@ Deno.serve(async (req) => {
         total_records: totalRecords,
         backup_size_bytes: dataSize,
         completed_at: new Date().toISOString(),
+        storage_path: filePath,
         metadata: {
           tables_count: CRITICAL_TABLES.length,
-          version: '1.0'
+          version: '1.0',
+          storage_bucket: 'backups',
+          file_name: fileName
         }
       })
       .eq('id', backupRecord.id);
+
+    // Limpar backups antigos (manter últimos 30 dias)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const { data: oldBackups } = await supabase
+      .from('backup_history')
+      .select('id, storage_path')
+      .lt('started_at', thirtyDaysAgo.toISOString())
+      .eq('status', 'completed');
+
+    if (oldBackups && oldBackups.length > 0) {
+      // Deletar arquivos antigos do storage
+      for (const oldBackup of oldBackups) {
+        if (oldBackup.storage_path) {
+          await supabase.storage.from('backups').remove([oldBackup.storage_path]);
+        }
+      }
+      
+      // Deletar registros antigos
+      await supabase
+        .from('backup_history')
+        .delete()
+        .in('id', oldBackups.map(b => b.id));
+    }
 
     // Log de sucesso
     await supabase.from('system_logs').insert({

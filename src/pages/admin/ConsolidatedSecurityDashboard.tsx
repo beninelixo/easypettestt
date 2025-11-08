@@ -1,45 +1,61 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSecurityMonitoring } from "@/hooks/useSecurityMonitoring";
 import { useBackupManagement } from "@/hooks/useBackupManagement";
 import { useAuditLogs } from "@/hooks/useAuditLogs";
-import { Shield, Database, FileText, AlertTriangle, CheckCircle2, Clock, TrendingUp, Activity } from "lucide-react";
+import { useSecurityReport } from "@/hooks/useSecurityReport";
+import { Shield, Database, FileText, Activity, AlertTriangle, CheckCircle, Download, Clock, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 
 export default function ConsolidatedSecurityDashboard() {
   const navigate = useNavigate();
-  const { alerts, loginAttempts } = useSecurityMonitoring();
-  const { backups } = useBackupManagement();
+  const { alerts, loginAttempts, runSecurityAnalysis } = useSecurityMonitoring();
+  const { backups, createBackup } = useBackupManagement();
   const { logs } = useAuditLogs();
+  const { loading: reportLoading, generateReport } = useSecurityReport();
 
-  const criticalAlerts = alerts.filter(a => !a.resolved && a.severity === 'critical').length;
-  const unresolvedAlerts = alerts.filter(a => !a.resolved).length;
+  const recentAuditLogs = logs.slice(0, 10);
   const failedLogins24h = loginAttempts.filter(a => {
     const twentyFourHoursAgo = new Date();
     twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
     return !a.success && new Date(a.attempt_time) > twentyFourHoursAgo;
   }).length;
 
+  const criticalAlerts = alerts.filter(a => !a.resolved && a.severity === 'critical').length;
+  const unresolvedAlerts = alerts.filter(a => !a.resolved).length;
   const lastBackup = backups.find(b => b.status === 'completed');
   const totalBackups = backups.filter(b => b.status === 'completed').length;
-
-  const recentAuditLogs = logs.slice(0, 10);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Shield className="h-8 w-8 text-primary" />
-            Dashboard de Segurança Consolidado
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Visão completa de segurança, backups e auditoria
+          <h1 className="text-3xl font-bold">Dashboard de Segurança</h1>
+          <p className="text-muted-foreground">
+            Visão consolidada de segurança, backups e auditoria
           </p>
+        </div>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => generateReport({ report_type: 'monthly' })} 
+            disabled={reportLoading}
+            variant="outline"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Relatório PDF
+          </Button>
+          <Button onClick={runSecurityAnalysis} variant="outline">
+            <Activity className="mr-2 h-4 w-4" />
+            Analisar
+          </Button>
+          <Button onClick={createBackup}>
+            <Database className="mr-2 h-4 w-4" />
+            Backup
+          </Button>
         </div>
       </div>
 
@@ -153,7 +169,7 @@ export default function ConsolidatedSecurityDashboard() {
                   <div key={alert.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center gap-3">
                       {alert.resolved ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-500" />
+                        <CheckCircle className="h-5 w-5 text-green-500" />
                       ) : (
                         <AlertTriangle className="h-5 w-5 text-destructive" />
                       )}
@@ -254,7 +270,7 @@ export default function ConsolidatedSecurityDashboard() {
               <div className="text-2xl font-bold flex items-center gap-2">
                 {criticalAlerts === 0 ? (
                   <>
-                    <CheckCircle2 className="h-6 w-6 text-green-500" />
+                    <CheckCircle className="h-6 w-6 text-green-500" />
                     Saudável
                   </>
                 ) : (
@@ -268,14 +284,14 @@ export default function ConsolidatedSecurityDashboard() {
             <div className="p-4 border rounded-lg">
               <div className="text-sm text-muted-foreground mb-1">Sistema de Backup</div>
               <div className="text-2xl font-bold flex items-center gap-2">
-                <CheckCircle2 className="h-6 w-6 text-green-500" />
+                <CheckCircle className="h-6 w-6 text-green-500" />
                 Operacional
               </div>
             </div>
             <div className="p-4 border rounded-lg">
               <div className="text-sm text-muted-foreground mb-1">Auditoria</div>
               <div className="text-2xl font-bold flex items-center gap-2">
-                <CheckCircle2 className="h-6 w-6 text-green-500" />
+                <CheckCircle className="h-6 w-6 text-green-500" />
                 Ativa
               </div>
             </div>

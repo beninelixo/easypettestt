@@ -174,6 +174,39 @@ export type Database = {
         }
         Relationships: []
       }
+      blocked_ips: {
+        Row: {
+          auto_blocked: boolean | null
+          blocked_at: string
+          blocked_by: string | null
+          blocked_until: string
+          created_at: string
+          id: string
+          ip_address: string
+          reason: string
+        }
+        Insert: {
+          auto_blocked?: boolean | null
+          blocked_at?: string
+          blocked_by?: string | null
+          blocked_until: string
+          created_at?: string
+          id?: string
+          ip_address: string
+          reason: string
+        }
+        Update: {
+          auto_blocked?: boolean | null
+          blocked_at?: string
+          blocked_by?: string | null
+          blocked_until?: string
+          created_at?: string
+          id?: string
+          ip_address?: string
+          reason?: string
+        }
+        Relationships: []
+      }
       brand_standards: {
         Row: {
           active: boolean
@@ -1853,6 +1886,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_expired_blocks: { Args: never; Returns: number }
       cleanup_expired_mfa_sessions: { Args: never; Returns: number }
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       cleanup_old_login_attempts: { Args: never; Returns: undefined }
@@ -1913,6 +1947,7 @@ export type Database = {
         Args: { _franchise_id: string; _user_id: string }
         Returns: boolean
       }
+      is_ip_blocked: { Args: { _ip_address: string }; Returns: boolean }
       is_tenant_admin: {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean

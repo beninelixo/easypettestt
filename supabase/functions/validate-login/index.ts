@@ -30,6 +30,32 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Check if IP is blocked first
+    if (ip_address) {
+      const { data: blockedIp } = await supabase
+        .from('blocked_ips')
+        .select('*')
+        .eq('ip_address', ip_address)
+        .gt('blocked_until', new Date().toISOString())
+        .single();
+
+      if (blockedIp) {
+        const remainingSeconds = Math.ceil(
+          (new Date(blockedIp.blocked_until).getTime() - Date.now()) / 1000
+        );
+        
+        return new Response(
+          JSON.stringify({
+            allowed: false,
+            blocked: true,
+            remainingSeconds,
+            message: `IP bloqueado. ${blockedIp.reason}. Desbloqueio em ${Math.ceil(remainingSeconds / 3600)} horas.`
+          }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     // Check failed attempts in last 15 minutes
     const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
     
