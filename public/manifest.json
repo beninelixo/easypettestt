@@ -1,6 +1,6 @@
 {
-  "name": "EasyPet",
-  "short_name": "EasyPet",
+  "name": "Easy Pet",
+  "short_name": "Easy Pet",
   "description": "Sistema completo de gestão para clínicas veterinárias, pet shops e banho & tosa",
   "start_url": "/",
   "display": "standalone",

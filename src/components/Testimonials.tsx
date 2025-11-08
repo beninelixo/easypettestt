@@ -10,7 +10,7 @@ const Testimonials = () => {
       location: "São Paulo, SP",
       image: "https://ui-avatars.com/api/?name=Carlos+Mendes&background=0D8ABC&color=fff&size=128",
       rating: 5,
-      text: "Estou extremamente satisfeito com o Bointhosa. Testei vários sistemas ao longo de 12 anos e este é o primeiro que realmente atende todas as necessidades da minha clínica. Sistema completo e intuitivo!",
+      text: "Estou extremamente satisfeito com o Easy Pet. Testei vários sistemas ao longo de 12 anos e este é o primeiro que realmente atende todas as necessidades da minha clínica. Sistema completo e intuitivo!",
     },
     {
       name: "Ana Paula Silva",
@@ -36,7 +36,7 @@ const Testimonials = () => {
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-4xl font-bold">O que nossos clientes dizem</h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Histórias reais de profissionais que transformaram sua gestão com o Bointhosa
+            Histórias reais de profissionais que transformaram sua gestão com o Easy Pet
           </p>
         </div>
 

@@ -14,7 +14,7 @@ const Blog = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title="Blog - EasyPet | Dicas e Insights para Clínicas Veterinárias e Pet Shops"
+        title="Blog - Easy Pet | Dicas e Insights para Clínicas Veterinárias e Pet Shops"
         description="Acesse nosso blog com conteúdo exclusivo sobre gestão veterinária, marketing digital, tecnologia pet e dicas práticas para aumentar o faturamento da sua clínica."
         url="https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/blog"
       />
@@ -30,7 +30,7 @@ const Blog = () => {
               Conteúdo Exclusivo
             </div>
             <h1 className="text-5xl lg:text-7xl font-black leading-tight">
-              Blog <span className="text-primary">EasyPet</span>
+              Blog <span className="text-primary">Easy Pet</span>
             </h1>
             <p className="text-xl lg:text-2xl text-muted-foreground leading-relaxed">
               Insights, tendências e dicas práticas para transformar sua clínica veterinária

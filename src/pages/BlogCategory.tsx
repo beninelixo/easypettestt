@@ -47,8 +47,8 @@ const BlogCategory = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title={`${categoryName} - Blog EasyPet | Artigos sobre ${categoryName}`}
-        description={`Confira todos os artigos sobre ${categoryName} no blog do EasyPet. Dicas, insights e estratégias para sua clínica veterinária.`}
+        title={`${categoryName} - Blog Easy Pet | Artigos sobre ${categoryName}`}
+        description={`Confira todos os artigos sobre ${categoryName} no blog do Easy Pet. Dicas, insights e estratégias para sua clínica veterinária.`}
         url={`https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/blog/categoria/${category}`}
       />
       <Navigation />

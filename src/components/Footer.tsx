@@ -12,7 +12,7 @@ const Footer = () => {
               <div className="bg-primary text-primary-foreground p-2 rounded-lg">
                 <PawPrint className="h-5 w-5" />
               </div>
-              <span className="font-bold text-lg">EasyPet</span>
+              <span className="font-bold text-lg">Easy Pet</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Gestão inteligente para pet shops, clínicas e banho & tosa. Simplifique seu negócio.
@@ -102,7 +102,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center text-sm text-muted-foreground">
-          <p>&copy; 2025 EasyPet. Todos os direitos reservados.</p>
+          <p>&copy; 2025 Easy Pet. Todos os direitos reservados.</p>
           <div className="flex items-center gap-4">
             <Link to="/terms" className="hover:text-primary transition-colors">Termos de Uso</Link>
             <span>•</span>

@@ -50,7 +50,7 @@ const FAQ = () => {
     },
     {
       question: "Preciso de conhecimentos técnicos para usar o sistema?",
-      answer: "Não! O Bointhosa foi desenvolvido para ser extremamente intuitivo. Qualquer pessoa consegue usar sem treinamento técnico. Além disso, oferecemos suporte completo para tirar qualquer dúvida."
+      answer: "Não! O Easy Pet foi desenvolvido para ser extremamente intuitivo. Qualquer pessoa consegue usar sem treinamento técnico. Além disso, oferecemos suporte completo para tirar qualquer dúvida."
     },
     {
       question: "Meus dados estão seguros?",
@@ -88,7 +88,7 @@ const FAQ = () => {
           </div>
           <h2 className="text-4xl font-bold">Tire Suas Dúvidas</h2>
           <p className="text-xl text-muted-foreground">
-            Respostas para as perguntas mais comuns sobre o Bointhosa
+            Respostas para as perguntas mais comuns sobre o Easy Pet
           </p>
         </div>
 
@@ -112,7 +112,7 @@ const FAQ = () => {
         <div className="mt-12 text-center">
           <p className="text-muted-foreground mb-4">Ainda tem dúvidas?</p>
           <a 
-            href="mailto:contato@bointhosa.com" 
+            href="mailto:contato@easypet.com.br" 
             className="text-primary font-semibold hover:underline inline-flex items-center gap-2 text-lg"
           >
             Entre em contato conosco

@@ -15,14 +15,14 @@ interface SEOProps {
 }
 
 export const SEO = ({
-  title = 'EasyPet - Sistema Completo de Gestão para Pet Shops, Banho & Tosa e Clínicas',
+  title = 'Easy Pet - Sistema Completo de Gestão para Pet Shops, Banho & Tosa e Clínicas',
   description = 'Sistema completo de gestão para seu pet shop, banho e tosa ou clínica veterinária. Agendamento inteligente, CRM, controle financeiro e muito mais. Teste grátis por 14 dias.',
   image = 'https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/og-image.jpg',
   url = 'https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com',
   type = 'website',
   article,
 }: SEOProps) => {
-  const siteName = 'EasyPet';
+  const siteName = 'Easy Pet';
   const twitterHandle = '@easypet';
 
   return (
@@ -73,7 +73,7 @@ export const SEO = ({
       <meta name="googlebot" content="index, follow" />
       <meta name="language" content="Portuguese" />
       <meta name="revisit-after" content="7 days" />
-      <meta name="author" content="EasyPet" />
+      <meta name="author" content="Easy Pet" />
 
       {/* Canonical URL */}
       <link rel="canonical" href={url} />

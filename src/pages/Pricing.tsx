@@ -91,7 +91,7 @@ const Pricing = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title="Planos e Preços - EasyPet | A partir de R$ 79,90/mês"
+        title="Planos e Preços - Easy Pet | A partir de R$ 79,90/mês"
         description="Escolha o plano ideal: Pet Gold (R$ 79,90/mês), Pet Platinum (R$ 149,90/mês) ou Anual (R$ 1.798/ano). Garantia de 7 dias. Cancele quando quiser."
         url="https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/pricing"
       />
