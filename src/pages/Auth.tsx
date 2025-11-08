@@ -16,6 +16,7 @@ import { useRememberMe } from "@/hooks/useRememberMe";
 import { AuthIllustration } from "@/components/auth/AuthIllustration";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
+import { CaptchaWrapper } from "@/components/auth/CaptchaWrapper";
 
 // Validation Schemas
 const loginSchema = z.object({
@@ -35,6 +36,7 @@ const registerClientSchema = z.object({
   full_name: z.string().trim().min(2, "Nome completo é obrigatório").max(100, "Nome muito longo"),
   phone: z.string().trim().min(10, "Telefone inválido").max(15, "Telefone muito longo"),
   acceptTerms: z.boolean().refine(val => val === true, "Você deve aceitar os termos"),
+  captchaToken: z.string().min(1, "Complete o CAPTCHA"),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",
   path: ["confirmPassword"],
@@ -56,6 +58,7 @@ const registerProfessionalSchema = z.object({
   petShopCity: z.string().trim().min(2, "Cidade é obrigatória").max(100, "Cidade muito longa"),
   petShopState: z.string().trim().length(2, "Estado deve ter 2 letras (ex: SP)").toUpperCase(),
   acceptTerms: z.boolean().refine(val => val === true, "Você deve aceitar os termos"),
+  captchaToken: z.string().min(1, "Complete o CAPTCHA"),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",
   path: ["confirmPassword"],
@@ -66,6 +69,9 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [failedLoginAttempts, setFailedLoginAttempts] = useState(0);
+  const [showLoginCaptcha, setShowLoginCaptcha] = useState(false);
+  const [loginCaptchaToken, setLoginCaptchaToken] = useState<string | null>(null);
   
   // Register common states
   const [registerEmail, setRegisterEmail] = useState("");
@@ -75,6 +81,7 @@ const Auth = () => {
   const [registerPhone, setRegisterPhone] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [userType, setUserType] = useState<"client" | "pet_shop">("client");
+  const [registerCaptchaToken, setRegisterCaptchaToken] = useState<string | null>(null);
   
   // Professional-specific states
   const [petShopName, setPetShopName] = useState("");
@@ -150,6 +157,37 @@ const Auth = () => {
       return;
     }
 
+    // Verificar CAPTCHA se necessário (após 3 tentativas falhas)
+    if (showLoginCaptcha && !loginCaptchaToken) {
+      toast({
+        title: 'Complete o CAPTCHA',
+        description: 'Clique na caixa de verificação para continuar.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validar CAPTCHA no backend se fornecido
+    if (loginCaptchaToken) {
+      try {
+        const { data: captchaData } = await supabase.functions.invoke('verify-captcha', {
+          body: { captcha_token: loginCaptchaToken, action: 'login' }
+        });
+
+        if (!captchaData?.success) {
+          toast({
+            title: 'CAPTCHA inválido',
+            description: 'Por favor, complete o CAPTCHA novamente.',
+            variant: 'destructive',
+          });
+          setLoginCaptchaToken(null);
+          return;
+        }
+      } catch (error) {
+        console.error('Erro ao validar CAPTCHA:', error);
+      }
+    }
+
     setIsLoading(true);
 
     try {
@@ -191,9 +229,39 @@ const Auth = () => {
       if (result.data) {
         loginRateLimit.reset();
         saveRememberMe(rememberMeChecked, loginEmail);
+        setFailedLoginAttempts(0);
+        setShowLoginCaptcha(false);
+      } else {
+        // Incrementar contador de falhas
+        const attempts = failedLoginAttempts + 1;
+        setFailedLoginAttempts(attempts);
+        
+        // Mostrar CAPTCHA após 3 tentativas falhas
+        if (attempts >= 3) {
+          setShowLoginCaptcha(true);
+          toast({
+            title: "Múltiplas tentativas detectadas",
+            description: "Por segurança, complete o CAPTCHA para continuar.",
+            variant: "destructive",
+          });
+        }
+        
+        // Resetar token do CAPTCHA para nova tentativa
+        setLoginCaptchaToken(null);
       }
     } catch (error) {
       console.error('Login error:', error);
+      
+      // Incrementar contador mesmo em erros
+      const attempts = failedLoginAttempts + 1;
+      setFailedLoginAttempts(attempts);
+      
+      if (attempts >= 3) {
+        setShowLoginCaptcha(true);
+      }
+      
+      setLoginCaptchaToken(null);
+      
       toast({
         title: "Erro",
         description: "Ocorreu um erro ao tentar fazer login. Tente novamente.",
@@ -219,6 +287,7 @@ const Auth = () => {
           full_name: registerName,
           phone: registerPhone,
           acceptTerms,
+          captchaToken: registerCaptchaToken || '',
         }
       : {
           email: registerEmail,
@@ -231,6 +300,7 @@ const Auth = () => {
           petShopCity,
           petShopState,
           acceptTerms,
+          captchaToken: registerCaptchaToken || '',
         };
 
     const validation = schema.safeParse(dataToValidate);
@@ -252,6 +322,28 @@ const Auth = () => {
     }
 
     setIsLoading(true);
+
+    // Validar CAPTCHA no backend
+    if (registerCaptchaToken) {
+      try {
+        const { data: captchaData } = await supabase.functions.invoke('verify-captcha', {
+          body: { captcha_token: registerCaptchaToken, action: 'register' }
+        });
+
+        if (!captchaData?.success) {
+          toast({
+            title: 'CAPTCHA inválido',
+            description: 'Por favor, complete o CAPTCHA novamente.',
+            variant: 'destructive',
+          });
+          setRegisterCaptchaToken(null);
+          setIsLoading(false);
+          return;
+        }
+      } catch (error) {
+        console.error('Erro ao validar CAPTCHA:', error);
+      }
+    }
 
     // Verificar plano pago para conta profissional
     if (userType === "pet_shop") {
@@ -463,6 +555,23 @@ const Auth = () => {
                         Permanecer conectado
                       </label>
                     </div>
+
+                    {/* CAPTCHA após 3 tentativas falhas */}
+                    {showLoginCaptcha && (
+                      <div className="space-y-3">
+                        <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                          <p className="text-sm text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                            <Shield className="h-4 w-4" />
+                            Por segurança, complete o CAPTCHA para continuar
+                          </p>
+                        </div>
+                        <CaptchaWrapper
+                          onVerify={(token) => setLoginCaptchaToken(token)}
+                          onExpire={() => setLoginCaptchaToken(null)}
+                          size="normal"
+                        />
+                      </div>
+                    )}
 
                     {loginRateLimit.isBlocked && (
                       <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
@@ -734,6 +843,19 @@ const Auth = () => {
                     {formErrors.acceptTerms && (
                       <p className="text-sm text-destructive">⚠️ {formErrors.acceptTerms}</p>
                     )}
+
+                    {/* CAPTCHA obrigatório no registro */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Verificação de Segurança *</Label>
+                      <CaptchaWrapper
+                        onVerify={(token) => setRegisterCaptchaToken(token)}
+                        onExpire={() => setRegisterCaptchaToken(null)}
+                        size="normal"
+                      />
+                      {formErrors.captchaToken && (
+                        <p className="text-sm text-destructive">⚠️ {formErrors.captchaToken}</p>
+                      )}
+                    </div>
                   </CardContent>
                   <CardFooter className="pt-6">
                     <Button 
