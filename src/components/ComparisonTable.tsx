@@ -24,7 +24,7 @@ const ComparisonTable = () => {
     <section className="py-20 px-4 bg-background">
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16 space-y-4">
-          <h2 className="text-4xl font-bold">Por Que Escolher o PetHub?</h2>
+          <h2 className="text-4xl font-bold">Por Que Escolher o EasyPet?</h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Compare e veja como deixamos métodos tradicionais para trás
           </p>

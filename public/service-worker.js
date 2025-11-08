@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bointhosa-v1';
+const CACHE_NAME = 'easypet-v2';
 const urlsToCache = [
   '/',
   '/index.html',
