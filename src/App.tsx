@@ -85,6 +85,8 @@ import Analytics from "@/pages/petshop/Analytics";
 import SuccessStories from "@/pages/SuccessStories";
 import SuccessStoriesManager from "@/pages/admin/SuccessStoriesManager";
 import SubmitSuccessStory from "@/pages/petshop/SubmitSuccessStory";
+import SecurityMonitoring from "@/pages/admin/SecurityMonitoring";
+import BackupManagement from "@/pages/admin/BackupManagement";
 
 const queryClient = new QueryClient();
 
@@ -329,6 +331,18 @@ const App = () => {
           <Route path="/admin/regenerate-images" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <RegenerateImages />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/admin/security-monitoring" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <SecurityMonitoring />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/admin/backups" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <BackupManagement />
             </ProtectedRoute>
           } />
 

@@ -65,3 +65,9 @@ verify_jwt = true
 
 [functions.update-global-metrics]
 verify_jwt = true
+
+[functions.analyze-security-events]
+verify_jwt = false
+
+[functions.backup-full-database]
+verify_jwt = false
