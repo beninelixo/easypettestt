@@ -120,6 +120,60 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_history: {
+        Row: {
+          backup_id: string
+          backup_size_bytes: number | null
+          backup_type: string
+          completed_at: string | null
+          compression_enabled: boolean | null
+          encryption_enabled: boolean | null
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          started_at: string | null
+          status: string
+          storage_path: string | null
+          tables_backed_up: Json
+          total_records: number
+          triggered_by: string | null
+        }
+        Insert: {
+          backup_id: string
+          backup_size_bytes?: number | null
+          backup_type: string
+          completed_at?: string | null
+          compression_enabled?: boolean | null
+          encryption_enabled?: boolean | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          started_at?: string | null
+          status: string
+          storage_path?: string | null
+          tables_backed_up: Json
+          total_records?: number
+          triggered_by?: string | null
+        }
+        Update: {
+          backup_id?: string
+          backup_size_bytes?: number | null
+          backup_type?: string
+          completed_at?: string | null
+          compression_enabled?: boolean | null
+          encryption_enabled?: boolean | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          started_at?: string | null
+          status?: string
+          storage_path?: string | null
+          tables_backed_up?: Json
+          total_records?: number
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
       brand_standards: {
         Row: {
           active: boolean
@@ -540,6 +594,99 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      mfa_backup_codes: {
+        Row: {
+          code_hash: string
+          created_at: string | null
+          id: string
+          used: boolean | null
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string | null
+          id?: string
+          used?: boolean | null
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string | null
+          id?: string
+          used?: boolean | null
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mfa_secrets: {
+        Row: {
+          backup_codes_generated: boolean | null
+          created_at: string | null
+          enabled: boolean | null
+          id: string
+          secret_key: string
+          updated_at: string | null
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          backup_codes_generated?: boolean | null
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          secret_key: string
+          updated_at?: string | null
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          backup_codes_generated?: boolean | null
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          secret_key?: string
+          updated_at?: string | null
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
+      mfa_sessions: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          ip_address: string | null
+          session_id: string
+          user_agent: string | null
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          ip_address?: string | null
+          session_id: string
+          user_agent?: string | null
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          session_id?: string
+          user_agent?: string | null
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: []
       }
       monitoramento_sistema: {
         Row: {
@@ -1126,6 +1273,51 @@ export type Database = {
           },
         ]
       }
+      security_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string | null
+          description: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string | null
+          description: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       service_templates: {
         Row: {
           active: boolean | null
@@ -1500,6 +1692,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_behavior_patterns: {
+        Row: {
+          id: string
+          last_updated: string | null
+          login_frequency: Json | null
+          typical_devices: Json | null
+          typical_locations: Json | null
+          typical_login_hours: Json | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          last_updated?: string | null
+          login_frequency?: Json | null
+          typical_devices?: Json | null
+          typical_locations?: Json | null
+          typical_login_hours?: Json | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          last_updated?: string | null
+          login_frequency?: Json | null
+          typical_devices?: Json | null
+          typical_locations?: Json | null
+          typical_login_hours?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_hierarchy: {
         Row: {
           active: boolean
@@ -1631,6 +1853,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_expired_mfa_sessions: { Args: never; Returns: number }
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       cleanup_old_login_attempts: { Args: never; Returns: undefined }
       cleanup_old_logs: { Args: never; Returns: number }
@@ -1659,6 +1882,7 @@ export type Database = {
         }[]
       }
       get_notification_queue_stats: { Args: never; Returns: Json }
+      get_security_stats: { Args: never; Returns: Json }
       get_system_health: { Args: never; Returns: Json }
       get_system_stats: { Args: never; Returns: Json }
       get_weekly_appointments: {
