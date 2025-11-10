@@ -137,6 +137,59 @@ Deno.serve(async (req) => {
       throw new Error('Serviço de email não configurado');
     }
 
+    // Buscar emails dos administradores do banco
+    console.log('📧 Buscando administradores do sistema...');
+    
+    const { data: adminRoles } = await supabase
+      .from('user_roles')
+      .select('user_id')
+      .eq('role', 'admin');
+
+    const adminIds = adminRoles?.map(r => r.user_id) || [];
+    
+    if (adminIds.length === 0) {
+      console.warn('⚠️ Nenhum administrador encontrado no sistema');
+      await supabase.from('system_logs').insert({
+        module: 'send_notification',
+        log_type: 'warning',
+        message: 'Nenhum email de admin enviado - sem admins cadastrados',
+        details: { execution_time_ms },
+      });
+      
+      return new Response(JSON.stringify({ 
+        success: true, 
+        warning: 'Nenhum administrador cadastrado para receber emails' 
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Buscar emails dos admins via Auth API
+    const { data: { users } } = await supabase.auth.admin.listUsers();
+    const adminEmails = users
+      .filter(user => adminIds.includes(user.id))
+      .map(user => user.email)
+      .filter((email): email is string => !!email);
+
+    if (adminEmails.length === 0) {
+      console.warn('⚠️ Administradores cadastrados mas sem emails válidos');
+      await supabase.from('system_logs').insert({
+        module: 'send_notification',
+        log_type: 'warning',
+        message: 'Nenhum email de admin enviado - admins sem email',
+        details: { execution_time_ms, admin_count: adminIds.length },
+      });
+      
+      return new Response(JSON.stringify({ 
+        success: true, 
+        warning: 'Administradores sem emails válidos' 
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    console.log(`📧 Enviando para ${adminEmails.length} administrador(es): ${adminEmails.join(', ')}`);
+
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -145,7 +198,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         from: 'EasyPet <onboarding@resend.dev>',
-        to: ['admin@petshop.com'], // Altere para o e-mail do administrador
+        to: adminEmails,
         subject: subject,
         html: htmlContent,
       }),

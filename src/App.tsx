@@ -94,6 +94,7 @@ const ConsolidatedSecurityDashboard = lazy(() => import("./pages/admin/Consolida
 const SecurityMonitoring = lazy(() => import("./pages/admin/SecurityMonitoring"));
 const PerformanceDashboard = lazy(() => import("./pages/admin/PerformanceDashboard"));
 const BackupManagement = lazy(() => import("./pages/admin/BackupManagement"));
+const EmailSystemTest = lazy(() => import("./pages/admin/EmailSystemTest"));
 
 const queryClient = new QueryClient();
 
@@ -357,6 +358,12 @@ const App = () => {
           <Route path="/admin/backups" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <BackupManagement />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/admin/email-system-test" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <EmailSystemTest />
             </ProtectedRoute>
           } />
 
