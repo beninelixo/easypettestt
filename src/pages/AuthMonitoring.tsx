@@ -377,10 +377,10 @@ export default function AuthMonitoring() {
               <div>
                 <h4 className="font-semibold mb-2">🔒 Segurança</h4>
                 <ul className="text-sm space-y-2 text-muted-foreground">
-                  <li>• Implementar rate limiting no servidor (limitação implementada no cliente)</li>
+                  <li>• ✅ Rate limiting implementado (3 tentativas email, 5 IP)</li>
+                  <li>• ✅ Bloqueio automático de IPs suspeitos (30 minutos)</li>
                   <li>• Considerar autenticação de dois fatores (2FA)</li>
-                  <li>• Adicionar captcha após múltiplas falhas</li>
-                  <li>• Implementar bloqueio temporário de conta</li>
+                  <li>• Configurar notificações por email para bloqueios</li>
                 </ul>
               </div>
 
