@@ -15,6 +15,39 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check admin role
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!roleData || roleData.role !== 'admin') {
+      return new Response(
+        JSON.stringify({ error: 'Admin access required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const now = new Date();
     const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
@@ -145,56 +178,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ===== ANÁLISE 4: Atualizar Padrões de Comportamento =====
-    const { data: recentSuccessfulLogins } = await supabase
-      .from('login_attempts')
-      .select('email')
-      .eq('success', true)
-      .gte('attempt_time', oneDayAgo.toISOString());
-
-    // Extrair emails únicos
-    const uniqueEmails = [...new Set(recentSuccessfulLogins?.map(l => l.email) || [])];
-
-    for (const email of uniqueEmails) {
-      const { data: userLogins } = await supabase
-        .from('login_attempts')
-        .select('*')
-        .eq('email', email)
-        .eq('success', true)
-        .gte('attempt_time', oneDayAgo.toISOString());
-
-      if (userLogins && userLogins.length > 0) {
-        // Extrair horários típicos
-        const loginHours = userLogins.map(l => 
-          new Date(l.attempt_time).getHours()
-        );
-
-        // Extrair IPs típicos
-        const loginIps = [...new Set(userLogins.map(l => l.ip_address))];
-
-        // Buscar user_id pela tabela profiles (que tem relação com auth.users)
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('id')
-          .limit(1)
-          .single();
-
-        if (profileData) {
-          await supabase
-            .from('user_behavior_patterns')
-            .upsert({
-              user_id: profileData.id,
-              typical_login_hours: loginHours,
-              typical_locations: { ips: loginIps },
-              login_frequency: { 
-                daily: userLogins.length,
-                last_updated: now.toISOString()
-              },
-              last_updated: now.toISOString()
-            });
-        }
-      }
-    }
 
     // Log da análise
     await supabase.from('system_logs').insert({
