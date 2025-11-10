@@ -170,21 +170,57 @@ const Auth = () => {
     // Validar CAPTCHA no backend se fornecido
     if (loginCaptchaToken) {
       try {
-        const { data: captchaData } = await supabase.functions.invoke('verify-captcha', {
+        console.log('🔐 Validando CAPTCHA no backend (login)...');
+        
+        const { data: captchaData, error: captchaError } = await supabase.functions.invoke('verify-captcha', {
           body: { captcha_token: loginCaptchaToken, action: 'login' }
         });
 
-        if (!captchaData?.success) {
+        if (captchaError) {
+          console.error('❌ Erro na requisição de validação:', captchaError);
           toast({
-            title: 'CAPTCHA inválido',
-            description: 'Por favor, complete o CAPTCHA novamente.',
+            title: '❌ Erro de conexão',
+            description: 'Não foi possível verificar o CAPTCHA. Tente novamente.',
             variant: 'destructive',
           });
           setLoginCaptchaToken(null);
+          setIsLoading(false);
           return;
         }
+
+        if (!captchaData?.success) {
+          console.error('❌ CAPTCHA inválido:', captchaData);
+          
+          let errorMsg = 'Por favor, complete o CAPTCHA novamente.';
+          const errorCodes = captchaData?.error_codes || [];
+          
+          if (errorCodes.includes('invalid-input-secret')) {
+            errorMsg = 'Erro de configuração do sistema. Contate o suporte.';
+          } else if (errorCodes.includes('invalid-input-response')) {
+            errorMsg = 'Token CAPTCHA expirado. Complete novamente.';
+          }
+          
+          toast({
+            title: '❌ CAPTCHA inválido',
+            description: errorMsg,
+            variant: 'destructive',
+          });
+          setLoginCaptchaToken(null);
+          setIsLoading(false);
+          return;
+        }
+        
+        console.log('✅ CAPTCHA validado com sucesso no login!');
       } catch (error) {
-        console.error('Erro ao validar CAPTCHA:', error);
+        console.error('❌ Exceção ao validar CAPTCHA:', error);
+        toast({
+          title: '❌ Erro ao validar CAPTCHA',
+          description: 'Ocorreu um erro inesperado. Tente novamente.',
+          variant: 'destructive',
+        });
+        setLoginCaptchaToken(null);
+        setIsLoading(false);
+        return;
       }
     }
 
@@ -326,22 +362,57 @@ const Auth = () => {
     // Validar CAPTCHA no backend
     if (registerCaptchaToken) {
       try {
-        const { data: captchaData } = await supabase.functions.invoke('verify-captcha', {
+        console.log('🔐 Validando CAPTCHA no backend (registro)...');
+        
+        const { data: captchaData, error: captchaError } = await supabase.functions.invoke('verify-captcha', {
           body: { captcha_token: registerCaptchaToken, action: 'register' }
         });
 
-        if (!captchaData?.success) {
+        if (captchaError) {
+          console.error('❌ Erro na requisição de validação:', captchaError);
           toast({
-            title: 'CAPTCHA inválido',
-            description: 'Por favor, complete o CAPTCHA novamente.',
+            title: '❌ Erro de conexão',
+            description: 'Não foi possível verificar o CAPTCHA. Tente novamente.',
             variant: 'destructive',
           });
           setRegisterCaptchaToken(null);
           setIsLoading(false);
           return;
         }
+
+        if (!captchaData?.success) {
+          console.error('❌ CAPTCHA inválido:', captchaData);
+          
+          let errorMsg = 'Por favor, complete o CAPTCHA novamente.';
+          const errorCodes = captchaData?.error_codes || [];
+          
+          if (errorCodes.includes('invalid-input-secret')) {
+            errorMsg = 'Erro de configuração do sistema. Contate o suporte.';
+          } else if (errorCodes.includes('invalid-input-response')) {
+            errorMsg = 'Token CAPTCHA expirado. Complete novamente.';
+          }
+          
+          toast({
+            title: '❌ CAPTCHA inválido',
+            description: errorMsg,
+            variant: 'destructive',
+          });
+          setRegisterCaptchaToken(null);
+          setIsLoading(false);
+          return;
+        }
+        
+        console.log('✅ CAPTCHA validado com sucesso no registro!');
       } catch (error) {
-        console.error('Erro ao validar CAPTCHA:', error);
+        console.error('❌ Exceção ao validar CAPTCHA:', error);
+        toast({
+          title: '❌ Erro ao validar CAPTCHA',
+          description: 'Ocorreu um erro inesperado. Tente novamente.',
+          variant: 'destructive',
+        });
+        setRegisterCaptchaToken(null);
+        setIsLoading(false);
+        return;
       }
     }
 
