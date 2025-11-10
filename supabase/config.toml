@@ -80,3 +80,6 @@ verify_jwt = true
 
 [functions.activate-free-plan]
 verify_jwt = true
+
+[functions.verify-captcha]
+verify_jwt = false
