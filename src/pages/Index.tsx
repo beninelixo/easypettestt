@@ -12,6 +12,7 @@ import { StatsSection } from "@/components/home/StatsSection";
 import { SegmentationSection } from "@/components/home/SegmentationSection";
 import { FeaturesSection } from "@/components/home/FeaturesSection";
 import { DifferentialsSection } from "@/components/home/DifferentialsSection";
+import { PricingPreviewSection } from "@/components/home/PricingPreviewSection";
 import { ArrowRight, Rocket, TrendingUp } from "lucide-react";
 
 const Index = () => {
@@ -86,23 +87,8 @@ const Index = () => {
       {/* Comparison Table */}
       <ComparisonTable />
 
-      {/* CTA 3 - After Comparison */}
-      <section className="py-16 px-4 bg-muted">
-        <div className="container mx-auto max-w-4xl text-center space-y-6">
-          <h3 className="text-3xl font-black">
-            Escolha o Plano Ideal Para Você
-          </h3>
-          <p className="text-lg text-muted-foreground">
-            Sem compromisso. Cancele quando quiser.
-          </p>
-          <Link to="/pricing">
-            <Button size="lg" variant="outline" className="text-lg px-10 py-6 border-2">
-              Ver Todos os Planos
-              <ArrowRight className="ml-2" />
-            </Button>
-          </Link>
-        </div>
-      </section>
+      {/* Pricing Preview */}
+      <PricingPreviewSection />
 
       {/* FAQ */}
       <FAQ />
