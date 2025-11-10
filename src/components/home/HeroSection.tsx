@@ -51,6 +51,12 @@ export const HeroSection = () => {
               </Link>
             </div>
 
+            {/* Free Trial Badge */}
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-accent/20 rounded-full border-2 border-accent/30">
+              <span className="text-2xl">🎁</span>
+              <span className="font-bold text-accent-foreground">Teste Grátis 30 Dias - Sem Cartão de Crédito</span>
+            </div>
+
             {/* Trust Indicators */}
             <div className="flex flex-wrap gap-6 pt-4">
               <div className="flex items-center gap-2">
