@@ -11,7 +11,7 @@ import { z } from "zod";
 import { ArrowLeft, KeyRound, Loader2, Mail, ShieldCheck } from "lucide-react";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
-import { CaptchaWrapper } from "@/components/auth/CaptchaWrapper";
+
 
 const emailSchema = z.string().trim().email("Email inválido").max(255, "Email muito longo");
 
@@ -40,7 +40,6 @@ const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,36 +48,6 @@ const ResetPassword = () => {
     const validation = emailSchema.safeParse(email);
     if (!validation.success) {
       setFormErrors({ email: "Email inválido" });
-      return;
-    }
-
-    // Verificar CAPTCHA
-    if (!captchaToken) {
-      toast({
-        title: 'Complete o CAPTCHA',
-        description: 'Por favor, complete a verificação de segurança.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    // Validar CAPTCHA no backend
-    try {
-      const { data: captchaData } = await supabase.functions.invoke('verify-captcha', {
-        body: { captcha_token: captchaToken, action: 'reset-password' }
-      });
-
-      if (!captchaData?.success) {
-        toast({
-          title: 'CAPTCHA inválido',
-          description: 'Por favor, complete o CAPTCHA novamente.',
-          variant: 'destructive',
-        });
-        setCaptchaToken(null);
-        return;
-      }
-    } catch (error) {
-      console.error('Erro ao validar CAPTCHA:', error);
       return;
     }
 
@@ -249,19 +218,6 @@ const ResetPassword = () => {
                   />
                   {formErrors.email && (
                     <p className="text-sm text-destructive">{formErrors.email}</p>
-                  )}
-                </div>
-
-                {/* CAPTCHA obrigatório */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Verificação de Segurança *</Label>
-                  <CaptchaWrapper
-                    onVerify={(token) => setCaptchaToken(token)}
-                    onExpire={() => setCaptchaToken(null)}
-                    size="normal"
-                  />
-                  {formErrors.captchaToken && (
-                    <p className="text-sm text-destructive">⚠️ {formErrors.captchaToken}</p>
                   )}
                 </div>
 

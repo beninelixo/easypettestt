@@ -1516,6 +1516,42 @@ export type Database = {
           },
         ]
       }
+      structured_logs: {
+        Row: {
+          context: Json | null
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          level: string
+          message: string
+          module: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          context?: Json | null
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          level: string
+          message: string
+          module: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          context?: Json | null
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          level?: string
+          message?: string
+          module?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       success_stories: {
         Row: {
           approved: boolean | null
@@ -1725,36 +1761,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_behavior_patterns: {
-        Row: {
-          id: string
-          last_updated: string | null
-          login_frequency: Json | null
-          typical_devices: Json | null
-          typical_locations: Json | null
-          typical_login_hours: Json | null
-          user_id: string
-        }
-        Insert: {
-          id?: string
-          last_updated?: string | null
-          login_frequency?: Json | null
-          typical_devices?: Json | null
-          typical_locations?: Json | null
-          typical_login_hours?: Json | null
-          user_id: string
-        }
-        Update: {
-          id?: string
-          last_updated?: string | null
-          login_frequency?: Json | null
-          typical_devices?: Json | null
-          typical_locations?: Json | null
-          typical_login_hours?: Json | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       user_hierarchy: {
         Row: {
           active: boolean
@@ -1952,6 +1958,7 @@ export type Database = {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean
       }
+      resolve_old_alerts: { Args: never; Returns: number }
       set_current_tenant: { Args: { _tenant_id: string }; Returns: undefined }
       update_global_metrics: { Args: never; Returns: undefined }
     }

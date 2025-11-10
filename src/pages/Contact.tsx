@@ -20,7 +20,7 @@ import {
   Sparkles,
   CheckCircle2
 } from "lucide-react";
-import { CaptchaWrapper } from "@/components/auth/CaptchaWrapper";
+
 
 const contactSchema = z.object({
   name: z.string().trim().min(2, "Nome muito curto").max(100, "Nome muito longo"),
@@ -28,7 +28,6 @@ const contactSchema = z.object({
   phone: z.string().trim().max(15, "Telefone muito longo").optional(),
   subject: z.string().trim().min(3, "Assunto muito curto").max(200, "Assunto muito longo"),
   message: z.string().trim().min(10, "Mensagem muito curta").max(1000, "Mensagem muito longa"),
-  captchaToken: z.string().min(1, "Complete o CAPTCHA"),
 });
 
 const Contact = () => {
@@ -41,7 +40,6 @@ const Contact = () => {
     message: ""
   });
   const [loading, setLoading] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,10 +47,7 @@ const Contact = () => {
     setFormErrors({});
 
     // Validação com zod
-    const validation = contactSchema.safeParse({
-      ...formData,
-      captchaToken: captchaToken || '',
-    });
+    const validation = contactSchema.safeParse(formData);
 
     if (!validation.success) {
       const errors: Record<string, string> = {};
@@ -70,31 +65,7 @@ const Contact = () => {
       return;
     }
 
-    // Validar CAPTCHA no backend
-    if (captchaToken) {
-      setLoading(true);
-      try {
-        const { data: captchaData } = await supabase.functions.invoke('verify-captcha', {
-          body: { captcha_token: captchaToken, action: 'contact' }
-        });
-
-        if (!captchaData?.success) {
-          toast({
-            title: 'CAPTCHA inválido',
-            description: 'Por favor, complete o CAPTCHA novamente.',
-            variant: 'destructive',
-          });
-          setCaptchaToken(null);
-          setLoading(false);
-          return;
-        }
-      } catch (error) {
-        console.error('Erro ao validar CAPTCHA:', error);
-        setLoading(false);
-        return;
-      }
-    }
-
+    setLoading(true);
     // Simulate API call (you can replace this with actual backend call)
     await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -104,7 +75,6 @@ const Contact = () => {
     });
 
     setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
-    setCaptchaToken(null);
     setLoading(false);
   };
 
@@ -289,20 +259,7 @@ const Contact = () => {
                     )}
                   </div>
 
-                  {/* CAPTCHA obrigatório */}
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Verificação de Segurança *</Label>
-                    <CaptchaWrapper
-                      onVerify={(token) => setCaptchaToken(token)}
-                      onExpire={() => setCaptchaToken(null)}
-                      size="normal"
-                    />
-                    {formErrors.captchaToken && (
-                      <p className="text-sm text-destructive">⚠️ {formErrors.captchaToken}</p>
-                    )}
-                  </div>
-
-                  <Button 
+                  <Button
                     type="submit" 
                     size="lg"
                     className="w-full py-6 text-lg font-bold"

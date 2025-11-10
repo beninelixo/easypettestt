@@ -77,8 +77,8 @@ Deno.serve(async (req) => {
 
     const failedAttempts = recentAttempts?.length || 0;
 
-    // Rate limit: max 5 failed attempts in 15 minutes
-    if (failedAttempts >= 5) {
+    // Rate limit: max 3 failed attempts in 15 minutes (MAIS RESTRITIVO)
+    if (failedAttempts >= 3) {
       const oldestAttempt = recentAttempts[recentAttempts.length - 1];
       const blockedUntil = new Date(new Date(oldestAttempt.attempt_time).getTime() + 15 * 60 * 1000);
       const remainingSeconds = Math.ceil((blockedUntil.getTime() - Date.now()) / 1000);
@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check IP-based rate limiting (max 10 attempts per IP in 15 minutes)
+    // Check IP-based rate limiting (max 5 attempts per IP in 15 minutes - MAIS RESTRITIVO)
     if (ip_address) {
       const { data: ipAttempts } = await supabase
         .from('login_attempts')
@@ -103,7 +103,15 @@ Deno.serve(async (req) => {
         .eq('success', false)
         .gte('attempt_time', fifteenMinutesAgo);
 
-      if (ipAttempts && ipAttempts.length >= 10) {
+      if (ipAttempts && ipAttempts.length >= 5) {
+        // Bloquear IP automaticamente
+        await supabase.from('blocked_ips').insert({
+          ip_address,
+          blocked_until: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+          reason: `Bloqueio automático: ${ipAttempts.length} tentativas falhadas`,
+          auto_blocked: true
+        });
+        
         return new Response(
           JSON.stringify({
             allowed: false,
