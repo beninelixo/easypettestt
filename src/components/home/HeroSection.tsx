@@ -34,17 +34,17 @@ export const HeroSection = () => {
               <Link to="/pricing">
                 <Button 
                   size="lg" 
-                  className="text-xl px-12 py-8 shadow-2xl hover:shadow-primary/50 transition-all duration-300 hover:-translate-y-1 group w-full sm:w-auto"
+                  className="text-xl px-12 py-8 font-bold shadow-2xl hover:shadow-primary/50 transition-all duration-500 hover:-translate-y-2 hover:scale-105 group w-full sm:w-auto bg-gradient-to-r from-primary to-secondary"
                 >
                   Ver Planos e Preços
-                  <ArrowRight className="ml-2 h-6 w-6 group-hover:translate-x-2 transition-transform" />
+                  <ArrowRight className="ml-2 h-6 w-6 group-hover:translate-x-3 transition-transform duration-300" />
                 </Button>
               </Link>
               <Link to="/system-overview">
                 <Button 
                   size="lg" 
                   variant="outline"
-                  className="text-xl px-12 py-8 border-2 hover:bg-primary/5 w-full sm:w-auto"
+                  className="text-xl px-12 py-8 font-bold border-2 hover:bg-primary/10 hover:border-primary transition-all duration-300 w-full sm:w-auto"
                 >
                   Conhecer o Sistema
                 </Button>
@@ -59,17 +59,23 @@ export const HeroSection = () => {
 
             {/* Trust Indicators */}
             <div className="flex flex-wrap gap-6 pt-4">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
-                <span className="text-sm font-medium">+2.500 usuários ativos</span>
+              <div className="flex items-center gap-2 group hover:scale-110 transition-transform duration-300">
+                <div className="p-1 bg-green-100 dark:bg-green-900/30 rounded-full">
+                  <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+                <span className="text-sm font-semibold group-hover:text-primary transition-colors">+2.500 usuários ativos</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
-                <span className="text-sm font-medium">+650 cidades</span>
+              <div className="flex items-center gap-2 group hover:scale-110 transition-transform duration-300">
+                <div className="p-1 bg-green-100 dark:bg-green-900/30 rounded-full">
+                  <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+                <span className="text-sm font-semibold group-hover:text-primary transition-colors">+650 cidades</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
-                <span className="text-sm font-medium">4.8/5 estrelas</span>
+              <div className="flex items-center gap-2 group hover:scale-110 transition-transform duration-300">
+                <div className="p-1 bg-green-100 dark:bg-green-900/30 rounded-full">
+                  <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+                <span className="text-sm font-semibold group-hover:text-primary transition-colors">4.8/5 estrelas</span>
               </div>
             </div>
           </div>

@@ -30,20 +30,25 @@ export const CaptchaWrapper = ({
 
   return (
     <div className="flex justify-center">
-      <HCaptcha
-        sitekey={HCAPTCHA_SITE_KEY}
-        onVerify={onVerify}
-        onExpire={() => {
-          console.log('CAPTCHA expirado');
-          onExpire?.();
-        }}
-        onError={(err) => {
-          console.error('Erro no CAPTCHA:', err);
-          onError?.(err);
-        }}
-        size={size}
-        theme={theme === 'dark' ? 'dark' : 'light'}
-      />
+      <div className="relative p-2 rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5 hover:border-primary/40 transition-all duration-300">
+        <HCaptcha
+          sitekey={HCAPTCHA_SITE_KEY}
+          onVerify={onVerify}
+          onExpire={() => {
+            console.log('CAPTCHA expirado');
+            onExpire?.();
+          }}
+          onError={(err) => {
+            console.error('Erro no CAPTCHA:', err);
+            onError?.(err);
+          }}
+          size={size}
+          theme={theme === 'dark' ? 'dark' : 'light'}
+        />
+        <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center animate-pulse">
+          <span className="text-xs text-primary-foreground font-bold">✓</span>
+        </div>
+      </div>
     </div>
   );
 };

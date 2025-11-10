@@ -49,7 +49,7 @@ const Navigation = () => {
             <Link
               key={link.to}
               to={link.to}
-              className="relative text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-300 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+              className="relative text-sm font-semibold text-muted-foreground hover:text-primary transition-all duration-300 py-2 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-gradient-to-r after:from-primary after:to-secondary after:transition-all after:duration-300 hover:after:w-full after:rounded-full"
             >
               {link.label}
             </Link>
@@ -59,12 +59,12 @@ const Navigation = () => {
         {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
           <Link to="/auth">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="font-semibold">
               Entrar
             </Button>
           </Link>
           <Link to="/auth">
-            <Button size="sm">
+            <Button size="sm" className="font-semibold shadow-lg hover:shadow-xl">
               Cadastrar
             </Button>
           </Link>

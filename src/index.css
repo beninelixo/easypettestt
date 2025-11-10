@@ -23,11 +23,13 @@ All colors MUST be HSL.
     --primary-light: 217 91% 70%;
     --primary-dark: 217 91% 45%;
     --primary-glow: 217 80% 75%;
+    --primary-hover: 217 91% 55%;
 
     /* Electric Purple - Bold Secondary */
     --secondary: 271 91% 65%;
     --secondary-foreground: 0 0% 100%;
     --secondary-light: 271 91% 75%;
+    --secondary-hover: 271 91% 60%;
 
     /* Light backgrounds */
     --muted: 220 14% 96%;
@@ -36,6 +38,13 @@ All colors MUST be HSL.
     /* Success Green */
     --accent: 142 76% 36%;
     --accent-foreground: 0 0% 100%;
+    --accent-hover: 142 76% 32%;
+    
+    /* Warning & Info */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -89,16 +98,24 @@ All colors MUST be HSL.
     --primary-light: 217 91% 80%;
     --primary-dark: 217 91% 55%;
     --primary-glow: 217 80% 85%;
+    --primary-hover: 217 91% 65%;
 
     --secondary: 271 91% 75%;
     --secondary-foreground: 0 0% 100%;
     --secondary-light: 271 91% 85%;
+    --secondary-hover: 271 91% 70%;
 
     --muted: 217 33% 15%;
     --muted-foreground: 215 20% 65%;
 
     --accent: 142 76% 45%;
     --accent-foreground: 0 0% 100%;
+    --accent-hover: 142 76% 40%;
+    
+    --warning: 38 92% 55%;
+    --warning-foreground: 0 0% 100%;
+    --info: 199 89% 58%;
+    --info-foreground: 0 0% 100%;
 
     --destructive: 0 63% 50%;
     --destructive-foreground: 210 40% 98%;

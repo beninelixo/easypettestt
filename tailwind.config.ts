@@ -39,6 +39,14 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+        },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -116,6 +124,22 @@ export default {
             transform: "translateY(-5px)"
           }
         },
+        "float": {
+          "0%, 100%": {
+            transform: "translateY(0px)"
+          },
+          "50%": {
+            transform: "translateY(-20px)"
+          }
+        },
+        "pulse-glow": {
+          "0%, 100%": {
+            boxShadow: "0 0 20px hsl(var(--primary) / 0.4)"
+          },
+          "50%": {
+            boxShadow: "0 0 40px hsl(var(--primary) / 0.6), 0 0 60px hsl(var(--secondary) / 0.4)"
+          }
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -124,6 +148,8 @@ export default {
         "slide-in": "slide-in 0.4s ease-out",
         "scale-in": "scale-in 0.3s ease-out",
         "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
+        "float": "float 3s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 3s ease-in-out infinite",
       },
     },
   },

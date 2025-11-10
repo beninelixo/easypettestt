@@ -236,18 +236,12 @@ const ResetPassword = () => {
           {/* Step 1: Email */}
           {step === "email" && (
             <form onSubmit={handleSendCode} className="space-y-4">
-              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4">
-                  <p className="text-xs text-amber-800 dark:text-amber-200">
-                    ⚠️ <strong>Modo de teste:</strong> Atualmente, só é possível enviar códigos para o email cadastrado no provedor. Para outros emails, verifique um domínio no serviço de envio.
-                  </p>
-                </div>
-                
                 <div className="space-y-2">
                   <Label htmlFor="email">📧 Email</Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="raulepic23@gmail.com"
+                    placeholder="seu@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
