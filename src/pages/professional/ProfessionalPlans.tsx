@@ -133,6 +133,33 @@ const ProfessionalPlans = () => {
     setShowConfirmDialog(true);
   };
 
+  const handleFreePlanActivation = async () => {
+    setProcessingUpgrade(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("activate-free-plan");
+
+      if (error) throw error;
+
+      toast({
+        title: "Plano Gratuito Ativado! 🎉",
+        description: "Você tem 30 dias para testar todas as funcionalidades do sistema.",
+      });
+
+      // Refresh current plan
+      await fetchCurrentPlan();
+    } catch (error: any) {
+      console.error("Error activating free plan:", error);
+      toast({
+        title: "Erro ao ativar plano gratuito",
+        description: error.message || "Tente novamente mais tarde",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessingUpgrade(false);
+    }
+  };
+
   const handleConfirmUpgrade = async () => {
     if (!selectedPlan) return;
 
@@ -179,6 +206,11 @@ const ProfessionalPlans = () => {
 
   const getPlanButtonText = (planId: string) => {
     if (planId === currentPlan) return "Plano Atual";
+    
+    // Special case for free plan
+    if (planId === "gratuito" && currentPlan !== "gratuito") {
+      return "🎁 Começar Teste Gratuito";
+    }
     
     const planIndex = plans.findIndex(p => p.id === planId);
     const currentPlanIndex = plans.findIndex(p => p.id === currentPlan);
@@ -270,6 +302,7 @@ const ProfessionalPlans = () => {
             const isActive = isPlanActive(plan.id);
             const canUpgrade = plans.findIndex(p => p.id === plan.id) > 
                               plans.findIndex(p => p.id === currentPlan);
+            const isFreePlan = plan.id === "gratuito";
 
             return (
               <Card
@@ -281,6 +314,11 @@ const ProfessionalPlans = () => {
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <Badge className="bg-primary">Mais Popular</Badge>
+                  </div>
+                )}
+                {isFreePlan && !isActive && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <Badge className="bg-green-500">TESTE GRÁTIS - 30 DIAS</Badge>
                   </div>
                 )}
 
@@ -327,11 +365,17 @@ const ProfessionalPlans = () => {
                 <CardFooter>
                   <Button
                     className="w-full"
-                    variant={isActive ? "secondary" : plan.popular ? "default" : "outline"}
+                    variant={isActive ? "secondary" : plan.popular ? "default" : isFreePlan ? "default" : "outline"}
                     disabled={isActive || processingUpgrade}
-                    onClick={() => canUpgrade && handleUpgradeClick(plan.id)}
+                    onClick={() => {
+                      if (isFreePlan && !isActive) {
+                        handleFreePlanActivation();
+                      } else if (canUpgrade) {
+                        handleUpgradeClick(plan.id);
+                      }
+                    }}
                   >
-                    {processingUpgrade && selectedPlan === plan.id
+                    {processingUpgrade && (isFreePlan ? !isActive : selectedPlan === plan.id)
                       ? "Processando..."
                       : getPlanButtonText(plan.id)}
                   </Button>
