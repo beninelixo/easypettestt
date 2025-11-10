@@ -1,4 +1,5 @@
 import { PawPrint } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const AuthIllustration = () => {
   return (
@@ -12,12 +13,12 @@ export const AuthIllustration = () => {
 
       {/* Main illustration */}
       <div className="relative z-10 flex flex-col items-center gap-8">
-        <div className="relative">
+        <Link to="/" className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full blur-2xl opacity-50 animate-pulse-glow" />
-          <div className="relative bg-gradient-to-br from-primary to-secondary p-12 rounded-3xl shadow-2xl">
+          <div className="relative bg-gradient-to-br from-primary to-secondary p-12 rounded-3xl shadow-2xl cursor-pointer hover:scale-105 transition-transform">
             <PawPrint className="h-32 w-32 text-white" />
           </div>
-        </div>
+        </Link>
         
         <div className="text-center space-y-3 max-w-md">
           <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
