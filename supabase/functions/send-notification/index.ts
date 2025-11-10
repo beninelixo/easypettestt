@@ -144,7 +144,7 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'PetShop System <onboarding@resend.dev>',
+        from: 'EasyPet <onboarding@resend.dev>',
         to: ['admin@petshop.com'], // Altere para o e-mail do administrador
         subject: subject,
         html: htmlContent,

@@ -188,7 +188,7 @@ Deno.serve(async (req) => {
           
           <div style="text-align: center; padding: 20px; color: #6b7280; font-size: 12px;">
             <p style="margin: 0;">
-              Este é um email automático do sistema Bointhosa Pet System.
+              Este é um email automático do sistema EasyPet.
             </p>
             <p style="margin: 5px 0 0;">
               Por favor, não responda a este email.
@@ -202,7 +202,7 @@ Deno.serve(async (req) => {
     const emailResults = await Promise.allSettled(
       adminEmails.map(email => 
         resend.emails.send({
-          from: 'Sistema Bointhosa <onboarding@resend.dev>',
+          from: 'EasyPet <onboarding@resend.dev>',
           to: [email],
           subject: `[${config.label}] ${subject}`,
           html: htmlContent,

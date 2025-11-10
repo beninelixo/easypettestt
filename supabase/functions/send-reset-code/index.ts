@@ -137,7 +137,7 @@ serve(async (req) => {
             </div>
             <div class="content">
               <p class="greeting">Olá! 👋</p>
-              <p>Recebemos uma solicitação para redefinir sua senha no <strong>PetChopShop</strong>.</p>
+              <p>Recebemos uma solicitação para redefinir sua senha no <strong>EasyPet</strong>.</p>
               <p>Seu código de verificação é:</p>
               
               <div class="code-container">
@@ -151,7 +151,7 @@ serve(async (req) => {
               <p>Se você não solicitou esta redefinição de senha, pode ignorar este email com segurança.</p>
             </div>
             <div class="footer">
-              <p>Atenciosamente,<br><strong>Equipe PetChopShop</strong> <span class="paw">🐾</span></p>
+              <p>Atenciosamente,<br><strong>Equipe EasyPet</strong> <span class="paw">🐾</span></p>
             </div>
           </div>
         </body>
@@ -165,9 +165,9 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'PetChopShop <noreply@petchopshop.app>',
+        from: 'EasyPet <onboarding@resend.dev>',
         to: [email.toLowerCase()],
-        subject: '🔐 Código de Verificação - PetChopShop 🐾',
+        subject: '🔐 Código de Verificação - EasyPet 🐾',
         html: emailHtml,
       }),
     });
