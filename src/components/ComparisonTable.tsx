@@ -178,19 +178,19 @@ const ComparisonTable = () => {
             {/* Card Pet Platinum Anual */}
             <Card className="border-2 border-green-500 shadow-xl relative hover:shadow-2xl transition-all duration-300">
               <div className="absolute -top-3 -right-3 bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-black shadow-lg animate-pulse">
-                💰 Economize R$ 200,80
+                🔥 25% OFF
               </div>
               <CardHeader className="text-center pt-8">
                 <div className="text-4xl mb-2">💰</div>
                 <CardTitle className="text-2xl">Pet Platinum Anual</CardTitle>
-                <div className="text-xl line-through text-muted-foreground mt-2">R$ 1.998,80</div>
-                <div className="text-4xl font-black text-green-600 dark:text-green-500">R$ 1.798,00<span className="text-lg font-normal">/ano</span></div>
-                <div className="text-green-600 dark:text-green-500 font-semibold text-sm mt-2">2 meses grátis</div>
+                <div className="text-xl line-through text-muted-foreground mt-2">R$ 1.798,80</div>
+                <div className="text-4xl font-black text-green-600 dark:text-green-500">R$ 1.348,50<span className="text-lg font-normal">/ano</span></div>
+                <div className="text-green-600 dark:text-green-500 font-semibold text-sm mt-2">25% de desconto</div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
                   <li className="flex items-center gap-2">✅ Tudo do Platinum</li>
-                  <li className="flex items-center gap-2">✅ Economia de R$ 200,80</li>
+                  <li className="flex items-center gap-2">✅ Economia de R$ 450,30</li>
                   <li className="flex items-center gap-2">✅ Consultoria presencial</li>
                   <li className="flex items-center gap-2">✅ Treinamento gratuito</li>
                 </ul>
