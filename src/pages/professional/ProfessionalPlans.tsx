@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Check, CreditCard, Sparkles, Zap, Building2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -99,10 +100,22 @@ const ProfessionalPlans = () => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [processingUpgrade, setProcessingUpgrade] = useState(false);
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     fetchCurrentPlan();
   }, []);
+
+  // Auto-ativar teste gratuito se veio do pricing com startFree=1
+  useEffect(() => {
+    if (!loading) {
+      const startFree = searchParams.get("startFree");
+      if (startFree === "1" && currentPlan !== "gratuito") {
+        handleFreePlanActivation();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, searchParams, currentPlan]);
 
   const fetchCurrentPlan = async () => {
     try {

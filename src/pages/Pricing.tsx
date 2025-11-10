@@ -10,6 +10,26 @@ import { SEO } from "@/components/SEO";
 const Pricing = () => {
   const plans = [
     {
+      name: "Plano Gratuito",
+      price: "R$ 0",
+      period: "/mês",
+      description: "Teste grátis por 30 dias — sem cartão",
+      badge: "🎁 TESTE GRÁTIS",
+      badgeColor: "bg-emerald-500",
+      borderColor: "border-emerald-500",
+      features: [
+        "30 agendamentos/mês",
+        "1 usuário",
+        "Calendário básico",
+        "Gestão de clientes",
+        "Upgrade a qualquer momento",
+      ],
+      ctaText: "🎁 Começar Grátis",
+      ctaLink: "/auth?redirect=/professional/plans%3FstartFree%3D1",
+      highlighted: false,
+      buttonClass: "bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white",
+    },
+    {
       name: "Pet Gold",
       price: "R$ 79,90",
       period: "/mês",
@@ -91,8 +111,8 @@ const Pricing = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title="Planos e Preços - EasyPet | A partir de R$ 79,90/mês"
-        description="Escolha o plano ideal: Pet Gold (R$ 79,90/mês), Pet Platinum (R$ 149,90/mês) ou Anual (R$ 1.798/ano). Garantia de 7 dias. Cancele quando quiser."
+        title="Planos e Preços - EasyPet | Teste gratuito e a partir de R$ 79,90/mês"
+        description="Teste gratuito por 30 dias. Depois escolha: Pet Gold (R$ 79,90/mês), Pet Platinum (R$ 149,90/mês) ou Anual (R$ 1.798/ano). Cancele quando quiser."
         url="https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/pricing"
       />
       <Navigation />
