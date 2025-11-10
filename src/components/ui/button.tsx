@@ -15,8 +15,10 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary-hover shadow-sm hover:shadow-md hover:-translate-y-0.5",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline hover:text-primary-hover",
-        gradient: "bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-lg hover:shadow-xl hover:-translate-y-1",
-        premium: "bg-gradient-to-br from-primary via-secondary to-accent text-primary-foreground shadow-xl hover:shadow-2xl hover:scale-105",
+        gradient: "bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-lg hover:shadow-xl hover:-translate-y-1 shine overflow-hidden",
+        premium: "bg-gradient-to-br from-primary via-secondary to-accent text-primary-foreground shadow-xl hover:shadow-2xl hover:scale-105 animate-pulse-glow",
+        glow: "bg-primary text-primary-foreground shadow-lg hover:shadow-2xl hover:shadow-primary/50 hover:-translate-y-1 transition-all duration-300",
+        "3d": "bg-gradient-to-b from-primary to-primary/90 text-primary-foreground shadow-lg hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] preserve-3d perspective transition-all duration-300",
       },
       size: {
         default: "h-10 px-4 py-2",

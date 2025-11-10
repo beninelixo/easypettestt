@@ -190,6 +190,59 @@ export default {
             boxShadow: "0 0 40px hsl(var(--primary) / 0.6), 0 0 60px hsl(var(--secondary) / 0.4)"
           }
         },
+        "shimmer": {
+          "0%": {
+            backgroundPosition: "-1000px 0"
+          },
+          "100%": {
+            backgroundPosition: "1000px 0"
+          }
+        },
+        "shine": {
+          "0%": {
+            left: "-100%"
+          },
+          "100%": {
+            left: "100%"
+          }
+        },
+        "spring": {
+          "0%": {
+            transform: "scale(0) rotate(-10deg)",
+            opacity: "0"
+          },
+          "50%": {
+            transform: "scale(1.05) rotate(2deg)"
+          },
+          "100%": {
+            transform: "scale(1) rotate(0deg)",
+            opacity: "1"
+          }
+        },
+        "spring-out": {
+          "0%": {
+            transform: "scale(1) rotate(0deg)",
+            opacity: "1"
+          },
+          "50%": {
+            transform: "scale(1.05) rotate(-2deg)"
+          },
+          "100%": {
+            transform: "scale(0.9) rotate(5deg)",
+            opacity: "0"
+          }
+        },
+        "tilt": {
+          "0%, 100%": {
+            transform: "rotateY(0deg) rotateX(0deg)"
+          },
+          "25%": {
+            transform: "rotateY(2deg) rotateX(-2deg)"
+          },
+          "75%": {
+            transform: "rotateY(-2deg) rotateX(2deg)"
+          }
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -205,6 +258,11 @@ export default {
         "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
         "pulse-glow": "pulse-glow 3s ease-in-out infinite",
+        "shimmer": "shimmer 3s ease-in-out infinite",
+        "shine": "shine 2s ease-in-out infinite",
+        "spring": "spring 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+        "spring-out": "spring-out 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+        "tilt": "tilt 10s ease-in-out infinite",
       },
     },
   },

@@ -8,87 +8,92 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { PushNotificationButton } from "./components/PushNotificationButton";
-import Index from "./pages/Index";
-import About from "./pages/About";
-import Pricing from "./pages/Pricing";
-import Auth from "./pages/Auth";
-import Funcionalidades from "./pages/Funcionalidades";
-import Clinicas from "./pages/Clinicas";
-import PetShops from "./pages/PetShops";
-import BanhoTosa from "./pages/BanhoTosa";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import BlogCategory from "./pages/BlogCategory";
-import FAQ from "./pages/FAQ";
-import Contact from "./pages/Contact";
-import ClientDashboard from "./pages/ClientDashboard";
-import PetShopDashboardLayout from "./pages/PetShopDashboardLayout";
-import PetShopDashboard from "./pages/PetShopDashboard";
-import Clientes from "./pages/petshop/Clientes";
-import Calendario from "./pages/petshop/Calendario";
-import Relatorios from "./pages/petshop/Relatorios";
-import Configuracoes from "./pages/petshop/Configuracoes";
-import Servicos from "./pages/petshop/Servicos";
-import ServiceTemplates from "./pages/petshop/ServiceTemplates";
-import WhatsAppSettings from "./pages/petshop/WhatsAppSettings";
-import Estoque from "./pages/petshop/Estoque";
-import Financeiro from "./pages/petshop/Financeiro";
-import Fidelidade from "./pages/petshop/Fidelidade";
-import Marketing from "./pages/petshop/Marketing";
-import Funcionarios from "./pages/petshop/Funcionarios";
-import AdminDashboard from "./pages/AdminDashboard";
-import NewAppointment from "./pages/NewAppointment";
-import PetProfile from "./pages/PetProfile";
-import NotFound from "./pages/NotFound";
-import PetShopSetup from "./pages/PetShopSetup";
-import ClientSelectPetShop from "./pages/ClientSelectPetShop";
-import ClientProfile from "./pages/ClientProfile";
-import EditarPetshop from "./pages/petshop/EditarPetshop";
-import ResetPassword from "./pages/ResetPassword";
-import TermsOfService from "./pages/TermsOfService";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import SystemMonitoring from "./pages/SystemMonitoring";
-import SystemAnalysis from "./pages/SystemAnalysis";
-import AuthMonitoring from "./pages/AuthMonitoring";
-import SystemHealth from "./pages/SystemHealth";
-import SystemDiagnostics from "./pages/SystemDiagnostics";
-import SystemMonitoringDashboard from "./pages/SystemMonitoringDashboard";
-import AIMonitorDashboard from "./pages/AIMonitorDashboard";
-import { TenantDashboard } from "./features/tenant/pages/TenantDashboard";
-import { FranchiseDashboard } from "./features/franchise/pages/FranchiseDashboard";
+import { LoadingFallback } from "./components/LoadingFallback";
 import ScrollToTop from "./components/ScrollToTop";
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import UserProfile from "./pages/UserProfile";
-import UserPrivacy from "./pages/UserPrivacy";
-import PaymentHistory from "./pages/PaymentHistory";
-import NotificationQueue from "./pages/admin/NotificationQueue";
-import SystemMonitor from "./pages/admin/SystemMonitor";
-import ClientLayout from "./pages/client/ClientLayout";
-import ClientPets from "./pages/client/ClientPets";
-import ClientSchedule from "./pages/client/ClientSchedule";
-import ClientAppointments from "./pages/client/ClientAppointments";
-import ClientProfilePage from "./pages/client/ClientProfilePage";
-import ProfessionalLayout from "./pages/professional/ProfessionalLayout";
-import ProfessionalDashboard from "./pages/professional/ProfessionalDashboard";
-import ProfessionalCalendar from "./pages/professional/ProfessionalCalendar";
-import ProfessionalServices from "./pages/professional/ProfessionalServices";
-import ProfessionalClients from "./pages/professional/ProfessionalClients";
-import ProfessionalReports from "./pages/professional/ProfessionalReports";
-import ProfessionalProfile from "./pages/professional/ProfessionalProfile";
-import ProfessionalPlans from "./pages/professional/ProfessionalPlans";
-import SystemOverview from "./pages/SystemOverview";
-import RegenerateImages from "./pages/admin/RegenerateImages";
-import ConsolidatedDashboard from "./pages/multi-unit/ConsolidatedDashboard";
-import UnitsManagement from "./pages/multi-unit/UnitsManagement";
-import Analytics from "@/pages/petshop/Analytics";
-import SuccessStories from "@/pages/SuccessStories";
-import SuccessStoriesManager from "@/pages/admin/SuccessStoriesManager";
-import SubmitSuccessStory from "@/pages/petshop/SubmitSuccessStory";
-import ConsolidatedSecurityDashboard from "./pages/admin/ConsolidatedSecurityDashboard";
-import SecurityMonitoring from "./pages/admin/SecurityMonitoring";
-import PerformanceDashboard from "./pages/admin/PerformanceDashboard";
-import BackupManagement from "./pages/admin/BackupManagement";
+
+// Eager load critical routes
+import Index from "./pages/Index";
+import Auth from "./pages/Auth";
+import NotFound from "./pages/NotFound";
+
+// Lazy load all other routes
+const About = lazy(() => import("./pages/About"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Funcionalidades = lazy(() => import("./pages/Funcionalidades"));
+const Clinicas = lazy(() => import("./pages/Clinicas"));
+const PetShops = lazy(() => import("./pages/PetShops"));
+const BanhoTosa = lazy(() => import("./pages/BanhoTosa"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const BlogCategory = lazy(() => import("./pages/BlogCategory"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const Contact = lazy(() => import("./pages/Contact"));
+const ClientDashboard = lazy(() => import("./pages/ClientDashboard"));
+const PetShopDashboardLayout = lazy(() => import("./pages/PetShopDashboardLayout"));
+const PetShopDashboard = lazy(() => import("./pages/PetShopDashboard"));
+const Clientes = lazy(() => import("./pages/petshop/Clientes"));
+const Calendario = lazy(() => import("./pages/petshop/Calendario"));
+const Relatorios = lazy(() => import("./pages/petshop/Relatorios"));
+const Configuracoes = lazy(() => import("./pages/petshop/Configuracoes"));
+const Servicos = lazy(() => import("./pages/petshop/Servicos"));
+const ServiceTemplates = lazy(() => import("./pages/petshop/ServiceTemplates"));
+const WhatsAppSettings = lazy(() => import("./pages/petshop/WhatsAppSettings"));
+const Estoque = lazy(() => import("./pages/petshop/Estoque"));
+const Financeiro = lazy(() => import("./pages/petshop/Financeiro"));
+const Fidelidade = lazy(() => import("./pages/petshop/Fidelidade"));
+const Marketing = lazy(() => import("./pages/petshop/Marketing"));
+const Funcionarios = lazy(() => import("./pages/petshop/Funcionarios"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const NewAppointment = lazy(() => import("./pages/NewAppointment"));
+const PetProfile = lazy(() => import("./pages/PetProfile"));
+const PetShopSetup = lazy(() => import("./pages/PetShopSetup"));
+const ClientSelectPetShop = lazy(() => import("./pages/ClientSelectPetShop"));
+const ClientProfile = lazy(() => import("./pages/ClientProfile"));
+const EditarPetshop = lazy(() => import("./pages/petshop/EditarPetshop"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const SystemMonitoring = lazy(() => import("./pages/SystemMonitoring"));
+const SystemAnalysis = lazy(() => import("./pages/SystemAnalysis"));
+const AuthMonitoring = lazy(() => import("./pages/AuthMonitoring"));
+const SystemHealth = lazy(() => import("./pages/SystemHealth"));
+const SystemDiagnostics = lazy(() => import("./pages/SystemDiagnostics"));
+const SystemMonitoringDashboard = lazy(() => import("./pages/SystemMonitoringDashboard"));
+const AIMonitorDashboard = lazy(() => import("./pages/AIMonitorDashboard"));
+const TenantDashboard = lazy(() => import("./features/tenant/pages/TenantDashboard").then(m => ({ default: m.TenantDashboard })));
+const FranchiseDashboard = lazy(() => import("./features/franchise/pages/FranchiseDashboard").then(m => ({ default: m.FranchiseDashboard })));
+const UserProfile = lazy(() => import("./pages/UserProfile"));
+const UserPrivacy = lazy(() => import("./pages/UserPrivacy"));
+const PaymentHistory = lazy(() => import("./pages/PaymentHistory"));
+const NotificationQueue = lazy(() => import("./pages/admin/NotificationQueue"));
+const SystemMonitor = lazy(() => import("./pages/admin/SystemMonitor"));
+const ClientLayout = lazy(() => import("./pages/client/ClientLayout"));
+const ClientPets = lazy(() => import("./pages/client/ClientPets"));
+const ClientSchedule = lazy(() => import("./pages/client/ClientSchedule"));
+const ClientAppointments = lazy(() => import("./pages/client/ClientAppointments"));
+const ClientProfilePage = lazy(() => import("./pages/client/ClientProfilePage"));
+const ProfessionalLayout = lazy(() => import("./pages/professional/ProfessionalLayout"));
+const ProfessionalDashboard = lazy(() => import("./pages/professional/ProfessionalDashboard"));
+const ProfessionalCalendar = lazy(() => import("./pages/professional/ProfessionalCalendar"));
+const ProfessionalServices = lazy(() => import("./pages/professional/ProfessionalServices"));
+const ProfessionalClients = lazy(() => import("./pages/professional/ProfessionalClients"));
+const ProfessionalReports = lazy(() => import("./pages/professional/ProfessionalReports"));
+const ProfessionalProfile = lazy(() => import("./pages/professional/ProfessionalProfile"));
+const ProfessionalPlans = lazy(() => import("./pages/professional/ProfessionalPlans"));
+const SystemOverview = lazy(() => import("./pages/SystemOverview"));
+const RegenerateImages = lazy(() => import("./pages/admin/RegenerateImages"));
+const ConsolidatedDashboard = lazy(() => import("./pages/multi-unit/ConsolidatedDashboard"));
+const UnitsManagement = lazy(() => import("./pages/multi-unit/UnitsManagement"));
+const Analytics = lazy(() => import("@/pages/petshop/Analytics"));
+const SuccessStories = lazy(() => import("@/pages/SuccessStories"));
+const SuccessStoriesManager = lazy(() => import("@/pages/admin/SuccessStoriesManager"));
+const SubmitSuccessStory = lazy(() => import("@/pages/petshop/SubmitSuccessStory"));
+const ConsolidatedSecurityDashboard = lazy(() => import("./pages/admin/ConsolidatedSecurityDashboard"));
+const SecurityMonitoring = lazy(() => import("./pages/admin/SecurityMonitoring"));
+const PerformanceDashboard = lazy(() => import("./pages/admin/PerformanceDashboard"));
+const BackupManagement = lazy(() => import("./pages/admin/BackupManagement"));
 
 const queryClient = new QueryClient();
 
@@ -118,6 +123,7 @@ const App = () => {
             <BrowserRouter>
               <PushNotificationButton />
               <ScrollToTop />
+              <Suspense fallback={<LoadingFallback />}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
@@ -357,6 +363,7 @@ const App = () => {
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+              </Suspense>
           </BrowserRouter>
         </TooltipProvider>
       </TenantProvider>
