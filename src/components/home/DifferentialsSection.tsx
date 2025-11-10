@@ -1,5 +1,6 @@
 import { CheckCircle2, Zap, Smartphone, Wallet, Building2, HeadphonesIcon, Award } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 export const DifferentialsSection = () => {
   const differentials = [
@@ -52,28 +53,38 @@ export const DifferentialsSection = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {differentials.map((item, index) => (
-            <Card
-              key={index}
-              className="border-2 border-border hover:border-primary hover:shadow-xl transition-all duration-500 hover:-translate-y-2 animate-fade-in bg-muted group cursor-pointer"
-              style={{ animationDelay: `${index * 0.1}s` }}
-              tabIndex={0}
-              role="article"
-              aria-label={item.title}
-            >
-              <CardContent className="p-6 space-y-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-                  <item.icon className="h-6 w-6 text-primary" aria-hidden="true" />
-                </div>
-                <h3 className="font-bold text-lg group-hover:text-primary transition-colors duration-300">
-                  {item.title}
-                </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {item.description}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+          {differentials.map((item, index) => {
+            const { ref, isVisible } = useScrollReveal({ threshold: 0.2 });
+            const direction = index % 2 === 0 ? 'scroll-reveal-left' : 'scroll-reveal-right';
+            
+            return (
+              <div
+                key={index}
+                ref={ref}
+                className={`scroll-reveal ${direction} ${isVisible ? 'visible' : ''}`}
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <Card
+                  className="border-2 border-border hover:border-primary hover:shadow-xl transition-all duration-500 hover:-translate-y-2 bg-muted group cursor-pointer h-full"
+                  tabIndex={0}
+                  role="article"
+                  aria-label={item.title}
+                >
+                  <CardContent className="p-6 space-y-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                      <item.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                    </div>
+                    <h3 className="font-bold text-lg group-hover:text-primary transition-colors duration-300">
+                      {item.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      {item.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

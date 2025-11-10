@@ -1,8 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Quote } from "lucide-react";
 import vetCareImg from "@/assets/vet-care.jpg";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const Testimonials = () => {
+  const imageReveal = useScrollReveal({ threshold: 0.3 });
+  
   const testimonials = [
     {
       name: "Dr. Carlos Mendes",
@@ -41,7 +44,10 @@ const Testimonials = () => {
         </div>
 
         <div className="mb-16">
-          <div className="relative max-w-4xl mx-auto">
+          <div 
+            ref={imageReveal.ref}
+            className={`relative max-w-4xl mx-auto scroll-reveal scroll-reveal-zoom ${imageReveal.isVisible ? 'visible' : ''}`}
+          >
             <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur-xl" />
             <img
               src={vetCareImg}
@@ -52,39 +58,47 @@ const Testimonials = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <Card
-              key={index}
-              className="border-border hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
-            >
-              <CardContent className="p-6 space-y-4">
-                <Quote className="h-10 w-10 text-primary/20" />
-                
-                <div className="flex gap-1">
-                  {Array.from({ length: testimonial.rating }).map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-secondary text-secondary" />
-                  ))}
-                </div>
+          {testimonials.map((testimonial, index) => {
+            const { ref, isVisible } = useScrollReveal({ threshold: 0.2 });
+            
+            return (
+              <div
+                key={index}
+                ref={ref}
+                className={`scroll-reveal scroll-reveal-up ${isVisible ? 'visible' : ''}`}
+                style={{ transitionDelay: `${index * 150}ms` }}
+              >
+                <Card className="border-border hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full">
+                  <CardContent className="p-6 space-y-4">
+                    <Quote className="h-10 w-10 text-primary/20" />
+                    
+                    <div className="flex gap-1">
+                      {Array.from({ length: testimonial.rating }).map((_, i) => (
+                        <Star key={i} className="h-5 w-5 fill-secondary text-secondary" />
+                      ))}
+                    </div>
 
-                <p className="text-muted-foreground leading-relaxed">
-                  "{testimonial.text}"
-                </p>
+                    <p className="text-muted-foreground leading-relaxed">
+                      "{testimonial.text}"
+                    </p>
 
-                <div className="flex items-center gap-4 pt-4 border-t border-border">
-                  <img
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    className="w-12 h-12 rounded-full"
-                  />
-                  <div>
-                    <p className="font-semibold text-foreground">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                    <p className="text-xs text-muted-foreground">{testimonial.location}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                    <div className="flex items-center gap-4 pt-4 border-t border-border">
+                      <img
+                        src={testimonial.image}
+                        alt={testimonial.name}
+                        className="w-12 h-12 rounded-full"
+                      />
+                      <div>
+                        <p className="font-semibold text-foreground">{testimonial.name}</p>
+                        <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                        <p className="text-xs text-muted-foreground">{testimonial.location}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

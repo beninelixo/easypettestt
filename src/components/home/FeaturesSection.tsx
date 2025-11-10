@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, Users, TrendingUp, Shield, Smartphone, Zap } from "lucide-react";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 export const FeaturesSection = () => {
   const features = [
@@ -52,31 +53,40 @@ export const FeaturesSection = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <Card
-              key={index}
-              className="border-2 border-border hover:border-primary hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 animate-fade-in bg-background group cursor-pointer relative overflow-hidden"
-              style={{ animationDelay: `${index * 0.1}s` }}
-              tabIndex={0}
-              role="article"
-              aria-label={feature.title}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" aria-hidden="true" />
-              <CardHeader className="relative space-y-4">
-                <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
-                  <feature.icon className="h-7 w-7 text-primary" aria-hidden="true" />
-                </div>
-                <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors duration-300">
-                  {feature.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="relative">
-                <CardDescription className="text-base leading-relaxed">
-                  {feature.description}
-                </CardDescription>
-              </CardContent>
-            </Card>
-          ))}
+          {features.map((feature, index) => {
+            const { ref, isVisible } = useScrollReveal({ threshold: 0.2 });
+            
+            return (
+              <div
+                key={index}
+                ref={ref}
+                className={`scroll-reveal scroll-reveal-up ${isVisible ? 'visible' : ''}`}
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <Card
+                  className="border-2 border-border hover:border-primary hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-background group cursor-pointer relative overflow-hidden h-full"
+                  tabIndex={0}
+                  role="article"
+                  aria-label={feature.title}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" aria-hidden="true" />
+                  <CardHeader className="relative space-y-4">
+                    <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
+                      <feature.icon className="h-7 w-7 text-primary" aria-hidden="true" />
+                    </div>
+                    <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors duration-300">
+                      {feature.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="relative">
+                    <CardDescription className="text-base leading-relaxed">
+                      {feature.description}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

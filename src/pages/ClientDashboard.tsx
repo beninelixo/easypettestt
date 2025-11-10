@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
+import { CardSkeleton, ListSkeleton } from "@/components/ui/skeleton-loader";
 
 const ClientDashboard = () => {
   const { user, signOut } = useAuth();
@@ -15,6 +16,8 @@ const ClientDashboard = () => {
   const [pets, setPets] = useState<any[]>([]);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [displayName, setDisplayName] = useState("");
+  const [loadingPets, setLoadingPets] = useState(true);
+  const [loadingAppointments, setLoadingAppointments] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -39,6 +42,7 @@ const ClientDashboard = () => {
   };
 
   const loadPets = async () => {
+    setLoadingPets(true);
     const { data, error } = await supabase
       .from("pets")
       .select("*")
@@ -47,9 +51,11 @@ const ClientDashboard = () => {
     if (!error && data) {
       setPets(data);
     }
+    setLoadingPets(false);
   };
 
   const loadAppointments = async () => {
+    setLoadingAppointments(true);
     const { data, error } = await supabase
       .from("appointments")
       .select(`
@@ -63,6 +69,7 @@ const ClientDashboard = () => {
     if (!error && data) {
       setAppointments(data);
     }
+    setLoadingAppointments(false);
   };
 
   return (
@@ -147,7 +154,9 @@ const ClientDashboard = () => {
               Cadastrar Pet
             </Button>
           </div>
-          {pets.length === 0 ? (
+          {loadingPets ? (
+            <ListSkeleton items={3} />
+          ) : pets.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
                 <PawPrint className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -190,7 +199,9 @@ const ClientDashboard = () => {
         {/* Appointments Section */}
         <section>
           <h2 className="text-2xl font-semibold mb-4">Próximos Agendamentos</h2>
-          {appointments.length === 0 ? (
+          {loadingAppointments ? (
+            <CardSkeleton />
+          ) : appointments.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
                 <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />

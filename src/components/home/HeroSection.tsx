@@ -2,8 +2,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import heroImage from "@/assets/hero-petshop.jpg";
 import { Link } from "react-router-dom";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 export const HeroSection = () => {
+  const statsReveal = useScrollReveal({ threshold: 0.5 });
+  
   return (
     <section className="relative pt-32 pb-20 px-4 overflow-hidden">
       {/* Animated Background */}
@@ -90,7 +93,10 @@ export const HeroSection = () => {
             />
             
             {/* Floating Stats */}
-            <div className="absolute -bottom-6 -left-6 bg-background rounded-2xl p-6 shadow-2xl border-2 border-primary/20 animate-scale-in">
+            <div 
+              ref={statsReveal.ref}
+              className={`absolute -bottom-6 -left-6 bg-background rounded-2xl p-6 shadow-2xl border-2 border-primary/20 scroll-reveal scroll-reveal-zoom ${statsReveal.isVisible ? 'visible' : ''}`}
+            >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                   <CheckCircle2 className="h-6 w-6 text-primary" />

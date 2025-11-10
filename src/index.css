@@ -324,4 +324,89 @@ All colors MUST be HSL.
     transform: translateY(-8px);
     box-shadow: var(--shadow-large);
   }
+
+  /* Page Transition */
+  .page-transition {
+    animation-duration: 0.3s;
+    animation-fill-mode: both;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .page-transition.fade-out {
+    animation-name: fadeOut;
+  }
+
+  .page-transition.fade-in {
+    animation-name: fadeIn;
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Scroll Reveal Utilities */
+  .scroll-reveal {
+    opacity: 0;
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .scroll-reveal.visible {
+    opacity: 1;
+  }
+
+  .scroll-reveal-up {
+    transform: translateY(30px);
+  }
+
+  .scroll-reveal-up.visible {
+    transform: translateY(0);
+  }
+
+  .scroll-reveal-left {
+    transform: translateX(-30px);
+  }
+
+  .scroll-reveal-left.visible {
+    transform: translateX(0);
+  }
+
+  .scroll-reveal-right {
+    transform: translateX(30px);
+  }
+
+  .scroll-reveal-right.visible {
+    transform: translateX(0);
+  }
+
+  .scroll-reveal-zoom {
+    transform: scale(0.9);
+  }
+
+  .scroll-reveal-zoom.visible {
+    transform: scale(1);
+  }
+
+  /* Smooth Scroll */
+  html {
+    scroll-behavior: smooth;
+  }
 }

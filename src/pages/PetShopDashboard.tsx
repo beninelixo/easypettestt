@@ -9,12 +9,14 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import RevenueChart from "@/components/dashboard/RevenueChart";
 import AppointmentsChart from "@/components/dashboard/AppointmentsChart";
+import { StatCardSkeleton, CardSkeleton } from "@/components/ui/skeleton-loader";
 
 const PetShopDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [petShopId, setPetShopId] = useState<string>("");
+  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     todayAppointments: 0,
     monthlyRevenue: "R$ 0,00",
@@ -31,6 +33,7 @@ const PetShopDashboard = () => {
   }, [user]);
 
   const loadPetShopAndData = async () => {
+    setLoading(true);
     // First, get the pet shop owned by this user
     const { data: petShop, error: petShopError } = await supabase
       .from("pet_shops")
@@ -41,12 +44,14 @@ const PetShopDashboard = () => {
     if (petShopError || !petShop) {
       // If no pet shop exists, redirect to setup
       navigate("/petshop-setup");
+      setLoading(false);
       return;
     }
 
     setPetShopId(petShop.id);
     await loadAppointments(petShop.id);
     await loadStats(petShop.id);
+    setLoading(false);
   };
 
   const loadAppointments = async (shopId: string) => {
@@ -143,6 +148,26 @@ const PetShopDashboard = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
+      {loading ? (
+        <>
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+              <div className="h-4 w-64 bg-muted animate-pulse rounded" />
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <StatCardSkeleton key={i} />
+            ))}
+          </div>
+          <div className="grid lg:grid-cols-2 gap-6">
+            <CardSkeleton />
+            <CardSkeleton />
+          </div>
+        </>
+      ) : (
+        <>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
@@ -294,6 +319,8 @@ const PetShopDashboard = () => {
             </Button>
           </div>
         </section>
+        </>
+      )}
       </div>
     );
   };

@@ -1,11 +1,13 @@
 import { useCountUp } from "@/hooks/useCountUp";
 import { CheckCircle2, Shield, Clock } from "lucide-react";
 import happyClientsImg from "@/assets/happy-clients.jpg";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 export const StatsSection = () => {
   const activeUsers = useCountUp({ end: 2500 });
   const cities = useCountUp({ end: 650 });
   const appointments = useCountUp({ end: 2100 });
+  const imageReveal = useScrollReveal({ threshold: 0.3 });
 
   return (
     <>
@@ -54,7 +56,10 @@ export const StatsSection = () => {
       <section className="py-20 px-4 bg-muted">
         <div className="container mx-auto max-w-7xl">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="relative">
+            <div 
+              ref={imageReveal.ref}
+              className={`relative scroll-reveal scroll-reveal-left ${imageReveal.isVisible ? 'visible' : ''}`}
+            >
               <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-2xl blur-xl" />
               <img
                 src={happyClientsImg}
