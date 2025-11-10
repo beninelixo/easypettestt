@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Building2, Calendar, DollarSign, TrendingUp, Settings, Activity, Brain, Shield, Zap, Cpu, Database, FileText, Mail } from "lucide-react";
+import { Users, Building2, Calendar, DollarSign, TrendingUp, Settings, Activity, Brain, Shield, Zap, Cpu, Database, FileText, Mail, Globe } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
@@ -95,6 +95,14 @@ const AdminDashboard = () => {
             >
               <Mail className="h-6 w-6 text-blue-500" />
               Testes de Email
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-24 flex flex-col gap-2"
+              onClick={() => navigate('/admin/resend-domain-setup')}
+            >
+              <Globe className="h-6 w-6 text-purple-500" />
+              Configurar Domínio
             </Button>
             <Button 
               variant="outline" 

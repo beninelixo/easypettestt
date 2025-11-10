@@ -95,6 +95,7 @@ const SecurityMonitoring = lazy(() => import("./pages/admin/SecurityMonitoring")
 const PerformanceDashboard = lazy(() => import("./pages/admin/PerformanceDashboard"));
 const BackupManagement = lazy(() => import("./pages/admin/BackupManagement"));
 const EmailSystemTest = lazy(() => import("./pages/admin/EmailSystemTest"));
+const ResendDomainSetup = lazy(() => import("./pages/admin/ResendDomainSetup"));
 
 const queryClient = new QueryClient();
 
@@ -364,6 +365,12 @@ const App = () => {
           <Route path="/admin/email-system-test" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <EmailSystemTest />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/admin/resend-domain-setup" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <ResendDomainSetup />
             </ProtectedRoute>
           } />
 
