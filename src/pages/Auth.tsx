@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { PawPrint, Loader2, Shield, Lock } from "lucide-react";
+import { PawPrint, Loader2, Shield, Lock, ArrowLeft } from "lucide-react";
 import { useAuth, UserRole } from "@/hooks/useAuth";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
@@ -457,6 +457,19 @@ const Auth = () => {
       {/* Right Side - Auth Forms */}
       <div className="flex items-center justify-center p-4 lg:p-8">
         <div className="w-full max-w-md space-y-6 animate-scale-in">
+          {/* Back Button */}
+          <div className="flex justify-start">
+            <Link to="/">
+              <Button 
+                variant="ghost" 
+                className="gap-2 hover:bg-primary/10 transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Voltar para início
+              </Button>
+            </Link>
+          </div>
+
           {/* Mobile Logo */}
           <div className="text-center space-y-3 lg:hidden">
             <Link to="/" className="inline-flex items-center justify-center gap-3 group">
