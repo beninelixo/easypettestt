@@ -533,4 +533,75 @@ All colors MUST be HSL.
       opacity: 0;
     }
   }
+
+  /* Ripple effect */
+  @keyframes ripple-effect {
+    0% {
+      width: 0;
+      height: 0;
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
+    100% {
+      width: 300px;
+      height: 300px;
+      opacity: 0;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  /* Stagger animation */
+  @keyframes stagger-item {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-stagger-item {
+    animation: stagger-item 0.5s ease-out forwards;
+  }
+
+  /* Success/Error feedback animations */
+  @keyframes success-pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 hsl(var(--accent) / 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 10px hsl(var(--accent) / 0);
+    }
+  }
+
+  @keyframes error-shake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-10px);
+    }
+    75% {
+      transform: translateX(10px);
+    }
+  }
+
+  .animate-success-pulse {
+    animation: success-pulse 0.6s ease-out;
+  }
+
+  .animate-error-shake {
+    animation: error-shake 0.5s ease-in-out;
+  }
+
+  /* Form field animations */
+  .input-success {
+    @apply border-accent animate-success-pulse;
+  }
+
+  .input-error {
+    @apply border-destructive animate-error-shake;
+  }
 }
