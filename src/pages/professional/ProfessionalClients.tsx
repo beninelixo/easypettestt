@@ -46,18 +46,57 @@ const ProfessionalClients = () => {
   useEffect(() => {
     if (user) {
       loadClients();
+      
+      // Configurar realtime para atualizar quando novos agendamentos forem criados
+      const channel = supabase
+        .channel('appointments_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'appointments',
+          },
+          () => {
+            loadClients();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 
   const loadClients = async () => {
     try {
-      const { data: petShop } = await supabase
+      // Buscar petshop do dono ou do funcionário
+      let petShopId = null;
+      
+      const { data: ownedShop } = await supabase
         .from("pet_shops")
         .select("id")
         .eq("owner_id", user?.id)
         .maybeSingle();
+      
+      if (ownedShop) {
+        petShopId = ownedShop.id;
+      } else {
+        // Verificar se é funcionário
+        const { data: employeeShop } = await supabase
+          .from("petshop_employees")
+          .select("pet_shop_id")
+          .eq("user_id", user?.id)
+          .eq("active", true)
+          .maybeSingle();
+        
+        if (employeeShop) {
+          petShopId = employeeShop.pet_shop_id;
+        }
+      }
 
-      if (!petShop) {
+      if (!petShopId) {
         setLoading(false);
         return;
       }
@@ -65,7 +104,7 @@ const ProfessionalClients = () => {
       const { data: appointmentsData } = await supabase
         .from("appointments")
         .select("client_id")
-        .eq("pet_shop_id", petShop.id);
+        .eq("pet_shop_id", petShopId);
 
       if (!appointmentsData || appointmentsData.length === 0) {
         setLoading(false);
@@ -107,12 +146,48 @@ const ProfessionalClients = () => {
   };
 
   const handleCreateClient = async () => {
-    toast({
-      title: "Atenção",
-      description: "Os clientes devem se cadastrar através do aplicativo ou site. Use a agenda para criar agendamentos para novos clientes.",
-      variant: "default",
-    });
-    setDialogOpen(false);
+    try {
+      const validation = clientSchema.safeParse(formData);
+      
+      if (!validation.success) {
+        toast({
+          title: "Erro de validação",
+          description: validation.error.errors[0].message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Criar conta do cliente
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email || `${formData.phone}@easypet.com.br`,
+        password: Math.random().toString(36).slice(-8) + "Aa1!", // Senha aleatória
+        options: {
+          data: {
+            full_name: formData.full_name,
+            phone: formData.phone,
+            user_type: 'client',
+          },
+        },
+      });
+
+      if (authError) throw authError;
+
+      toast({
+        title: "Cliente cadastrado!",
+        description: "O cliente foi cadastrado com sucesso. Ele pode fazer login com o email/telefone fornecido.",
+      });
+
+      setDialogOpen(false);
+      setFormData({ full_name: "", email: "", phone: "" });
+      loadClients();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao cadastrar cliente",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const filteredClients = clients.filter((client) =>
@@ -132,30 +207,48 @@ const ProfessionalClients = () => {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Como Cadastrar Clientes</DialogTitle>
+              <DialogTitle>Cadastrar Novo Cliente</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <p className="text-muted-foreground">
-                Os clientes devem criar suas próprias contas através do aplicativo ou site do EasyPet.
-              </p>
-              
-              <div className="bg-muted/50 p-4 rounded-lg space-y-2">
-                <h4 className="font-semibold">Instruções:</h4>
-                <ol className="list-decimal list-inside space-y-1 text-sm">
-                  <li>Oriente o cliente a acessar o site/app EasyPet</li>
-                  <li>O cliente cria sua conta com email e senha</li>
-                  <li>O cliente cadastra seus pets</li>
-                  <li>Você pode criar agendamentos para o cliente através da agenda</li>
-                </ol>
+              <div className="space-y-2">
+                <Label htmlFor="full_name">Nome Completo *</Label>
+                <Input
+                  id="full_name"
+                  value={formData.full_name}
+                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                  placeholder="Nome do cliente"
+                />
               </div>
 
-              <p className="text-sm text-muted-foreground">
-                Após o cliente se cadastrar e realizar um agendamento no seu estabelecimento, ele aparecerá automaticamente na sua lista de clientes.
-              </p>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Telefone *</Label>
+                <Input
+                  id="phone"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="(00) 00000-0000"
+                />
+              </div>
 
-              <Button className="w-full" onClick={() => setDialogOpen(false)}>
-                Entendi
-              </Button>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email (opcional)</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="email@exemplo.com"
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Button className="flex-1" onClick={handleCreateClient}>
+                  Cadastrar
+                </Button>
+                <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                  Cancelar
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
