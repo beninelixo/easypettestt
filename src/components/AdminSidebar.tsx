@@ -1,6 +1,6 @@
 import { 
   Home, Zap, Activity, Brain, Shield, Lock, FileText, Mail, 
-  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown
+  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown, Gauge
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -41,6 +41,7 @@ const securityItems = [
 ];
 
 const settingsItems = [
+  { title: "Performance Dashboard", url: "/admin/performance", icon: Gauge, badge: "NEW" },
   { title: "Email System Test", url: "/admin/email-test", icon: Mail },
   { title: "Resend Domain Setup", url: "/admin/domain-setup", icon: Globe },
   { title: "Notification Queue", url: "/admin/notifications", icon: Bell },
