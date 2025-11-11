@@ -31,7 +31,58 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check rate limits BEFORE attempting login
+    // Check if IP is whitelisted - if so, skip rate limiting
+    if (ip_address) {
+      const { data: whitelisted } = await supabase
+        .from('ip_whitelist')
+        .select('id')
+        .eq('ip_address', ip_address)
+        .single();
+
+      if (whitelisted) {
+        console.log(`IP ${ip_address} is whitelisted, proceeding without rate limit checks`);
+        
+        // Attempt authentication directly for whitelisted IPs
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (authError) {
+          // Record failed attempt but don't apply rate limiting
+          await supabase.from('login_attempts').insert({
+            email: email.toLowerCase(),
+            success: false,
+            ip_address,
+            user_agent: user_agent || 'unknown',
+          });
+
+          return new Response(
+            JSON.stringify({ error: authError.message }),
+            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Record successful attempt
+        await supabase.from('login_attempts').insert({
+          email: email.toLowerCase(),
+          success: true,
+          ip_address,
+          user_agent: user_agent || 'unknown',
+        });
+
+        return new Response(
+          JSON.stringify({
+            session: authData.session,
+            user: authData.user,
+            whitelisted: true
+          }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // Check rate limits BEFORE attempting login (for non-whitelisted IPs)
     const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
     
     // Check email-based rate limiting

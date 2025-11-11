@@ -111,6 +111,8 @@ const AuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
 const EmailSystemTest = lazy(() => import("./pages/admin/EmailSystemTest"));
 const ResendDomainSetup = lazy(() => import("./pages/admin/ResendDomainSetup"));
 const GodModeDashboard = lazy(() => import("./pages/admin/GodModeDashboard"));
+const IPWhitelist = lazy(() => import("./pages/admin/IPWhitelist"));
+const LoginHistory = lazy(() => import("./pages/admin/LoginHistory"));
 
 // Admin Layout
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -314,6 +316,8 @@ const App = () => {
             <Route path="success-stories" element={<SuccessStoriesManager />} />
             <Route path="regenerate-images" element={<RegenerateImages />} />
             <Route path="performance" element={<PerformanceDashboard />} />
+            <Route path="ip-whitelist" element={<IPWhitelist />} />
+            <Route path="login-history" element={<LoginHistory />} />
           </Route>
 
           {/* Legacy Admin Routes - Redirect to new structure */}

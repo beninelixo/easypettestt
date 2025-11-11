@@ -30,8 +30,28 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check if IP is blocked first
+    // Check if IP is blocked first (but skip if whitelisted)
     if (ip_address) {
+      // Check whitelist first
+      const { data: whitelisted } = await supabase
+        .from('ip_whitelist')
+        .select('id')
+        .eq('ip_address', ip_address)
+        .single();
+
+      if (whitelisted) {
+        console.log(`IP ${ip_address} is whitelisted, allowing login without rate limit checks`);
+        return new Response(
+          JSON.stringify({
+            allowed: true,
+            blocked: false,
+            whitelisted: true,
+            message: 'Login permitido (IP protegido)'
+          }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       const { data: blockedIp } = await supabase
         .from('blocked_ips')
         .select('*')
@@ -49,7 +69,7 @@ Deno.serve(async (req) => {
             allowed: false,
             blocked: true,
             remainingSeconds,
-            message: `IP bloqueado. ${blockedIp.reason}. Desbloqueio em ${Math.ceil(remainingSeconds / 3600)} horas.`
+            message: `IP bloqueado. ${blockedIp.reason}. Desbloqueio em ${Math.ceil(remainingSeconds / 60)} minutos.`
           }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );

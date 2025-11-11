@@ -3,8 +3,12 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { Shield, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { SecurityNotificationsPanel } from "@/components/admin/SecurityNotificationsPanel";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminLayout() {
+  const { userRole } = useAuth();
+
   return (
     <SidebarProvider defaultOpen>
       <div className="min-h-screen flex w-full bg-background">
@@ -32,6 +36,9 @@ export default function AdminLayout() {
             <Outlet />
           </main>
         </div>
+
+        {/* Real-time Security Notifications (only for admins) */}
+        {userRole === 'admin' && <SecurityNotificationsPanel />}
       </div>
     </SidebarProvider>
   );

@@ -1,6 +1,6 @@
 import { 
   Home, Zap, Activity, Brain, Shield, Lock, FileText, Mail, 
-  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown, Gauge, ScrollText
+  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown, Gauge, ScrollText, UserCheck, History
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -37,8 +37,10 @@ const monitoringItems = [
 const securityItems = [
   { title: "Security Dashboard", url: "/admin/security", icon: Shield },
   { title: "Security Monitoring", url: "/admin/security-monitoring", icon: Lock },
+  { title: "IP Whitelist", url: "/admin/ip-whitelist", icon: UserCheck, badge: "NEW" },
+  { title: "Login History", url: "/admin/login-history", icon: History, badge: "NEW" },
   { title: "Backup Management", url: "/admin/backups", icon: FileText },
-  { title: "Audit Logs", url: "/admin/audit-logs", icon: ScrollText, badge: "NEW" },
+  { title: "Audit Logs", url: "/admin/audit-logs", icon: ScrollText },
 ];
 
 const settingsItems = [

@@ -80,12 +80,25 @@ Deno.serve(async (req) => {
 
     const { email, success, ip_address, user_agent }: RecordAttemptRequest = await req.json();
     
-    // Rate limiting check
-    if (ip_address && !checkRateLimit(ip_address)) {
-      return new Response(
-        JSON.stringify({ error: 'Rate limit exceeded. Try again later.' }),
-        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Check if IP is whitelisted
+    if (ip_address) {
+      const { data: whitelisted } = await supabase
+        .from('ip_whitelist')
+        .select('id')
+        .eq('ip_address', ip_address)
+        .single();
+      
+      if (whitelisted) {
+        console.log(`IP ${ip_address} is whitelisted, skipping rate limit and blocks`);
+      } else {
+        // Rate limiting check only for non-whitelisted IPs
+        if (!checkRateLimit(ip_address)) {
+          return new Response(
+            JSON.stringify({ error: 'Rate limit exceeded. Try again later.' }),
+            { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      }
     }
 
     if (!email || success === undefined) {
@@ -114,8 +127,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check for multiple failed attempts and send alert
-    if (!success) {
+    // Check for multiple failed attempts and send alert + real-time notification
+    if (!success && ip_address) {
       const { data: recentFailures } = await supabase
         .from('login_attempts')
         .select('id')
@@ -125,9 +138,32 @@ Deno.serve(async (req) => {
       
       const failedCount = (recentFailures?.length || 0) + 1;
       
-      // Send alert on 3rd, 5th, and 10th failed attempt
-      if (failedCount === 3 || failedCount === 5 || failedCount === 10) {
-        await sendSecurityAlert(email, failedCount, ip_address || 'unknown');
+      // Check if IP is whitelisted before sending alerts
+      const { data: whitelisted } = await supabase
+        .from('ip_whitelist')
+        .select('id')
+        .eq('ip_address', ip_address)
+        .single();
+      
+      if (!whitelisted) {
+        // Send alert on 3rd, 5th, and 10th failed attempt
+        if (failedCount === 3 || failedCount === 5 || failedCount === 10) {
+          await sendSecurityAlert(email, failedCount, ip_address);
+          
+          // Create real-time notification for admins
+          await supabase.from('security_notifications').insert({
+            notification_type: 'suspicious_ip',
+            severity: failedCount >= 10 ? 'critical' : failedCount >= 5 ? 'high' : 'medium',
+            title: `⚠️ IP Suspeito Detectado`,
+            message: `${failedCount} tentativas falhadas de ${email} do IP ${ip_address}`,
+            metadata: {
+              email,
+              ip_address,
+              failed_count: failedCount,
+              timestamp: new Date().toISOString()
+            }
+          });
+        }
       }
     }
 
