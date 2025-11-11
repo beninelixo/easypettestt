@@ -63,8 +63,7 @@ const ClientPets = () => {
           {pets.map((pet) => (
             <Card 
               key={pet.id} 
-              className="hover:shadow-lg transition-all cursor-pointer"
-              onClick={() => navigate(`/client/pets/${pet.id}`)}
+              className="hover:shadow-lg transition-all"
             >
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -77,7 +76,12 @@ const ClientPets = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="ghost" size="sm" className="w-full">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => navigate(`/client/pets/${pet.id}`)}
+                >
                   Ver Detalhes
                 </Button>
               </CardContent>

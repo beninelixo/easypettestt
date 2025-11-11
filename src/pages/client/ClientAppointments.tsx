@@ -24,10 +24,12 @@ const ClientAppointments = () => {
         .select(`
           *,
           pet:pets(name),
-          service:services(name)
+          service:services(name),
+          pet_shop:pet_shops(name)
         `)
         .eq("client_id", user?.id)
-        .order("scheduled_date", { ascending: true });
+        .order("scheduled_date", { ascending: false })
+        .order("scheduled_time", { ascending: false });
 
       if (!error && data) {
         setAppointments(data);
@@ -64,6 +66,7 @@ const ClientAppointments = () => {
                   <div>
                     <h3 className="font-semibold">{appointment.service?.name}</h3>
                     <p className="text-sm text-muted-foreground">Pet: {appointment.pet?.name}</p>
+                    <p className="text-sm text-muted-foreground">Petshop: {appointment.pet_shop?.name}</p>
                     <div className="flex items-center gap-4 mt-1">
                       <span className="text-sm text-muted-foreground flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
