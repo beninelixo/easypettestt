@@ -39,6 +39,7 @@ interface Appointment {
 const ProfessionalCalendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [upcomingAppointments, setUpcomingAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [services, setServices] = useState<any[]>([]);
@@ -113,10 +114,48 @@ const ProfessionalCalendar = () => {
       );
 
       setAppointments(appointmentsWithClients);
+      // Atualiza lista de próximos agendamentos (independente da data selecionada)
+      await loadUpcomingAppointments(petShop.id);
     } catch (error) {
       console.error("Erro ao carregar agendamentos:", error);
     } finally {
       setLoading(false);
+    }
+  };
+  
+  const loadUpcomingAppointments = async (shopId: string) => {
+    const today = format(new Date(), "yyyy-MM-dd");
+    const { data, error } = await supabase
+      .from("appointments")
+      .select(`
+        id,
+        scheduled_date,
+        scheduled_time,
+        status,
+        notes,
+        client_id,
+        service:services(name, duration_minutes, price),
+        pet:pets(name, breed)
+      `)
+      .eq("pet_shop_id", shopId)
+      .gte("scheduled_date", today)
+      .order("scheduled_date", { ascending: true })
+      .order("scheduled_time", { ascending: true })
+      .limit(10);
+
+    if (!error && data) {
+      // Enriquecer com dados do cliente
+      const withClients = await Promise.all(
+        data.map(async (apt) => {
+          const { data: clientData } = await supabase
+            .from("profiles")
+            .select("full_name, phone")
+            .eq("id", apt.client_id)
+            .single();
+          return { ...apt, client: clientData || { full_name: "N/A", phone: "" } } as any;
+        })
+      );
+      setUpcomingAppointments(withClients as any);
     }
   };
 
@@ -402,6 +441,35 @@ const ProfessionalCalendar = () => {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Próximos agendamentos (independente do dia selecionado) */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Próximos agendamentos</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {upcomingAppointments.length === 0 ? (
+            <p className="text-muted-foreground">Nenhum agendamento futuro.</p>
+          ) : (
+            <div className="space-y-3">
+              {upcomingAppointments.map((apt) => (
+                <div key={apt.id} className="flex items-center justify-between border rounded-md p-3">
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium">{apt.service.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {format(new Date(apt.scheduled_date), "dd 'de' MMMM", { locale: ptBR })} • {apt.scheduled_time}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Cliente: {(apt as any).client?.full_name}</div>
+                  </div>
+                  <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                    {apt.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-[300px,1fr]">
         <Card>

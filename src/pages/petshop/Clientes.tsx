@@ -55,50 +55,67 @@ const Clientes = () => {
   const loadClients = async () => {
     setLoading(true);
     
-    // Get pet shop id first
-    const { data: petShop } = await supabase
+    // Get pet shop id for owner or active employee
+    let shopId: string | null = null;
+    const { data: ownedShop } = await supabase
       .from("pet_shops")
       .select("id")
       .eq("owner_id", user?.id)
-      .single();
+      .maybeSingle();
 
-    if (!petShop) {
+    if (ownedShop) {
+      shopId = ownedShop.id;
+    } else {
+      const { data: employeeShop } = await supabase
+        .from("petshop_employees")
+        .select("pet_shop_id")
+        .eq("user_id", user?.id)
+        .eq("active", true)
+        .maybeSingle();
+      if (employeeShop) shopId = employeeShop.pet_shop_id;
+    }
+
+    if (!shopId) {
+      setClients([]);
       setLoading(false);
       return;
     }
     
-    // Get all appointments for this pet shop to find clients
+    // Get all appointments for this pet shop to find clients (any date/status)
     const { data: appointments, error } = await supabase
       .from("appointments")
       .select(`
         client_id,
         pet:pets(id, name, breed)
       `)
-      .eq("pet_shop_id", petShop.id);
+      .eq("pet_shop_id", shopId);
 
     if (!error && appointments) {
       // Get unique client IDs
       const clientIds = [...new Set(appointments.map(a => a.client_id))];
+      if (clientIds.length === 0) {
+        setClients([]);
+        setLoading(false);
+        return;
+      }
       
       // Fetch client profiles
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id, full_name, phone")
         .in("id", clientIds);
       
-      // Group by client and count pets
-      const clientsMap = new Map();
-      
+      // Group by client and collect pets
+      const clientsMap = new Map<string, any>();
       appointments.forEach((app) => {
         if (app.client_id) {
           const profile = profiles?.find(p => p.id === app.client_id);
-          
           if (!clientsMap.has(app.client_id)) {
             clientsMap.set(app.client_id, {
               id: app.client_id,
               name: profile?.full_name || "Cliente",
               phone: profile?.phone,
-              pets: new Set(),
+              pets: new Set<string>(),
             });
           }
           if (app.pet) {
@@ -111,7 +128,7 @@ const Clientes = () => {
         }
       });
 
-      const clientsList = Array.from(clientsMap.values()).map(client => ({
+      const clientsList = Array.from(clientsMap.values()).map((client: any) => ({
         ...client,
         pets: Array.from(client.pets).map((p: any) => JSON.parse(p)),
         totalPets: client.pets.size,
