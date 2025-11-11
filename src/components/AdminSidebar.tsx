@@ -1,6 +1,6 @@
 import { 
   Home, Zap, Activity, Brain, Shield, Lock, FileText, Mail, 
-  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown, Gauge
+  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown, Gauge, ScrollText
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -38,6 +38,7 @@ const securityItems = [
   { title: "Security Dashboard", url: "/admin/security", icon: Shield },
   { title: "Security Monitoring", url: "/admin/security-monitoring", icon: Lock },
   { title: "Backup Management", url: "/admin/backups", icon: FileText },
+  { title: "Audit Logs", url: "/admin/audit-logs", icon: ScrollText, badge: "NEW" },
 ];
 
 const settingsItems = [
