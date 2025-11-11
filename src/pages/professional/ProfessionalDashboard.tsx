@@ -31,22 +31,31 @@ const ProfessionalDashboard = () => {
   }, [user]);
 
   const loadPetShopAndData = async () => {
-    // First, get the pet shop owned by this user
-    const { data: petShop, error: petShopError } = await supabase
-      .from("pet_shops")
-      .select("id")
-      .eq("owner_id", user?.id)
-      .single();
+    try {
+      // First, get the pet shop owned by this user
+      const { data: petShop, error: petShopError } = await supabase
+        .from("pet_shops")
+        .select("id")
+        .eq("owner_id", user?.id)
+        .maybeSingle();
 
-    if (petShopError || !petShop) {
-      // If no pet shop exists, redirect to setup
-      navigate("/petshop-setup");
-      return;
+      if (petShopError) {
+        console.error("Erro ao buscar pet shop:", petShopError);
+        return;
+      }
+
+      if (!petShop) {
+        // If no pet shop exists, redirect to setup
+        navigate("/petshop-setup");
+        return;
+      }
+
+      setPetShopId(petShop.id);
+      await loadAppointments(petShop.id);
+      await loadStats(petShop.id);
+    } catch (error) {
+      console.error("Erro ao carregar dados:", error);
     }
-
-    setPetShopId(petShop.id);
-    await loadAppointments(petShop.id);
-    await loadStats(petShop.id);
   };
 
   const loadAppointments = async (shopId: string) => {

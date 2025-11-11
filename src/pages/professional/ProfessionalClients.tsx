@@ -16,9 +16,8 @@ import { ptBR } from "date-fns/locale";
 
 const clientSchema = z.object({
   full_name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
-  email: z.string().email("Email inválido"),
+  email: z.string().email("Email inválido").optional(),
   phone: z.string().min(10, "Telefone inválido"),
-  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
 });
 
 interface Client {
@@ -42,7 +41,6 @@ const ProfessionalClients = () => {
     full_name: "",
     email: "",
     phone: "",
-    password: "",
   });
 
   useEffect(() => {
@@ -57,16 +55,22 @@ const ProfessionalClients = () => {
         .from("pet_shops")
         .select("id")
         .eq("owner_id", user?.id)
-        .single();
+        .maybeSingle();
 
-      if (!petShop) return;
+      if (!petShop) {
+        setLoading(false);
+        return;
+      }
 
       const { data: appointmentsData } = await supabase
         .from("appointments")
         .select("client_id")
         .eq("pet_shop_id", petShop.id);
 
-      if (!appointmentsData) return;
+      if (!appointmentsData || appointmentsData.length === 0) {
+        setLoading(false);
+        return;
+      }
 
       const clientIds = [...new Set(appointmentsData.map((a) => a.client_id))];
 
@@ -75,7 +79,10 @@ const ProfessionalClients = () => {
         .select("id, full_name, phone, created_at")
         .in("id", clientIds);
 
-      if (!clientsData) return;
+      if (!clientsData) {
+        setLoading(false);
+        return;
+      }
 
       const clientsWithPets = await Promise.all(
         clientsData.map(async (client) => {
@@ -100,52 +107,12 @@ const ProfessionalClients = () => {
   };
 
   const handleCreateClient = async () => {
-    try {
-      const validatedData = clientSchema.parse(formData);
-
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: validatedData.email,
-        password: validatedData.password,
-        options: {
-          data: {
-            full_name: validatedData.full_name,
-            phone: validatedData.phone,
-            user_type: "client",
-          },
-        },
-      });
-
-      if (signUpError) throw signUpError;
-
-      toast({
-        title: "Cliente criado!",
-        description: "O cliente foi criado com sucesso.",
-      });
-
-      setDialogOpen(false);
-      setFormData({
-        full_name: "",
-        email: "",
-        phone: "",
-        password: "",
-      });
-
-      setTimeout(() => loadClients(), 1000);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        toast({
-          title: "Erro de validação",
-          description: error.errors[0].message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Erro",
-          description: "Não foi possível criar o cliente.",
-          variant: "destructive",
-        });
-      }
-    }
+    toast({
+      title: "Atenção",
+      description: "Os clientes devem se cadastrar através do aplicativo ou site. Use a agenda para criar agendamentos para novos clientes.",
+      variant: "default",
+    });
+    setDialogOpen(false);
   };
 
   const filteredClients = clients.filter((client) =>
@@ -165,57 +132,29 @@ const ProfessionalClients = () => {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Cadastrar Novo Cliente</DialogTitle>
+              <DialogTitle>Como Cadastrar Clientes</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <div>
-                <Label>Nome Completo</Label>
-                <Input
-                  value={formData.full_name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, full_name: e.target.value })
-                  }
-                  placeholder="Nome do cliente"
-                />
+              <p className="text-muted-foreground">
+                Os clientes devem criar suas próprias contas através do aplicativo ou site do EasyPet.
+              </p>
+              
+              <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                <h4 className="font-semibold">Instruções:</h4>
+                <ol className="list-decimal list-inside space-y-1 text-sm">
+                  <li>Oriente o cliente a acessar o site/app EasyPet</li>
+                  <li>O cliente cria sua conta com email e senha</li>
+                  <li>O cliente cadastra seus pets</li>
+                  <li>Você pode criar agendamentos para o cliente através da agenda</li>
+                </ol>
               </div>
 
-              <div>
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  placeholder="email@exemplo.com"
-                />
-              </div>
+              <p className="text-sm text-muted-foreground">
+                Após o cliente se cadastrar e realizar um agendamento no seu estabelecimento, ele aparecerá automaticamente na sua lista de clientes.
+              </p>
 
-              <div>
-                <Label>Telefone</Label>
-                <Input
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                  placeholder="(00) 00000-0000"
-                />
-              </div>
-
-              <div>
-                <Label>Senha</Label>
-                <Input
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  placeholder="Mínimo 6 caracteres"
-                />
-              </div>
-
-              <Button className="w-full" onClick={handleCreateClient}>
-                Cadastrar Cliente
+              <Button className="w-full" onClick={() => setDialogOpen(false)}>
+                Entendi
               </Button>
             </div>
           </DialogContent>
