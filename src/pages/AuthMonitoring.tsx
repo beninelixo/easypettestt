@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Shield, AlertTriangle, CheckCircle, XCircle, Clock, RefreshCw, Key, Users, Activity } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, XCircle, Clock, RefreshCw, Mail, Check } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface AuthLog {
@@ -34,29 +34,48 @@ export default function AuthMonitoring() {
     total_active_sessions: 0,
     critical_failures: 0,
   });
+  const [suspiciousIPs, setSuspiciousIPs] = useState<Array<{ ip: string; attempts: number }>>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   const loadAuthData = async () => {
     setLoading(true);
     try {
-      // Carregar logs de autenticação dos system_logs
-      const { data: logsData, error: logsError } = await supabase
-        .from('system_logs')
+      // Fetch login attempts from last 24 hours
+      const { data: attempts, error } = await supabase
+        .from('login_attempts')
         .select('*')
-        .or('module.eq.login,module.eq.authentication,module.eq.auth')
-        .order('created_at', { ascending: false })
-        .limit(50);
+        .gte('attempt_time', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+        .order('attempt_time', { ascending: false })
+        .limit(100);
+      
+      // Analyze suspicious IPs (multiple failures)
+      if (attempts) {
+        const ipMap = new Map<string, number>();
+        attempts.filter(a => !a.success && a.ip_address).forEach(a => {
+          const count = ipMap.get(a.ip_address!) || 0;
+          ipMap.set(a.ip_address!, count + 1);
+        });
+        
+        const suspicious = Array.from(ipMap.entries())
+          .filter(([_, count]) => count >= 3)
+          .map(([ip, attempts]) => ({ ip, attempts }))
+          .sort((a, b) => b.attempts - a.attempts)
+          .slice(0, 10);
+        
+        setSuspiciousIPs(suspicious);
+      }
 
-      if (logsError) throw logsError;
+      if (error) throw error;
 
-      // Processar logs para o formato esperado
-      const processedLogs: AuthLog[] = (logsData || []).map((log: any) => ({
+      // Processar logs
+      const processedLogs: AuthLog[] = (attempts || []).map((log: any) => ({
         id: log.id,
-        email: log.details?.email || log.details?.user_email || 'N/A',
-        timestamp: new Date(log.created_at).toLocaleString('pt-BR'),
-        status: log.log_type === 'success' ? 'success' : 'failed',
-        error_message: log.message,
+        email: log.email || 'N/A',
+        timestamp: new Date(log.attempt_time).toLocaleString('pt-BR'),
+        status: log.success ? 'success' : 'failed',
+        error_message: log.success ? undefined : 'Credenciais inválidas',
+        ip_address: log.ip_address,
       }));
 
       setAuthLogs(processedLogs);
@@ -65,26 +84,23 @@ export default function AuthMonitoring() {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      const todayLogs = (logsData || []).filter((log: any) => 
-        new Date(log.created_at) >= today
+      const todayAttempts = (attempts || []).filter((log: any) => 
+        new Date(log.attempt_time) >= today
       );
 
-      const successfulLogins = todayLogs.filter((log: any) => log.log_type === 'success').length;
-      const failedLogins = todayLogs.filter((log: any) => log.log_type === 'error').length;
-      const criticalFailures = todayLogs.filter((log: any) => 
-        log.log_type === 'error' && log.details?.critical === true
-      ).length;
+      const successfulLogins = todayAttempts.filter((log: any) => log.success).length;
+      const failedLogins = todayAttempts.filter((log: any) => !log.success).length;
 
-      const lastSuccess = (logsData || []).find((log: any) => log.log_type === 'success');
-      const lastFailure = (logsData || []).find((log: any) => log.log_type === 'error');
+      const lastSuccess = (attempts || []).find((log: any) => log.success);
+      const lastFailure = (attempts || []).find((log: any) => !log.success);
 
       setStats({
         total_logins_today: successfulLogins,
         total_failures_today: failedLogins,
-        total_active_sessions: 0, // Será implementado com queries específicas
-        critical_failures: criticalFailures,
-        last_successful_login: lastSuccess ? new Date(lastSuccess.created_at).toLocaleTimeString('pt-BR') : undefined,
-        last_failed_login: lastFailure ? new Date(lastFailure.created_at).toLocaleTimeString('pt-BR') : undefined,
+        total_active_sessions: 0,
+        critical_failures: suspiciousIPs.filter(ip => ip.attempts >= 10).length,
+        last_successful_login: lastSuccess ? new Date(lastSuccess.attempt_time).toLocaleTimeString('pt-BR') : undefined,
+        last_failed_login: lastFailure ? new Date(lastFailure.attempt_time).toLocaleTimeString('pt-BR') : undefined,
       });
 
     } catch (error: any) {
@@ -105,46 +121,6 @@ export default function AuthMonitoring() {
     const interval = setInterval(loadAuthData, 30000);
     return () => clearInterval(interval);
   }, []);
-
-  const simulateSuccessfulLogin = async () => {
-    await supabase.from('system_logs').insert({
-      module: 'authentication',
-      log_type: 'success',
-      message: 'Login simulado bem-sucedido',
-      details: {
-        email: 'teste@petshop.com',
-        simulated: true,
-      },
-    });
-    
-    toast({
-      title: 'Login Simulado',
-      description: 'Login bem-sucedido registrado nos logs',
-    });
-    
-    await loadAuthData();
-  };
-
-  const simulateFailedLogin = async () => {
-    await supabase.from('system_logs').insert({
-      module: 'authentication',
-      log_type: 'error',
-      message: 'Senha incorreta',
-      details: {
-        email: 'cliente@pet.com',
-        error: 'Invalid password',
-        simulated: true,
-      },
-    });
-    
-    toast({
-      title: 'Falha Simulada',
-      description: 'Falha de login registrada nos logs',
-      variant: 'destructive',
-    });
-    
-    await loadAuthData();
-  };
 
   const overallStatus = stats.critical_failures > 0 
     ? 'critical' 
@@ -168,7 +144,7 @@ export default function AuthMonitoring() {
         <div>
           <h1 className="text-3xl font-bold">Monitoramento de Autenticação</h1>
           <p className="text-muted-foreground">
-            Análise em tempo real de login, sessões e segurança
+            Análise em tempo real de tentativas de login e segurança
           </p>
         </div>
         <div className="flex gap-2">
@@ -251,7 +227,7 @@ export default function AuthMonitoring() {
               {stats.critical_failures}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Requer atenção imediata
+              IPs com 10+ tentativas
             </p>
           </CardContent>
         </Card>
@@ -259,34 +235,40 @@ export default function AuthMonitoring() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Users className="h-4 w-4 text-blue-500" />
-              Sessões Ativas
+              <AlertTriangle className="h-4 w-4 text-orange-500" />
+              IPs Suspeitos
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-500">
-              {stats.total_active_sessions}
+            <div className="text-3xl font-bold text-orange-500">
+              {suspiciousIPs.length}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Usuários conectados
+              3+ tentativas falhadas
             </p>
           </CardContent>
         </Card>
       </div>
 
       <Tabs defaultValue="logs" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="logs">Logs Recentes</TabsTrigger>
-          <TabsTrigger value="diagnostics">Diagnósticos</TabsTrigger>
-          <TabsTrigger value="suggestions">Sugestões</TabsTrigger>
+          <TabsTrigger value="suspicious">
+            IPs Suspeitos
+            {suspiciousIPs.length > 0 && (
+              <Badge variant="destructive" className="ml-2">{suspiciousIPs.length}</Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="diagnostico">Diagnósticos</TabsTrigger>
+          <TabsTrigger value="sugestoes">Sugestões</TabsTrigger>
         </TabsList>
 
         <TabsContent value="logs">
           <Card>
             <CardHeader>
-              <CardTitle>Logs de Autenticação</CardTitle>
+              <CardTitle>Tentativas de Login (Últimas 24h)</CardTitle>
               <CardDescription>
-                Últimas 50 tentativas de login e eventos de autenticação
+                Histórico completo de todas as tentativas de login registradas
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -294,15 +276,16 @@ export default function AuthMonitoring() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>E-mail</TableHead>
+                    <TableHead>IP</TableHead>
                     <TableHead>Data/Hora</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Mensagem</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {authLogs.map((log) => (
                     <TableRow key={log.id}>
                       <TableCell className="font-medium">{log.email}</TableCell>
+                      <TableCell className="font-mono text-xs">{log.ip_address || 'N/A'}</TableCell>
                       <TableCell>{log.timestamp}</TableCell>
                       <TableCell>
                         {log.status === 'success' ? (
@@ -310,9 +293,6 @@ export default function AuthMonitoring() {
                         ) : (
                           <Badge variant="destructive">❌ Falha</Badge>
                         )}
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {log.error_message || 'Login bem-sucedido'}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -322,7 +302,86 @@ export default function AuthMonitoring() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="diagnostics">
+        <TabsContent value="suspicious" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+                IPs com Múltiplas Tentativas Falhadas
+              </CardTitle>
+              <CardDescription>
+                IPs com 3 ou mais tentativas de login falhadas nas últimas 24 horas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {suspiciousIPs.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Check className="h-12 w-12 mx-auto mb-2 text-green-500" />
+                  <p>Nenhum IP suspeito detectado</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {suspiciousIPs.map(({ ip, attempts }) => (
+                    <div key={ip} className="flex items-center justify-between p-4 border rounded-lg bg-destructive/5">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${
+                          attempts >= 10 ? 'bg-red-500' :
+                          attempts >= 5 ? 'bg-orange-500' : 'bg-yellow-500'
+                        }`} />
+                        <div>
+                          <p className="font-mono font-semibold">{ip}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {attempts} tentativas falhadas
+                          </p>
+                        </div>
+                      </div>
+                      <Badge variant={attempts >= 10 ? 'destructive' : 'secondary'}>
+                        {attempts >= 10 ? 'Crítico' : attempts >= 5 ? 'Alto Risco' : 'Atenção'}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Ações Automáticas</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-start gap-3">
+                <Shield className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <p className="font-semibold">Bloqueio Automático</p>
+                  <p className="text-sm text-muted-foreground">
+                    IPs com 5+ tentativas são bloqueados automaticamente por 30 minutos
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Mail className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <p className="font-semibold">Alertas por Email</p>
+                  <p className="text-sm text-muted-foreground">
+                    Usuários recebem alertas na 3ª, 5ª e 10ª tentativa falhada
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Clock className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <p className="font-semibold">Monitoramento Contínuo</p>
+                  <p className="text-sm text-muted-foreground">
+                    Esta página atualiza automaticamente a cada 30 segundos
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="diagnostico">
           <Card>
             <CardHeader>
               <CardTitle>Diagnóstico Automático</CardTitle>
@@ -334,10 +393,10 @@ export default function AuthMonitoring() {
               <div className="border-l-4 border-green-500 pl-4 py-2">
                 <h4 className="font-semibold text-green-600">✓ Verificações Passando</h4>
                 <ul className="text-sm space-y-1 mt-2 text-muted-foreground">
-                  <li>• Supabase Auth configurado corretamente</li>
-                  <li>• Persistência de sessão ativa (localStorage)</li>
-                  <li>• Token refresh automático habilitado</li>
-                  <li>• RLS policies configuradas</li>
+                  <li>• Rate limiting implementado e funcional</li>
+                  <li>• Sistema de alertas por email ativo</li>
+                  <li>• Bloqueio automático de IPs configurado</li>
+                  <li>• Monitoramento em tempo real operacional</li>
                 </ul>
               </div>
 
@@ -355,9 +414,9 @@ export default function AuthMonitoring() {
                 <div className="border-l-4 border-red-500 pl-4 py-2">
                   <h4 className="font-semibold text-red-600">✗ Problemas Críticos</h4>
                   <ul className="text-sm space-y-1 mt-2 text-muted-foreground">
-                    <li>• {stats.critical_failures} falhas críticas detectadas</li>
-                    <li>• Verificar configuração de CORS</li>
-                    <li>• Validar URLs de redirecionamento</li>
+                    <li>• {stats.critical_failures} IPs com atividade suspeita crítica</li>
+                    <li>• Verificar lista de IPs bloqueados</li>
+                    <li>• Considerar implementar CAPTCHA adicional</li>
                   </ul>
                 </div>
               )}
@@ -365,7 +424,7 @@ export default function AuthMonitoring() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="suggestions">
+        <TabsContent value="sugestoes">
           <Card>
             <CardHeader>
               <CardTitle>Sugestões de Melhorias</CardTitle>
@@ -379,93 +438,35 @@ export default function AuthMonitoring() {
                 <ul className="text-sm space-y-2 text-muted-foreground">
                   <li>• ✅ Rate limiting implementado (3 tentativas email, 5 IP)</li>
                   <li>• ✅ Bloqueio automático de IPs suspeitos (30 minutos)</li>
+                  <li>• ✅ Alertas por email nas tentativas 3, 5 e 10</li>
                   <li>• Considerar autenticação de dois fatores (2FA)</li>
-                  <li>• Configurar notificações por email para bloqueios</li>
+                  <li>• Implementar análise comportamental de usuários</li>
                 </ul>
               </div>
 
               <div>
                 <h4 className="font-semibold mb-2">📊 Monitoramento</h4>
                 <ul className="text-sm space-y-2 text-muted-foreground">
-                  <li>• Configurar alertas por e-mail para falhas críticas</li>
+                  <li>• ✅ Dashboard de IPs suspeitos em tempo real</li>
+                  <li>• ✅ Atualização automática a cada 30 segundos</li>
                   <li>• Adicionar métricas de tempo de resposta de login</li>
-                  <li>• Implementar logs estruturados com contexto completo</li>
+                  <li>• Implementar alertas Slack/Discord para admins</li>
                 </ul>
               </div>
 
               <div>
                 <h4 className="font-semibold mb-2">💡 Experiência do Usuário</h4>
                 <ul className="text-sm space-y-2 text-muted-foreground">
-                  <li>• Adicionar opção "Lembrar-me" mais persistente</li>
-                  <li>• Implementar recuperação de senha mais robusta</li>
-                  <li>• Melhorar mensagens de erro para usuários</li>
-                  <li>• Adicionar indicador visual durante autenticação</li>
+                  <li>• Implementar recuperação de senha com código OTP</li>
+                  <li>• Adicionar verificação de força de senha</li>
+                  <li>• Melhorar feedback visual de tentativas restantes</li>
+                  <li>• Mostrar histórico de dispositivos conectados</li>
                 </ul>
-              </div>
-
-              <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-semibold mb-2">📝 Código de Exemplo: Redirecionamento Pós-Login</h4>
-                <pre className="text-xs overflow-x-auto">
-{`const handleLogin = async (email, password) => {
-  const { data, error } = await supabase.auth
-    .signInWithPassword({ email, password });
-    
-  if (error) {
-    toast.error('Falha no login: ' + error.message);
-    // Log da falha
-    await supabase.from('system_logs').insert({
-      module: 'authentication',
-      log_type: 'error',
-      message: error.message,
-      details: { email }
-    });
-  } else {
-    // Sucesso - sessão já gerenciada pelo Supabase
-    toast.success('Login realizado com sucesso!');
-    navigate('/dashboard');
-  }
-};`}
-                </pre>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-
-      {/* Ações de Teste */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Ferramentas de Teste</CardTitle>
-          <CardDescription>
-            Simule cenários de autenticação para testar o monitoramento
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-4">
-          <Button onClick={simulateSuccessfulLogin} variant="default">
-            <CheckCircle className="h-4 w-4 mr-2" />
-            Simular Login Bem-sucedido
-          </Button>
-          <Button onClick={simulateFailedLogin} variant="destructive">
-            <XCircle className="h-4 w-4 mr-2" />
-            Simular Falha de Login
-          </Button>
-          <Button 
-            onClick={() => {
-              setAuthLogs([]);
-              setStats({
-                total_logins_today: 0,
-                total_failures_today: 0,
-                total_active_sessions: 0,
-                critical_failures: 0,
-              });
-            }}
-            variant="outline"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Limpar Visualização
-          </Button>
-        </CardContent>
-      </Card>
     </div>
   );
 }

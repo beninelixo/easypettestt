@@ -310,34 +310,36 @@ const Servicos = () => {
         </Dialog>
       </div>
 
+      <Card className="border-primary bg-gradient-to-br from-primary/10 via-primary/5 to-background mb-6">
+        <CardContent className="flex items-center justify-between py-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+              <BookOpen className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold">💡 Catálogo de Serviços Prontos</h3>
+              <p className="text-sm text-muted-foreground">
+                61 serviços profissionais para adicionar instantaneamente
+              </p>
+            </div>
+          </div>
+          <Button onClick={() => window.location.href = "/petshop-dashboard/service-templates"} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Ver Catálogo
+          </Button>
+        </CardContent>
+      </Card>
+
       {services.length === 0 ? (
-        <>
-          <Card className="border-primary bg-gradient-to-br from-primary/10 via-primary/5 to-background">
-            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-4">
-                <Scissors className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-2xl font-bold mb-2">✨ Catálogo de Serviços Profissionais</h3>
-              <p className="text-muted-foreground mb-6 max-w-md">
-                Temos <span className="font-bold text-primary">61 serviços prontos</span> para você adicionar com um clique! 
-                Economize tempo e comece a agendar hoje mesmo.
-              </p>
-              <Button size="lg" onClick={() => window.location.href = "/petshop-dashboard/service-templates"} className="gap-2">
-                <BookOpen className="h-5 w-5" />
-                Ver Catálogo de Serviços
-              </Button>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Scissors className="h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Ou crie um serviço personalizado</h3>
-              <p className="text-muted-foreground mb-4">
-                Clique em "Novo Serviço" acima para criar do zero
-              </p>
-            </CardContent>
-          </Card>
-        </>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Scissors className="h-16 w-16 text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Nenhum serviço cadastrado ainda</h3>
+            <p className="text-muted-foreground mb-4">
+              Use o catálogo acima ou crie um serviço personalizado
+            </p>
+          </CardContent>
+        </Card>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {services.map((service) => (
