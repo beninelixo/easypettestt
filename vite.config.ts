@@ -35,12 +35,6 @@ export default defineConfig(({ mode }) => ({
     },
     chunkSizeWarningLimit: 600,
     sourcemap: false,
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: mode === 'production',
-      },
-    },
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom'],
