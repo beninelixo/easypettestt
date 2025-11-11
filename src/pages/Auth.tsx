@@ -307,7 +307,7 @@ const Auth = () => {
         if (userType === "pet_shop") {
           navigate("/petshop-dashboard");
         } else {
-          navigate("/client-dashboard");
+          navigate("/client/pets");
         }
       }, 1500);
     } catch (error: any) {

@@ -51,7 +51,7 @@ export default function PetShopSetup() {
 
       if (userRole !== 'pet_shop') {
         // User is not a pet shop professional, redirect to appropriate dashboard
-        navigate('/client-dashboard');
+        navigate('/client/pets');
         return;
       }
 

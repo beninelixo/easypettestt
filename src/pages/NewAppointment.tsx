@@ -128,7 +128,7 @@ const NewAppointment = () => {
         title: "Agendamento criado!",
         description: "Seu agendamento foi realizado com sucesso.",
       });
-      navigate("/client-dashboard");
+      navigate("/client/appointments");
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
@@ -152,7 +152,7 @@ const NewAppointment = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/client-dashboard")}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/client/schedule")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-2xl font-bold">Novo Agendamento</h1>

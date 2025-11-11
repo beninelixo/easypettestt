@@ -179,6 +179,8 @@ const App = () => {
               <ClientLayout />
             </ProtectedRoute>
           }>
+            <Route index element={<Navigate to="/client/pets" replace />} />
+            <Route path="dashboard" element={<ClientDashboard />} />
             <Route path="pets" element={<ClientPets />} />
             <Route path="pets/:petId" element={<PetProfile />} />
             <Route path="schedule" element={<ClientSchedule />} />
@@ -186,15 +188,11 @@ const App = () => {
             <Route path="profile" element={<ClientProfilePage />} />
           </Route>
           
-          {/* Legacy Client Routes for backward compatibility */}
+          {/* Legacy Client Routes - redirect to new routes */}
+          <Route path="/client-dashboard" element={<Navigate to="/client/dashboard" replace />} />
           <Route path="/select-petshop" element={
             <ProtectedRoute allowedRoles={["client"]}>
               <ClientSelectPetShop />
-            </ProtectedRoute>
-          } />
-          <Route path="/client-dashboard" element={
-            <ProtectedRoute allowedRoles={["client"]}>
-              <ClientDashboard />
             </ProtectedRoute>
           } />
           <Route path="/new-appointment" element={
