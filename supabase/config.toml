@@ -1,5 +1,11 @@
 project_id = "xkfkrdorghyagtwbxory"
 
+[functions.notify-appointment-changes]
+verify_jwt = true
+
+[functions.send-appointment-reminders]
+verify_jwt = true
+
 [functions.send-reset-code]
 verify_jwt = false
 

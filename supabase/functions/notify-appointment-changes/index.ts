@@ -1,23 +1,35 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface AppointmentPayload {
-  type: 'INSERT' | 'UPDATE';
-  record: {
-    id: string;
-    pet_shop_id: string;
-    client_id: string;
-    scheduled_date: string;
-    scheduled_time: string;
-    status: string;
-  };
-  old_record?: {
-    status: string;
-  };
+// Validation schemas
+const appointmentPayloadSchema = z.object({
+  type: z.enum(['INSERT', 'UPDATE']),
+  record: z.object({
+    id: z.string().uuid(),
+    pet_shop_id: z.string().uuid(),
+    client_id: z.string().uuid(),
+    scheduled_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    scheduled_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/),
+    status: z.enum(['pending', 'confirmed', 'in_progress', 'completed', 'cancelled']),
+  }),
+  old_record: z.object({
+    status: z.string(),
+  }).optional(),
+});
+
+// HTML sanitization helper
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 Deno.serve(async (req) => {
@@ -26,11 +38,43 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Verify service role authentication (for triggers/internal calls)
+    const authHeader = req.headers.get('Authorization');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    if (!authHeader || !authHeader.includes(supabaseServiceKey!)) {
+      console.error('❌ Unauthorized: Invalid or missing service role key');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401,
+        }
+      );
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const payload: AppointmentPayload = await req.json();
+    const rawPayload = await req.json();
+    
+    // Validate payload structure
+    const validation = appointmentPayloadSchema.safeParse(rawPayload);
+    if (!validation.success) {
+      console.error('❌ Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid payload', 
+          details: validation.error.errors 
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
+    }
+
+    const payload = validation.data;
     console.log('📅 Processando mudança no agendamento:', payload);
 
     const { record, type, old_record } = payload;
@@ -68,9 +112,9 @@ Deno.serve(async (req) => {
       .eq('id', record.client_id)
       .single();
 
-    const clientName = clientProfile?.full_name || 'Cliente';
+    const clientName = escapeHtml(clientProfile?.full_name || 'Cliente');
 
-    // Criar mensagem
+    // Criar mensagem sanitizada
     const message = isNewAppointment
       ? `🎉 Novo agendamento de ${clientName} para ${record.scheduled_date} às ${record.scheduled_time}`
       : `❌ Agendamento cancelado: ${clientName} em ${record.scheduled_date} às ${record.scheduled_time}`;
