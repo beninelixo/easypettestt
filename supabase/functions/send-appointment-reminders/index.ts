@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 import { Resend } from 'https://esm.sh/resend@2.0.0';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
@@ -7,6 +8,35 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// HTML sanitization helper
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// Validation schema for appointment data from database
+const appointmentSchema = z.object({
+  id: z.string().uuid(),
+  scheduled_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  scheduled_time: z.string(),
+  status: z.enum(['pending', 'confirmed']),
+  client_id: z.string().uuid(),
+  service: z.object({
+    name: z.string().max(100),
+  }).nullable(),
+  pet: z.object({
+    name: z.string().max(100),
+  }).nullable(),
+  pet_shop: z.object({
+    name: z.string().max(200),
+    phone: z.string().max(20),
+  }).nullable(),
+});
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -16,6 +46,21 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    // Verify service role authentication (for cron/internal calls)
+    const authHeader = req.headers.get('Authorization');
+    
+    if (!authHeader || !authHeader.includes(supabaseServiceKey)) {
+      console.error('❌ Unauthorized: Invalid or missing service role key');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401,
+        }
+      );
+    }
+
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     console.log('🔔 Iniciando envio de lembretes de agendamentos...');
@@ -67,25 +112,37 @@ Deno.serve(async (req) => {
     // Enviar lembretes para cada agendamento
     for (const appointment of appointments) {
       try {
+        // Validate appointment data
+        const validation = appointmentSchema.safeParse(appointment);
+        if (!validation.success) {
+          console.error(`⚠️ Dados inválidos para agendamento ${appointment.id}:`, validation.error);
+          failCount++;
+          continue;
+        }
+
+        const validAppointment = validation.data;
+
         // Buscar email do cliente
         const { data: userData, error: userError } = await supabase.auth.admin.getUserById(
-          appointment.client_id
+          validAppointment.client_id
         );
 
         if (userError || !userData.user?.email) {
-          console.error(`⚠️ Email não encontrado para cliente ${appointment.client_id}`);
+          console.error(`⚠️ Email não encontrado para cliente ${validAppointment.client_id}`);
           failCount++;
           continue;
         }
 
         const email = userData.user.email;
-        const appointmentTime = appointment.scheduled_time.substring(0, 5);
-        const serviceName = appointment.service?.name || 'Serviço';
-        const petName = appointment.pet?.name || 'seu pet';
-        const petShopName = appointment.pet_shop?.name || 'o estabelecimento';
+        const appointmentTime = validAppointment.scheduled_time.substring(0, 5);
+        
+        // Sanitize user-controlled data for HTML
+        const serviceName = escapeHtml(validAppointment.service?.name || 'Serviço');
+        const petName = escapeHtml(validAppointment.pet?.name || 'seu pet');
+        const petShopName = escapeHtml(validAppointment.pet_shop?.name || 'o estabelecimento');
 
         // Formatar data em português
-        const dateObj = new Date(appointment.scheduled_date + 'T00:00:00');
+        const dateObj = new Date(validAppointment.scheduled_date + 'T00:00:00');
         const formattedDate = dateObj.toLocaleDateString('pt-BR', {
           day: '2-digit',
           month: 'long',
@@ -143,8 +200,8 @@ Deno.serve(async (req) => {
 
         // Registrar envio no banco
         await supabase.from('notifications').insert({
-          client_id: appointment.client_id,
-          appointment_id: appointment.id,
+          client_id: validAppointment.client_id,
+          appointment_id: validAppointment.id,
           notification_type: 'lembrete',
           channel: 'email',
           message: `Lembrete: Agendamento amanhã às ${appointmentTime}`,
@@ -155,7 +212,7 @@ Deno.serve(async (req) => {
         console.log(`✅ Lembrete enviado com sucesso para ${email}`);
         successCount++;
       } catch (error: any) {
-        console.error(`❌ Erro ao processar agendamento ${appointment.id}:`, error);
+        console.error(`❌ Erro ao processar agendamento ${(appointment as any).id}:`, error);
         failCount++;
       }
     }
