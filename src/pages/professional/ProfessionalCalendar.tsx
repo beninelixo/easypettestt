@@ -139,6 +139,7 @@ const ProfessionalCalendar = () => {
       `)
       .eq("pet_shop_id", shopId)
       .gte("scheduled_date", today)
+      .in("status", ["pending", "confirmed"])
       .order("scheduled_date", { ascending: true })
       .order("scheduled_time", { ascending: true })
       .limit(10);
@@ -152,7 +153,7 @@ const ProfessionalCalendar = () => {
             .select("full_name, phone")
             .eq("id", apt.client_id)
             .single();
-          return { ...apt, client: clientData || { full_name: "N/A", phone: "" } } as any;
+          return { ...apt, client: clientData || { full_name: "Cliente não encontrado", phone: "" } } as any;
         })
       );
       setUpcomingAppointments(withClients as any);
@@ -445,25 +446,32 @@ const ProfessionalCalendar = () => {
       {/* Próximos agendamentos (independente do dia selecionado) */}
       <Card>
         <CardHeader>
-          <CardTitle>Próximos agendamentos</CardTitle>
+          <CardTitle>Próximos agendamentos (Pendentes/Confirmados)</CardTitle>
         </CardHeader>
         <CardContent>
           {upcomingAppointments.length === 0 ? (
-            <p className="text-muted-foreground">Nenhum agendamento futuro.</p>
+            <p className="text-muted-foreground">Nenhum agendamento pendente ou confirmado.</p>
           ) : (
             <div className="space-y-3">
               {upcomingAppointments.map((apt) => (
-                <div key={apt.id} className="flex items-center justify-between border rounded-md p-3">
-                  <div className="space-y-1">
-                    <div className="text-sm font-medium">{apt.service.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {format(new Date(apt.scheduled_date), "dd 'de' MMMM", { locale: ptBR })} • {apt.scheduled_time}
+                <div key={apt.id} className="flex flex-col border rounded-md p-3 gap-2">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1 flex-1">
+                      <div className="text-sm font-semibold">{apt.service.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        📅 {format(new Date(apt.scheduled_date + 'T00:00:00'), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })} às {apt.scheduled_time.substring(0, 5)}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        👤 Cliente: {(apt as any).client?.full_name || "N/A"}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        🐾 Pet: {apt.pet?.name || "N/A"}
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground">Cliente: {(apt as any).client?.full_name}</div>
+                    <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${getStatusColor(apt.status)}`}>
+                      {getStatusLabel(apt.status)}
+                    </span>
                   </div>
-                  <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
-                    {apt.status}
-                  </span>
                 </div>
               ))}
             </div>
