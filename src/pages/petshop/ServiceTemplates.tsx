@@ -66,6 +66,23 @@ const ServiceTemplates = () => {
         return;
       }
 
+      // Check for duplicates
+      const { data: existingService } = await supabase
+        .from("services")
+        .select("id, name")
+        .eq("pet_shop_id", petShop.id)
+        .eq("name", template.name)
+        .maybeSingle();
+
+      if (existingService) {
+        toast({
+          title: "Serviço já existe",
+          description: `Você já tem um serviço chamado "${template.name}" cadastrado`,
+          variant: "default",
+        });
+        return;
+      }
+
       // Calculate average price
       const avgPrice =
         template.suggested_price_min && template.suggested_price_max
@@ -87,7 +104,7 @@ const ServiceTemplates = () => {
       setAddedServices((prev) => new Set(prev).add(template.id));
 
       toast({
-        title: "Serviço adicionado!",
+        title: "✅ Serviço adicionado!",
         description: `${template.name} foi adicionado aos seus serviços`,
       });
     } catch (error: any) {

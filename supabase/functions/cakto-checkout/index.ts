@@ -109,55 +109,72 @@ serve(async (req) => {
     let caktoCustomerId = petShop.cakto_customer_id;
     
     if (!caktoCustomerId) {
-      const customerResponse = await fetch('https://api.cakto.com.br/v1/customers', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${caktoApiKey}`,
-          'Content-Type': 'application/json',
-        },
-      body: JSON.stringify({
-        name: petShop.name,
-        email: petShop.email || user.email,
-        phone: petShop.phone,
-        document: petShop.cnpj || '',
-      }),
-      });
+      // Try creating customer - if fails, proceed without it
+      try {
+        const customerResponse = await fetch('https://api.cakto.com.br/api/v1/customers', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${caktoApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: petShop.name,
+            email: petShop.email || user.email,
+            phone: petShop.phone,
+            document: petShop.cnpj || '',
+          }),
+        });
 
-      if (!customerResponse.ok) {
-        const errorText = await customerResponse.text();
-        console.error('Error creating customer:', errorText);
-        throw new Error('Failed to create customer in Cakto');
+        if (customerResponse.ok) {
+          const customerData = await customerResponse.json();
+          caktoCustomerId = customerData.id;
+
+          // Update pet_shops with cakto_customer_id
+          await supabaseAdmin
+            .from('pet_shops')
+            .update({ cakto_customer_id: caktoCustomerId })
+            .eq('id', petshop_id);
+        } else {
+          const errorText = await customerResponse.text();
+          console.warn('Customer creation failed, continuing without customer_id:', errorText);
+          // Continue without customer ID - some Cakto endpoints might not require it
+        }
+      } catch (custError) {
+        console.warn('Customer creation failed:', custError);
+        // Continue without customer ID
       }
-
-      const customerData = await customerResponse.json();
-      caktoCustomerId = customerData.id;
-
-      // Update pet_shops with cakto_customer_id
-      await supabaseAdmin
-        .from('pet_shops')
-        .update({ cakto_customer_id: caktoCustomerId })
-        .eq('id', petshop_id);
     }
 
     // Create subscription checkout
-    const checkoutResponse = await fetch('https://api.cakto.com.br/v1/checkout/subscription', {
+    const checkoutBody: any = {
+      plan_name: PLAN_NAMES[plan],
+      amount: PLAN_PRICES[plan],
+      interval: 'monthly',
+      success_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/cakto-success?petshop_id=${petshop_id}&plan=${plan}`,
+      cancel_url: `${req.headers.get('origin')}/professional/plans?cancelled=true`,
+      customer_name: petShop.name,
+      customer_email: petShop.email || user.email,
+      metadata: {
+        petshop_id,
+        plan,
+        user_id: user.id,
+      },
+    };
+
+    // Add customer_id if we have it
+    if (caktoCustomerId) {
+      checkoutBody.customer_id = caktoCustomerId;
+    }
+
+    console.log('Creating checkout with body:', JSON.stringify(checkoutBody, null, 2));
+
+    const checkoutResponse = await fetch('https://api.cakto.com.br/api/v1/checkout/subscriptions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${caktoApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        customer_id: caktoCustomerId,
-        plan_name: PLAN_NAMES[plan],
-        amount: PLAN_PRICES[plan],
-        interval: 'monthly',
-        success_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/cakto-success?petshop_id=${petshop_id}&plan=${plan}`,
-        cancel_url: `${req.headers.get('origin')}/professional/plans?cancelled=true`,
-        metadata: {
-          petshop_id,
-          plan,
-        },
-      }),
+      body: JSON.stringify(checkoutBody),
     });
 
     if (!checkoutResponse.ok) {

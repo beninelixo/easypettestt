@@ -17,7 +17,7 @@ import { useAuth } from "@/hooks/useAuth";
 const navigationItems = [
   { title: "Dashboard", url: "/petshop-dashboard", icon: Home, tourId: undefined },
   { title: "Serviços", url: "/petshop-dashboard/servicos", icon: Scissors, tourId: "services-menu" },
-  { title: "Catálogo de Serviços", url: "/petshop-dashboard/catalogo-servicos", icon: BookOpen, tourId: undefined },
+  { title: "Catálogo de Serviços", url: "/petshop-dashboard/service-templates", icon: BookOpen, tourId: "catalog-menu", badge: "61" },
   { title: "WhatsApp", url: "/petshop-dashboard/whatsapp", icon: MessageSquare, tourId: undefined },
   { title: "Analytics", url: "/petshop-dashboard/analytics", icon: BarChart3, tourId: "analytics-menu" },
   { title: "Clientes", url: "/petshop-dashboard/clientes", icon: Users, tourId: "clients-menu" },
@@ -63,7 +63,16 @@ export function PetShopSidebar() {
                       data-tour={item.tourId}
                     >
                       <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!collapsed && (
+                        <span className="flex items-center gap-2 flex-1">
+                          {item.title}
+                          {item.badge && (
+                            <span className="ml-auto text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-semibold">
+                              {item.badge}
+                            </span>
+                          )}
+                        </span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

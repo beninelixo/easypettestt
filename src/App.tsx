@@ -78,7 +78,7 @@ const ProfessionalLayout = lazy(() => import("./pages/professional/ProfessionalL
 const ProfessionalDashboard = lazy(() => import("./pages/professional/ProfessionalDashboard"));
 const ProfessionalCalendar = lazy(() => import("./pages/professional/ProfessionalCalendar"));
 const ProfessionalServices = lazy(() => import("./pages/professional/ProfessionalServices"));
-const ProfessionalClients = lazy(() => import("./pages/professional/ProfessionalClients"));
+const ProfessionalClients = lazy(() => import("./pages/professional/ProfessionalClientsEnhanced"));
 const ProfessionalReports = lazy(() => import("./pages/professional/ProfessionalReports"));
 const ProfessionalProfile = lazy(() => import("./pages/professional/ProfessionalProfile"));
 const ProfessionalPlans = lazy(() => import("./pages/professional/ProfessionalPlans"));
@@ -96,6 +96,7 @@ const PerformanceDashboard = lazy(() => import("./pages/admin/PerformanceDashboa
 const BackupManagement = lazy(() => import("./pages/admin/BackupManagement"));
 const EmailSystemTest = lazy(() => import("./pages/admin/EmailSystemTest"));
 const ResendDomainSetup = lazy(() => import("./pages/admin/ResendDomainSetup"));
+const GodModeDashboard = lazy(() => import("./pages/admin/GodModeDashboard"));
 
 const queryClient = new QueryClient();
 
@@ -249,7 +250,7 @@ const App = () => {
           }>
             <Route index element={<Navigate to="/professional/dashboard" replace />} />
             <Route path="servicos" element={<Servicos />} />
-            <Route path="catalogo-servicos" element={<ServiceTemplates />} />
+            <Route path="service-templates" element={<ServiceTemplates />} />
             <Route path="whatsapp" element={<WhatsAppSettings />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="clientes" element={<Clientes />} />
@@ -303,7 +304,7 @@ const App = () => {
           } />
           <Route path="/god-mode-dashboard" element={
             <ProtectedRoute allowedRoles={["admin"]}>
-              <SystemMonitoringDashboard />
+              <GodModeDashboard />
             </ProtectedRoute>
           } />
           

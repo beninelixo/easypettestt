@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, DollarSign, Clock, Scissors } from "lucide-react";
+import { Plus, Edit, Trash2, DollarSign, Clock, Scissors, BookOpen } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -311,15 +311,33 @@ const Servicos = () => {
       </div>
 
       {services.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Scissors className="h-16 w-16 text-muted-foreground mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Nenhum serviço cadastrado</h3>
-            <p className="text-muted-foreground mb-4">
-              Comece adicionando os serviços que você oferece
-            </p>
-          </CardContent>
-        </Card>
+        <>
+          <Card className="border-primary bg-gradient-to-br from-primary/10 via-primary/5 to-background">
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-4">
+                <Scissors className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-2xl font-bold mb-2">✨ Catálogo de Serviços Profissionais</h3>
+              <p className="text-muted-foreground mb-6 max-w-md">
+                Temos <span className="font-bold text-primary">61 serviços prontos</span> para você adicionar com um clique! 
+                Economize tempo e comece a agendar hoje mesmo.
+              </p>
+              <Button size="lg" onClick={() => window.location.href = "/petshop-dashboard/service-templates"} className="gap-2">
+                <BookOpen className="h-5 w-5" />
+                Ver Catálogo de Serviços
+              </Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <Scissors className="h-16 w-16 text-muted-foreground mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Ou crie um serviço personalizado</h3>
+              <p className="text-muted-foreground mb-4">
+                Clique em "Novo Serviço" acima para criar do zero
+              </p>
+            </CardContent>
+          </Card>
+        </>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {services.map((service) => (
