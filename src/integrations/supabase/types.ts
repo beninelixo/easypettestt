@@ -19,6 +19,7 @@ export type Database = {
           client_id: string
           completed_at: string | null
           created_at: string
+          deleted_at: string | null
           id: string
           notes: string | null
           pet_id: string
@@ -33,6 +34,7 @@ export type Database = {
           client_id: string
           completed_at?: string | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           notes?: string | null
           pet_id: string
@@ -47,6 +49,7 @@ export type Database = {
           client_id?: string
           completed_at?: string | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           notes?: string | null
           pet_id?: string
@@ -978,6 +981,7 @@ export type Database = {
           city: string | null
           code: string
           created_at: string
+          deleted_at: string | null
           description: string | null
           email: string | null
           hours: string | null
@@ -998,6 +1002,7 @@ export type Database = {
           city?: string | null
           code: string
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           email?: string | null
           hours?: string | null
@@ -1018,6 +1023,7 @@ export type Database = {
           city?: string | null
           code?: string
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           email?: string | null
           hours?: string | null
@@ -1039,6 +1045,7 @@ export type Database = {
           allergies: string | null
           breed: string | null
           created_at: string
+          deleted_at: string | null
           id: string
           name: string
           observations: string | null
@@ -1052,6 +1059,7 @@ export type Database = {
           allergies?: string | null
           breed?: string | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           name: string
           observations?: string | null
@@ -1065,6 +1073,7 @@ export type Database = {
           allergies?: string | null
           breed?: string | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           name?: string
           observations?: string | null
@@ -1123,6 +1132,7 @@ export type Database = {
           category: string
           cost_price: number
           created_at: string | null
+          deleted_at: string | null
           description: string | null
           expiry_date: string | null
           id: string
@@ -1140,6 +1150,7 @@ export type Database = {
           category: string
           cost_price: number
           created_at?: string | null
+          deleted_at?: string | null
           description?: string | null
           expiry_date?: string | null
           id?: string
@@ -1157,6 +1168,7 @@ export type Database = {
           category?: string
           cost_price?: number
           created_at?: string | null
+          deleted_at?: string | null
           description?: string | null
           expiry_date?: string | null
           id?: string
@@ -1394,6 +1406,7 @@ export type Database = {
         Row: {
           active: boolean
           created_at: string
+          deleted_at: string | null
           description: string | null
           duration_minutes: number
           id: string
@@ -1405,6 +1418,7 @@ export type Database = {
         Insert: {
           active?: boolean
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           duration_minutes: number
           id?: string
@@ -1416,6 +1430,7 @@ export type Database = {
         Update: {
           active?: boolean
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           duration_minutes?: number
           id?: string
