@@ -38,11 +38,13 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
     // Verify service role authentication (for triggers/internal calls)
     const authHeader = req.headers.get('Authorization');
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     
-    if (!authHeader || !authHeader.includes(supabaseServiceKey!)) {
+    if (!authHeader || !authHeader.includes(supabaseServiceKey)) {
       console.error('❌ Unauthorized: Invalid or missing service role key');
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
@@ -53,7 +55,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const rawPayload = await req.json();
