@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
-import { Shield } from "lucide-react";
+import { Shield, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function AdminLayout() {
@@ -19,6 +19,10 @@ export default function AdminLayout() {
                 <Shield className="h-6 w-6 text-primary" />
                 <h1 className="text-xl font-bold">Painel Administrativo</h1>
                 <Badge variant="default" className="bg-primary/10 text-primary">Admin</Badge>
+                <Badge variant="destructive" className="animate-pulse">
+                  <Zap className="h-3 w-3 mr-1" />
+                  MODO DEUS
+                </Badge>
               </div>
             </div>
           </header>

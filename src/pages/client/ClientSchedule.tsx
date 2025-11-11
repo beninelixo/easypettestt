@@ -17,7 +17,7 @@ const ClientSchedule = () => {
           <p className="text-muted-foreground mb-6">
             Escolha o petshop onde deseja realizar o serviço
           </p>
-          <Button onClick={() => navigate("/select-petshop")}>
+          <Button onClick={() => navigate("/client/select-petshop")}>
             Ver PetShops Disponíveis
           </Button>
         </CardContent>

@@ -1,17 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useAdminStats } from "@/hooks/useAdminStats";
+import { useGodActions } from "@/hooks/useGodActions";
 import { 
   Building2, Users, Calendar, DollarSign, Shield, Database, 
   Mail, HardDrive, AlertTriangle, CheckCircle, Clock, Activity,
-  TrendingUp
+  TrendingUp, Zap, Brain, Loader2
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function AdminDashboard() {
   const { stats, systemHealth, security, recentActivity, isLoading } = useAdminStats();
+  const { executeAction, loadingAction } = useGodActions();
 
   if (isLoading) {
     return (
@@ -191,6 +195,129 @@ export default function AdminDashboard() {
               <div className="text-3xl font-bold">{security.mfaUsers}</div>
               <p className="text-sm text-muted-foreground mt-1">Usuários com MFA</p>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Ações Rápidas de Administração */}
+      <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="h-6 w-6 text-primary animate-pulse" />
+            Ações Rápidas de Administração
+          </CardTitle>
+          <CardDescription>
+            Executar operações críticas de manutenção do sistema
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-28 flex flex-col gap-2 border-primary/30 hover:bg-primary/10 hover:border-primary hover:text-primary transition-all"
+              onClick={() => executeAction('cleanup')}
+              disabled={loadingAction !== null}
+            >
+              {loadingAction === 'cleanup' ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : (
+                <Activity className="h-6 w-6" />
+              )}
+              <div className="text-center text-sm">
+                <div className="font-bold">Limpeza</div>
+                <div className="text-xs text-muted-foreground">Dados antigos</div>
+              </div>
+            </Button>
+
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-28 flex flex-col gap-2 border-blue-500/30 hover:bg-blue-500/10 hover:border-blue-500 hover:text-blue-500 transition-all"
+              onClick={() => executeAction('fix_rls')}
+              disabled={loadingAction !== null}
+            >
+              {loadingAction === 'fix_rls' ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : (
+                <Shield className="h-6 w-6" />
+              )}
+              <div className="text-center text-sm">
+                <div className="font-bold">Verificar RLS</div>
+                <div className="text-xs text-muted-foreground">Segurança</div>
+              </div>
+            </Button>
+
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-28 flex flex-col gap-2 border-purple-500/30 hover:bg-purple-500/10 hover:border-purple-500 hover:text-purple-500 transition-all"
+              onClick={() => executeAction('fix_duplicates')}
+              disabled={loadingAction !== null}
+            >
+              {loadingAction === 'fix_duplicates' ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : (
+                <Brain className="h-6 w-6" />
+              )}
+              <div className="text-center text-sm">
+                <div className="font-bold">Duplicatas</div>
+                <div className="text-xs text-muted-foreground">Detecção IA</div>
+              </div>
+            </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="h-28 flex flex-col gap-2 border-green-500/30 hover:bg-green-500/10 hover:border-green-500 hover:text-green-500 transition-all"
+                  disabled={loadingAction !== null}
+                >
+                  {loadingAction === 'backup' ? (
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  ) : (
+                    <Database className="h-6 w-6" />
+                  )}
+                  <div className="text-center text-sm">
+                    <div className="font-bold">Backup</div>
+                    <div className="text-xs text-muted-foreground">Completo</div>
+                  </div>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Confirmar Backup Completo</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Isso criará um backup completo do banco de dados. O processo pode levar alguns minutos.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => executeAction('backup')}>
+                    Confirmar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-28 flex flex-col gap-2 border-orange-500/30 hover:bg-orange-500/10 hover:border-orange-500 hover:text-orange-500 transition-all"
+              onClick={() => executeAction('ai_analysis')}
+              disabled={loadingAction !== null}
+            >
+              {loadingAction === 'ai_analysis' ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : (
+                <Brain className="h-6 w-6" />
+              )}
+              <div className="text-center text-sm">
+                <div className="font-bold">Análise IA</div>
+                <div className="text-xs text-muted-foreground">Sistema</div>
+              </div>
+            </Button>
           </div>
         </CardContent>
       </Card>

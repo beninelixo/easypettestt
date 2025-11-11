@@ -3,12 +3,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Heart, Award, TrendingUp, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function EnhancedClientDashboard() {
+  const navigate = useNavigate();
   const { data: session } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
@@ -169,7 +171,12 @@ export function EnhancedClientDashboard() {
                       R$ {appointment.service?.price?.toFixed(2)}
                     </p>
                     {appointment.status === 'completed' && (
-                      <Button variant="ghost" size="sm" className="mt-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="mt-2"
+                        onClick={() => navigate('/client/appointments')}
+                      >
                         <Star className="h-4 w-4 mr-1" />
                         Avaliar
                       </Button>
@@ -182,7 +189,12 @@ export function EnhancedClientDashboard() {
             <div className="text-center py-8 text-muted-foreground">
               <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Nenhum agendamento ainda</p>
-              <Button variant="outline" size="sm" className="mt-4">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mt-4"
+                onClick={() => navigate('/client/schedule')}
+              >
                 Fazer primeiro agendamento
               </Button>
             </div>
