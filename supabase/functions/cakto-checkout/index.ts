@@ -72,7 +72,7 @@ serve(async (req) => {
     // 4. CRITICAL: Verify ownership before proceeding
     const { data: petShop, error: petShopError } = await supabaseAdmin
       .from('pet_shops')
-      .select('*, profiles:owner_id(*)')
+      .select('*')
       .eq('id', petshop_id)
       .eq('owner_id', user.id)  // ← OWNERSHIP CHECK
       .single();
@@ -115,12 +115,12 @@ serve(async (req) => {
           'Authorization': `Bearer ${caktoApiKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name: petShop.name,
-          email: petShop.email || petShop.profiles?.email,
-          phone: petShop.phone,
-          document: petShop.cnpj || '',
-        }),
+      body: JSON.stringify({
+        name: petShop.name,
+        email: petShop.email || user.email,
+        phone: petShop.phone,
+        document: petShop.cnpj || '',
+      }),
       });
 
       if (!customerResponse.ok) {
