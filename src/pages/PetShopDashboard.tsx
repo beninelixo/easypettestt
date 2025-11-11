@@ -10,6 +10,10 @@ import { ptBR } from "date-fns/locale";
 import RevenueChart from "@/components/dashboard/RevenueChart";
 import AppointmentsChart from "@/components/dashboard/AppointmentsChart";
 import { StatCardSkeleton, CardSkeleton } from "@/components/ui/skeleton-loader";
+import { PeakHoursChart } from "@/components/dashboard/PeakHoursChart";
+import { NoShowMetrics } from "@/components/dashboard/NoShowMetrics";
+import { ServiceBreakdownChart } from "@/components/dashboard/ServiceBreakdownChart";
+import { useRealtimeMetrics } from "@/hooks/useRealtimeMetrics";
 
 const PetShopDashboard = () => {
   const { user } = useAuth();
@@ -25,12 +29,23 @@ const PetShopDashboard = () => {
   });
   const [revenueData, setRevenueData] = useState<Array<{ month: string; revenue: number }>>([]);
   const [weekData, setWeekData] = useState<Array<{ day: string; completed: number; cancelled: number; pending: number }>>([]);
+  const [peakHours, setPeakHours] = useState<Array<{ hour: number; appointment_count: number }>>([]);
+  const [noShowStats, setNoShowStats] = useState<any>(null);
+  const [serviceBreakdown, setServiceBreakdown] = useState<Array<any>>([]);
+
+  const { lastUpdate } = useRealtimeMetrics(petShopId);
 
   useEffect(() => {
     if (user) {
       loadPetShopAndData();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (petShopId) {
+      loadAllMetrics();
+    }
+  }, [petShopId, lastUpdate]);
 
   const loadPetShopAndData = async () => {
     setLoading(true);
@@ -72,6 +87,16 @@ const PetShopDashboard = () => {
     if (!error && data) {
       setAppointments(data);
     }
+  };
+
+  const loadAllMetrics = async () => {
+    if (!petShopId) return;
+    await Promise.all([
+      loadStats(petShopId),
+      loadPeakHours(petShopId),
+      loadNoShowStats(petShopId),
+      loadServiceBreakdown(petShopId)
+    ]);
   };
 
   const loadStats = async (shopId: string) => {
@@ -120,6 +145,21 @@ const PetShopDashboard = () => {
         cancelled: Number(item.cancelled)
       })));
     }
+  };
+
+  const loadPeakHours = async (shopId: string) => {
+    const { data } = await supabase.rpc('get_peak_hours', { _pet_shop_id: shopId });
+    if (data) setPeakHours(data);
+  };
+
+  const loadNoShowStats = async (shopId: string) => {
+    const { data } = await supabase.rpc('get_no_show_stats', { _pet_shop_id: shopId });
+    if (data) setNoShowStats(data);
+  };
+
+  const loadServiceBreakdown = async (shopId: string) => {
+    const { data } = await supabase.rpc('get_appointments_by_service', { _pet_shop_id: shopId });
+    if (data) setServiceBreakdown(data);
   };
 
   const updateAppointmentStatus = async (appointmentId: string, newStatus: string) => {
@@ -197,6 +237,18 @@ const PetShopDashboard = () => {
         <div className="grid lg:grid-cols-2 gap-6">
           <RevenueChart data={revenueData} />
           <AppointmentsChart data={weekData} />
+        </div>
+
+        {/* New Metrics */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          <PeakHoursChart data={peakHours} />
+          <ServiceBreakdownChart data={serviceBreakdown} />
+        </div>
+
+        {noShowStats && <NoShowMetrics stats={noShowStats} />}
+
+        <div className="text-xs text-muted-foreground text-right">
+          Última atualização: {lastUpdate.toLocaleTimeString('pt-BR')}
         </div>
 
         {/* Today's Schedule */}

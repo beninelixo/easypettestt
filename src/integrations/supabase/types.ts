@@ -1914,6 +1914,15 @@ export type Database = {
       cleanup_old_logs: { Args: never; Returns: number }
       generate_pet_shop_code: { Args: never; Returns: string }
       generate_user_code: { Args: never; Returns: string }
+      get_appointments_by_service: {
+        Args: { _days_back?: number; _pet_shop_id: string }
+        Returns: {
+          avg_duration: number
+          revenue: number
+          service_count: number
+          service_name: string
+        }[]
+      }
       get_consolidated_metrics: {
         Args: {
           _end_date: string
@@ -1936,7 +1945,18 @@ export type Database = {
           revenue: number
         }[]
       }
+      get_no_show_stats: {
+        Args: { _date_end?: string; _date_start?: string; _pet_shop_id: string }
+        Returns: Json
+      }
       get_notification_queue_stats: { Args: never; Returns: Json }
+      get_peak_hours: {
+        Args: { _days_back?: number; _pet_shop_id: string }
+        Returns: {
+          appointment_count: number
+          hour: number
+        }[]
+      }
       get_security_stats: { Args: never; Returns: Json }
       get_system_health: { Args: never; Returns: Json }
       get_system_stats: { Args: never; Returns: Json }
