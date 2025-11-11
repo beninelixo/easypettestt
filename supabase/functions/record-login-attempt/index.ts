@@ -22,17 +22,6 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Require service role authentication to prevent log pollution
-    const authHeader = req.headers.get('Authorization');
-    const token = authHeader?.replace('Bearer ', '');
-    
-    if (token !== supabaseServiceKey) {
-      return new Response(
-        JSON.stringify({ error: 'Service role required' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     const { email, success, ip_address, user_agent }: RecordAttemptRequest = await req.json();
 
     if (!email || success === undefined) {
