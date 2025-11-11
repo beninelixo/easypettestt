@@ -13,6 +13,17 @@ import { Calendar as CalendarIcon, Clock, Plus, CheckCircle, PlayCircle, XCircle
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+
+const appointmentSchema = z.object({
+  pet_id: z.string().uuid("Pet inválido"),
+  service_id: z.string().uuid("Serviço inválido"),
+  pet_shop_id: z.string().uuid("Pet shop inválido"),
+  client_id: z.string().uuid("Cliente inválido"),
+  scheduled_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida"),
+  scheduled_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, "Horário inválido (formato HH:MM)"),
+  notes: z.string().max(500, "Observações devem ter no máximo 500 caracteres").optional(),
+});
 
 interface Appointment {
   id: string;
@@ -203,16 +214,27 @@ const ProfessionalCalendar = () => {
         return;
       }
 
-      const { error } = await supabase.from("appointments").insert({
-        pet_shop_id: petShop.id,
-        client_id: formData.client_id,
+      // Validate input data with Zod
+      const appointmentData = appointmentSchema.parse({
         pet_id: formData.pet_id,
         service_id: formData.service_id,
+        pet_shop_id: petShop.id,
+        client_id: formData.client_id,
         scheduled_date: format(selectedDate, "yyyy-MM-dd"),
         scheduled_time: formData.scheduled_time,
-        notes: formData.notes,
-        status: "pending",
+        notes: formData.notes || "",
       });
+
+      const { error } = await supabase.from("appointments").insert([{
+        pet_id: appointmentData.pet_id,
+        service_id: appointmentData.service_id,
+        pet_shop_id: appointmentData.pet_shop_id,
+        client_id: appointmentData.client_id,
+        scheduled_date: appointmentData.scheduled_date,
+        scheduled_time: appointmentData.scheduled_time,
+        notes: appointmentData.notes,
+        status: "pending",
+      }]);
 
       if (error) throw error;
 
@@ -231,11 +253,19 @@ const ProfessionalCalendar = () => {
       });
       loadAppointments();
     } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível criar o agendamento.",
-        variant: "destructive",
-      });
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Validação falhou",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: "Não foi possível criar o agendamento.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
