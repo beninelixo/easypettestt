@@ -35,6 +35,8 @@ const NewAppointment = () => {
   const [selectedTime, setSelectedTime] = useState("");
   const [loading, setLoading] = useState(false);
   const [petShopId, setPetShopId] = useState<string | null>(null);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
 
   const timeSlots = [
     "08:00", "09:00", "10:00", "11:00", "12:00",
@@ -84,6 +86,79 @@ const NewAppointment = () => {
       setServices(data);
     }
   };
+
+  const loadExistingAppointments = async (date: Date, petShopId: string) => {
+    const { data, error } = await supabase
+      .from("appointments")
+      .select("scheduled_time, service:services(duration_minutes)")
+      .eq("pet_shop_id", petShopId)
+      .eq("scheduled_date", format(date, "yyyy-MM-dd"))
+      .in("status", ["pending", "confirmed", "in_progress"]);
+    
+    return data || [];
+  };
+
+  const getOccupiedTimeRanges = (appointments: any[]) => {
+    return appointments.map(apt => {
+      const [hour, minute] = apt.scheduled_time.split(':').map(Number);
+      const startMinutes = hour * 60 + minute;
+      const endMinutes = startMinutes + (apt.service?.duration_minutes || 60);
+      return { start: startMinutes, end: endMinutes };
+    });
+  };
+
+  const getAvailableTimeSlots = (occupiedRanges: any[], serviceDuration: number) => {
+    return timeSlots.filter(slot => {
+      const [hour, minute] = slot.split(':').map(Number);
+      const slotStart = hour * 60 + minute;
+      const slotEnd = slotStart + serviceDuration;
+      
+      // Verifica se há conflito com algum agendamento existente
+      return !occupiedRanges.some(range => 
+        (slotStart >= range.start && slotStart < range.end) || // início no meio
+        (slotEnd > range.start && slotEnd <= range.end) ||     // fim no meio
+        (slotStart <= range.start && slotEnd >= range.end)     // engloba totalmente
+      );
+    });
+  };
+
+  useEffect(() => {
+    const checkAvailability = async () => {
+      if (!selectedDate || !selectedService || !petShopId) {
+        setAvailableTimeSlots(timeSlots);
+        return;
+      }
+
+      setCheckingAvailability(true);
+      try {
+        const selectedServiceData = services.find(s => s.id === selectedService);
+        if (!selectedServiceData) {
+          setAvailableTimeSlots(timeSlots);
+          return;
+        }
+
+        const existingAppointments = await loadExistingAppointments(selectedDate, petShopId);
+        const occupiedRanges = getOccupiedTimeRanges(existingAppointments);
+        const available = getAvailableTimeSlots(occupiedRanges, selectedServiceData.duration_minutes);
+        
+        setAvailableTimeSlots(available);
+        
+        // Se o horário selecionado não está mais disponível, limpar
+        if (selectedTime && !available.includes(selectedTime)) {
+          setSelectedTime("");
+          toast({
+            title: "Horário indisponível",
+            description: "O horário selecionado não está mais disponível. Por favor, escolha outro.",
+            variant: "destructive",
+          });
+        }
+      } finally {
+        setCheckingAvailability(false);
+      }
+    };
+
+    checkAvailability();
+  }, [selectedDate, selectedService, petShopId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -261,21 +336,35 @@ const NewAppointment = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="time">Selecione o Horário</Label>
-                <Select value={selectedTime} onValueChange={setSelectedTime}>
+                {checkingAvailability && (
+                  <p className="text-sm text-muted-foreground">Verificando disponibilidade...</p>
+                )}
+                <Select value={selectedTime} onValueChange={setSelectedTime} disabled={checkingAvailability}>
                   <SelectTrigger>
                     <SelectValue placeholder="Escolha um horário" />
                   </SelectTrigger>
                   <SelectContent>
-                    {timeSlots.map((time) => (
-                      <SelectItem key={time} value={time}>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4" />
-                          {time}
-                        </div>
-                      </SelectItem>
-                    ))}
+                    {availableTimeSlots.length === 0 ? (
+                      <div className="p-2 text-center text-sm text-muted-foreground">
+                        Nenhum horário disponível
+                      </div>
+                    ) : (
+                      availableTimeSlots.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            {time}
+                          </div>
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
+                {selectedDate && selectedService && availableTimeSlots.length < timeSlots.length && (
+                  <p className="text-xs text-muted-foreground">
+                    {timeSlots.length - availableTimeSlots.length} horário(s) indisponível(is) devido a conflitos
+                  </p>
+                )}
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>

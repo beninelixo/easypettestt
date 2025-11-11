@@ -7,9 +7,21 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const ClientAppointments = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,6 +53,36 @@ const ClientAppointments = () => {
     }
   };
 
+  const handleCancelAppointment = async (appointmentId: string) => {
+    try {
+      const { error } = await supabase
+        .from("appointments")
+        .update({ status: "cancelled" })
+        .eq("id", appointmentId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Agendamento cancelado",
+        description: "Seu agendamento foi cancelado com sucesso.",
+      });
+      
+      loadAppointments();
+    } catch (error) {
+      toast({
+        title: "Erro ao cancelar",
+        description: "Não foi possível cancelar o agendamento.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const canCancelAppointment = (appointment: any) => {
+    const isPendingOrConfirmed = appointment.status === "pending" || appointment.status === "confirmed";
+    const isFutureDate = new Date(appointment.scheduled_date) >= new Date(new Date().setHours(0, 0, 0, 0));
+    return isPendingOrConfirmed && isFutureDate;
+  };
+
   if (loading) {
     return <div>Carregando...</div>;
   }
@@ -61,7 +103,7 @@ const ClientAppointments = () => {
           {appointments.map((appointment) => (
             <Card key={appointment.id}>
               <CardContent className="flex items-center justify-between p-6">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
                   <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                     <Calendar className="h-6 w-6 text-primary" />
                   </div>
@@ -81,18 +123,47 @@ const ClientAppointments = () => {
                     </div>
                   </div>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  appointment.status === "confirmed" ? "bg-accent/10 text-accent" :
-                  appointment.status === "pending" ? "bg-secondary/10 text-secondary" :
-                  appointment.status === "completed" ? "bg-primary/10 text-primary" :
-                  "bg-muted text-muted-foreground"
-                }`}>
-                  {appointment.status === "confirmed" ? "Confirmado" :
-                   appointment.status === "pending" ? "Pendente" :
-                   appointment.status === "completed" ? "Concluído" :
-                   appointment.status === "in_progress" ? "Em Andamento" :
-                   "Cancelado"}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    appointment.status === "confirmed" ? "bg-accent/10 text-accent" :
+                    appointment.status === "pending" ? "bg-secondary/10 text-secondary" :
+                    appointment.status === "completed" ? "bg-primary/10 text-primary" :
+                    "bg-muted text-muted-foreground"
+                  }`}>
+                    {appointment.status === "confirmed" ? "Confirmado" :
+                     appointment.status === "pending" ? "Pendente" :
+                     appointment.status === "completed" ? "Concluído" :
+                     appointment.status === "in_progress" ? "Em Andamento" :
+                     "Cancelado"}
+                  </span>
+                  {canCancelAppointment(appointment) && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="sm">
+                          <XCircle className="h-4 w-4 mr-1" />
+                          Cancelar
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Cancelar agendamento?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Tem certeza que deseja cancelar este agendamento? Esta ação não pode ser desfeita.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Voltar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleCancelAppointment(appointment.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Sim, cancelar
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}

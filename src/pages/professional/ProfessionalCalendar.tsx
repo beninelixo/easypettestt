@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
+import { useRealtimeMetrics } from "@/hooks/useRealtimeMetrics";
 
 const appointmentSchema = z.object({
   pet_id: z.string().uuid("Pet inválido"),
@@ -45,8 +46,10 @@ const ProfessionalCalendar = () => {
   const [services, setServices] = useState<any[]>([]);
   const [clients, setClients] = useState<any[]>([]);
   const [clientPets, setClientPets] = useState<any[]>([]);
+  const [petShopId, setPetShopId] = useState<string>("");
   const { user } = useAuth();
   const { toast } = useToast();
+  const { lastUpdate } = useRealtimeMetrics(petShopId);
 
   const [formData, setFormData] = useState({
     client_id: "",
@@ -67,7 +70,7 @@ const ProfessionalCalendar = () => {
     if (selectedDate && user) {
       loadAppointments();
     }
-  }, [selectedDate, user]);
+  }, [selectedDate, user, lastUpdate]);
 
   const loadAppointments = async () => {
     try {
@@ -78,6 +81,10 @@ const ProfessionalCalendar = () => {
         .single();
 
       if (!petShop) return;
+
+      if (!petShopId) {
+        setPetShopId(petShop.id);
+      }
 
       const { data, error } = await supabase
         .from("appointments")
