@@ -34,6 +34,7 @@ const NewAppointment = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState("");
   const [loading, setLoading] = useState(false);
+  const [petShopId, setPetShopId] = useState<string | null>(null);
 
   const timeSlots = [
     "08:00", "09:00", "10:00", "11:00", "12:00",
@@ -47,6 +48,7 @@ const NewAppointment = () => {
       navigate('/select-petshop');
       return;
     }
+    setPetShopId(selectedPetShopId);
     
     loadPets();
     loadServices(selectedPetShopId);
@@ -98,14 +100,21 @@ const NewAppointment = () => {
     setLoading(true);
 
     try {
-      // Get pet shop id from service
-      const service = services.find(s => s.id === selectedService);
-      
+      // Validate presence of selected pet shop
+      if (!petShopId) {
+        toast({
+          title: "Pet shop não selecionado",
+          description: "Selecione o estabelecimento para continuar",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Validate input data
       const appointmentData = appointmentSchema.parse({
         pet_id: selectedPet,
         service_id: selectedService,
-        pet_shop_id: service?.pet_shop_id,
+        pet_shop_id: petShopId,
         scheduled_date: format(selectedDate, "yyyy-MM-dd"),
         scheduled_time: selectedTime,
       });
