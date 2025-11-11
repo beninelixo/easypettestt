@@ -17,10 +17,10 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
 const clientMenuItems = [
-  { title: "Meus Pets", url: "/client/pets", icon: PawPrint },
-  { title: "Agendar Serviço", url: "/client/schedule", icon: Calendar },
-  { title: "Agendamentos", url: "/client/appointments", icon: CalendarCheck },
-  { title: "Meu Perfil", url: "/client/profile", icon: User },
+  { title: "Meus Pets", url: "/client/pets", icon: PawPrint, tourId: "pets-menu" },
+  { title: "Agendar Serviço", url: "/client/schedule", icon: Calendar, tourId: "appointments-menu" },
+  { title: "Agendamentos", url: "/client/appointments", icon: CalendarCheck, tourId: "petshops-menu" },
+  { title: "Meu Perfil", url: "/client/profile", icon: User, tourId: "profile-menu" },
 ];
 
 export function ClientSidebar() {
@@ -46,6 +46,7 @@ export function ClientSidebar() {
                     <NavLink
                       to={item.url}
                       end
+                      data-tour={item.tourId}
                       className={({ isActive }) =>
                         `flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                           isActive

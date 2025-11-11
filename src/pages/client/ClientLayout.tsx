@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ClientSidebar } from "@/components/ClientSidebar";
 import { PawPrint } from "lucide-react";
+import { InteractiveOnboarding } from "@/components/onboarding/InteractiveOnboarding";
 
 const ClientLayout = () => {
   return (
@@ -19,6 +20,7 @@ const ClientLayout = () => {
           </header>
 
           <main className="flex-1 p-6 bg-background">
+            <InteractiveOnboarding role="client" />
             <Outlet />
           </main>
         </div>

@@ -136,8 +136,9 @@ export function InteractiveOnboarding({ role }: OnboardingProps) {
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { status } = data;
+    const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
 
-    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+    if (finishedStatuses.includes(status)) {
       // Marcar como concluído
       localStorage.setItem(`onboarding_completed_${role}`, 'true');
       setRun(false);

@@ -15,20 +15,20 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 
 const navigationItems = [
-  { title: "Dashboard", url: "/petshop-dashboard", icon: Home },
-  { title: "Serviços", url: "/petshop-dashboard/servicos", icon: Scissors },
-  { title: "Catálogo de Serviços", url: "/petshop-dashboard/catalogo-servicos", icon: BookOpen },
-  { title: "WhatsApp", url: "/petshop-dashboard/whatsapp", icon: MessageSquare },
-  { title: "Analytics", url: "/petshop-dashboard/analytics", icon: BarChart3 },
-  { title: "Clientes", url: "/petshop-dashboard/clientes", icon: Users },
-  { title: "Funcionários", url: "/petshop-dashboard/funcionarios", icon: UserCog },
-  { title: "Calendário", url: "/petshop-dashboard/calendario", icon: Calendar },
-  { title: "Estoque", url: "/petshop-dashboard/estoque", icon: Package },
-  { title: "Financeiro", url: "/petshop-dashboard/financeiro", icon: DollarSign },
-  { title: "Fidelidade", url: "/petshop-dashboard/fidelidade", icon: Star },
-  { title: "Marketing", url: "/petshop-dashboard/marketing", icon: Megaphone },
-  { title: "Relatórios", url: "/petshop-dashboard/relatorios", icon: TrendingUp },
-  { title: "Configurações", url: "/petshop-dashboard/configuracoes", icon: Settings },
+  { title: "Dashboard", url: "/petshop-dashboard", icon: Home, tourId: undefined },
+  { title: "Serviços", url: "/petshop-dashboard/servicos", icon: Scissors, tourId: "services-menu" },
+  { title: "Catálogo de Serviços", url: "/petshop-dashboard/catalogo-servicos", icon: BookOpen, tourId: undefined },
+  { title: "WhatsApp", url: "/petshop-dashboard/whatsapp", icon: MessageSquare, tourId: undefined },
+  { title: "Analytics", url: "/petshop-dashboard/analytics", icon: BarChart3, tourId: "analytics-menu" },
+  { title: "Clientes", url: "/petshop-dashboard/clientes", icon: Users, tourId: "clients-menu" },
+  { title: "Funcionários", url: "/petshop-dashboard/funcionarios", icon: UserCog, tourId: undefined },
+  { title: "Calendário", url: "/petshop-dashboard/calendario", icon: Calendar, tourId: "calendar-menu" },
+  { title: "Estoque", url: "/petshop-dashboard/estoque", icon: Package, tourId: undefined },
+  { title: "Financeiro", url: "/petshop-dashboard/financeiro", icon: DollarSign, tourId: undefined },
+  { title: "Fidelidade", url: "/petshop-dashboard/fidelidade", icon: Star, tourId: undefined },
+  { title: "Marketing", url: "/petshop-dashboard/marketing", icon: Megaphone, tourId: undefined },
+  { title: "Relatórios", url: "/petshop-dashboard/relatorios", icon: TrendingUp, tourId: undefined },
+  { title: "Configurações", url: "/petshop-dashboard/configuracoes", icon: Settings, tourId: "settings-menu" },
 ];
 
 export function PetShopSidebar() {
@@ -56,7 +56,12 @@ export function PetShopSidebar() {
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end className={getNavCls}>
+                    <NavLink 
+                      to={item.url} 
+                      end 
+                      className={getNavCls}
+                      data-tour={item.tourId}
+                    >
                       <item.icon className="h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>

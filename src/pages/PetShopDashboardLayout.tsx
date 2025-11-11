@@ -5,6 +5,7 @@ import { PawPrint } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { InteractiveOnboarding } from "@/components/onboarding/InteractiveOnboarding";
 
 const PetShopDashboardLayout = () => {
   const { user } = useAuth();
@@ -60,6 +61,7 @@ const PetShopDashboardLayout = () => {
 
           {/* Main Content */}
           <main className="flex-1 p-6 bg-background">
+            <InteractiveOnboarding role="pet_shop" />
             <Outlet />
           </main>
         </div>
