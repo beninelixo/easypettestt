@@ -2,6 +2,28 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+// Função para registrar auditoria de ações administrativas
+async function logGodAction(action: string, success: boolean, details?: any) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    await supabase.from('audit_logs').insert({
+      user_id: user?.id,
+      table_name: 'system_admin',
+      operation: 'GOD_MODE_ACTION',
+      record_id: crypto.randomUUID(),
+      new_data: {
+        action,
+        success,
+        timestamp: new Date().toISOString(),
+        details
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao registrar auditoria:', error);
+  }
+}
+
 export function useGodActions() {
   const { toast } = useToast();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
@@ -15,25 +37,28 @@ export function useGodActions() {
     });
 
     try {
+      let result: any;
+      
       switch (action) {
         case 'cleanup':
-          await supabase.functions.invoke('cleanup-job');
+          result = await supabase.functions.invoke('cleanup-job');
           break;
         case 'backup':
-          await supabase.functions.invoke('backup-full-database');
+          result = await supabase.functions.invoke('backup-full-database');
           break;
         case 'ai_analysis':
-          await supabase.functions.invoke('system-analysis');
+          result = await supabase.functions.invoke('system-analysis');
           break;
         case 'fix_rls':
-          // Verificar RLS policies via edge function
-          await supabase.functions.invoke('generate-security-report');
+          result = await supabase.functions.invoke('generate-security-report');
           break;
         case 'fix_duplicates':
-          // Detectar duplicatas via análise do sistema
-          await supabase.functions.invoke('auto-diagnostico');
+          result = await supabase.functions.invoke('auto-diagnostico');
           break;
       }
+
+      // Registrar sucesso na auditoria
+      await logGodAction(action, true, result.data);
 
       toast({
         title: "✅ Ação concluída!",
@@ -44,6 +69,12 @@ export function useGodActions() {
       return true;
     } catch (error) {
       console.error('Erro ao executar ação:', error);
+      
+      // Registrar falha na auditoria
+      await logGodAction(action, false, { 
+        error: error instanceof Error ? error.message : "Erro desconhecido" 
+      });
+      
       toast({
         title: "❌ Erro na execução",
         description: error instanceof Error ? error.message : "Erro desconhecido",

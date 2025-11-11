@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { PawPrint, Calendar, CalendarCheck, User, LogOut, LayoutDashboard } from "lucide-react";
+import { PawPrint, Calendar, CalendarCheck, User, LogOut, LayoutDashboard, History } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +21,7 @@ const clientMenuItems = [
   { title: "Meus Pets", url: "/client/pets", icon: PawPrint, tourId: "pets-menu" },
   { title: "Agendar Serviço", url: "/client/schedule", icon: Calendar, tourId: "appointments-menu" },
   { title: "Agendamentos", url: "/client/appointments", icon: CalendarCheck, tourId: "petshops-menu" },
+  { title: "Histórico", url: "/client/history", icon: History, tourId: "history-menu" },
   { title: "Meu Perfil", url: "/client/profile", icon: User, tourId: "profile-menu" },
 ];
 

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -211,114 +212,156 @@ export default function AdminDashboard() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-28 flex flex-col gap-2 border-primary/30 hover:bg-primary/10 hover:border-primary hover:text-primary transition-all"
-              onClick={() => executeAction('cleanup')}
-              disabled={loadingAction !== null}
-            >
-              {loadingAction === 'cleanup' ? (
-                <Loader2 className="h-6 w-6 animate-spin" />
-              ) : (
-                <Activity className="h-6 w-6" />
-              )}
-              <div className="text-center text-sm">
-                <div className="font-bold">Limpeza</div>
-                <div className="text-xs text-muted-foreground">Dados antigos</div>
-              </div>
-            </Button>
+          <TooltipProvider>
+            <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="h-28 flex flex-col gap-2 border-primary/30 hover:bg-primary/10 hover:border-primary hover:text-primary transition-all"
+                    onClick={() => executeAction('cleanup')}
+                    disabled={loadingAction !== null}
+                  >
+                    {loadingAction === 'cleanup' ? (
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    ) : (
+                      <Activity className="h-6 w-6" />
+                    )}
+                    <div className="text-center text-sm">
+                      <div className="font-bold">Limpeza</div>
+                      <div className="text-xs text-muted-foreground">Dados antigos</div>
+                    </div>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold mb-1">Limpeza Automática de Dados</p>
+                  <p className="text-xs">Remove dados antigos: tentativas de login &gt;90 dias, notificações lidas &gt;30 dias, códigos de reset usados, logs não críticos &gt;60 dias, sessões MFA expiradas e IPs bloqueados vencidos.</p>
+                </TooltipContent>
+              </Tooltip>
 
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-28 flex flex-col gap-2 border-blue-500/30 hover:bg-blue-500/10 hover:border-blue-500 hover:text-blue-500 transition-all"
-              onClick={() => executeAction('fix_rls')}
-              disabled={loadingAction !== null}
-            >
-              {loadingAction === 'fix_rls' ? (
-                <Loader2 className="h-6 w-6 animate-spin" />
-              ) : (
-                <Shield className="h-6 w-6" />
-              )}
-              <div className="text-center text-sm">
-                <div className="font-bold">Verificar RLS</div>
-                <div className="text-xs text-muted-foreground">Segurança</div>
-              </div>
-            </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="h-28 flex flex-col gap-2 border-blue-500/30 hover:bg-blue-500/10 hover:border-blue-500 hover:text-blue-500 transition-all"
+                    onClick={() => executeAction('fix_rls')}
+                    disabled={loadingAction !== null}
+                  >
+                    {loadingAction === 'fix_rls' ? (
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    ) : (
+                      <Shield className="h-6 w-6" />
+                    )}
+                    <div className="text-center text-sm">
+                      <div className="font-bold">Verificar RLS</div>
+                      <div className="text-xs text-muted-foreground">Segurança</div>
+                    </div>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold mb-1">Auditoria de Segurança RLS</p>
+                  <p className="text-xs">Gera relatório completo de segurança verificando políticas RLS (Row Level Security), permissões de tabelas, alertas críticos e vulnerabilidades no banco de dados.</p>
+                </TooltipContent>
+              </Tooltip>
 
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-28 flex flex-col gap-2 border-purple-500/30 hover:bg-purple-500/10 hover:border-purple-500 hover:text-purple-500 transition-all"
-              onClick={() => executeAction('fix_duplicates')}
-              disabled={loadingAction !== null}
-            >
-              {loadingAction === 'fix_duplicates' ? (
-                <Loader2 className="h-6 w-6 animate-spin" />
-              ) : (
-                <Brain className="h-6 w-6" />
-              )}
-              <div className="text-center text-sm">
-                <div className="font-bold">Duplicatas</div>
-                <div className="text-xs text-muted-foreground">Detecção IA</div>
-              </div>
-            </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="h-28 flex flex-col gap-2 border-purple-500/30 hover:bg-purple-500/10 hover:border-purple-500 hover:text-purple-500 transition-all"
+                    onClick={() => executeAction('fix_duplicates')}
+                    disabled={loadingAction !== null}
+                  >
+                    {loadingAction === 'fix_duplicates' ? (
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    ) : (
+                      <Brain className="h-6 w-6" />
+                    )}
+                    <div className="text-center text-sm">
+                      <div className="font-bold">Duplicatas</div>
+                      <div className="text-xs text-muted-foreground">Detecção IA</div>
+                    </div>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold mb-1">Detecção Inteligente de Duplicatas</p>
+                  <p className="text-xs">Executa diagnóstico automático do sistema para identificar registros duplicados em clientes, pets, produtos e serviços usando análise de dados e sugestões de mesclagem.</p>
+                </TooltipContent>
+              </Tooltip>
 
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-28 flex flex-col gap-2 border-green-500/30 hover:bg-green-500/10 hover:border-green-500 hover:text-green-500 transition-all"
-                  disabled={loadingAction !== null}
-                >
-                  {loadingAction === 'backup' ? (
-                    <Loader2 className="h-6 w-6 animate-spin" />
-                  ) : (
-                    <Database className="h-6 w-6" />
-                  )}
-                  <div className="text-center text-sm">
-                    <div className="font-bold">Backup</div>
-                    <div className="text-xs text-muted-foreground">Completo</div>
-                  </div>
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Confirmar Backup Completo</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Isso criará um backup completo do banco de dados. O processo pode levar alguns minutos.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => executeAction('backup')}>
-                    Confirmar
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        className="h-28 flex flex-col gap-2 border-green-500/30 hover:bg-green-500/10 hover:border-green-500 hover:text-green-500 transition-all"
+                        disabled={loadingAction !== null}
+                      >
+                        {loadingAction === 'backup' ? (
+                          <Loader2 className="h-6 w-6 animate-spin" />
+                        ) : (
+                          <Database className="h-6 w-6" />
+                        )}
+                        <div className="text-center text-sm">
+                          <div className="font-bold">Backup</div>
+                          <div className="text-xs text-muted-foreground">Completo</div>
+                        </div>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Confirmar Backup Completo</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Isso criará um backup completo do banco de dados. O processo pode levar alguns minutos.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => executeAction('backup')}>
+                          Confirmar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold mb-1">Backup Completo do Banco de Dados</p>
+                  <p className="text-xs">Cria backup encriptado de todas as tabelas críticas do sistema incluindo usuários, agendamentos, pets, produtos e configurações. Armazenado com compressão e criptografia.</p>
+                </TooltipContent>
+              </Tooltip>
 
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-28 flex flex-col gap-2 border-orange-500/30 hover:bg-orange-500/10 hover:border-orange-500 hover:text-orange-500 transition-all"
-              onClick={() => executeAction('ai_analysis')}
-              disabled={loadingAction !== null}
-            >
-              {loadingAction === 'ai_analysis' ? (
-                <Loader2 className="h-6 w-6 animate-spin" />
-              ) : (
-                <Brain className="h-6 w-6" />
-              )}
-              <div className="text-center text-sm">
-                <div className="font-bold">Análise IA</div>
-                <div className="text-xs text-muted-foreground">Sistema</div>
-              </div>
-            </Button>
-          </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="h-28 flex flex-col gap-2 border-orange-500/30 hover:bg-orange-500/10 hover:border-orange-500 hover:text-orange-500 transition-all"
+                    onClick={() => executeAction('ai_analysis')}
+                    disabled={loadingAction !== null}
+                  >
+                    {loadingAction === 'ai_analysis' ? (
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    ) : (
+                      <Brain className="h-6 w-6" />
+                    )}
+                    <div className="text-center text-sm">
+                      <div className="font-bold">Análise IA</div>
+                      <div className="text-xs text-muted-foreground">Sistema</div>
+                    </div>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold mb-1">Análise Completa do Sistema com IA</p>
+                  <p className="text-xs">Executa análise inteligente de performance, saúde do banco, padrões de uso, anomalias e recomendações de otimização usando modelos de machine learning.</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </TooltipProvider>
         </CardContent>
       </Card>
 

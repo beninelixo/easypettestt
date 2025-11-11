@@ -44,6 +44,7 @@ const BlogCategory = lazy(() => import("./pages/BlogCategory"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Contact = lazy(() => import("./pages/Contact"));
 const ClientDashboard = lazy(() => import("./pages/ClientDashboard"));
+const ClientAppointmentHistory = lazy(() => import("./pages/client/ClientAppointmentHistory"));
 const PetShopDashboardLayout = lazy(() => import("./pages/PetShopDashboardLayout"));
 const PetShopDashboard = lazy(() => import("./pages/PetShopDashboard"));
 const Clientes = lazy(() => import("./pages/petshop/ClientesVirtual"));
@@ -201,6 +202,7 @@ const App = () => {
             <Route path="schedule" element={<ClientSchedule />} />
             <Route path="select-petshop" element={<ClientSelectPetShop />} />
             <Route path="appointments" element={<ClientAppointments />} />
+            <Route path="history" element={<ClientAppointmentHistory />} />
             <Route path="profile" element={<ClientProfilePage />} />
           </Route>
           
