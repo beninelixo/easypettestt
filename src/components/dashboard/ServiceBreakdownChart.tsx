@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { Scissors } from "lucide-react";
@@ -21,7 +22,7 @@ const COLORS = [
   '#ff8042'
 ];
 
-export const ServiceBreakdownChart = ({ data }: ServiceBreakdownChartProps) => {
+export const ServiceBreakdownChart = memo(({ data }: ServiceBreakdownChartProps) => {
   const chartData = data.map(item => ({
     name: item.service_name,
     value: item.service_count,
@@ -93,4 +94,6 @@ export const ServiceBreakdownChart = ({ data }: ServiceBreakdownChartProps) => {
       </CardContent>
     </Card>
   );
-};
+});
+
+ServiceBreakdownChart.displayName = "ServiceBreakdownChart";

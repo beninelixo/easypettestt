@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
 
@@ -5,7 +6,7 @@ interface RevenueChartProps {
   data: Array<{ month: string; revenue: number }>;
 }
 
-const RevenueChart = ({ data }: RevenueChartProps) => {
+const RevenueChart = memo(({ data }: RevenueChartProps) => {
   return (
     <Card>
       <CardHeader>
@@ -51,6 +52,8 @@ const RevenueChart = ({ data }: RevenueChartProps) => {
       </CardContent>
     </Card>
   );
-};
+});
+
+RevenueChart.displayName = "RevenueChart";
 
 export default RevenueChart;

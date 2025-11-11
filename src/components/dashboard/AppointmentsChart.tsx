@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
@@ -5,7 +6,7 @@ interface AppointmentsChartProps {
   data: Array<{ day: string; completed: number; cancelled: number; pending: number }>;
 }
 
-const AppointmentsChart = ({ data }: AppointmentsChartProps) => {
+const AppointmentsChart = memo(({ data }: AppointmentsChartProps) => {
   return (
     <Card>
       <CardHeader>
@@ -41,6 +42,8 @@ const AppointmentsChart = ({ data }: AppointmentsChartProps) => {
       </CardContent>
     </Card>
   );
-};
+});
+
+AppointmentsChart.displayName = "AppointmentsChart";
 
 export default AppointmentsChart;

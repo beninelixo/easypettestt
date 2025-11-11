@@ -2,6 +2,19 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// Configuração otimizada de cache para performance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutos - dados considerados "frescos"
+      gcTime: 10 * 60 * 1000, // 10 minutos - tempo de cache (antigo cacheTime)
+      refetchOnWindowFocus: false, // Não refetch ao focar janela
+      refetchOnReconnect: true, // Refetch ao reconectar
+      retry: 1, // Apenas 1 tentativa em caso de erro
+    },
+  },
+});
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { TenantProvider } from "./lib/tenant-context";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -33,14 +46,14 @@ const Contact = lazy(() => import("./pages/Contact"));
 const ClientDashboard = lazy(() => import("./pages/ClientDashboard"));
 const PetShopDashboardLayout = lazy(() => import("./pages/PetShopDashboardLayout"));
 const PetShopDashboard = lazy(() => import("./pages/PetShopDashboard"));
-const Clientes = lazy(() => import("./pages/petshop/Clientes"));
+const Clientes = lazy(() => import("./pages/petshop/ClientesVirtual"));
 const Calendario = lazy(() => import("./pages/petshop/Calendario"));
 const Relatorios = lazy(() => import("./pages/petshop/Relatorios"));
 const Configuracoes = lazy(() => import("./pages/petshop/Configuracoes"));
 const Servicos = lazy(() => import("./pages/petshop/Servicos"));
 const ServiceTemplates = lazy(() => import("./pages/petshop/ServiceTemplates"));
 const WhatsAppSettings = lazy(() => import("./pages/petshop/WhatsAppSettings"));
-const Estoque = lazy(() => import("./pages/petshop/Estoque"));
+const Estoque = lazy(() => import("./pages/petshop/EstoqueVirtual"));
 const Financeiro = lazy(() => import("./pages/petshop/Financeiro"));
 const Fidelidade = lazy(() => import("./pages/petshop/Fidelidade"));
 const Marketing = lazy(() => import("./pages/petshop/Marketing"));
@@ -77,7 +90,7 @@ const ProfessionalLayout = lazy(() => import("./pages/professional/ProfessionalL
 const ProfessionalDashboard = lazy(() => import("./pages/professional/ProfessionalDashboard"));
 const ProfessionalCalendar = lazy(() => import("./pages/professional/ProfessionalCalendar"));
 const ProfessionalServices = lazy(() => import("./pages/professional/ProfessionalServices"));
-const ProfessionalClients = lazy(() => import("./pages/professional/ProfessionalClientsEnhanced"));
+const ProfessionalClients = lazy(() => import("./pages/professional/ProfessionalClientsVirtual"));
 const ProfessionalReports = lazy(() => import("./pages/professional/ProfessionalReports"));
 const ProfessionalProfile = lazy(() => import("./pages/professional/ProfessionalProfile"));
 const ProfessionalPlans = lazy(() => import("./pages/professional/ProfessionalPlans"));
@@ -100,8 +113,6 @@ const GodModeDashboard = lazy(() => import("./pages/admin/GodModeDashboard"));
 // Admin Layout
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-
-const queryClient = new QueryClient();
 
 const App = () => {
   // Enforce temporary session cleanup on browser close
