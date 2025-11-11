@@ -180,6 +180,7 @@ const App = () => {
             </ProtectedRoute>
           }>
             <Route path="pets" element={<ClientPets />} />
+            <Route path="pets/:petId" element={<PetProfile />} />
             <Route path="schedule" element={<ClientSchedule />} />
             <Route path="appointments" element={<ClientAppointments />} />
             <Route path="profile" element={<ClientProfilePage />} />

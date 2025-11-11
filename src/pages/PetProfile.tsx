@@ -172,7 +172,7 @@ const PetProfile = () => {
         title: petId === "new" ? "Pet cadastrado!" : "Pet atualizado!",
         description: "As informações foram salvas com sucesso.",
       });
-      navigate("/client-dashboard");
+      navigate("/client/pets");
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
@@ -196,7 +196,7 @@ const PetProfile = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/client-dashboard")}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/client/pets")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -296,7 +296,7 @@ const PetProfile = () => {
                       <Button 
                         type="button" 
                         variant="outline"
-                        onClick={() => navigate("/new-appointment")}
+                        onClick={() => navigate("/client/schedule")}
                       >
                         Agendar Serviço
                       </Button>
@@ -317,7 +317,7 @@ const PetProfile = () => {
                 {appointments.length === 0 ? (
                   <div className="text-center py-8">
                     <p className="text-muted-foreground mb-4">Nenhum serviço realizado ainda</p>
-                    <Button onClick={() => navigate("/new-appointment")}>
+                    <Button onClick={() => navigate("/client/schedule")}>
                       Agendar Primeiro Serviço
                     </Button>
                   </div>

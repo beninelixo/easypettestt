@@ -41,7 +41,7 @@ const ClientPets = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Meus Pets</h1>
-        <Button onClick={() => navigate("/pet/new")}>
+        <Button onClick={() => navigate("/client/pets/new")}>
           <Plus className="h-4 w-4 mr-2" />
           Cadastrar Pet
         </Button>
@@ -52,7 +52,7 @@ const ClientPets = () => {
           <CardContent className="p-8 text-center">
             <PawPrint className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground mb-4">Você ainda não cadastrou nenhum pet</p>
-            <Button onClick={() => navigate("/pet/new")}>
+            <Button onClick={() => navigate("/client/pets/new")}>
               <Plus className="h-4 w-4 mr-2" />
               Cadastrar Primeiro Pet
             </Button>
@@ -64,7 +64,7 @@ const ClientPets = () => {
             <Card 
               key={pet.id} 
               className="hover:shadow-lg transition-all cursor-pointer"
-              onClick={() => navigate(`/pet/${pet.id}`)}
+              onClick={() => navigate(`/client/pets/${pet.id}`)}
             >
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
