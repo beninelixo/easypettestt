@@ -13,7 +13,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import { lazy, Suspense, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-// Eager load critical routes
+// Eagerly load critical pages
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -45,7 +45,6 @@ const Financeiro = lazy(() => import("./pages/petshop/Financeiro"));
 const Fidelidade = lazy(() => import("./pages/petshop/Fidelidade"));
 const Marketing = lazy(() => import("./pages/petshop/Marketing"));
 const Funcionarios = lazy(() => import("./pages/petshop/Funcionarios"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const NewAppointment = lazy(() => import("./pages/NewAppointment"));
 const PetProfile = lazy(() => import("./pages/PetProfile"));
 const PetShopSetup = lazy(() => import("./pages/PetShopSetup"));
@@ -97,6 +96,10 @@ const BackupManagement = lazy(() => import("./pages/admin/BackupManagement"));
 const EmailSystemTest = lazy(() => import("./pages/admin/EmailSystemTest"));
 const ResendDomainSetup = lazy(() => import("./pages/admin/ResendDomainSetup"));
 const GodModeDashboard = lazy(() => import("./pages/admin/GodModeDashboard"));
+
+// Admin Layout
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 
 const queryClient = new QueryClient();
 
@@ -267,112 +270,49 @@ const App = () => {
             <Route path="submit-success-story" element={<SubmitSuccessStory />} />
           </Route>
           
-          {/* Admin Routes */}
-          <Route path="/admin-dashboard" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/system-monitoring" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <SystemMonitoring />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/system-analysis" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <SystemAnalysis />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/auth-monitoring" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AuthMonitoring />
-            </ProtectedRoute>
-          } />
+          {/* Admin Routes - Nested under AdminLayout */}
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="god-mode" element={<GodModeDashboard />} />
+            <Route path="system-monitoring" element={<SystemMonitoring />} />
+            <Route path="system-analysis" element={<SystemAnalysis />} />
+            <Route path="auth-monitoring" element={<AuthMonitoring />} />
+            <Route path="system-health" element={<SystemHealth />} />
+            <Route path="system-diagnostics" element={<SystemDiagnostics />} />
+            <Route path="ai-monitor" element={<AIMonitorDashboard />} />
+            <Route path="security" element={<ConsolidatedSecurityDashboard />} />
+            <Route path="security-monitoring" element={<SecurityMonitoring />} />
+            <Route path="backups" element={<BackupManagement />} />
+            <Route path="email-test" element={<EmailSystemTest />} />
+            <Route path="domain-setup" element={<ResendDomainSetup />} />
+            <Route path="notifications" element={<NotificationQueue />} />
+            <Route path="monitor" element={<SystemMonitor />} />
+            <Route path="success-stories" element={<SuccessStoriesManager />} />
+            <Route path="regenerate-images" element={<RegenerateImages />} />
+            <Route path="performance" element={<PerformanceDashboard />} />
+          </Route>
 
-          <Route path="/system-health" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <SystemHealth />
-            </ProtectedRoute>
-          } />
-          <Route path="/system-diagnostics" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <SystemDiagnostics />
-            </ProtectedRoute>
-          } />
-          <Route path="/god-mode-dashboard" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <GodModeDashboard />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/ai-monitor" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AIMonitorDashboard />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/admin/notifications" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <NotificationQueue />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/admin/monitor" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <SystemMonitor />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/system-overview" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <SystemOverview />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/admin/success-stories" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <SuccessStoriesManager />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/admin/regenerate-images" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <RegenerateImages />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/admin/security" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <ConsolidatedSecurityDashboard />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/admin/security-monitoring" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <SecurityMonitoring />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/admin/backups" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <BackupManagement />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/admin/email-system-test" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <EmailSystemTest />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/admin/resend-domain-setup" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <ResendDomainSetup />
-            </ProtectedRoute>
-          } />
+          {/* Legacy Admin Routes - Redirect to new structure */}
+          <Route path="/admin-dashboard" element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="/god-mode-dashboard" element={<Navigate to="/admin/god-mode" replace />} />
+          <Route path="/system-monitoring" element={<Navigate to="/admin/system-monitoring" replace />} />
+          <Route path="/system-analysis" element={<Navigate to="/admin/system-analysis" replace />} />
+          <Route path="/auth-monitoring" element={<Navigate to="/admin/auth-monitoring" replace />} />
+          <Route path="/system-health" element={<Navigate to="/admin/system-health" replace />} />
+          <Route path="/system-diagnostics" element={<Navigate to="/admin/system-diagnostics" replace />} />
+          <Route path="/ai-monitor" element={<Navigate to="/admin/ai-monitor" replace />} />
+          <Route path="/admin/email-system-test" element={<Navigate to="/admin/email-test" replace />} />
+          <Route path="/admin/resend-domain-setup" element={<Navigate to="/admin/domain-setup" replace />} />
+          <Route path="/system-overview" element={<SystemOverview />} />
+          <Route path="/system-monitoring-dashboard" element={<SystemMonitoringDashboard />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

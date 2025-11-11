@@ -23,7 +23,6 @@ const menuItems = [
   { title: "Petshops", url: "/petshops", icon: Store, roles: ["admin"] },
   { title: "Pagamentos", url: "/petshop-dashboard/financeiro", icon: CreditCard, roles: ["pet_shop", "admin"] },
   { title: "Relatórios", url: "/petshop-dashboard/relatorios", icon: BarChart3, roles: ["pet_shop", "admin"] },
-  { title: "Admin", url: "/admin-dashboard", icon: Shield, roles: ["admin"] },
   { title: "Configurações", url: "/petshop-dashboard/configuracoes", icon: Settings, roles: ["pet_shop", "admin"] },
 ];
 
