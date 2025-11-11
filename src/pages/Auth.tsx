@@ -273,52 +273,6 @@ const Auth = () => {
 
     setIsLoading(true);
 
-    // Verificar plano pago para conta profissional
-    if (userType === "pet_shop") {
-      try {
-        const { data: subscriptionData, error: subscriptionError } = await supabase.functions.invoke(
-          'verify-subscription',
-          {
-            body: { email: registerEmail },
-          }
-        );
-
-        if (subscriptionError) {
-          toast({
-            title: "Erro ao verificar plano",
-            description: "Não foi possível verificar seu plano. Tente novamente.",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        if (!subscriptionData?.canCreateProfessional) {
-          toast({
-            title: "⚠️ Plano necessário",
-            description: subscriptionData?.message || "É necessário adquirir o Plano Pet Gold ou Pet Platinum para criar uma conta profissional.",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        // Mostrar mensagem de sucesso da verificação
-        toast({
-          title: "✅ Plano verificado",
-          description: subscriptionData.message,
-        });
-      } catch (error) {
-        console.error('Subscription verification error:', error);
-        toast({
-          title: "Erro ao verificar plano",
-          description: "Não foi possível verificar seu plano. Tente novamente.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-    }
     try {
       const { data, error } = await supabase.auth.signUp({
         email: registerEmail,
