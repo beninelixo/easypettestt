@@ -7,18 +7,18 @@ const corsHeaders = {
 };
 
 interface CheckoutRequest {
-  plan: 'profissional' | 'enterprise';
+  plan: 'pet_gold' | 'pet_platinum';
   petshop_id: string;
 }
 
 const PLAN_PRICES = {
-  profissional: 7900, // R$ 79,00 in cents
-  enterprise: 19900, // R$ 199,00 in cents
+  pet_gold: 7990, // R$ 79,90 in cents
+  pet_platinum: 14990, // R$ 149,90 in cents
 };
 
 const PLAN_NAMES = {
-  profissional: 'Plano Profissional',
-  enterprise: 'Plano Enterprise',
+  pet_gold: 'Pet Gold',
+  pet_platinum: 'Pet Platinum',
 };
 
 serve(async (req) => {
@@ -65,7 +65,7 @@ serve(async (req) => {
       throw new Error('Plan and petshop_id are required');
     }
 
-    if (!['profissional', 'enterprise'].includes(plan)) {
+    if (!['pet_gold', 'pet_platinum'].includes(plan)) {
       throw new Error('Invalid plan');
     }
 
