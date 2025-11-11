@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import RevenueChart from "@/components/dashboard/RevenueChart";
 import AppointmentsChart from "@/components/dashboard/AppointmentsChart";
+import { useRealtimeMetrics } from "@/hooks/useRealtimeMetrics";
 
 const ProfessionalDashboard = () => {
   const { user } = useAuth();
@@ -23,6 +24,7 @@ const ProfessionalDashboard = () => {
   });
   const [revenueData, setRevenueData] = useState<Array<{ month: string; revenue: number }>>([]);
   const [weekData, setWeekData] = useState<Array<{ day: string; completed: number; cancelled: number; pending: number }>>([]);
+  const { lastUpdate } = useRealtimeMetrics(petShopId);
 
   useEffect(() => {
     if (user) {
@@ -30,29 +32,53 @@ const ProfessionalDashboard = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (petShopId) {
+      loadAppointments(petShopId);
+      loadStats(petShopId);
+    }
+  }, [petShopId, lastUpdate]);
+
   const loadPetShopAndData = async () => {
     try {
-      // First, get the pet shop owned by this user
-      const { data: petShop, error: petShopError } = await supabase
+      let shopId: string | null = null;
+
+      const { data: ownedShop, error: ownedErr } = await supabase
         .from("pet_shops")
         .select("id")
         .eq("owner_id", user?.id)
         .maybeSingle();
 
-      if (petShopError) {
-        console.error("Erro ao buscar pet shop:", petShopError);
-        return;
+      if (ownedErr) {
+        console.error("Erro ao buscar pet shop:", ownedErr);
       }
 
-      if (!petShop) {
-        // If no pet shop exists, redirect to setup
+      if (ownedShop) {
+        shopId = ownedShop.id;
+      } else {
+        const { data: employeeShop, error: empErr } = await supabase
+          .from("petshop_employees")
+          .select("pet_shop_id")
+          .eq("user_id", user?.id)
+          .eq("active", true)
+          .maybeSingle();
+
+        if (empErr) {
+          console.error("Erro ao buscar vínculo de funcionário:", empErr);
+        }
+        if (employeeShop) {
+          shopId = employeeShop.pet_shop_id;
+        }
+      }
+
+      if (!shopId) {
         navigate("/petshop-setup");
         return;
       }
 
-      setPetShopId(petShop.id);
-      await loadAppointments(petShop.id);
-      await loadStats(petShop.id);
+      setPetShopId(shopId);
+      await loadAppointments(shopId);
+      await loadStats(shopId);
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
     }

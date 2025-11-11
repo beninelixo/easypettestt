@@ -49,23 +49,37 @@ const PetShopDashboard = () => {
 
   const loadPetShopAndData = async () => {
     setLoading(true);
-    // First, get the pet shop owned by this user
-    const { data: petShop, error: petShopError } = await supabase
+    // First, get the pet shop owned by this user or where the user is an active employee
+    let shopId: string | null = null;
+
+    const { data: ownedShop } = await supabase
       .from("pet_shops")
       .select("id")
       .eq("owner_id", user?.id)
-      .single();
+      .maybeSingle();
 
-    if (petShopError || !petShop) {
+    if (ownedShop) {
+      shopId = ownedShop.id;
+    } else {
+      const { data: employeeShop } = await supabase
+        .from("petshop_employees")
+        .select("pet_shop_id")
+        .eq("user_id", user?.id)
+        .eq("active", true)
+        .maybeSingle();
+      if (employeeShop) shopId = employeeShop.pet_shop_id;
+    }
+
+    if (!shopId) {
       // If no pet shop exists, redirect to setup
       navigate("/petshop-setup");
       setLoading(false);
       return;
     }
 
-    setPetShopId(petShop.id);
-    await loadAppointments(petShop.id);
-    await loadStats(petShop.id);
+    setPetShopId(shopId);
+    await loadAppointments(shopId);
+    await loadStats(shopId);
     setLoading(false);
   };
 

@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { z } from "zod";
+import { useRealtimeMetrics } from "@/hooks/useRealtimeMetrics";
 
 const appointmentSchema = z.object({
   pet_id: z.string().uuid("Pet inválido"),
@@ -49,6 +50,8 @@ const Calendario = () => {
   const [clients, setClients] = useState<any[]>([]);
   const [pets, setPets] = useState<any[]>([]);
   const [selectedClient, setSelectedClient] = useState<string>("");
+  const [petShopId, setPetShopId] = useState<string>("");
+  const { lastUpdate } = useRealtimeMetrics(petShopId);
   const [formData, setFormData] = useState({
     pet_id: "",
     service_id: "",
@@ -57,42 +60,65 @@ const Calendario = () => {
   });
 
   useEffect(() => {
-    if (user) {
-      loadServices();
-      loadClients();
-    }
+    const init = async () => {
+      if (!user) return;
+      let shopId: string | null = null;
+      const { data: ownedShop } = await supabase
+        .from("pet_shops")
+        .select("id")
+        .eq("owner_id", user?.id)
+        .maybeSingle();
+      if (ownedShop) {
+        shopId = ownedShop.id;
+      } else {
+        const { data: employeeShop } = await supabase
+          .from("petshop_employees")
+          .select("pet_shop_id")
+          .eq("user_id", user?.id)
+          .eq("active", true)
+          .maybeSingle();
+        if (employeeShop) shopId = employeeShop.pet_shop_id;
+      }
+      if (shopId) {
+        setPetShopId(shopId);
+        await loadServices(shopId);
+        await loadClients(shopId);
+        await loadAppointments();
+      }
+    };
+    init();
   }, [user]);
 
   useEffect(() => {
-    if (user && selectedDate) {
+    if (user && selectedDate && petShopId) {
       loadAppointments();
     }
-  }, [user, selectedDate]);
+  }, [user, selectedDate, petShopId]);
 
   useEffect(() => {
-    if (selectedClient) {
-      loadClientPets(selectedClient);
-    } else {
-      setPets([]);
-      setFormData((prev) => ({ ...prev, pet_id: "" }));
+    if (petShopId) {
+      loadAppointments();
     }
-  }, [selectedClient]);
+  }, [lastUpdate]);
+
+  useEffect(() => {
+    if (petShopId) {
+      if (selectedClient) {
+        loadClientPets(selectedClient);
+      } else {
+        setPets([]);
+        setFormData((prev) => ({ ...prev, pet_id: "" }));
+      }
+    }
+  }, [selectedClient, petShopId]);
 
   const loadAppointments = async () => {
     setLoading(true);
-    const dateStr = format(selectedDate, "yyyy-MM-dd");
-
-    // Get pet shop id first
-    const { data: petShop } = await supabase
-      .from("pet_shops")
-      .select("id")
-      .eq("owner_id", user?.id)
-      .single();
-
-    if (!petShop) {
+    if (!petShopId) {
       setLoading(false);
       return;
     }
+    const dateStr = format(selectedDate, "yyyy-MM-dd");
 
     const { data, error } = await supabase
       .from("appointments")
@@ -102,7 +128,7 @@ const Calendario = () => {
         service:services(name, duration_minutes),
         client:profiles!appointments_client_id_fkey(full_name, phone)
       `)
-      .eq("pet_shop_id", petShop.id)
+      .eq("pet_shop_id", petShopId)
       .eq("scheduled_date", dateStr)
       .order("scheduled_time", { ascending: true });
 
@@ -113,20 +139,11 @@ const Calendario = () => {
     setLoading(false);
   };
 
-  const loadServices = async () => {
-    // Get pet shop id first
-    const { data: petShop } = await supabase
-      .from("pet_shops")
-      .select("id")
-      .eq("owner_id", user?.id)
-      .single();
-
-    if (!petShop) return;
-
+  const loadServices = async (shopId: string) => {
     const { data } = await supabase
       .from("services")
       .select("*")
-      .eq("pet_shop_id", petShop.id)
+      .eq("pet_shop_id", shopId)
       .eq("active", true)
       .order("name");
 
@@ -135,20 +152,11 @@ const Calendario = () => {
     }
   };
 
-  const loadClients = async () => {
-    // Get pet shop id first
-    const { data: petShop } = await supabase
-      .from("pet_shops")
-      .select("id")
-      .eq("owner_id", user?.id)
-      .single();
-
-    if (!petShop) return;
-
+  const loadClients = async (shopId: string) => {
     const { data } = await supabase
       .from("appointments")
       .select("client:profiles!appointments_client_id_fkey(id, full_name)")
-      .eq("pet_shop_id", petShop.id);
+      .eq("pet_shop_id", shopId);
 
     if (data) {
       const uniqueClients = Array.from(
