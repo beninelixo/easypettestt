@@ -6,10 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Scissors } from "lucide-react";
+import { Plus, Pencil, Trash2, Scissors, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 interface Service {
   id: string;
@@ -209,15 +210,22 @@ const ProfessionalServices = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold">Gerenciar Serviços</h1>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => handleOpenDialog()}>
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Serviço
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button asChild variant="outline" className="bg-gradient-to-r from-cyan-500 to-green-500 text-white border-0 hover:from-cyan-600 hover:to-green-600">
+            <Link to="/petshop/service-templates">
+              <Sparkles className="mr-2 h-4 w-4" />
+              Catálogo de Serviços
+            </Link>
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => handleOpenDialog()}>
+                <Plus className="mr-2 h-4 w-4" />
+                Novo Serviço
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
@@ -292,8 +300,30 @@ const ProfessionalServices = () => {
               </Button>
             </div>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
+
+      <Card className="border-primary/30 bg-gradient-to-r from-cyan-50/50 to-green-50/50 dark:from-cyan-950/20 dark:to-green-950/20">
+        <CardContent className="flex items-center justify-between py-6">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 rounded-full bg-gradient-to-r from-cyan-500 to-green-500 flex items-center justify-center">
+              <Sparkles className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg">Adicione Serviços Rapidamente</h3>
+              <p className="text-sm text-muted-foreground">
+                Escolha serviços prontos do nosso catálogo e personalize conforme necessário
+              </p>
+            </div>
+          </div>
+          <Button asChild size="lg" className="bg-gradient-to-r from-cyan-500 to-green-500 hover:from-cyan-600 hover:to-green-600">
+            <Link to="/petshop/service-templates">
+              Ver Catálogo
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
 
       {loading ? (
         <p className="text-muted-foreground">Carregando serviços...</p>

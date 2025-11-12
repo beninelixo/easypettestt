@@ -206,13 +206,36 @@ const ProfessionalPlans = () => {
 
       if (data?.checkout_url) {
         // Redirect to Cakto checkout
-        window.location.href = data.checkout_url;
+        toast({
+          title: "Redirecionando...",
+          description: "Você será redirecionado para o pagamento seguro.",
+        });
+        setTimeout(() => {
+          window.location.href = data.checkout_url;
+        }, 1000);
+      } else {
+        console.error("No checkout URL received", data);
+        toast({
+          title: "Erro ao processar checkout",
+          description: "Não foi possível gerar o link de pagamento. Verifique sua conexão com a Cakto.",
+          variant: "destructive",
+        });
       }
     } catch (error: any) {
       console.error("Error creating checkout:", error);
+      
+      let errorMessage = error.message || "Tente novamente mais tarde";
+      
+      // Provide more specific error messages
+      if (error.message?.includes("CAKTO_API_KEY")) {
+        errorMessage = "Sistema de pagamento não configurado. Entre em contato com o suporte.";
+      } else if (error.message?.includes("Pet shop not found")) {
+        errorMessage = "Pet shop não encontrado. Faça logout e entre novamente.";
+      }
+      
       toast({
         title: "Erro ao processar upgrade",
-        description: error.message || "Tente novamente mais tarde",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
