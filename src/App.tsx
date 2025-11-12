@@ -26,6 +26,8 @@ import { LoadingFallback } from "./components/LoadingFallback";
 import ScrollToTop from "./components/ScrollToTop";
 import { lazy, Suspense, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useErrorMonitoring } from "./hooks/useErrorMonitoring";
+import { usePerformanceMonitoring } from "./hooks/usePerformanceMonitoring";
 
 // Eagerly load critical pages
 import Index from "./pages/Index";
@@ -117,12 +119,17 @@ const ResendDomainSetup = lazy(() => import("./pages/admin/ResendDomainSetup"));
 const GodModeDashboard = lazy(() => import("./pages/admin/GodModeDashboard"));
 const IPWhitelist = lazy(() => import("./pages/admin/IPWhitelist"));
 const LoginHistory = lazy(() => import("./pages/admin/LoginHistory"));
+const SystemErrorLogs = lazy(() => import("./pages/admin/SystemErrorLogs"));
 
 // Admin Layout
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 
 const App = () => {
+  // Enable error and performance monitoring
+  useErrorMonitoring();
+  usePerformanceMonitoring();
+  
   // Enforce temporary session cleanup on browser close
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -326,6 +333,7 @@ const App = () => {
             <Route path="performance" element={<PerformanceDashboard />} />
             <Route path="ip-whitelist" element={<IPWhitelist />} />
             <Route path="login-history" element={<LoginHistory />} />
+            <Route path="error-logs" element={<SystemErrorLogs />} />
           </Route>
 
           {/* Legacy Admin Routes - Redirect to new structure */}
