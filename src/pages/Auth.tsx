@@ -112,29 +112,17 @@ const Auth = () => {
     }
   }, [savedEmail]);
 
-  // Auth page redirect logic - rely more on AppAuthRedirectGate
+  // Immediate redirect for authenticated users - let AppAuthRedirectGate handle it
   useEffect(() => {
-    console.log('🔄 Auth page redirect check:', { loading, user: user?.email, userRole });
+    console.log('🔄 Auth page check:', { loading, user: user?.email, userRole });
     
-    // Only redirect if we have both user AND role
-    if (!loading && user && userRole) {
-      const redirectTo = searchParams.get("redirect") || getDashboardRoute(userRole);
-      console.log('✅ Auth page: User authenticated with role, redirecting to:', redirectTo);
-      navigate(redirectTo, { replace: true });
+    // If user is authenticated, immediately redirect to home
+    // AppAuthRedirectGate will then redirect to appropriate dashboard
+    if (!loading && user) {
+      console.log('✅ Auth page: User authenticated, redirecting to home (Gate will handle dashboard routing)');
+      navigate('/', { replace: true });
     }
-  }, [user, userRole, loading, navigate, searchParams]);
-
-  // Safety net: se estamos em /auth com user mas sem role por >2.5s, ir para /
-  useEffect(() => {
-    if (location.pathname === '/auth' && !loading && user && !userRole) {
-      const safetyTimer = setTimeout(() => {
-        console.log('🚨 Safety net: Role não carregou em /auth, indo para / (Gate vai redirecionar)');
-        navigate('/', { replace: true });
-      }, 2500);
-
-      return () => clearTimeout(safetyTimer);
-    }
-  }, [location.pathname, loading, user, userRole, navigate]);
+  }, [user, loading, navigate]);
 
   const getDashboardRoute = (role: UserRole) => {
     switch (role) {

@@ -78,7 +78,6 @@ const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const SystemMonitoring = lazy(() => import("./pages/SystemMonitoring"));
 const SystemAnalysis = lazy(() => import("./pages/SystemAnalysis"));
-const AuthMonitoring = lazy(() => import("./pages/AuthMonitoring"));
 const SystemHealth = lazy(() => import("./pages/SystemHealth"));
 const SystemDiagnostics = lazy(() => import("./pages/SystemDiagnostics"));
 const SystemMonitoringDashboard = lazy(() => import("./pages/SystemMonitoringDashboard"));
@@ -136,6 +135,8 @@ const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
 const AcceptInvite = lazy(() => import("./pages/admin/AcceptInvite"));
 const MaintenanceDashboard = lazy(() => import("./pages/admin/MaintenanceDashboard"));
 const Diagnostics = lazy(() => import("./pages/Diagnostics"));
+const AuthMonitoring = lazy(() => import("./pages/admin/AuthMonitoring"));
+const AuthMetricsDashboard = lazy(() => import("./pages/admin/AuthMetricsDashboard"));
 
 // Admin Layout
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -340,6 +341,7 @@ const App = () => {
             <Route path="system-analysis" element={<SystemAnalysisDashboard />} />
             <Route path="auth-monitoring" element={<AuthMonitoring />} />
             <Route path="auth-monitor" element={<AuthMonitoring />} />
+            <Route path="auth-metrics" element={<AuthMetricsDashboard />} />
             <Route path="system-health" element={<SystemHealth />} />
             <Route path="system-diagnostics" element={<SystemDiagnostics />} />
             <Route path="ai-monitor" element={<AIMonitorDashboard />} />

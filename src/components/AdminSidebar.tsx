@@ -33,6 +33,7 @@ const monitoringItems = [
   { title: "System Analysis", url: "/admin/system-analysis", icon: Brain, badge: "IA" },
   { title: "Auth Monitoring", url: "/admin/auth-monitoring", icon: Shield },
   { title: "Monitor de Autenticação", url: "/admin/auth-monitor", icon: Shield, badge: "NEW" },
+  { title: "Métricas de Auth", url: "/admin/auth-metrics", icon: BarChart, badge: "NEW" },
   { title: "System Health", url: "/admin/system-health", icon: Gauge },
   { title: "Failed Jobs", url: "/admin/failed-jobs", icon: RefreshCw },
   { title: "System Diagnostics", url: "/admin/system-diagnostics", icon: FileText },

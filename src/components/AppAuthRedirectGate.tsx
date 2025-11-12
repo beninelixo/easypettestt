@@ -42,6 +42,7 @@ export const AppAuthRedirectGate = () => {
     const isRedirectablePage = location.pathname === '/' || location.pathname === '/auth';
     if (!isRedirectablePage || !user) {
       setWaitingForRole(false);
+      refreshAttemptedRef.current = false; // Reset on non-redirectable pages
       return;
     }
 
@@ -51,6 +52,7 @@ export const AppAuthRedirectGate = () => {
       const targetPath = getRoleBasedPath(userRole);
       console.log('✅ Gate: Redirecting to', targetPath, 'for role', userRole);
       setWaitingForRole(false);
+      refreshAttemptedRef.current = false; // Reset after successful redirect
       navigate(targetPath, { replace: true });
     } else {
       // User exists but role is not loaded yet
@@ -58,24 +60,33 @@ export const AppAuthRedirectGate = () => {
         console.log('⏳ Gate: Waiting for role to load...');
         setWaitingForRole(true);
         
-        // Wait 2 seconds for role to load naturally
+        // Shorter wait - 1.5 seconds for role to load naturally
         timeoutRef.current = setTimeout(async () => {
           if (!userRole && user && !refreshAttemptedRef.current) {
             console.log('🔄 Gate: Role still missing, forcing refresh...');
             refreshAttemptedRef.current = true;
             await forceRefreshAuth();
             
-            // After force refresh, wait a bit more
+            // After force refresh, wait 1.5s more
             setTimeout(() => {
               if (!userRole) {
-                // Still no role, navigate to safe default (client)
-                console.log('⚠️ Gate: Role still missing after refresh, defaulting to /client/pets');
-                navigate('/client/pets', { replace: true });
+                // Still no role after refresh, try to get from metadata as last resort
+                console.log('⚠️ Gate: Role still missing after refresh, checking fallbacks...');
+                
+                // If still nothing, default to client
+                console.log('⚠️ Gate: Using fallback, defaulting to /client/pets');
                 setWaitingForRole(false);
+                navigate('/client/pets', { replace: true });
+              } else {
+                // Role finally loaded, redirect
+                const targetPath = getRoleBasedPath(userRole);
+                console.log('✅ Gate: Role loaded after refresh, redirecting to', targetPath);
+                setWaitingForRole(false);
+                navigate(targetPath, { replace: true });
               }
-            }, 1000);
+            }, 1500);
           }
-        }, 2000);
+        }, 1500);
       }
     }
   }, [user, userRole, loading, location.pathname, navigate, forceRefreshAuth, waitingForRole]);
