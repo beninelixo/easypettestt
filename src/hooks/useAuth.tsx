@@ -11,6 +11,7 @@ export const useAuth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lastRoleUpdate, setLastRoleUpdate] = useState<number>(Date.now());
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -48,6 +49,7 @@ export const useAuth = () => {
         
         console.log('✅ Selected role:', selectedRole);
         setUserRole(selectedRole);
+        setLastRoleUpdate(Date.now());
       } else {
         console.log('⚠️ No roles found for user');
       }
@@ -300,13 +302,44 @@ export const useAuth = () => {
     }
   };
 
+  const forceRefreshAuth = async () => {
+    if (!user) return;
+    
+    console.log('🔄 Force refreshing authentication...');
+    setLoading(true);
+    
+    try {
+      // Clear local state
+      setUserRole(null);
+      
+      // Refetch role from database
+      await fetchUserRole(user.id);
+      
+      toast({
+        title: "✅ Autenticação Atualizada",
+        description: "Roles recarregadas do banco de dados",
+      });
+    } catch (error) {
+      console.error('❌ Error force refreshing auth:', error);
+      toast({
+        title: "❌ Erro ao Atualizar",
+        description: "Não foi possível recarregar as permissões",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     user,
     session,
     userRole,
     loading,
+    lastRoleUpdate,
     signUp,
     signIn,
     signOut,
+    forceRefreshAuth,
   };
 };
