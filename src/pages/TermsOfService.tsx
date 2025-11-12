@@ -241,8 +241,8 @@ const TermsOfService = () => {
                   Para questões relacionadas a estes termos de uso, entre em contato conosco:
                 </p>
                 <ul>
-                  <li><strong>Email:</strong> contato@easypet.com.br</li>
-                  <li><strong>Telefone:</strong> (11) 99999-9999</li>
+                  <li><strong>Email:</strong> easypetc@gmail.com</li>
+                  <li><strong>Telefone:</strong> (21) 95926-2880</li>
                   <li><strong>Endereço:</strong> São Paulo, SP, Brasil</li>
                 </ul>
                 <p>

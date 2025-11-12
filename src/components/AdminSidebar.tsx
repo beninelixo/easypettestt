@@ -1,6 +1,6 @@
 import { 
   Home, Zap, Activity, Brain, Shield, Lock, FileText, Mail, 
-  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown, Gauge, ScrollText, UserCheck, History, BarChart, TestTube, RefreshCw, LineChart, Webhook, Users
+  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown, Gauge, ScrollText, UserCheck, History, BarChart, TestTube, RefreshCw, LineChart, Webhook, Users, TrendingUp
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -48,6 +48,7 @@ const securityItems = [
 
 const settingsItems = [
   { title: "User Management", url: "/admin/user-management", icon: Users, badge: "NEW" },
+  { title: "User Analytics", url: "/admin/user-analytics", icon: TrendingUp, badge: "NEW" },
   { title: "Notification Preferences", url: "/admin/notification-preferences", icon: Bell },
   { title: "Webhooks", url: "/admin/webhooks", icon: Webhook, badge: "NEW" },
   { title: "Performance Dashboard", url: "/admin/performance", icon: Gauge },

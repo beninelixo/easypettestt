@@ -89,7 +89,7 @@ const Contact = () => {
     {
       icon: Mail,
       title: "E-mail",
-      content: "contato@easypet.com.br",
+      content: "easypetc@gmail.com",
       description: "Resposta em até 24h",
       color: "primary"
     },

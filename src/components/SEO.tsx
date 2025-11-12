@@ -147,7 +147,7 @@ export const SEO = ({
               '@type': 'ContactPoint',
               telephone: '+55-21-95926-2880',
               contactType: 'Sales',
-              email: 'contato@easypet.com.br',
+              email: 'easypetc@gmail.com',
               areaServed: 'BR',
               availableLanguage: ['Portuguese'],
             },

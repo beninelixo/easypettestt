@@ -112,7 +112,7 @@ const FAQ = () => {
         <div className="mt-12 text-center">
           <p className="text-muted-foreground mb-4">Ainda tem dúvidas?</p>
           <a 
-            href="mailto:contato@easypet.com.br" 
+            href="mailto:easypetc@gmail.com" 
             className="text-primary font-semibold hover:underline inline-flex items-center gap-2 text-lg"
           >
             Entre em contato conosco

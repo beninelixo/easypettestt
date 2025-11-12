@@ -201,7 +201,7 @@ const FAQ = () => {
                   </Card>
                 </a>
 
-                <a href="mailto:contato@easypet.com.br" className="group">
+                <a href="mailto:easypetc@gmail.com" className="group">
                   <Card className="border-2 border-border hover:border-primary hover:shadow-xl transition-all duration-300 cursor-pointer h-full">
                     <CardContent className="p-6 text-center space-y-3">
                       <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
@@ -209,7 +209,7 @@ const FAQ = () => {
                       </div>
                       <div className="font-bold">E-mail</div>
                       <div className="text-sm text-muted-foreground">
-                        contato@easypet.com.br
+                        easypetc@gmail.com
                       </div>
                     </CardContent>
                   </Card>

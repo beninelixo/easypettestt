@@ -57,7 +57,7 @@ const PrivacyPolicy = () => {
                   e demais legislações aplicáveis.
                 </p>
                 <p>
-                  <strong>Controlador de Dados:</strong> EasyPet - contato@easypet.com.br
+                  <strong>Controlador de Dados:</strong> EasyPet - easypetc@gmail.com
                 </p>
                 <p>
                   <strong>Encarregado de Dados (DPO):</strong> dpo@easypet.com.br
@@ -267,7 +267,7 @@ const PrivacyPolicy = () => {
                   <li><strong>Dentro da Plataforma:</strong> Acesse "Configurações" → "Privacidade" → 
                   "Gerenciar Dados"</li>
                   <li><strong>Por Email:</strong> dpo@easypet.com.br (resposta em até 15 dias)</li>
-                  <li><strong>Suporte:</strong> contato@easypet.com.br</li>
+                  <li><strong>Suporte:</strong> easypetc@gmail.com</li>
                 </ul>
 
                 <p>
@@ -327,8 +327,8 @@ const PrivacyPolicy = () => {
                 <p><strong>Entre em contato conosco:</strong></p>
                 <ul>
                   <li><strong>Encarregado de Dados (DPO):</strong> dpo@easypet.com.br</li>
-                  <li><strong>Suporte Geral:</strong> contato@easypet.com.br</li>
-                  <li><strong>Telefone:</strong> (11) 99999-9999</li>
+                  <li><strong>Suporte Geral:</strong> easypetc@gmail.com</li>
+                  <li><strong>Telefone:</strong> (21) 95926-2880</li>
                   <li><strong>Endereço:</strong> São Paulo, SP, Brasil</li>
                 </ul>
 

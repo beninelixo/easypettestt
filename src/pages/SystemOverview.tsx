@@ -72,30 +72,30 @@ const SystemOverview = () => {
   ];
 
   const competitorComparison = [
-    { feature: "Preço (plano básico)", easypet: "R$ 79,90", vetwork: "R$ 120+", onepet: "R$ 150+", others: "R$ 100+" },
-    { feature: "Usuários simultâneos", easypet: "5", vetwork: "3", onepet: "2", others: "1-3" },
-    { feature: "WhatsApp integrado", easypet: "✓ Grátis", vetwork: "⚠️ Add-on", onepet: "✗", others: "⚠️" },
-    { feature: "API aberta", easypet: "✓", vetwork: "⚠️ Limitada", onepet: "✗", others: "✗" },
-    { feature: "Fidelidade gamificada", easypet: "✓", vetwork: "✗", onepet: "✗", others: "✗" },
-    { feature: "Suporte 24/7", easypet: "✓", vetwork: "⚠️ Horário comercial", onepet: "⚠️", others: "✗" },
-    { feature: "Multi-unidades", easypet: "✓ Platinum", vetwork: "⚠️ Enterprise", onepet: "⚠️", others: "✗" }
+    { feature: "Preço (plano básico)", easypet: "R$ 79,90", competitors: "R$ 120+" },
+    { feature: "Usuários simultâneos", easypet: "5", competitors: "1-3" },
+    { feature: "WhatsApp integrado", easypet: "✓ Grátis", competitors: "⚠️ Add-on ou ✗" },
+    { feature: "API aberta", easypet: "✓", competitors: "⚠️ Limitada ou ✗" },
+    { feature: "Fidelidade gamificada", easypet: "✓", competitors: "✗" },
+    { feature: "Suporte 24/7", easypet: "✓", competitors: "⚠️ Limitado" },
+    { feature: "Multi-unidades", easypet: "✓ Platinum", competitors: "⚠️ Enterprise ou ✗" }
   ];
 
-  const useCases = [
+  const systemAdvantages = [
     {
-      title: "Pet Shop Feliz: De 1 para 3 franquias em 1 ano",
-      stats: "+180% receita | 3 unidades | 450 clientes ativos",
-      description: "Com o sistema de multi-unidades, expandiram sem perder controle da gestão."
+      icon: Zap,
+      title: "Automatização Inteligente",
+      description: "Reduza em até 80% o tempo gasto com tarefas administrativas através de lembretes automáticos, agendamento inteligente e notificações programadas."
     },
     {
-      title: "Clínica VetCare: Reduziu no-shows em 70%",
-      stats: "70% menos faltas | +R$ 12k/mês | 98% satisfação",
-      description: "Lembretes automáticos via WhatsApp transformaram a taxa de comparecimento."
+      icon: TrendingUp,
+      title: "Aumento de Receita",
+      description: "Aumente seu faturamento em média 45% com programa de fidelidade gamificado, redução de no-shows e gestão eficiente de produtos e serviços."
     },
     {
-      title: "Grooming Premium: Triplicou ticket médio",
-      stats: "+200% ticket | R$ 180 médio | 85% clientes recorrentes",
-      description: "Programa de fidelidade gamificado aumentou frequência de visitas."
+      icon: Shield,
+      title: "Segurança e Confiabilidade",
+      description: "Proteção bancária AES-256, backup automático a cada hora, conformidade total com LGPD e disponibilidade 99.9% garantida."
     }
   ];
 
@@ -197,9 +197,7 @@ const SystemOverview = () => {
                 <tr className="bg-primary text-primary-foreground">
                   <th className="text-left p-4 font-bold">Funcionalidade</th>
                   <th className="text-center p-4 font-bold">EasyPet</th>
-                  <th className="text-center p-4 font-bold">Vetwork</th>
-                  <th className="text-center p-4 font-bold">OnePet</th>
-                  <th className="text-center p-4 font-bold">Outros</th>
+                  <th className="text-center p-4 font-bold">Concorrentes</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -207,9 +205,7 @@ const SystemOverview = () => {
                   <tr key={index} className="hover:bg-muted/50 transition-colors">
                     <td className="p-4 font-semibold">{row.feature}</td>
                     <td className="p-4 text-center font-bold text-green-600">{row.easypet}</td>
-                    <td className="p-4 text-center text-muted-foreground">{row.vetwork}</td>
-                    <td className="p-4 text-center text-muted-foreground">{row.onepet}</td>
-                    <td className="p-4 text-center text-muted-foreground">{row.others}</td>
+                    <td className="p-4 text-center text-muted-foreground">{row.competitors}</td>
                   </tr>
                 ))}
               </tbody>
@@ -218,26 +214,25 @@ const SystemOverview = () => {
         </div>
       </section>
 
-      {/* Use Cases */}
+      {/* System Advantages */}
       <section className="py-20 px-4 bg-gradient-to-br from-muted/30 to-background">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-black mb-4">Casos de Sucesso Reais</h2>
-            <p className="text-xl text-muted-foreground">Resultados comprovados de quem usa o EasyPet</p>
+            <h2 className="text-4xl font-black mb-4">Por que Escolher o EasyPet?</h2>
+            <p className="text-xl text-muted-foreground">Vantagens que transformam seu negócio</p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-            {useCases.map((useCase, index) => (
-              <Card key={index} className="hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+            {systemAdvantages.map((advantage, index) => (
+              <Card key={index} className="hover:shadow-xl hover:-translate-y-2 transition-all duration-300 border-2 border-border">
                 <CardHeader>
-                  <div className="flex items-center gap-2 mb-4">
-                    <TrendingUp className="h-6 w-6 text-green-600" />
-                    <span className="text-sm font-bold text-green-600">{useCase.stats}</span>
+                  <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mb-4">
+                    <advantage.icon className="h-8 w-8 text-primary" />
                   </div>
-                  <CardTitle className="text-xl">{useCase.title}</CardTitle>
+                  <CardTitle className="text-xl">{advantage.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">{useCase.description}</p>
+                  <p className="text-muted-foreground leading-relaxed">{advantage.description}</p>
                 </CardContent>
               </Card>
             ))}

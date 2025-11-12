@@ -6,10 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { SecurityNotificationsPanel } from "@/components/admin/SecurityNotificationsPanel";
 import { AdminAlertsPanel } from "@/components/admin/AdminAlertsPanel";
 import { useAuth } from "@/hooks/useAuth";
+import { useNewUserNotifications } from "@/hooks/useNewUserNotifications";
 import logo from "@/assets/easypet-logo.png";
 
 export default function AdminLayout() {
   const { userRole } = useAuth();
+
+  // Enable real-time notifications for new users
+  useNewUserNotifications();
 
   return (
     <SidebarProvider defaultOpen>

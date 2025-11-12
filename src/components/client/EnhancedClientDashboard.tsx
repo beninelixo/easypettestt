@@ -218,18 +218,18 @@ export function EnhancedClientDashboard() {
             <div>
               <div className="flex justify-between text-sm mb-2">
                 <span>Progresso para próxima recompensa</span>
-                <span className="font-medium">{loyaltyPoints % 100}/100 pontos</span>
+                <span className="font-medium">{((loyaltyPoints || 0) % 100)}/100 pontos</span>
               </div>
               <div className="w-full bg-muted rounded-full h-2">
                 <div
                   className="bg-primary h-2 rounded-full transition-all"
-                  style={{ width: `${(loyaltyPoints % 100)}%` }}
+                  style={{ width: `${((loyaltyPoints || 0) % 100)}%` }}
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4 pt-4">
               <div className="text-center p-4 bg-background rounded-lg border">
-                <p className="text-2xl font-bold text-primary">{Math.floor(loyaltyPoints / 100)}</p>
+                <p className="text-2xl font-bold text-primary">{Math.floor((loyaltyPoints || 0) / 100)}</p>
                 <p className="text-xs text-muted-foreground">Recompensas ganhas</p>
               </div>
               <div className="text-center p-4 bg-background rounded-lg border">
