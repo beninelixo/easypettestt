@@ -24,6 +24,9 @@ export const DebugAuthPanel = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // ✅ NOVO: Detect target user
+  const isTargetUser = user?.email === 'beninelixo@gmail.com';
+
   return (
     <Card className="border-dashed border-2 border-primary/20 bg-primary/5">
       <CardHeader className="pb-3">
@@ -45,6 +48,18 @@ export const DebugAuthPanel = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-xs font-mono">
+        {/* ✅ NOVO: Special banner for beninelixo@gmail.com */}
+        {isTargetUser && (
+          <div className="mb-3 p-3 border-2 border-primary rounded-lg bg-primary/10">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-lg">🎯</span>
+              <span className="font-bold text-primary">Admin Target User</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              Rastreamento ativo para diagnóstico
+            </p>
+          </div>
+        )}
         {/* User ID */}
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground flex items-center gap-1">

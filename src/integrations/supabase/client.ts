@@ -17,9 +17,25 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   }
 });
 
-// Clear invalid sessions on startup
+// Clear invalid sessions on startup with JWT validation
 supabase.auth.onAuthStateChange(async (event, session) => {
   console.log('🔐 Auth state changed:', event, session ? 'Session exists' : 'No session');
+  
+  // ✅ Validate session has valid access_token with sub claim
+  if (session && session.access_token) {
+    try {
+      const payload = JSON.parse(atob(session.access_token.split('.')[1]));
+      if (!payload.sub) {
+        console.error('❌ Invalid token: missing sub claim');
+        await supabase.auth.signOut();
+        return;
+      }
+    } catch (error) {
+      console.error('❌ Token decode error:', error);
+      await supabase.auth.signOut();
+      return;
+    }
+  }
   
   if (event === 'TOKEN_REFRESHED' && !session) {
     console.log('⚠️ Session refresh failed, clearing storage');

@@ -46,6 +46,22 @@ export const useAuth = () => {
     try {
       console.log('🔍 Fetching user role for:', userId);
       
+      // ✅ NOVO: Special logging for beninelixo@gmail.com
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData?.user?.email === 'beninelixo@gmail.com') {
+        console.log('🎯 ADMIN TARGET USER DETECTED:', {
+          userId,
+          email: userData.user.email,
+          timestamp: new Date().toISOString()
+        });
+        
+        toast({
+          title: "🎯 Admin Login Detectado",
+          description: `Carregando roles para ${userData.user.email}...`,
+          duration: 2000,
+        });
+      }
+      
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
@@ -79,6 +95,16 @@ export const useAuth = () => {
         setLastRoleUpdate(Date.now());
         setRoleSource('database');
         await logAuthEvent(userId, 'role_fetch', 'success', 'database', selectedRole);
+        
+        // ✅ NOVO: Toast visual for beninelixo@gmail.com
+        const { data: userData2 } = await supabase.auth.getUser();
+        if (userData2?.user?.email === 'beninelixo@gmail.com') {
+          toast({
+            title: "✅ Role Carregada com Sucesso",
+            description: `Role: ${selectedRole} (fonte: database)`,
+            duration: 3000,
+          });
+        }
       } else {
         console.log('⚠️ No roles found for user');
         await logAuthEvent(userId, 'role_fetch', 'error', undefined, undefined, 'No roles found in database');

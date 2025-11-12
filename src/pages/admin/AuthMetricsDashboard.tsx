@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useAuthMonitor } from "@/hooks/useAuthMonitor";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,6 +45,9 @@ export default function AuthMetricsDashboard() {
   const [recentFailures, setRecentFailures] = useState<any[]>([]);
   const [highFailure, setHighFailure] = useState<{ active: boolean; rate: number }>({ active: false, rate: 0 });
   const lastAlertRef = useRef<number>(0);
+  const [failureTrend, setFailureTrend] = useState<Array<{ hour: string; rate: number }>>([]);
+  const [topFailedIPs, setTopFailedIPs] = useState<Array<{ ip: string; count: number }>>([]);
+  const [period, setPeriod] = useState<'1h' | '24h' | '7d' | '30d'>('24h');
 
   useEffect(() => {
     calculateMetrics();
@@ -164,6 +168,47 @@ export default function AuthMetricsDashboard() {
 
     // Recent failures
     setRecentFailures(failedLogins.slice(0, 10));
+
+    // ✅ Tendência de falhas por hora (últimas 24h)
+    const trendData: Record<string, { success: number; failed: number }> = {};
+    const last24h = Date.now() - 24 * 60 * 60 * 1000;
+    const recent24h = loginEvents.filter(e => new Date(e.created_at).getTime() >= last24h);
+
+    recent24h.forEach(event => {
+      const hour = new Date(event.created_at).getHours().toString().padStart(2, '0') + ':00';
+      if (!trendData[hour]) {
+        trendData[hour] = { success: 0, failed: 0 };
+      }
+      if (event.event_status === 'success') {
+        trendData[hour].success++;
+      } else {
+        trendData[hour].failed++;
+      }
+    });
+
+    const trend = Object.entries(trendData).map(([hour, data]) => ({
+      hour,
+      rate: data.failed + data.success > 0 
+        ? (data.failed / (data.failed + data.success)) * 100 
+        : 0
+    }));
+
+    setFailureTrend(trend);
+
+    // ✅ Top 10 IPs com mais falhas
+    const ipFailures: Record<string, number> = {};
+    failedLogins.forEach(event => {
+      if (event.ip_address) {
+        ipFailures[event.ip_address] = (ipFailures[event.ip_address] || 0) + 1;
+      }
+    });
+
+    const sortedIPs = Object.entries(ipFailures)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+      .map(([ip, count]) => ({ ip, count }));
+
+    setTopFailedIPs(sortedIPs);
   };
 
   return (
@@ -173,6 +218,50 @@ export default function AuthMetricsDashboard() {
         <p className="text-muted-foreground">
           Dashboard consolidado com estatísticas de login, falhas e sessões ativas
         </p>
+      </div>
+
+      {/* ✅ High Failure Rate Alert */}
+      {highFailure.active && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>⚠️ Taxa de Falhas Elevada Detectada</AlertTitle>
+          <AlertDescription>
+            A taxa de falhas de login atingiu {highFailure.rate.toFixed(1)}% na última hora (threshold: 20%).
+            Administradores foram notificados automaticamente.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* ✅ Period Filters */}
+      <div className="flex gap-2">
+        <Button 
+          variant={period === '1h' ? 'default' : 'outline'}
+          onClick={() => setPeriod('1h')}
+          size="sm"
+        >
+          Última Hora
+        </Button>
+        <Button 
+          variant={period === '24h' ? 'default' : 'outline'}
+          onClick={() => setPeriod('24h')}
+          size="sm"
+        >
+          24 Horas
+        </Button>
+        <Button 
+          variant={period === '7d' ? 'default' : 'outline'}
+          onClick={() => setPeriod('7d')}
+          size="sm"
+        >
+          7 Dias
+        </Button>
+        <Button 
+          variant={period === '30d' ? 'default' : 'outline'}
+          onClick={() => setPeriod('30d')}
+          size="sm"
+        >
+          30 Dias
+        </Button>
       </div>
 
       {/* Key Metrics */}
@@ -293,6 +382,57 @@ export default function AuthMetricsDashboard() {
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* ✅ Failure Trend Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Tendência de Taxa de Falha</CardTitle>
+            <CardDescription>Últimas 24 horas - % de falhas por hora</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={failureTrend}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="hour" />
+                <YAxis label={{ value: 'Taxa de Falha (%)', angle: -90, position: 'insideLeft' }} />
+                <Tooltip formatter={(value) => `${Number(value).toFixed(1)}%`} />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey="rate" 
+                  stroke="#ef4444" 
+                  strokeWidth={2}
+                  name="Taxa de Falha"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* ✅ Top Failed IPs */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Top 10 IPs com Mais Falhas</CardTitle>
+            <CardDescription>Endereços IP com maior número de tentativas falhadas</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {topFailedIPs.length === 0 ? (
+                <p className="text-center text-muted-foreground">Nenhuma falha registrada</p>
+              ) : (
+                topFailedIPs.map((item, index) => (
+                  <div key={item.ip} className="flex items-center justify-between p-2 border rounded hover:bg-muted/50">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">#{index + 1}</Badge>
+                      <code className="text-sm">{item.ip}</code>
+                    </div>
+                    <Badge variant="destructive">{item.count} falhas</Badge>
+                  </div>
+                ))
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

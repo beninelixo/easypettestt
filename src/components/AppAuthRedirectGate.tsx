@@ -60,14 +60,14 @@ export const AppAuthRedirectGate = () => {
         console.log('⏳ Gate: Waiting for role to load...');
         setWaitingForRole(true);
         
-        // Shorter wait - 1.5 seconds for role to load naturally
+        // ✅ Reduced timeout to 1s for faster redirection
         timeoutRef.current = setTimeout(async () => {
           if (!userRole && user && !refreshAttemptedRef.current) {
             console.log('🔄 Gate: Role still missing, forcing refresh...');
             refreshAttemptedRef.current = true;
             await forceRefreshAuth();
             
-            // After force refresh, wait 1.5s more
+            // After force refresh, wait 1s more
             setTimeout(() => {
               if (!userRole) {
                 // Still no role after refresh, try to get from metadata as last resort
@@ -84,9 +84,9 @@ export const AppAuthRedirectGate = () => {
                 setWaitingForRole(false);
                 navigate(targetPath, { replace: true });
               }
-            }, 1500);
+            }, 1000); // ✅ Reduced from 1500ms to 1000ms
           }
-        }, 1500);
+        }, 1000); // ✅ Reduced from 1500ms to 1000ms
       }
     }
   }, [user, userRole, loading, location.pathname, navigate, forceRefreshAuth, waitingForRole]);

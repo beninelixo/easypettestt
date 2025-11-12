@@ -116,13 +116,13 @@ const Auth = () => {
   useEffect(() => {
     console.log('🔄 Auth page check:', { loading, user: user?.email, userRole });
     
-    // If user is authenticated, immediately redirect to home
-    // AppAuthRedirectGate will then redirect to appropriate dashboard
-    if (user) {
-      console.log('✅ Auth page: User authenticated, redirecting to home (Gate will handle dashboard routing)');
+    // ✅ FIXED: Wait for loading to complete before redirecting
+    // This prevents invalid JWT tokens and auth loops
+    if (!loading && user) {
+      console.log('✅ Auth page: User authenticated and loading complete, redirecting to home (Gate will handle dashboard routing)');
       navigate('/', { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
   const getDashboardRoute = (role: UserRole) => {
     switch (role) {

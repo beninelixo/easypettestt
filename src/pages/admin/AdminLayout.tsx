@@ -9,6 +9,7 @@ import { AdminNotificationsPanel } from "@/components/admin/AdminNotificationsPa
 import { DebugAuthPanel } from "@/components/admin/DebugAuthPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { useNewUserNotifications } from "@/hooks/useNewUserNotifications";
+import { useAdminAlertSubscription } from "@/hooks/useAdminAlertSubscription";
 import logo from "@/assets/easypet-logo.png";
 
 export default function AdminLayout() {
@@ -17,6 +18,9 @@ export default function AdminLayout() {
 
   // Enable real-time notifications for new users
   useNewUserNotifications();
+  
+  // ✅ NOVO: Enable real-time admin alerts
+  useAdminAlertSubscription();
 
   console.log('🎯 AdminLayout - userRole:', userRole, 'user:', user?.email);
 
