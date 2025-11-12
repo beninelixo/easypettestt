@@ -4,6 +4,7 @@ import { AdminSidebar } from "@/components/AdminSidebar";
 import { Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SecurityNotificationsPanel } from "@/components/admin/SecurityNotificationsPanel";
+import { AdminAlertsPanel } from "@/components/admin/AdminAlertsPanel";
 import { useAuth } from "@/hooks/useAuth";
 import logo from "@/assets/easypet-logo.png";
 
@@ -36,6 +37,9 @@ export default function AdminLayout() {
                   MODO DEUS
                 </Badge>
               </div>
+              
+              {/* Alertas Panel */}
+              {userRole === 'admin' && <AdminAlertsPanel />}
             </div>
           </header>
 

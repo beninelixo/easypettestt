@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_alerts: {
+        Row: {
+          alert_type: string
+          context: Json | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          read: boolean | null
+          read_at: string | null
+          read_by: string | null
+          resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          source_function: string | null
+          source_module: string | null
+          title: string
+        }
+        Insert: {
+          alert_type: string
+          context?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          read?: boolean | null
+          read_at?: string | null
+          read_by?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity: string
+          source_function?: string | null
+          source_module?: string | null
+          title: string
+        }
+        Update: {
+          alert_type?: string
+          context?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          read?: boolean | null
+          read_at?: string | null
+          read_by?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          source_function?: string | null
+          source_module?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       appointments: {
         Row: {
           client_id: string
@@ -377,6 +437,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      failed_jobs: {
+        Row: {
+          attempt_count: number | null
+          completed_at: string | null
+          created_at: string | null
+          error_message: string | null
+          error_stack: string | null
+          id: string
+          job_name: string
+          job_type: string
+          last_attempted_at: string | null
+          max_attempts: number | null
+          metadata: Json | null
+          next_retry_at: string | null
+          payload: Json
+          status: string | null
+        }
+        Insert: {
+          attempt_count?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          error_stack?: string | null
+          id?: string
+          job_name: string
+          job_type: string
+          last_attempted_at?: string | null
+          max_attempts?: number | null
+          metadata?: Json | null
+          next_retry_at?: string | null
+          payload: Json
+          status?: string | null
+        }
+        Update: {
+          attempt_count?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          error_stack?: string | null
+          id?: string
+          job_name?: string
+          job_type?: string
+          last_attempted_at?: string | null
+          max_attempts?: number | null
+          metadata?: Json | null
+          next_retry_at?: string | null
+          payload?: Json
+          status?: string | null
+        }
+        Relationships: []
       }
       franchises: {
         Row: {
@@ -1737,6 +1848,48 @@ export type Database = {
         }
         Relationships: []
       }
+      system_health_metrics: {
+        Row: {
+          created_at: string | null
+          id: string
+          measured_at: string | null
+          metadata: Json | null
+          metric_name: string
+          metric_type: string
+          metric_unit: string | null
+          metric_value: number
+          status: string | null
+          threshold_critical: number | null
+          threshold_warning: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          measured_at?: string | null
+          metadata?: Json | null
+          metric_name: string
+          metric_type: string
+          metric_unit?: string | null
+          metric_value: number
+          status?: string | null
+          threshold_critical?: number | null
+          threshold_warning?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          measured_at?: string | null
+          metadata?: Json | null
+          metric_name?: string
+          metric_type?: string
+          metric_unit?: string | null
+          metric_value?: number
+          status?: string | null
+          threshold_critical?: number | null
+          threshold_warning?: number | null
+        }
+        Relationships: []
+      }
       system_logs: {
         Row: {
           created_at: string
@@ -1973,11 +2126,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_next_retry: { Args: { attempt_count: number }; Returns: string }
       cleanup_expired_blocks: { Args: never; Returns: number }
       cleanup_expired_mfa_sessions: { Args: never; Returns: number }
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       cleanup_old_login_attempts: { Args: never; Returns: undefined }
       cleanup_old_logs: { Args: never; Returns: number }
+      create_critical_alert: {
+        Args: {
+          p_alert_type?: string
+          p_context?: Json
+          p_message: string
+          p_title: string
+        }
+        Returns: string
+      }
       generate_pet_shop_code: { Args: never; Returns: string }
       generate_user_code: { Args: never; Returns: string }
       get_appointments_by_period: {
@@ -2046,6 +2209,7 @@ export type Database = {
       }
       get_security_stats: { Args: never; Returns: Json }
       get_system_health: { Args: never; Returns: Json }
+      get_system_health_summary: { Args: never; Returns: Json }
       get_system_stats: { Args: never; Returns: Json }
       get_weekly_appointments: {
         Args: { _pet_shop_id: string }
@@ -2080,6 +2244,7 @@ export type Database = {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean
       }
+      mark_alert_read: { Args: { alert_id: string }; Returns: boolean }
       resolve_old_alerts: { Args: never; Returns: number }
       set_current_tenant: { Args: { _tenant_id: string }; Returns: undefined }
       update_global_metrics: { Args: never; Returns: undefined }

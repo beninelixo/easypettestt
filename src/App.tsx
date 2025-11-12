@@ -120,6 +120,7 @@ const GodModeDashboard = lazy(() => import("./pages/admin/GodModeDashboard"));
 const IPWhitelist = lazy(() => import("./pages/admin/IPWhitelist"));
 const LoginHistory = lazy(() => import("./pages/admin/LoginHistory"));
 const SystemErrorLogs = lazy(() => import("./pages/admin/SystemErrorLogs"));
+const SystemHealthDashboard = lazy(() => import("./pages/admin/SystemHealthDashboard"));
 
 // Admin Layout
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -334,6 +335,7 @@ const App = () => {
             <Route path="ip-whitelist" element={<IPWhitelist />} />
             <Route path="login-history" element={<LoginHistory />} />
             <Route path="error-logs" element={<SystemErrorLogs />} />
+            <Route path="system-health" element={<SystemHealthDashboard />} />
           </Route>
 
           {/* Legacy Admin Routes - Redirect to new structure */}

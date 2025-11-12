@@ -29,7 +29,7 @@ const monitoringItems = [
   { title: "System Monitoring", url: "/admin/system-monitoring", icon: Monitor },
   { title: "System Analysis", url: "/admin/system-analysis", icon: Brain, badge: "IA" },
   { title: "Auth Monitoring", url: "/admin/auth-monitoring", icon: Shield },
-  { title: "System Health", url: "/admin/system-health", icon: Activity },
+  { title: "System Health", url: "/admin/system-health", icon: Activity, badge: "NEW" },
   { title: "System Diagnostics", url: "/admin/system-diagnostics", icon: FileText },
   { title: "AI Monitor", url: "/admin/ai-monitor", icon: Brain, badge: "AUTO" },
 ];
@@ -45,6 +45,7 @@ const securityItems = [
 
 const settingsItems = [
   { title: "Performance Dashboard", url: "/admin/performance", icon: Gauge, badge: "NEW" },
+  { title: "Error Logs", url: "/admin/error-logs", icon: ScrollText, badge: "NEW" },
   { title: "Email System Test", url: "/admin/email-test", icon: TestTube },
   { title: "Email Analytics", url: "/admin/email-analytics", icon: BarChart, badge: "NEW" },
   { title: "Resend Domain Setup", url: "/admin/domain-setup", icon: Globe },
