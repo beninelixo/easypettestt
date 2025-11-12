@@ -160,7 +160,8 @@ async function sendWhatsApp(notification: any): Promise<boolean> {
 
   try {
     // WhatsApp Business API integration
-    const response = await fetch('https://graph.facebook.com/v18.0/YOUR_PHONE_NUMBER_ID/messages', {
+    const phoneNumberId = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID') || 'YOUR_PHONE_NUMBER_ID';
+    const response = await fetch(`https://graph.facebook.com/v18.0/${phoneNumberId}/messages`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,

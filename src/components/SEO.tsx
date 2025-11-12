@@ -119,7 +119,7 @@ export const SEO = ({
             },
             contactPoint: {
               '@type': 'ContactPoint',
-              telephone: '+55-11-99999-9999',
+              telephone: '+55-21-95926-2880',
               contactType: 'Customer Service',
               areaServed: 'BR',
               availableLanguage: ['Portuguese'],
@@ -145,7 +145,7 @@ export const SEO = ({
           },
             contactPoint: {
               '@type': 'ContactPoint',
-              telephone: '+55-11-99999-9999',
+              telephone: '+55-21-95926-2880',
               contactType: 'Sales',
               email: 'contato@easypet.com.br',
               areaServed: 'BR',

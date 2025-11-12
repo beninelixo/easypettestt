@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LoadingScreen } from "@/components/LoadingScreen";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 // Configuração otimizada de cache para performance
 const queryClient = new QueryClient({
@@ -161,6 +162,7 @@ const App = () => {
             <ThemeToggle />
             <BrowserRouter>
               <PushNotificationButton />
+              <WhatsAppButton />
               <ScrollToTop />
               <Suspense fallback={<LoadingFallback />}>
           <Routes>

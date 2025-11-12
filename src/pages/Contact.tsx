@@ -95,9 +95,9 @@ const Contact = () => {
     },
     {
       icon: Phone,
-      title: "Telefone",
-      content: "(11) 99999-9999",
-      description: "Seg a Sex, 9h às 18h",
+      title: "WhatsApp Business",
+      content: "(21) 95926-2880",
+      description: "Atendimento rápido 24/7",
       color: "secondary"
     },
     {
@@ -313,15 +313,19 @@ const Contact = () => {
               <Card className="border-2 border-primary bg-gradient-to-br from-primary/5 to-secondary/5">
                 <CardContent className="p-8 text-center space-y-4">
                   <h3 className="text-2xl font-bold">
-                    Prefere falar por telefone?
+                    Prefere falar pelo WhatsApp?
                   </h3>
                   <p className="text-muted-foreground">
-                    Ligue agora e converse com um especialista
+                    Clique e converse agora com um especialista
                   </p>
-                  <a href="tel:+5511999999999">
-                    <Button size="lg" className="w-full py-6 text-lg font-bold">
-                      <Phone className="mr-2 h-5 w-5" />
-                      (11) 99999-9999
+                  <a 
+                    href="https://wa.me/5521959262880?text=Olá!%20Gostaria%20de%20saber%20mais%20sobre%20o%20EasyPet" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button size="lg" className="w-full py-6 text-lg font-bold bg-[#25D366] hover:bg-[#20BA5A] text-white">
+                      <MessageSquare className="mr-2 h-5 w-5" />
+                      Abrir WhatsApp
                     </Button>
                   </a>
                 </CardContent>
