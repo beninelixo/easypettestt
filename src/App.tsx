@@ -131,6 +131,7 @@ const SystemAnalysisDashboard = lazy(() => import("./pages/admin/SystemAnalysis"
 const UserAnalytics = lazy(() => import("./pages/admin/UserAnalytics"));
 const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
 const AcceptInvite = lazy(() => import("./pages/admin/AcceptInvite"));
+const MaintenanceDashboard = lazy(() => import("./pages/admin/MaintenanceDashboard"));
 
 // Admin Layout
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -331,6 +332,7 @@ const App = () => {
             <Route path="system-health" element={<SystemHealth />} />
             <Route path="system-diagnostics" element={<SystemDiagnostics />} />
             <Route path="ai-monitor" element={<AIMonitorDashboard />} />
+            <Route path="maintenance" element={<MaintenanceDashboard />} />
             <Route path="security" element={<ConsolidatedSecurityDashboard />} />
             <Route path="security-monitoring" element={<SecurityMonitoring />} />
             <Route path="backups" element={<BackupManagement />} />

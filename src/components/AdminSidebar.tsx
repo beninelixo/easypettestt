@@ -26,6 +26,7 @@ const godModeItems = [
 ];
 
 const monitoringItems = [
+  { title: "Manutenção Automática", url: "/admin/maintenance", icon: Gauge, badge: "AUTO" },
   { title: "Health Dashboard", url: "/admin/health-dashboard", icon: Activity, badge: "NEW" },
   { title: "Performance History", url: "/admin/performance-history", icon: LineChart, badge: "NEW" },
   { title: "System Monitoring", url: "/admin/system-monitoring", icon: Monitor },
