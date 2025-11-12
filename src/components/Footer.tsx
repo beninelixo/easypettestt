@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { PawPrint, Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
+import logo from "@/assets/easypet-logo.png";
 
 const Footer = () => {
   return (
@@ -9,9 +10,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="bg-primary text-primary-foreground p-2 rounded-lg">
-                <PawPrint className="h-5 w-5" />
-              </div>
+              <img src={logo} alt="EasyPet Logo" className="h-10 w-10" />
               <span className="font-bold text-lg">EasyPet</span>
             </div>
             <p className="text-sm text-muted-foreground">

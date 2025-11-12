@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PawPrint, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useHasSuccessStories } from "@/hooks/useSuccessStories";
+import logo from "@/assets/easypet-logo.png";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,9 +36,11 @@ const Navigation = () => {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="bg-primary text-primary-foreground p-2 rounded-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg">
-            <PawPrint className="h-5 w-5" />
-          </div>
+          <img 
+            src={logo} 
+            alt="EasyPet Logo" 
+            className="h-10 w-10 transition-all duration-300 group-hover:scale-110"
+          />
           <span className="font-bold text-xl text-foreground">
             <span className="text-primary">EasyPet</span>
           </span>
@@ -81,9 +84,7 @@ const Navigation = () => {
             <SheetContent side="right" className="w-[280px] sm:w-[350px]">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2">
-                  <div className="bg-primary text-primary-foreground p-2 rounded-lg">
-                    <PawPrint className="h-5 w-5" />
-                  </div>
+                  <img src={logo} alt="EasyPet Logo" className="h-8 w-8" />
                   <span className="text-lg">Menu</span>
                 </SheetTitle>
               </SheetHeader>

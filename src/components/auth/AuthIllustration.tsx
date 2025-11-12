@@ -1,5 +1,5 @@
-import { PawPrint } from "lucide-react";
 import { Link } from "react-router-dom";
+import logo from "@/assets/easypet-logo.png";
 
 export const AuthIllustration = () => {
   return (
@@ -15,10 +15,10 @@ export const AuthIllustration = () => {
 
       {/* Main illustration */}
       <div className="relative z-10 flex flex-col items-center gap-8">
-        <Link to="/" className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full blur-2xl opacity-50 animate-pulse-glow" />
-          <div className="relative bg-gradient-to-br from-primary to-secondary p-12 rounded-3xl shadow-2xl cursor-pointer hover:scale-105 transition-transform">
-            <PawPrint className="h-32 w-32 text-white" />
+        <Link to="/" className="relative group">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-3xl blur-2xl opacity-50 animate-pulse-glow" />
+          <div className="relative bg-card/80 backdrop-blur-sm p-12 rounded-3xl shadow-2xl cursor-pointer hover:scale-105 transition-transform border border-border/50">
+            <img src={logo} alt="EasyPet Logo" className="h-32 w-32" />
           </div>
         </Link>
         

@@ -1,10 +1,11 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
-import { Shield, Zap } from "lucide-react";
+import { Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SecurityNotificationsPanel } from "@/components/admin/SecurityNotificationsPanel";
 import { useAuth } from "@/hooks/useAuth";
+import logo from "@/assets/easypet-logo.png";
 
 export default function AdminLayout() {
   const { userRole } = useAuth();
@@ -20,7 +21,7 @@ export default function AdminLayout() {
             <div className="flex h-16 items-center gap-4 px-6">
               <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
               <div className="flex items-center gap-3 flex-1">
-                <Shield className="h-6 w-6 text-primary" />
+                <img src={logo} alt="EasyPet Logo" className="h-8 w-8" />
                 <h1 className="text-xl font-bold">Painel Administrativo</h1>
                 <Badge variant="default" className="bg-primary/10 text-primary">Admin</Badge>
                 <Badge variant="destructive" className="animate-pulse">
