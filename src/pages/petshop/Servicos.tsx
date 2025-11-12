@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,6 +32,7 @@ interface Service {
 const Servicos = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [services, setServices] = useState<Service[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -323,7 +325,7 @@ const Servicos = () => {
               </p>
             </div>
           </div>
-          <Button onClick={() => window.location.href = "/petshop-dashboard/service-templates"} className="gap-2">
+          <Button onClick={() => navigate("/petshop-dashboard/service-templates")} className="gap-2">
             <Plus className="h-4 w-4" />
             Ver Catálogo
           </Button>

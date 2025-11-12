@@ -21,6 +21,12 @@ const PLAN_NAMES = {
   pet_platinum: 'Pet Platinum',
 };
 
+// Direct payment links from Cakto dashboard (already created offers)
+const PLAN_CHECKOUT_URLS = {
+  pet_gold: 'https://pay.cakto.com.br/f72gob9_634441',
+  pet_platinum: 'https://pay.cakto.com.br/qym84js_634453',
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -100,101 +106,32 @@ serve(async (req) => {
       new_data: { plan, checkout_initiated_at: new Date().toISOString() }
     });
 
-    const caktoApiKey = Deno.env.get('CAKTO_API_KEY');
-    if (!caktoApiKey) {
-      throw new Error('CAKTO_API_KEY not configured');
-    }
-
-    // Create or get customer in Cakto
-    let caktoCustomerId = petShop.cakto_customer_id;
+    // SIMPLIFIED APPROACH: Use pre-created checkout links with custom metadata
+    // The links already exist in Cakto dashboard, we just need to track the upgrade
+    const checkoutUrl = PLAN_CHECKOUT_URLS[plan];
     
-    if (!caktoCustomerId) {
-      // Try creating customer - if fails, proceed without it
-      try {
-        const customerResponse = await fetch('https://api.cakto.com.br/api/v1/customers', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${caktoApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: petShop.name,
-            email: petShop.email || user.email,
-            phone: petShop.phone,
-            document: petShop.cnpj || '',
-          }),
-        });
-
-        if (customerResponse.ok) {
-          const customerData = await customerResponse.json();
-          caktoCustomerId = customerData.id;
-
-          // Update pet_shops with cakto_customer_id
-          await supabaseAdmin
-            .from('pet_shops')
-            .update({ cakto_customer_id: caktoCustomerId })
-            .eq('id', petshop_id);
-        } else {
-          const errorText = await customerResponse.text();
-          console.warn('Customer creation failed, continuing without customer_id:', errorText);
-          // Continue without customer ID - some Cakto endpoints might not require it
-        }
-      } catch (custError) {
-        console.warn('Customer creation failed:', custError);
-        // Continue without customer ID
-      }
+    if (!checkoutUrl) {
+      throw new Error('Checkout link not found for plan');
     }
 
-    // Create subscription checkout
-    const checkoutBody: any = {
-      plan_name: PLAN_NAMES[plan],
-      amount: PLAN_PRICES[plan],
-      interval: 'monthly',
-      success_url: `${req.headers.get('origin')}/professional/payment-success?plan=${plan}&petshop_id=${petshop_id}`,
-      cancel_url: `${req.headers.get('origin')}/professional/plans?cancelled=true`,
-      customer_name: petShop.name,
-      customer_email: petShop.email || user.email,
-      metadata: {
-        petshop_id,
-        plan,
-        user_id: user.id,
-      },
-    };
+    // Add success and cancel URLs as query parameters
+    const successUrl = `${req.headers.get('origin')}/professional/payment-success?plan=${plan}&petshop_id=${petshop_id}`;
+    const cancelUrl = `${req.headers.get('origin')}/professional/plans?cancelled=true`;
+    
+    // Build final URL with metadata
+    const finalCheckoutUrl = `${checkoutUrl}?success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}&metadata[petshop_id]=${petshop_id}&metadata[user_id]=${user.id}`;
 
-    // Add customer_id if we have it
-    if (caktoCustomerId) {
-      checkoutBody.customer_id = caktoCustomerId;
-    }
-
-    console.log('Creating checkout with body:', JSON.stringify(checkoutBody, null, 2));
-
-    const checkoutResponse = await fetch('https://api.cakto.com.br/api/v1/checkout/subscriptions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${caktoApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(checkoutBody),
-    });
-
-    if (!checkoutResponse.ok) {
-      const errorText = await checkoutResponse.text();
-      console.error('Error creating checkout:', errorText);
-      throw new Error('Failed to create checkout in Cakto');
-    }
-
-    const checkoutData = await checkoutResponse.json();
-
-    console.log('Checkout created successfully:', {
+    console.log('Checkout URL prepared:', {
       petshop_id,
       plan,
-      checkout_id: checkoutData.id,
+      checkout_url: checkoutUrl,
     });
 
     return new Response(
       JSON.stringify({
-        checkout_url: checkoutData.checkout_url,
-        checkout_id: checkoutData.id,
+        checkout_url: finalCheckoutUrl,
+        plan_name: PLAN_NAMES[plan],
+        plan_price: PLAN_PRICES[plan],
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
