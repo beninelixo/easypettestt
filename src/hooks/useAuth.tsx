@@ -20,13 +20,23 @@ export const useAuth = () => {
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", userId)
-        .maybeSingle();
+        .eq("user_id", userId);
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
 
-      if (data?.role) {
-        setUserRole(data.role as UserRole);
+      // Se houver múltiplas roles, priorizar: admin > pet_shop > client
+      if (data && data.length > 0) {
+        const roles = data.map(r => r.role);
+        
+        if (roles.includes('admin')) {
+          setUserRole('admin' as UserRole);
+        } else if (roles.includes('pet_shop')) {
+          setUserRole('pet_shop' as UserRole);
+        } else if (roles.includes('client')) {
+          setUserRole('client' as UserRole);
+        } else {
+          setUserRole(roles[0] as UserRole);
+        }
       }
     } catch (error) {
       console.error("Error fetching user role:", error);

@@ -29,7 +29,7 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
           if (normalizedRole === "franchise_owner") return "/franchise-dashboard";
           if (normalizedRole === "pet_shop") return "/professional/dashboard";
           if (normalizedRole === "client") return "/client/pets";
-          if (normalizedRole === "admin") return "/admin-dashboard";
+          if (normalizedRole === "admin") return "/admin/dashboard";
           return "/";
         })();
         
