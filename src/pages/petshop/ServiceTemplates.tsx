@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Plus, Check, ArrowLeft } from "lucide-react";
+import { Search, Plus, Check, ArrowLeft, Star, Clock, DollarSign, Eye } from "lucide-react";
 import { serviceTemplates, serviceCategories, ServiceTemplate } from "@/data/serviceTemplates";
 import { useNavigate } from "react-router-dom";
 
@@ -17,6 +18,7 @@ const ServiceTemplates = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [addedServices, setAddedServices] = useState<Set<string>>(new Set());
+  const [previewService, setPreviewService] = useState<ServiceTemplate | null>(null);
 
   const filteredServices = serviceTemplates.filter((service) => {
     const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -183,24 +185,34 @@ const ServiceTemplates = () => {
                   </div>
                 </div>
 
-                <Button
-                  onClick={() => handleAddService(service)}
-                  disabled={isAdded}
-                  className="w-full"
-                  variant={isAdded ? "secondary" : "default"}
-                >
-                  {isAdded ? (
-                    <>
-                      <Check className="h-4 w-4 mr-2" />
-                      Adicionado
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Adicionar ao Catálogo
-                    </>
-                  )}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => setPreviewService(service)}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Preview
+                  </Button>
+                  <Button
+                    onClick={() => handleAddService(service)}
+                    disabled={isAdded}
+                    className="flex-1"
+                    variant={isAdded ? "secondary" : "default"}
+                  >
+                    {isAdded ? (
+                      <>
+                        <Check className="h-4 w-4 mr-2" />
+                        Adicionado
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Adicionar
+                      </>
+                    )}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           );
@@ -218,6 +230,142 @@ const ServiceTemplates = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Preview Modal */}
+      <Dialog open={!!previewService} onOpenChange={() => setPreviewService(null)}>
+        <DialogContent className="max-w-2xl">
+          {previewService && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-3 text-2xl">
+                  <span className="text-4xl">{previewService.icon}</span>
+                  {previewService.name}
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-6">
+                {/* Category Badge */}
+                <div>
+                  <Badge variant="outline" className="text-base px-3 py-1">
+                    {serviceCategories.find(c => c.id === previewService.category)?.name}
+                  </Badge>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <h3 className="font-semibold mb-2">📝 Descrição Completa</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {previewService.description}
+                  </p>
+                </div>
+
+                {/* Pricing and Duration */}
+                <div className="grid grid-cols-2 gap-4">
+                  <Card className="border-primary/20">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                        <DollarSign className="h-4 w-4" />
+                        <span className="text-sm">Preço Sugerido</span>
+                      </div>
+                      <p className="text-3xl font-bold text-primary">
+                        R$ {previewService.price.toFixed(2)}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Você pode personalizar ao adicionar
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-primary/20">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                        <Clock className="h-4 w-4" />
+                        <span className="text-sm">Duração Estimada</span>
+                      </div>
+                      <p className="text-3xl font-bold text-primary">
+                        {previewService.duration_minutes}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">minutos</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* User Reviews */}
+                <div>
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                    Avaliações de Profissionais
+                  </h3>
+                  <div className="space-y-3">
+                    <Card>
+                      <CardContent className="pt-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                            ))}
+                          </div>
+                          <span className="text-sm font-semibold">Pet Shop Central</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          "Serviço muito procurado pelos clientes. Excelente retorno financeiro!"
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="pt-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                            ))}
+                          </div>
+                          <span className="text-sm font-semibold">Clínica Vet Plus</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          "Fácil de realizar e os clientes adoram. Recomendo adicionar!"
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setPreviewService(null)}
+                    className="flex-1"
+                  >
+                    Fechar
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      handleAddService(previewService);
+                      setPreviewService(null);
+                    }}
+                    disabled={addedServices.has(previewService.id)}
+                    className="flex-1 bg-gradient-to-r from-cyan-500 to-green-500 hover:from-cyan-600 hover:to-green-600"
+                  >
+                    {addedServices.has(previewService.id) ? (
+                      <>
+                        <Check className="h-4 w-4 mr-2" />
+                        Já Adicionado
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Adicionar ao Catálogo
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

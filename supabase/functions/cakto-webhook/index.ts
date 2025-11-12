@@ -126,6 +126,19 @@ serve(async (req) => {
             message: `🎉 Seu plano ${plan.toUpperCase()} foi ativado com sucesso! Aproveite todos os novos recursos.`,
             status: 'pendente',
           });
+
+          // Create security notification for admin alerts
+          await supabaseClient.from('security_notifications').insert({
+            notification_type: 'subscription_upgrade',
+            severity: 'info',
+            title: 'Upgrade de Plano',
+            message: `${petShop.name} fez upgrade para o plano ${plan.toUpperCase()}`,
+            metadata: {
+              petshop_id: petshopId,
+              plan,
+              subscription_id: data.id,
+            },
+          });
         }
 
         console.log(`Subscription activated successfully for ${petshopId}`);
@@ -150,6 +163,18 @@ serve(async (req) => {
             channel: 'email',
             message: '⚠️ Falha no pagamento da sua assinatura. Por favor, atualize sua forma de pagamento.',
             status: 'pendente',
+          });
+
+          // Create security notification for critical alert
+          await supabaseClient.from('security_notifications').insert({
+            notification_type: 'payment_failed',
+            severity: 'high',
+            title: 'Falha no Pagamento',
+            message: `Falha no pagamento da assinatura para ${petshopId}`,
+            metadata: {
+              petshop_id: petshopId,
+              plan,
+            },
           });
         }
 
@@ -190,6 +215,19 @@ serve(async (req) => {
             channel: 'email',
             message: 'ℹ️ Sua assinatura foi cancelada. Você foi movido para o plano gratuito.',
             status: 'pendente',
+          });
+
+          // Create security notification for subscription cancellation
+          await supabaseClient.from('security_notifications').insert({
+            notification_type: 'subscription_cancelled',
+            severity: 'medium',
+            title: type === 'subscription.cancelled' ? 'Assinatura Cancelada' : 'Assinatura Expirada',
+            message: `Assinatura ${type === 'subscription.cancelled' ? 'cancelada' : 'expirada'} para ${petshopId}`,
+            metadata: {
+              petshop_id: petshopId,
+              previous_plan: plan,
+              event_type: type,
+            },
           });
         }
 

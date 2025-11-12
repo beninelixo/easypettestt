@@ -97,6 +97,7 @@ const ProfessionalClients = lazy(() => import("./pages/professional/Professional
 const ProfessionalReports = lazy(() => import("./pages/professional/ProfessionalReports"));
 const ProfessionalProfile = lazy(() => import("./pages/professional/ProfessionalProfile"));
 const ProfessionalPlans = lazy(() => import("./pages/professional/ProfessionalPlans"));
+const PaymentSuccess = lazy(() => import("./pages/professional/PaymentSuccess"));
 const SystemOverview = lazy(() => import("./pages/SystemOverview"));
 const RegenerateImages = lazy(() => import("./pages/admin/RegenerateImages"));
 const ConsolidatedDashboard = lazy(() => import("./pages/multi-unit/ConsolidatedDashboard"));
@@ -258,6 +259,7 @@ const App = () => {
             <Route path="clients" element={<ProfessionalClients />} />
             <Route path="reports" element={<ProfessionalReports />} />
             <Route path="plans" element={<ProfessionalPlans />} />
+            <Route path="payment-success" element={<PaymentSuccess />} />
             <Route path="profile" element={<ProfessionalProfile />} />
           </Route>
           

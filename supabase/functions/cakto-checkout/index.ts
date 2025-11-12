@@ -150,7 +150,7 @@ serve(async (req) => {
       plan_name: PLAN_NAMES[plan],
       amount: PLAN_PRICES[plan],
       interval: 'monthly',
-      success_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/cakto-success?petshop_id=${petshop_id}&plan=${plan}`,
+      success_url: `${req.headers.get('origin')}/professional/payment-success?plan=${plan}&petshop_id=${petshop_id}`,
       cancel_url: `${req.headers.get('origin')}/professional/plans?cancelled=true`,
       customer_name: petShop.name,
       customer_email: petShop.email || user.email,
