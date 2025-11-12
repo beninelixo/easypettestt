@@ -1,6 +1,6 @@
 import { 
   Home, Zap, Activity, Brain, Shield, Lock, FileText, Mail, 
-  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown, Gauge, ScrollText, UserCheck, History, BarChart, TestTube
+  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown, Gauge, ScrollText, UserCheck, History, BarChart, TestTube, RefreshCw
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -30,6 +30,7 @@ const monitoringItems = [
   { title: "System Analysis", url: "/admin/system-analysis", icon: Brain, badge: "IA" },
   { title: "Auth Monitoring", url: "/admin/auth-monitoring", icon: Shield },
   { title: "System Health", url: "/admin/system-health", icon: Activity, badge: "NEW" },
+  { title: "Failed Jobs", url: "/admin/failed-jobs", icon: RefreshCw, badge: "NEW" },
   { title: "System Diagnostics", url: "/admin/system-diagnostics", icon: FileText },
   { title: "AI Monitor", url: "/admin/ai-monitor", icon: Brain, badge: "AUTO" },
 ];

@@ -121,6 +121,7 @@ const IPWhitelist = lazy(() => import("./pages/admin/IPWhitelist"));
 const LoginHistory = lazy(() => import("./pages/admin/LoginHistory"));
 const SystemErrorLogs = lazy(() => import("./pages/admin/SystemErrorLogs"));
 const SystemHealthDashboard = lazy(() => import("./pages/admin/SystemHealthDashboard"));
+const FailedJobsManagement = lazy(() => import("./pages/admin/FailedJobsManagement"));
 
 // Admin Layout
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -336,6 +337,7 @@ const App = () => {
             <Route path="login-history" element={<LoginHistory />} />
             <Route path="error-logs" element={<SystemErrorLogs />} />
             <Route path="system-health" element={<SystemHealthDashboard />} />
+            <Route path="failed-jobs" element={<FailedJobsManagement />} />
           </Route>
 
           {/* Legacy Admin Routes - Redirect to new structure */}

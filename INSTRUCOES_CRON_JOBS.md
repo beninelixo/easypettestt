@@ -77,6 +77,30 @@ SELECT cron.schedule(
   ) as request_id;
   $$
 );
+
+-- 6. Coletar métricas de saúde (A cada 5 minutos)
+SELECT cron.schedule(
+  'collect-health-metrics',
+  '*/5 * * * *',
+  $$
+  SELECT net.http_post(
+    url:='https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/collect-health-metrics',
+    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZmtyZG9yZ2h5YWd0d2J4b3J5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1OTQ5MTEsImV4cCI6MjA3NzE3MDkxMX0.R8kZ4o1Ll2gRLfp4Y2MQWbD_fvJ0WoRWEKHCdU3yhpQ"}'::jsonb
+  ) as request_id;
+  $$
+);
+
+-- 7. Processar jobs falhados (A cada minuto)
+SELECT cron.schedule(
+  'process-failed-jobs',
+  '* * * * *',
+  $$
+  SELECT net.http_post(
+    url:='https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/process-failed-jobs',
+    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZmtyZG9yZ2h5YWd0d2J4b3J5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1OTQ5MTEsImV4cCI6MjA3NzE3MDkxMX0.R8kZ4o1Ll2gRLfp4Y2MQWbD_fvJ0WoRWEKHCdU3yhpQ"}'::jsonb
+  ) as request_id;
+  $$
+);
 ```
 
 ## 🔍 Verificar Status dos Cron Jobs
@@ -145,6 +169,8 @@ Exemplos:
 | Validação de Perfis | Semanal | Dom 03:00 | Remove pets órfãos e identifica perfis incompletos |
 | Reconciliação de Pagamentos | Diária | 02:00 | Corrige inconsistências em pagamentos |
 | Backup de Dados | Diária | 04:00 | Faz snapshot das tabelas críticas |
+| Métricas de Saúde | A cada 5 min | */5 * * * * | Coleta métricas de performance e saúde do sistema |
+| Processar Jobs Falhados | A cada 1 min | * * * * * | Reprocessa jobs falhados com retry automático |
 
 ## 🚨 Alertas
 
