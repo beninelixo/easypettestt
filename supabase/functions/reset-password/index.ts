@@ -38,7 +38,10 @@ serve(async (req) => {
     if (!validation.success) {
       console.error('Validation error:', validation.error.issues);
       return new Response(
-        JSON.stringify({ error: validation.error.issues[0].message }),
+        JSON.stringify({ 
+          error: `⚠️ ${validation.error.issues[0].message}`,
+          code: 'validation_error'
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -90,7 +93,10 @@ serve(async (req) => {
 
     if (!resetData) {
       return new Response(
-        JSON.stringify({ error: 'Código inválido ou expirado' }),
+        JSON.stringify({ 
+          error: '❌ Código de verificação inválido ou expirado. Por favor, solicite um novo código.',
+          code: 'invalid_code'
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -110,7 +116,10 @@ serve(async (req) => {
     
     if (!user) {
       return new Response(
-        JSON.stringify({ error: 'Usuário não encontrado' }),
+        JSON.stringify({ 
+          error: '❌ Usuário não encontrado. Verifique se o email está correto.',
+          code: 'user_not_found'
+        }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -124,18 +133,47 @@ serve(async (req) => {
     if (updateError) {
       console.error('Error updating password:', updateError);
       
-      // Handle specific error types
+      // Handle specific password error types with clear user-friendly messages
       if (updateError.code === 'weak_password') {
+        const reasons = (updateError as any).reasons || [];
+        
+        // Check if password is in a compromised database
+        if (reasons.includes('pwned')) {
+          return new Response(
+            JSON.stringify({ 
+              error: '🚨 Esta senha foi encontrada em vazamentos de dados e não é segura. Por favor, escolha uma senha completamente diferente que você nunca usou antes.',
+              code: 'password_compromised'
+            }),
+            { status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        // Generic weak password
         return new Response(
           JSON.stringify({ 
-            error: 'Senha muito fraca. Por favor, escolha uma senha mais forte e diferente.' 
+            error: '⚠️ Senha muito fraca. Use pelo menos 8 caracteres com letras maiúsculas, minúsculas, números e símbolos especiais (@, #, $, etc.).',
+            code: 'weak_password'
           }),
           { status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
+      // Other auth errors
+      if (updateError.message) {
+        return new Response(
+          JSON.stringify({ 
+            error: `Erro ao atualizar senha: ${updateError.message}`,
+            code: 'auth_error'
+          }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
       return new Response(
-        JSON.stringify({ error: 'Erro ao atualizar senha' }),
+        JSON.stringify({ 
+          error: 'Erro ao atualizar senha. Tente novamente ou entre em contato com o suporte.',
+          code: 'unknown_error'
+        }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

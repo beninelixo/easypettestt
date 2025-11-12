@@ -108,9 +108,24 @@ export const useAuth = () => {
 
       return { data, error: null };
     } catch (error: any) {
+      let errorMessage = error.message;
+      
+      // Map specific errors to user-friendly messages
+      if (error.message.includes("already registered") || error.message.includes("User already registered")) {
+        errorMessage = "📧 Este email já está cadastrado. Tente fazer login ou recuperar sua senha.";
+      } else if (error.message.includes("weak password") || error.message.includes("Password")) {
+        if (error.message.includes("pwned")) {
+          errorMessage = "🚨 Esta senha foi encontrada em vazamentos de dados e não é segura. Escolha uma senha completamente diferente.";
+        } else {
+          errorMessage = "⚠️ Senha muito fraca. Use pelo menos 8 caracteres com letras maiúsculas, minúsculas, números e símbolos especiais (@, #, $, etc.).";
+        }
+      } else if (error.message.includes("invalid email")) {
+        errorMessage = "📧 Email inválido. Verifique se digitou corretamente.";
+      }
+      
       toast({
         title: "Erro ao criar conta",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
       return { data: null, error };
@@ -175,9 +190,18 @@ export const useAuth = () => {
 
       return { data: functionData, error: null };
     } catch (error: any) {
-      const errorMessage = error.message === 'Invalid login credentials' 
-        ? 'Email ou senha incorretos'
-        : error.message;
+      let errorMessage = error.message;
+      
+      // Map specific errors to user-friendly messages
+      if (error.message === 'Invalid login credentials' || error.message.includes('credentials')) {
+        errorMessage = '🔒 Email ou senha incorretos. Verifique suas credenciais e tente novamente.';
+      } else if (error.message.includes('blocked') || error.message.includes('bloqueado')) {
+        errorMessage = '⏱️ Conta temporariamente bloqueada por muitas tentativas. Aguarde alguns minutos.';
+      } else if (error.message.includes('network') || error.message.includes('fetch')) {
+        errorMessage = '🌐 Erro de conexão. Verifique sua internet e tente novamente.';
+      } else if (error.message.includes('not confirmed') || error.message.includes('verificação')) {
+        errorMessage = '📧 Email não verificado. Verifique sua caixa de entrada e confirme seu email.';
+      }
       
       toast({
         title: "Erro ao fazer login",

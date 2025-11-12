@@ -314,8 +314,19 @@ const Auth = () => {
     } catch (error: any) {
       let errorMessage = error.message;
       
-      if (error.message.includes("already registered")) {
-        errorMessage = "Este email já está cadastrado. Tente fazer login.";
+      // Map specific Supabase errors to user-friendly messages
+      if (error.message.includes("already registered") || error.message.includes("User already registered")) {
+        errorMessage = "📧 Este email já está cadastrado. Tente fazer login ou recuperar sua senha.";
+      } else if (error.message.includes("weak password") || error.message.includes("Password")) {
+        if (error.message.includes("pwned")) {
+          errorMessage = "🚨 Esta senha foi encontrada em vazamentos de dados e não é segura. Escolha uma senha completamente diferente.";
+        } else {
+          errorMessage = "⚠️ Senha muito fraca. Use pelo menos 8 caracteres com letras maiúsculas, minúsculas, números e símbolos especiais (@, #, $, etc.).";
+        }
+      } else if (error.message.includes("invalid email") || error.message.includes("Email")) {
+        errorMessage = "📧 Email inválido. Verifique se digitou corretamente.";
+      } else if (error.message.includes("network") || error.message.includes("fetch")) {
+        errorMessage = "🌐 Erro de conexão. Verifique sua internet e tente novamente.";
       }
       
       toast({
@@ -323,6 +334,11 @@ const Auth = () => {
         description: errorMessage,
         variant: "destructive",
       });
+      
+      // Set field-specific error if it's a password issue
+      if (errorMessage.includes("senha") || errorMessage.includes("Password")) {
+        setFormErrors(prev => ({ ...prev, password: errorMessage }));
+      }
     } finally {
       setIsLoading(false);
     }

@@ -155,24 +155,51 @@ const ResetPassword = () => {
     } catch (error: any) {
       const message: string = error?.message || "Não foi possível redefinir a senha. Tente novamente.";
 
-      // Map backend errors to field errors and guidance
+      // Map backend errors to field errors and guidance with clear user feedback
       const lower = message.toLowerCase();
-      if (lower.includes("fraca") || lower.includes("weak")) {
+      
+      // Password compromised (pwned)
+      if (lower.includes("vazamento") || lower.includes("compromised") || lower.includes("pwned")) {
         setFormErrors((prev) => ({
           ...prev,
-          password: "Senha muito fraca. Use uma senha diferente e mais forte.",
+          password: "🚨 Esta senha foi encontrada em vazamentos de dados. Escolha uma senha completamente diferente que você nunca usou.",
         }));
+        toast({
+          title: "Senha Comprometida",
+          description: message,
+          variant: "destructive",
+        });
       }
-      if (lower.includes("inválido") || lower.includes("invalido") || lower.includes("expirado")) {
-        setFormErrors((prev) => ({ ...prev, otp: "Código inválido ou expirado. Solicite um novo código." }));
+      // Weak password
+      else if (lower.includes("fraca") || lower.includes("weak")) {
+        setFormErrors((prev) => ({
+          ...prev,
+          password: "⚠️ Senha muito fraca. Use pelo menos 8 caracteres com letras maiúsculas, minúsculas, números e símbolos (@, #, $, etc.).",
+        }));
+        toast({
+          title: "Senha Muito Fraca",
+          description: message,
+          variant: "destructive",
+        });
+      }
+      // Invalid or expired code
+      else if (lower.includes("inválido") || lower.includes("invalido") || lower.includes("expirado") || lower.includes("código")) {
+        setFormErrors((prev) => ({ ...prev, otp: "❌ Código inválido ou expirado. Solicite um novo código." }));
         setStep("otp");
+        toast({
+          title: "Código Inválido",
+          description: "Por favor, solicite um novo código de verificação.",
+          variant: "destructive",
+        });
       }
-
-      toast({
-        title: "Erro ao redefinir senha",
-        description: message,
-        variant: "destructive",
-      });
+      // Generic error
+      else {
+        toast({
+          title: "Erro ao redefinir senha",
+          description: message,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
