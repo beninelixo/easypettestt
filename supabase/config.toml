@@ -95,3 +95,9 @@ verify_jwt = true
 
 [functions.notify-push-appointment]
 verify_jwt = false
+
+[functions.accept-admin-invite]
+verify_jwt = true
+
+[functions.verify-backup]
+verify_jwt = true

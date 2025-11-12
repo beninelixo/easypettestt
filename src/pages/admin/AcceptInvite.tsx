@@ -92,28 +92,33 @@ export default function AcceptInvite() {
         return;
       }
 
-      // Add admin role
-      const { error: roleError } = await supabase
-        .from("user_roles")
-        .upsert({ 
-          user_id: user.id, 
-          role: "admin" 
-        }, {
-          onConflict: "user_id,role"
+      // Chamar edge function segura para aceitar convite
+      const { data, error } = await supabase.functions.invoke('accept-admin-invite', {
+        body: { token: invite.token },
+      });
+
+      if (error) {
+        let errorMessage = 'Erro ao aceitar convite';
+        
+        // Mensagens específicas por código de erro
+        if (error.message?.includes('404') || error.message?.includes('não encontrado')) {
+          errorMessage = 'Convite não encontrado';
+        } else if (error.message?.includes('409') || error.message?.includes('já foi utilizado')) {
+          errorMessage = 'Este convite já foi utilizado';
+        } else if (error.message?.includes('410') || error.message?.includes('expirou')) {
+          errorMessage = 'Este convite expirou';
+        } else if (error.message?.includes('403') || error.message?.includes('outro email')) {
+          errorMessage = 'Este convite foi enviado para outro email';
+        }
+
+        toast({
+          title: "Erro",
+          description: errorMessage,
+          variant: "destructive",
         });
-
-      if (roleError) throw roleError;
-
-      // Mark invite as accepted
-      const { error: updateError } = await supabase
-        .from("admin_invites")
-        .update({ 
-          accepted: true, 
-          accepted_at: new Date().toISOString() 
-        })
-        .eq("id", invite.id);
-
-      if (updateError) throw updateError;
+        setAccepting(false);
+        return;
+      }
 
       toast({
         title: "🎉 Convite aceito!",
@@ -129,7 +134,7 @@ export default function AcceptInvite() {
       console.error("Error accepting invite:", error);
       toast({
         title: "Erro ao aceitar convite",
-        description: error.message,
+        description: error.message || "Erro ao processar sua solicitação",
         variant: "destructive",
       });
       setAccepting(false);
