@@ -29,6 +29,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useErrorMonitoring } from "./hooks/useErrorMonitoring";
 import { usePerformanceMonitoring } from "./hooks/usePerformanceMonitoring";
+import { useAppVersion } from "./hooks/useAppVersion";
 
 // Eagerly load critical pages
 import Index from "./pages/Index";
@@ -141,6 +142,9 @@ const App = () => {
   // Enable error and performance monitoring
   useErrorMonitoring();
   usePerformanceMonitoring();
+  
+  // Automatic cache and version management
+  useAppVersion();
   
   // Enforce temporary session cleanup on browser close
   useEffect(() => {

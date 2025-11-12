@@ -1,5 +1,7 @@
-const CACHE_NAME = 'easypet-v3';
-const RUNTIME_CACHE = 'easypet-runtime-v3';
+// IMPORTANTE: Incrementar versão quando houver atualizações que requerem limpeza de cache
+const APP_VERSION = '3.0.0';
+const CACHE_NAME = `easypet-static-${APP_VERSION}`;
+const RUNTIME_CACHE = `easypet-runtime-${APP_VERSION}`;
 
 // Assets críticos para cache imediato
 const urlsToCache = [
@@ -20,18 +22,40 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Ativação: limpar caches antigos
+// Ativação: limpar caches antigos automaticamente
 self.addEventListener('activate', (event) => {
+  console.log('Service Worker: Limpando caches antigos...');
+  
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((cacheName) => 
-            cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE
-          )
+          .filter((cacheName) => {
+            // Deletar qualquer cache que não seja da versão atual
+            const isCurrentCache = cacheName === CACHE_NAME || cacheName === RUNTIME_CACHE;
+            if (!isCurrentCache) {
+              console.log('Service Worker: Deletando cache antigo:', cacheName);
+            }
+            return !isCurrentCache;
+          })
           .map((cacheName) => caches.delete(cacheName))
       );
-    }).then(() => self.clients.claim())
+    })
+    .then(() => {
+      console.log('Service Worker: Caches antigos limpos, assumindo controle...');
+      return self.clients.claim();
+    })
+    .then(() => {
+      // Notificar todos os clientes sobre a atualização
+      return self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({
+            type: 'CACHE_UPDATED',
+            version: APP_VERSION
+          });
+        });
+      });
+    })
   );
 });
 
@@ -99,16 +123,27 @@ async function cacheOnly(request) {
 // Mensagens do cliente
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('Service Worker: Forçando ativação imediata...');
     self.skipWaiting();
   }
   
   if (event.data && event.data.type === 'CLEAR_CACHE') {
+    console.log('Service Worker: Limpando todos os caches por requisição do cliente...');
     event.waitUntil(
       caches.keys().then((cacheNames) => {
         return Promise.all(
-          cacheNames.map((cacheName) => caches.delete(cacheName))
+          cacheNames.map((cacheName) => {
+            console.log('Service Worker: Deletando cache:', cacheName);
+            return caches.delete(cacheName);
+          })
         );
+      }).then(() => {
+        console.log('Service Worker: Todos os caches limpos com sucesso');
       })
     );
+  }
+  
+  if (event.data && event.data.type === 'GET_VERSION') {
+    event.ports[0].postMessage({ version: APP_VERSION });
   }
 });
