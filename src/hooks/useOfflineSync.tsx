@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { offlineSyncManager, SyncStatus, SyncResult } from '@/lib/offline-sync';
+import { offlineSyncManager, SyncStatus, SyncResult, DataConflict } from '@/lib/offline-sync';
 import { useToast } from '@/hooks/use-toast';
 
 export const useOfflineSync = () => {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>(offlineSyncManager.getSyncStatus());
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [conflicts, setConflicts] = useState<DataConflict[]>([]);
+  const [showConflictDialog, setShowConflictDialog] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -35,6 +37,17 @@ export const useOfflineSync = () => {
       setSyncStatus(status);
     });
 
+    // Listener de conflitos
+    const unsubscribeConflicts = offlineSyncManager.addConflictListener((detectedConflicts) => {
+      setConflicts(detectedConflicts);
+      setShowConflictDialog(true);
+      toast({
+        title: "⚠️ Conflitos Detectados",
+        description: `${detectedConflicts.length} conflitos de sincronização precisam ser resolvidos.`,
+        variant: "destructive",
+      });
+    });
+
     // Sincronizar ao montar se estiver online
     if (navigator.onLine) {
       syncPendingOperations();
@@ -44,11 +57,14 @@ export const useOfflineSync = () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       unsubscribe();
+      unsubscribeConflicts();
     };
   }, []);
 
-  const syncPendingOperations = async (): Promise<SyncResult> => {
-    const result = await offlineSyncManager.syncPendingOperations();
+  const syncPendingOperations = async (
+    conflictResolutions?: Map<string, 'local' | 'server' | 'merge'>
+  ): Promise<SyncResult> => {
+    const result = await offlineSyncManager.syncPendingOperations(conflictResolutions);
     
     if (result.success && result.synced && result.synced > 0) {
       toast({
@@ -64,6 +80,16 @@ export const useOfflineSync = () => {
     }
 
     return result;
+  };
+
+  const handleConflictResolution = async (resolutions: Map<string, 'local' | 'server' | 'merge'>) => {
+    setShowConflictDialog(false);
+    await syncPendingOperations(resolutions);
+    setConflicts([]);
+  };
+
+  const getCompressionStats = () => {
+    return offlineSyncManager.getCompressionStats();
   };
 
   const addToQueue = (operation: { type: 'insert' | 'update' | 'delete'; table: string; data: any }) => {
@@ -95,5 +121,10 @@ export const useOfflineSync = () => {
     saveDraft,
     getDrafts,
     deleteDraft,
+    conflicts,
+    showConflictDialog,
+    handleConflictResolution,
+    cancelConflictResolution: () => setShowConflictDialog(false),
+    getCompressionStats,
   };
 };
