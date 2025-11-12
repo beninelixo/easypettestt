@@ -88,7 +88,7 @@ const Navigation = () => {
                   <img 
                     src={logo} 
                     alt="EasyPet Logo" 
-                    className="h-8 w-8 drop-shadow-[0_0_8px_rgba(0,200,150,0.4)]"
+                    className="h-8 w-auto drop-shadow-[0_0_8px_rgba(0,200,150,0.4)] object-contain"
                   />
                   <span className="text-lg bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Menu</span>
                 </SheetTitle>

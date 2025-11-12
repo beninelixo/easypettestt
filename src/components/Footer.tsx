@@ -15,7 +15,7 @@ const Footer = () => {
                 <img 
                   src={logo} 
                   alt="EasyPet Logo" 
-                  className="h-10 w-10 relative drop-shadow-[0_0_8px_rgba(0,200,150,0.4)]"
+                  className="h-10 w-auto relative drop-shadow-[0_0_8px_rgba(0,200,150,0.4)] object-contain"
                 />
               </div>
               <span className="font-bold text-lg bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">EasyPet</span>

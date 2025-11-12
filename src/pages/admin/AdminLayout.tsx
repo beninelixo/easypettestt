@@ -26,7 +26,7 @@ export default function AdminLayout() {
                   <img 
                     src={logo} 
                     alt="EasyPet Logo" 
-                    className="h-8 w-8 relative drop-shadow-[0_0_8px_rgba(0,200,150,0.4)] hover:scale-110 transition-transform duration-300"
+                    className="h-8 w-auto relative drop-shadow-[0_0_8px_rgba(0,200,150,0.4)] hover:scale-110 transition-transform duration-300 object-contain"
                   />
                 </div>
                 <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Painel Administrativo</h1>

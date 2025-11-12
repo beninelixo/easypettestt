@@ -21,7 +21,7 @@ export const AuthIllustration = () => {
             <img 
               src={logo} 
               alt="EasyPet Logo" 
-              className="h-32 w-32 drop-shadow-[0_0_15px_rgba(0,200,150,0.5)] hover:drop-shadow-[0_0_25px_rgba(0,200,150,0.7)] transition-all duration-500"
+              className="h-32 w-auto drop-shadow-[0_0_15px_rgba(0,200,150,0.5)] hover:drop-shadow-[0_0_25px_rgba(0,200,150,0.7)] transition-all duration-500 object-contain"
             />
           </div>
         </Link>
