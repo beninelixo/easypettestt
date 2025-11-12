@@ -165,7 +165,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'EasyPet <onboarding@resend.dev>',
+        from: 'EasyPet <easypetc@gmail.com>',
         to: [email.toLowerCase()],
         subject: '🔐 Código de Verificação - EasyPet 🐾',
         html: emailHtml,

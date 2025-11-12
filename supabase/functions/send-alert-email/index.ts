@@ -202,7 +202,7 @@ Deno.serve(async (req) => {
     const emailResults = await Promise.allSettled(
       adminEmails.map(email => 
         resend.emails.send({
-          from: 'EasyPet <onboarding@resend.dev>',
+          from: 'EasyPet <easypetc@gmail.com>',
           to: [email],
           subject: `[${config.label}] ${subject}`,
           html: htmlContent,

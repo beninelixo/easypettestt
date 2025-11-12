@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
     if (resend && severity === 'critical') {
       const emailPromises = adminEmails.map(email => 
         resend.emails.send({
-          from: 'EasyPet Security <onboarding@resend.dev>',
+          from: 'EasyPet Security <easypetc@gmail.com>',
           to: email,
           subject: `🚨 Alerta Crítico de Segurança - ${alert_type}`,
           html: `

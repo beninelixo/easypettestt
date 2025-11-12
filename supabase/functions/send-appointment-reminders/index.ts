@@ -153,7 +153,7 @@ Deno.serve(async (req) => {
 
         // Enviar email via Resend
         const { error: emailError } = await resend.emails.send({
-          from: 'EasyPet <onboarding@resend.dev>',
+          from: 'EasyPet <easypetc@gmail.com>',
           to: [email],
           subject: '🔔 Lembrete: Agendamento amanhã!',
           html: `
