@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import { UpdateNotification } from "@/components/UpdateNotification";
 
 // Configuração otimizada de cache para performance
 const queryClient = new QueryClient({
@@ -133,6 +134,7 @@ const UserAnalytics = lazy(() => import("./pages/admin/UserAnalytics"));
 const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
 const AcceptInvite = lazy(() => import("./pages/admin/AcceptInvite"));
 const MaintenanceDashboard = lazy(() => import("./pages/admin/MaintenanceDashboard"));
+const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 
 // Admin Layout
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -165,10 +167,11 @@ const App = () => {
       <LoadingScreen />
       <QueryClientProvider client={queryClient}>
         <TenantProvider>
-          <TooltipProvider>
+            <TooltipProvider>
             <Toaster />
             <Sonner />
             <ThemeToggle />
+            <UpdateNotification />
             <BrowserRouter>
               <PushNotificationButton />
               <WhatsAppButton />
@@ -193,6 +196,7 @@ const App = () => {
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/system-overview" element={<SystemOverview />} />
+            <Route path="/diagnostics" element={<Diagnostics />} />
             <Route path="/admin/regenerate-images" element={<RegenerateImages />} />
             <Route path="/admin/accept-invite" element={<AcceptInvite />} />
             
