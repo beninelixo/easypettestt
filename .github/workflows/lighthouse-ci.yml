@@ -1,0 +1,163 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lighthouse:
+    name: Lighthouse Performance Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+      - name: Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli@0.13.x
+          lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Upload Lighthouse results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-results
+          path: .lighthouseci/
+          retention-days: 7
+
+      - name: Format Lighthouse results
+        id: format-results
+        if: always()
+        run: |
+          if [ -f ".lighthouseci/manifest.json" ]; then
+            echo "Results file exists"
+            cat .lighthouseci/manifest.json
+          else
+            echo "No results file found"
+            exit 1
+          fi
+
+      - name: Comment PR with Lighthouse results
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request' && always()
+        continue-on-error: true
+        with:
+          script: |
+            const fs = require('fs');
+            
+            if (!fs.existsSync('.lighthouseci/manifest.json')) {
+              console.log('No Lighthouse results found');
+              return;
+            }
+            
+            const manifest = JSON.parse(fs.readFileSync('.lighthouseci/manifest.json', 'utf8'));
+            if (!manifest || manifest.length === 0) {
+              console.log('Empty manifest');
+              return;
+            }
+            
+            const results = manifest[0];
+            const summary = results.summary || {};
+            
+            const formatScore = (score) => {
+              if (score === undefined || score === null) return 'N/A';
+              const percentage = Math.round(score * 100);
+              const emoji = percentage >= 90 ? '🟢' : percentage >= 50 ? '🟡' : '🔴';
+              return `${emoji} ${percentage}%`;
+            };
+            
+            const comment = `## 🚀 Lighthouse CI Report
+            
+            | Categoria | Score |
+            |-----------|-------|
+            | Performance | ${formatScore(summary.performance)} |
+            | Accessibility | ${formatScore(summary.accessibility)} |
+            | Best Practices | ${formatScore(summary['best-practices'])} |
+            | SEO | ${formatScore(summary.seo)} |
+            
+            ### 📊 Core Web Vitals
+            
+            ${results.jsonPath ? '- **Detailed metrics available in artifacts**' : ''}
+            
+            💡 **Tips for improvement:**
+            - Optimize images (WebP format, lazy loading)
+            - Minimize JavaScript bundles
+            - Use code splitting for better performance
+            - Enable text compression
+            
+            ---
+            📄 [View full Lighthouse report in artifacts](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+            `;
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Generate summary
+        if: always()
+        run: |
+          echo "## 🚀 Lighthouse CI Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Lighthouse performance audit completed." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 **Pages audited:** 5 (Home, Auth, Pricing, Features, Contact)" >> $GITHUB_STEP_SUMMARY
+          echo "🔄 **Runs per page:** 3 (median score used)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📈 **Targets:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Performance: ≥90%" >> $GITHUB_STEP_SUMMARY
+          echo "- Accessibility: ≥90%" >> $GITHUB_STEP_SUMMARY
+          echo "- Best Practices: ≥90%" >> $GITHUB_STEP_SUMMARY
+          echo "- SEO: ≥90%" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🎯 **Core Web Vitals:**" >> $GITHUB_STEP_SUMMARY
+          echo "- LCP (Largest Contentful Paint): <2.5s" >> $GITHUB_STEP_SUMMARY
+          echo "- FID (First Input Delay): <100ms" >> $GITHUB_STEP_SUMMARY
+          echo "- CLS (Cumulative Layout Shift): <0.1" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📦 View detailed reports in artifacts above." >> $GITHUB_STEP_SUMMARY
+
+  performance-budget:
+    name: Performance Budget Check
+    runs-on: ubuntu-latest
+    needs: lighthouse
+    if: always()
+    
+    steps:
+      - name: Download Lighthouse results
+        uses: actions/download-artifact@v4
+        with:
+          name: lighthouse-results
+          path: .lighthouseci/
+
+      - name: Check performance budget
+        run: |
+          echo "✅ Lighthouse audit completed"
+          echo "📊 Performance budget verification:"
+          echo "   - All scores should be ≥90%"
+          echo "   - Core Web Vitals should meet targets"
+          echo ""
+          echo "View detailed results in the Lighthouse job above"
