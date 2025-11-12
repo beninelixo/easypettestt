@@ -9,9 +9,16 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <img src={logo} alt="EasyPet Logo" className="h-10 w-10" />
-              <span className="font-bold text-lg">EasyPet</span>
+            <div className="flex items-center gap-2 group">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full blur-md opacity-50 group-hover:opacity-70 transition-opacity duration-500" />
+                <img 
+                  src={logo} 
+                  alt="EasyPet Logo" 
+                  className="h-10 w-10 relative drop-shadow-[0_0_8px_rgba(0,200,150,0.4)]"
+                />
+              </div>
+              <span className="font-bold text-lg bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">EasyPet</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Gestão inteligente para pet shops, clínicas e banho & tosa. Simplifique seu negócio.

@@ -16,9 +16,13 @@ export const AuthIllustration = () => {
       {/* Main illustration */}
       <div className="relative z-10 flex flex-col items-center gap-8">
         <Link to="/" className="relative group">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-3xl blur-2xl opacity-50 animate-pulse-glow" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary rounded-3xl blur-2xl opacity-50 animate-gradient bg-[length:200%_200%]" />
           <div className="relative bg-card/80 backdrop-blur-sm p-12 rounded-3xl shadow-2xl cursor-pointer hover:scale-105 transition-transform border border-border/50">
-            <img src={logo} alt="EasyPet Logo" className="h-32 w-32" />
+            <img 
+              src={logo} 
+              alt="EasyPet Logo" 
+              className="h-32 w-32 drop-shadow-[0_0_15px_rgba(0,200,150,0.5)] hover:drop-shadow-[0_0_25px_rgba(0,200,150,0.7)] transition-all duration-500"
+            />
           </div>
         </Link>
         

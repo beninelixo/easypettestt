@@ -35,14 +35,15 @@ const Navigation = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 group">
+        <Link to="/" className="flex items-center gap-2 group relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full blur-md opacity-0 group-hover:opacity-50 transition-opacity duration-500" />
           <img 
             src={logo} 
             alt="EasyPet Logo" 
-            className="h-10 w-10 transition-all duration-300 group-hover:scale-110"
+            className="h-10 w-10 relative transition-all duration-300 group-hover:scale-110 drop-shadow-[0_0_8px_rgba(0,200,150,0.3)]"
           />
-          <span className="font-bold text-xl text-foreground">
-            <span className="text-primary">EasyPet</span>
+          <span className="font-bold text-xl text-foreground relative">
+            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">EasyPet</span>
           </span>
         </Link>
 
@@ -84,8 +85,12 @@ const Navigation = () => {
             <SheetContent side="right" className="w-[280px] sm:w-[350px]">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2">
-                  <img src={logo} alt="EasyPet Logo" className="h-8 w-8" />
-                  <span className="text-lg">Menu</span>
+                  <img 
+                    src={logo} 
+                    alt="EasyPet Logo" 
+                    className="h-8 w-8 drop-shadow-[0_0_8px_rgba(0,200,150,0.4)]"
+                  />
+                  <span className="text-lg bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Menu</span>
                 </SheetTitle>
               </SheetHeader>
               
