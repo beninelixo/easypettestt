@@ -112,17 +112,15 @@ const Auth = () => {
     }
   }, [savedEmail]);
 
+  // Auth page redirect logic - rely more on AppAuthRedirectGate
   useEffect(() => {
-    console.log('🔄 Auth redirect check:', { loading, user: user?.email, userRole });
+    console.log('🔄 Auth page redirect check:', { loading, user: user?.email, userRole });
     
+    // Only redirect if we have both user AND role
     if (!loading && user && userRole) {
       const redirectTo = searchParams.get("redirect") || getDashboardRoute(userRole);
-      console.log('✅ User authenticated, redirecting to:', redirectTo, 'with role:', userRole);
-      
-      // Small delay to ensure role is fully loaded
-      setTimeout(() => {
-        navigate(redirectTo, { replace: true });
-      }, 150);
+      console.log('✅ Auth page: User authenticated with role, redirecting to:', redirectTo);
+      navigate(redirectTo, { replace: true });
     }
   }, [user, userRole, loading, navigate, searchParams]);
 

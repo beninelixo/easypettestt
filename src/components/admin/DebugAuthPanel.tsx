@@ -8,7 +8,7 @@ import { ptBR } from 'date-fns/locale';
 import { useState, useEffect } from 'react';
 
 export const DebugAuthPanel = () => {
-  const { user, userRole, loading, lastRoleUpdate, forceRefreshAuth } = useAuth();
+  const { user, userRole, loading, lastRoleUpdate, roleSource, forceRefreshAuth } = useAuth();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleForceRefresh = async () => {
@@ -83,6 +83,17 @@ export const DebugAuthPanel = () => {
             className="font-mono text-xs"
           >
             {loading ? 'true' : 'false'}
+          </Badge>
+        </div>
+
+        {/* Role Source */}
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground">Role Source:</span>
+          <Badge 
+            variant={roleSource === 'database' ? 'default' : 'secondary'}
+            className="font-mono text-xs"
+          >
+            {roleSource || 'unknown'}
           </Badge>
         </div>
 

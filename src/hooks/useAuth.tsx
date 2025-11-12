@@ -12,6 +12,7 @@ export const useAuth = () => {
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastRoleUpdate, setLastRoleUpdate] = useState<number>(Date.now());
+  const [roleSource, setRoleSource] = useState<'metadata' | 'database' | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -50,6 +51,7 @@ export const useAuth = () => {
         console.log('✅ Selected role:', selectedRole);
         setUserRole(selectedRole);
         setLastRoleUpdate(Date.now());
+        setRoleSource('database');
       } else {
         console.log('⚠️ No roles found for user');
       }
@@ -80,7 +82,10 @@ export const useAuth = () => {
 
         // Provisional role from user metadata to avoid navigation deadlocks
         const metaRole = (session?.user?.user_metadata?.user_type as UserRole) || null;
-        if (metaRole) setUserRole(metaRole);
+        if (metaRole) {
+          setUserRole(metaRole);
+          setRoleSource('metadata');
+        }
         
         if (session?.user) {
           // Fetch role from DB after session is set (authoritative)
@@ -337,6 +342,7 @@ export const useAuth = () => {
     userRole,
     loading,
     lastRoleUpdate,
+    roleSource,
     signUp,
     signIn,
     signOut,

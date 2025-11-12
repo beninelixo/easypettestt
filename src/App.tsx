@@ -22,6 +22,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { TenantProvider } from "./lib/tenant-context";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { AppAuthRedirectGate } from "./components/AppAuthRedirectGate";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { PushNotificationButton } from "./components/PushNotificationButton";
 import { LoadingFallback } from "./components/LoadingFallback";
@@ -173,6 +174,7 @@ const App = () => {
             <ThemeToggle />
             <UpdateNotification />
             <BrowserRouter>
+              <AppAuthRedirectGate />
               <PushNotificationButton />
               <WhatsAppButton />
               <ScrollToTop />
