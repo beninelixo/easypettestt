@@ -140,29 +140,75 @@ export default function WebhookManagement() {
 
   const testWebhook = async (webhook: any) => {
     try {
-      const { error } = await supabase.functions.invoke('trigger-webhooks', {
+      toast({
+        title: 'Teste Iniciado',
+        description: 'Executando testes de webhook...'
+      });
+
+      const { data, error } = await supabase.functions.invoke('test-webhook', {
         body: {
-          alert: {
-            title: 'Teste de Webhook',
-            message: 'Este é um teste de notificação do sistema EasyPet',
-            severity: 'info',
-            alert_type: 'test'
-          },
-          event_type: 'critical_alert'
+          webhook_id: webhook.id,
+          simulate_failure: false,
+          test_retry: false
         }
       });
 
       if (error) throw error;
 
-      toast({
-        title: 'Sucesso',
-        description: 'Notificação de teste enviada'
-      });
+      if (data.success) {
+        const results = data.results;
+        const passedTests = results.tests_performed.filter((t: any) => t.passed).length;
+        const totalTests = results.tests_performed.length;
+
+        toast({
+          title: 'Testes Concluídos',
+          description: `${passedTests}/${totalTests} testes passaram com sucesso`,
+          variant: results.overall_status === 'success' ? 'default' : 'destructive'
+        });
+      }
     } catch (error: any) {
       console.error('Error testing webhook:', error);
       toast({
         title: 'Erro',
-        description: 'Não foi possível enviar notificação de teste',
+        description: 'Não foi possível executar testes',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const testWebhookWithFailure = async (webhook: any) => {
+    try {
+      toast({
+        title: 'Teste de Falha Iniciado',
+        description: 'Simulando falha e retry automático...'
+      });
+
+      const { data, error } = await supabase.functions.invoke('test-webhook', {
+        body: {
+          webhook_id: webhook.id,
+          simulate_failure: true,
+          test_retry: true
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        const retryTest = data.results.tests_performed.find((t: any) => t.test_name === 'Automatic Retry');
+        
+        toast({
+          title: 'Teste de Retry Concluído',
+          description: retryTest?.passed 
+            ? `Retry bem-sucedido após ${retryTest.retry_attempts} tentativas`
+            : 'Todas as tentativas de retry falharam',
+          variant: retryTest?.passed ? 'default' : 'destructive'
+        });
+      }
+    } catch (error: any) {
+      console.error('Error testing webhook failure:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível executar teste de falha',
         variant: 'destructive'
       });
     }
@@ -329,9 +375,19 @@ export default function WebhookManagement() {
                           size="sm"
                           variant="outline"
                           onClick={() => testWebhook(webhook)}
+                          title="Teste normal de webhook"
                         >
                           <TestTube className="w-3 h-3 mr-1" />
                           Testar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => testWebhookWithFailure(webhook)}
+                          title="Simular falha e retry"
+                        >
+                          <TestTube className="w-3 h-3 mr-1" />
+                          Retry
                         </Button>
                         <Button
                           size="sm"

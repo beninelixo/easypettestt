@@ -125,6 +125,7 @@ const FailedJobsManagement = lazy(() => import("./pages/admin/FailedJobsManageme
 const PerformanceMetricsHistory = lazy(() => import("./pages/admin/PerformanceMetricsHistory"));
 const ConsolidatedHealthDashboard = lazy(() => import("./pages/admin/ConsolidatedHealthDashboard"));
 const WebhookManagement = lazy(() => import("./pages/admin/WebhookManagement"));
+const SystemAnalysisDashboard = lazy(() => import("./pages/admin/SystemAnalysis"));
 
 // Admin Layout
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -318,7 +319,7 @@ const App = () => {
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="god-mode" element={<GodModeDashboard />} />
             <Route path="system-monitoring" element={<SystemMonitoring />} />
-            <Route path="system-analysis" element={<SystemAnalysis />} />
+            <Route path="system-analysis" element={<SystemAnalysisDashboard />} />
             <Route path="auth-monitoring" element={<AuthMonitoring />} />
             <Route path="system-health" element={<SystemHealth />} />
             <Route path="system-diagnostics" element={<SystemDiagnostics />} />
