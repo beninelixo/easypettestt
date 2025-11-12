@@ -53,6 +53,7 @@ const Relatorios = lazy(() => import("./pages/petshop/Relatorios"));
 const Configuracoes = lazy(() => import("./pages/petshop/Configuracoes"));
 const Servicos = lazy(() => import("./pages/petshop/Servicos"));
 const ServiceTemplates = lazy(() => import("./pages/petshop/ServiceTemplates"));
+const LoopsDomainSetup = lazy(() => import("./pages/admin/LoopsDomainSetup"));
 const WhatsAppSettings = lazy(() => import("./pages/petshop/WhatsAppSettings"));
 const Estoque = lazy(() => import("./pages/petshop/EstoqueVirtual"));
 const Financeiro = lazy(() => import("./pages/petshop/Financeiro"));
@@ -313,6 +314,7 @@ const App = () => {
             <Route path="email-test" element={<EmailSystemTest />} />
             <Route path="email-analytics" element={<EmailAnalyticsDashboard />} />
             <Route path="domain-setup" element={<ResendDomainSetup />} />
+            <Route path="loops-domain-setup" element={<LoopsDomainSetup />} />
             <Route path="notifications" element={<NotificationQueue />} />
             <Route path="monitor" element={<SystemMonitor />} />
             <Route path="success-stories" element={<SuccessStoriesManager />} />

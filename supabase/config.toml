@@ -93,5 +93,5 @@ verify_jwt = true
 [functions.activate-free-plan]
 verify_jwt = true
 
-[functions.verify-captcha]
+[functions.notify-push-appointment]
 verify_jwt = false

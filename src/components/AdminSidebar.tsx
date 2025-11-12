@@ -48,6 +48,7 @@ const settingsItems = [
   { title: "Email System Test", url: "/admin/email-test", icon: TestTube },
   { title: "Email Analytics", url: "/admin/email-analytics", icon: BarChart, badge: "NEW" },
   { title: "Resend Domain Setup", url: "/admin/domain-setup", icon: Globe },
+  { title: "Loops Domain Setup", url: "/admin/loops-domain-setup", icon: Mail, badge: "NEW" },
   { title: "Notification Queue", url: "/admin/notifications", icon: Bell },
   { title: "System Monitor", url: "/admin/monitor", icon: Monitor },
   { title: "Success Stories", url: "/admin/success-stories", icon: Award },

@@ -1,60 +1,39 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Plus, Check } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-
-interface ServiceTemplate {
-  id: string;
-  category: string;
-  name: string;
-  description: string | null;
-  suggested_duration_minutes: number;
-  suggested_price_min: number | null;
-  suggested_price_max: number | null;
-  icon: string | null;
-}
+import { Search, Plus, Check, ArrowLeft } from "lucide-react";
+import { serviceTemplates, serviceCategories, ServiceTemplate } from "@/data/serviceTemplates";
+import { useNavigate } from "react-router-dom";
 
 const ServiceTemplates = () => {
-  const [templates, setTemplates] = useState<ServiceTemplate[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeCategory, setActiveCategory] = useState("banho_tosa");
-  const [loading, setLoading] = useState(false);
-  const [addedServices, setAddedServices] = useState<Set<string>>(new Set());
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [addedServices, setAddedServices] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    loadTemplates();
-  }, []);
+  const filteredServices = serviceTemplates.filter((service) => {
+    const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         service.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !selectedCategory || service.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
-  const loadTemplates = async () => {
-    const { data, error } = await supabase
-      .from("service_templates")
-      .select("*")
-      .eq("active", true)
-      .order("category", { ascending: true })
-      .order("name", { ascending: true });
+  const handleAddService = async (template: ServiceTemplate) => {
+    if (!user) return;
 
-    if (!error && data) {
-      setTemplates(data);
-    }
-  };
-
-  const addServiceFromTemplate = async (template: ServiceTemplate) => {
-    setLoading(true);
     try {
-      // Get pet shop ID
+      // Get pet shop id
       const { data: petShop } = await supabase
         .from("pet_shops")
         .select("id")
-        .eq("owner_id", user?.id)
+        .eq("owner_id", user.id)
         .single();
 
       if (!petShop) {
@@ -66,46 +45,42 @@ const ServiceTemplates = () => {
         return;
       }
 
-      // Check for duplicates
+      // Check if service already exists
       const { data: existingService } = await supabase
         .from("services")
-        .select("id, name")
+        .select("id")
         .eq("pet_shop_id", petShop.id)
         .eq("name", template.name)
-        .maybeSingle();
+        .single();
 
       if (existingService) {
         toast({
           title: "Serviço já existe",
-          description: `Você já tem um serviço chamado "${template.name}" cadastrado`,
-          variant: "default",
+          description: "Este serviço já está cadastrado no seu pet shop",
+          variant: "destructive",
         });
         return;
       }
 
-      // Calculate average price
-      const avgPrice =
-        template.suggested_price_min && template.suggested_price_max
-          ? (template.suggested_price_min + template.suggested_price_max) / 2
-          : template.suggested_price_min || 0;
-
-      // Create service
-      const { error } = await supabase.from("services").insert({
-        pet_shop_id: petShop.id,
-        name: template.name,
-        description: template.description,
-        duration_minutes: template.suggested_duration_minutes,
-        price: avgPrice,
-        active: true,
-      });
+      // Add service
+      const { error } = await supabase
+        .from("services")
+        .insert({
+          name: template.name,
+          description: template.description,
+          price: template.price,
+          duration_minutes: template.duration_minutes,
+          active: true,
+          pet_shop_id: petShop.id,
+        });
 
       if (error) throw error;
 
-      setAddedServices((prev) => new Set(prev).add(template.id));
-
+      setAddedServices(prev => new Set(prev).add(template.id));
+      
       toast({
         title: "✅ Serviço adicionado!",
-        description: `${template.name} foi adicionado aos seus serviços`,
+        description: `${template.name} foi adicionado ao seu catálogo`,
       });
     } catch (error: any) {
       toast({
@@ -113,154 +88,136 @@ const ServiceTemplates = () => {
         description: error.message,
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
-  const filteredTemplates = templates
-    .filter((t) => t.category === activeCategory)
-    .filter((t) =>
-      t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (t.description && t.description.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-
-  const groupedByCategory = {
-    banho_tosa: templates.filter((t) => t.category === "banho_tosa"),
-    clinica: templates.filter((t) => t.category === "clinica"),
-  };
-
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Catálogo de Serviços</h1>
-        <p className="text-muted-foreground mt-2">
-          Adicione serviços profissionais ao seu pet shop com um clique
-        </p>
-      </div>
-
+    <div className="container mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar serviços..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/petshop-dashboard/servicos")}
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold">📚 Catálogo de Serviços</h1>
+          <p className="text-muted-foreground mt-2">
+            61 serviços profissionais prontos para adicionar ao seu pet shop
+          </p>
         </div>
       </div>
 
-      <Tabs value={activeCategory} onValueChange={setActiveCategory}>
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="banho_tosa">
-            Banho e Tosa ({groupedByCategory.banho_tosa.length})
-          </TabsTrigger>
-          <TabsTrigger value="clinica">
-            Clínica ({groupedByCategory.clinica.length})
-          </TabsTrigger>
-        </TabsList>
+      {/* Search and Filter */}
+      <Card>
+        <CardContent className="pt-6 space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar serviços..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
 
-        <TabsContent value="banho_tosa" className="space-y-4 mt-6">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTemplates.map((template) => (
-              <Card key={template.id} className="hover:shadow-lg transition-all">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        {template.icon && <span className="text-2xl">{template.icon}</span>}
-                        <Badge variant="outline" className="text-xs">
-                          {template.suggested_duration_minutes} min
-                        </Badge>
-                      </div>
-                      <CardTitle className="text-lg">{template.name}</CardTitle>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={selectedCategory === null ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedCategory(null)}
+            >
+              Todos ({serviceTemplates.length})
+            </Button>
+            {serviceCategories.map((category) => {
+              const count = serviceTemplates.filter(s => s.category === category.id).length;
+              return (
+                <Button
+                  key={category.id}
+                  variant={selectedCategory === category.id ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category.id)}
+                >
+                  {category.name} ({count})
+                </Button>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Services Grid */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredServices.map((service) => {
+          const isAdded = addedServices.has(service.id);
+          const category = serviceCategories.find(c => c.id === service.category);
+          
+          return (
+            <Card key={service.id} className="hover:shadow-lg transition-all">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-3xl">{service.icon}</span>
+                    <div>
+                      <CardTitle className="text-lg">{service.name}</CardTitle>
+                      <Badge variant="outline" className="mt-1">
+                        {category?.name}
+                      </Badge>
                     </div>
                   </div>
-                  <CardDescription className="mt-2">{template.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-sm text-muted-foreground">Preço sugerido:</span>
-                    <span className="text-lg font-bold text-primary">
-                      R$ {template.suggested_price_min?.toFixed(2)}
-                      {template.suggested_price_max && ` - R$ ${template.suggested_price_max?.toFixed(2)}`}
-                    </span>
+                </div>
+                <CardDescription className="mt-2">
+                  {service.description}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Preço sugerido:</span>
+                    <p className="font-semibold text-lg">R$ {service.price.toFixed(2)}</p>
                   </div>
-                  <Button
-                    onClick={() => addServiceFromTemplate(template)}
-                    disabled={loading || addedServices.has(template.id)}
-                    className="w-full"
-                    variant={addedServices.has(template.id) ? "outline" : "default"}
-                  >
-                    {addedServices.has(template.id) ? (
-                      <>
-                        <Check className="h-4 w-4 mr-2" />
-                        Adicionado
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Adicionar Serviço
-                      </>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
+                  <div className="text-right">
+                    <span className="text-muted-foreground">Duração:</span>
+                    <p className="font-semibold">{service.duration_minutes} min</p>
+                  </div>
+                </div>
 
-        <TabsContent value="clinica" className="space-y-4 mt-6">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTemplates.map((template) => (
-              <Card key={template.id} className="hover:shadow-lg transition-all">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        {template.icon && <span className="text-2xl">{template.icon}</span>}
-                        <Badge variant="outline" className="text-xs">
-                          {template.suggested_duration_minutes} min
-                        </Badge>
-                      </div>
-                      <CardTitle className="text-lg">{template.name}</CardTitle>
-                    </div>
-                  </div>
-                  <CardDescription className="mt-2">{template.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-sm text-muted-foreground">Preço sugerido:</span>
-                    <span className="text-lg font-bold text-primary">
-                      R$ {template.suggested_price_min?.toFixed(2)}
-                      {template.suggested_price_max && ` - R$ ${template.suggested_price_max?.toFixed(2)}`}
-                    </span>
-                  </div>
-                  <Button
-                    onClick={() => addServiceFromTemplate(template)}
-                    disabled={loading || addedServices.has(template.id)}
-                    className="w-full"
-                    variant={addedServices.has(template.id) ? "outline" : "default"}
-                  >
-                    {addedServices.has(template.id) ? (
-                      <>
-                        <Check className="h-4 w-4 mr-2" />
-                        Adicionado
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Adicionar Serviço
-                      </>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+                <Button
+                  onClick={() => handleAddService(service)}
+                  disabled={isAdded}
+                  className="w-full"
+                  variant={isAdded ? "secondary" : "default"}
+                >
+                  {isAdded ? (
+                    <>
+                      <Check className="h-4 w-4 mr-2" />
+                      Adicionado
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Adicionar ao Catálogo
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {filteredServices.length === 0 && (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Search className="h-16 w-16 text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Nenhum serviço encontrado</h3>
+            <p className="text-muted-foreground">
+              Tente ajustar sua busca ou filtros
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
