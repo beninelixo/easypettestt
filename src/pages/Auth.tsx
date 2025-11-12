@@ -118,11 +118,11 @@ const Auth = () => {
     
     // If user is authenticated, immediately redirect to home
     // AppAuthRedirectGate will then redirect to appropriate dashboard
-    if (!loading && user) {
+    if (user) {
       console.log('✅ Auth page: User authenticated, redirecting to home (Gate will handle dashboard routing)');
       navigate('/', { replace: true });
     }
-  }, [user, loading, navigate]);
+  }, [user, navigate]);
 
   const getDashboardRoute = (role: UserRole) => {
     switch (role) {

@@ -1,10 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuthMonitor } from "@/hooks/useAuthMonitor";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { AlertCircle, CheckCircle, TrendingUp, Users, Shield, Clock } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface AuthMetrics {
   totalLogins: number;
@@ -41,6 +42,8 @@ export default function AuthMetricsDashboard() {
   const [loginsByHour, setLoginsByHour] = useState<LoginByHour[]>([]);
   const [loginsByRole, setLoginsByRole] = useState<LoginByRole[]>([]);
   const [recentFailures, setRecentFailures] = useState<any[]>([]);
+  const [highFailure, setHighFailure] = useState<{ active: boolean; rate: number }>({ active: false, rate: 0 });
+  const lastAlertRef = useRef<number>(0);
 
   useEffect(() => {
     calculateMetrics();
@@ -51,6 +54,40 @@ export default function AuthMetricsDashboard() {
     const loginEvents = events.filter(e => e.event_type === 'login');
     const successfulLogins = loginEvents.filter(e => e.event_status === 'success');
     const failedLogins = loginEvents.filter(e => e.event_status === 'error');
+
+    // High failure rate detection (last 1h)
+    const oneHourAgo = Date.now() - 60 * 60 * 1000;
+    const recent = loginEvents.filter(e => new Date(e.created_at).getTime() >= oneHourAgo);
+    const recentSuccess = recent.filter(e => e.event_status === 'success').length;
+    const recentFailed = recent.filter(e => e.event_status === 'error').length;
+    const totalRecent = recentSuccess + recentFailed;
+    const recentFailRate = totalRecent > 0 ? (recentFailed / totalRecent) * 100 : 0;
+    setHighFailure({ active: recentFailRate >= 20, rate: recentFailRate });
+
+    // Throttled admin alert when threshold exceeded
+    if (recentFailRate >= 20) {
+      const nowTs = Date.now();
+      if (!lastAlertRef.current || nowTs - lastAlertRef.current > 30 * 60 * 1000) {
+        lastAlertRef.current = nowTs;
+        try {
+          await supabase.from('admin_alerts').insert({
+            alert_type: 'auth_fail_rate',
+            severity: 'high',
+            title: 'Taxa de falhas de login elevada',
+            message: `A taxa de falhas de login atingiu ${recentFailRate.toFixed(1)}% na última hora`,
+            context: {
+              window: '1h',
+              failed: recentFailed,
+              success: recentSuccess,
+              total: totalRecent,
+              threshold_percent: 20,
+            }
+          });
+        } catch (e) {
+          console.error('Falha ao registrar alerta de autenticação:', e);
+        }
+      }
+    }
 
     // Get active sessions from Supabase
     const { count: activeSessions } = await supabase
