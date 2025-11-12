@@ -23,7 +23,10 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
     
     if (!loading) {
       if (!user) {
-        console.log('❌ No user, redirecting to /auth');
+        console.log('❌ No user, clearing invalid tokens and redirecting to /auth');
+        // Limpar tokens potencialmente corrompidos
+        localStorage.removeItem('supabase.auth.token');
+        sessionStorage.clear();
         navigate("/auth", { replace: true });
       } else if (allowedRoles && normalizedRole && !allowedRoles.includes(normalizedRole as UserRole)) {
         // Redirect to appropriate dashboard based on role

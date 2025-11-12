@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, Trash2, Database, HardDrive, Wifi, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { RefreshCw, Trash2, Database, HardDrive, Wifi, CheckCircle, XCircle, AlertTriangle, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,9 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { OfflineSyncStatus } from '@/components/OfflineSyncStatus';
+import { useOfflineAnalytics } from '@/hooks/useOfflineAnalytics';
+import { cacheConfigManager } from '@/lib/offline-cache-config';
 
 const Diagnostics = () => {
   const { toast } = useToast();
@@ -21,6 +24,13 @@ const Diagnostics = () => {
   const [cacheNames, setCacheNames] = useState<string[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [supabaseStatus, setSupabaseStatus] = useState<'connected' | 'disconnected'>('disconnected');
+  
+  const { 
+    analytics, 
+    getMostVisitedPages, 
+    getOfflineUsageRate,
+    getAverageCacheRecoveryTime 
+  } = useOfflineAnalytics();
 
   const loadDiagnostics = async () => {
     setRefreshing(true);
@@ -297,9 +307,11 @@ const Diagnostics = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="cache" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="cache">Cache</TabsTrigger>
-            <TabsTrigger value="storage">Local Storage</TabsTrigger>
+            <TabsTrigger value="storage">Storage</TabsTrigger>
+            <TabsTrigger value="sync">Sincronização</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="actions">Ações</TabsTrigger>
           </TabsList>
 
@@ -373,6 +385,140 @@ const Diagnostics = () => {
                     <p className="text-sm text-muted-foreground">Nenhum dado armazenado</p>
                   )}
                 </ScrollArea>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="sync" className="space-y-4">
+            <OfflineSyncStatus />
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Analytics de Uso Offline
+                </CardTitle>
+                <CardDescription>
+                  Estatísticas de uso offline e performance de cache
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Total de Sessões Offline</p>
+                    <p className="text-2xl font-bold">{analytics.totalSessions}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Taxa de Uso Offline</p>
+                    <p className="text-2xl font-bold">{getOfflineUsageRate().toFixed(1)}%</p>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Páginas Mais Acessadas Offline:</p>
+                  {getMostVisitedPages(5).length > 0 ? (
+                    getMostVisitedPages(5).map((page, index) => (
+                      <div key={index} className="flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground truncate">{page.page}</span>
+                        <Badge variant="outline">{page.count} visitas</Badge>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Nenhuma página acessada offline ainda</p>
+                  )}
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Tempo Médio de Recuperação</span>
+                    <span className="text-sm font-medium">{getAverageCacheRecoveryTime().toFixed(0)}ms</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Duração Total Offline</span>
+                    <span className="text-sm font-medium">
+                      {(analytics.totalDuration / 1000 / 60).toFixed(1)} min
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Configurações de Cache */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Configurações de Cache</CardTitle>
+                <CardDescription>
+                  Gerenciar preferências de cache offline
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Tamanho Máximo do Cache</span>
+                  <span className="text-sm font-medium">
+                    {cacheConfigManager.getConfig().maxCacheSizeMB} MB
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Tamanho Atual</span>
+                  <span className="text-sm font-medium">
+                    {cacheConfigManager.getCurrentCacheSizeMB().toFixed(2)} MB
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Limpeza Automática</span>
+                  <Badge variant="outline">
+                    {cacheConfigManager.getConfig().autoCleanup}
+                  </Badge>
+                </div>
+
+                <Separator />
+
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => {
+                      if (cacheConfigManager.shouldCleanup()) {
+                        cacheConfigManager.performCleanup();
+                        toast({
+                          title: "✅ Limpeza Concluída",
+                          description: "Cache antigo foi removido com sucesso.",
+                        });
+                        loadDiagnostics();
+                      } else {
+                        toast({
+                          title: "ℹ️ Limpeza não Necessária",
+                          description: "O cache ainda não precisa de limpeza.",
+                        });
+                      }
+                    }}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Limpar Cache Antigo
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      cacheConfigManager.clearAllCache();
+                      toast({
+                        title: "🗑️ Cache Limpo",
+                        description: "Todo o cache offline foi removido.",
+                        variant: "destructive",
+                      });
+                      loadDiagnostics();
+                    }}
+                    variant="destructive"
+                    className="flex-1"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Limpar Tudo
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

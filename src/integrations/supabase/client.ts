@@ -18,9 +18,30 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 });
 
 // Clear invalid sessions on startup
-supabase.auth.onAuthStateChange((event, session) => {
+supabase.auth.onAuthStateChange(async (event, session) => {
+  console.log('🔐 Auth state changed:', event, session ? 'Session exists' : 'No session');
+  
   if (event === 'TOKEN_REFRESHED' && !session) {
-    console.log('Session refresh failed, clearing storage');
+    console.log('⚠️ Session refresh failed, clearing storage');
     localStorage.removeItem('supabase.auth.token');
+    sessionStorage.clear();
+  }
+  
+  // Verificar se o token JWT é válido
+  if (session && session.access_token) {
+    try {
+      // Tentar verificar a validade do token
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        console.log('❌ Invalid JWT token detected, clearing session');
+        localStorage.removeItem('supabase.auth.token');
+        sessionStorage.clear();
+        await supabase.auth.signOut();
+      }
+    } catch (error) {
+      console.error('❌ Error validating token:', error);
+      localStorage.removeItem('supabase.auth.token');
+      sessionStorage.clear();
+    }
   }
 });
