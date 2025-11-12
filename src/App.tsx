@@ -87,6 +87,7 @@ const UserPrivacy = lazy(() => import("./pages/UserPrivacy"));
 const PaymentHistory = lazy(() => import("./pages/PaymentHistory"));
 const NotificationQueue = lazy(() => import("./pages/admin/NotificationQueue"));
 const SystemMonitor = lazy(() => import("./pages/admin/SystemMonitor"));
+const NotificationPreferences = lazy(() => import("./pages/admin/NotificationPreferences"));
 const ClientLayout = lazy(() => import("./pages/client/ClientLayout"));
 const ClientPets = lazy(() => import("./pages/client/ClientPets"));
 const ClientSchedule = lazy(() => import("./pages/client/ClientSchedule"));
@@ -347,6 +348,7 @@ const App = () => {
             <Route path="performance-history" element={<PerformanceMetricsHistory />} />
             <Route path="health-dashboard" element={<ConsolidatedHealthDashboard />} />
             <Route path="webhooks" element={<WebhookManagement />} />
+            <Route path="notification-preferences" element={<NotificationPreferences />} />
           </Route>
 
           {/* Legacy Admin Routes - Redirect to new structure */}

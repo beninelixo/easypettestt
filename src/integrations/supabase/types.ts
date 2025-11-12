@@ -74,6 +74,57 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_notification_preferences: {
+        Row: {
+          admin_id: string
+          backup_alerts: boolean
+          created_at: string
+          email_enabled: boolean
+          id: string
+          payment_alerts: boolean
+          performance_alerts: boolean
+          push_enabled: boolean
+          security_alerts: boolean
+          system_health_alerts: boolean
+          updated_at: string
+          user_activity_alerts: boolean
+          whatsapp_enabled: boolean
+          whatsapp_number: string | null
+        }
+        Insert: {
+          admin_id: string
+          backup_alerts?: boolean
+          created_at?: string
+          email_enabled?: boolean
+          id?: string
+          payment_alerts?: boolean
+          performance_alerts?: boolean
+          push_enabled?: boolean
+          security_alerts?: boolean
+          system_health_alerts?: boolean
+          updated_at?: string
+          user_activity_alerts?: boolean
+          whatsapp_enabled?: boolean
+          whatsapp_number?: string | null
+        }
+        Update: {
+          admin_id?: string
+          backup_alerts?: boolean
+          created_at?: string
+          email_enabled?: boolean
+          id?: string
+          payment_alerts?: boolean
+          performance_alerts?: boolean
+          push_enabled?: boolean
+          security_alerts?: boolean
+          system_health_alerts?: boolean
+          updated_at?: string
+          user_activity_alerts?: boolean
+          whatsapp_enabled?: boolean
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
       appointments: {
         Row: {
           client_id: string
@@ -236,6 +287,62 @@ export type Database = {
           triggered_by?: string | null
         }
         Relationships: []
+      }
+      backup_verifications: {
+        Row: {
+          backup_id: string
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          integrity_checks_failed: number | null
+          integrity_checks_passed: number | null
+          records_verified: number | null
+          started_at: string
+          tables_verified: number | null
+          verification_results: Json | null
+          verification_status: string
+          verified_by: string | null
+        }
+        Insert: {
+          backup_id: string
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          integrity_checks_failed?: number | null
+          integrity_checks_passed?: number | null
+          records_verified?: number | null
+          started_at?: string
+          tables_verified?: number | null
+          verification_results?: Json | null
+          verification_status: string
+          verified_by?: string | null
+        }
+        Update: {
+          backup_id?: string
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          integrity_checks_failed?: number | null
+          integrity_checks_passed?: number | null
+          records_verified?: number | null
+          started_at?: string
+          tables_verified?: number | null
+          verification_results?: Json | null
+          verification_status?: string
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "backup_verifications_backup_id_fkey"
+            columns: ["backup_id"]
+            isOneToOne: false
+            referencedRelation: "backup_history"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       blocked_ips: {
         Row: {
@@ -2194,6 +2301,10 @@ export type Database = {
       }
       generate_pet_shop_code: { Args: never; Returns: string }
       generate_user_code: { Args: never; Returns: string }
+      get_admin_notification_preferences: {
+        Args: { _admin_id: string; _alert_type: string; _channel: string }
+        Returns: boolean
+      }
       get_appointments_by_period: {
         Args: {
           _end_date?: string

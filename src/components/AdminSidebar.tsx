@@ -47,6 +47,7 @@ const securityItems = [
 ];
 
 const settingsItems = [
+  { title: "Notification Preferences", url: "/admin/notification-preferences", icon: Bell },
   { title: "Webhooks", url: "/admin/webhooks", icon: Webhook, badge: "NEW" },
   { title: "Performance Dashboard", url: "/admin/performance", icon: Gauge },
   { title: "Error Logs", url: "/admin/error-logs", icon: ScrollText },
