@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Plus, Check, ArrowLeft, Star, Clock, DollarSign, Eye } from "lucide-react";
+import { Search, Plus, Check, ArrowLeft, Star, Clock, DollarSign, Eye, SlidersHorizontal } from "lucide-react";
 import { serviceTemplates, serviceCategories, ServiceTemplate } from "@/data/serviceTemplates";
 import { useNavigate } from "react-router-dom";
 
@@ -19,13 +22,41 @@ const ServiceTemplates = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [addedServices, setAddedServices] = useState<Set<string>>(new Set());
   const [previewService, setPreviewService] = useState<ServiceTemplate | null>(null);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
+  const [durationRange, setDurationRange] = useState<[number, number]>([0, 240]);
+  const [sortBy, setSortBy] = useState<'name' | 'price' | 'duration' | 'popularity'>('name');
+  const [showFilters, setShowFilters] = useState(false);
 
-  const filteredServices = serviceTemplates.filter((service) => {
-    const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         service.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || service.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredServices = useMemo(() => {
+    let filtered = serviceTemplates.filter((service) => {
+      const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           service.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = !selectedCategory || service.category === selectedCategory;
+      const matchesPrice = service.price >= priceRange[0] && service.price <= priceRange[1];
+      const matchesDuration = service.duration_minutes >= durationRange[0] && service.duration_minutes <= durationRange[1];
+      return matchesSearch && matchesCategory && matchesPrice && matchesDuration;
+    });
+
+    // Sort services
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'price':
+          return a.price - b.price;
+        case 'duration':
+          return a.duration_minutes - b.duration_minutes;
+        case 'popularity':
+          // Simulate popularity based on service type
+          const popularityA = a.category === 'banho-tosa' ? 100 : 50;
+          const popularityB = b.category === 'banho-tosa' ? 100 : 50;
+          return popularityB - popularityA;
+        case 'name':
+        default:
+          return a.name.localeCompare(b.name);
+      }
+    });
+
+    return filtered;
+  }, [searchTerm, selectedCategory, priceRange, durationRange, sortBy]);
 
   const handleAddService = async (template: ServiceTemplate) => {
     if (!user) return;
@@ -114,15 +145,69 @@ const ServiceTemplates = () => {
       {/* Search and Filter */}
       <Card>
         <CardContent className="pt-6 space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar serviços..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar serviços..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setShowFilters(!showFilters)}
+              className={showFilters ? "bg-primary text-primary-foreground" : ""}
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+            </Button>
           </div>
+
+          {/* Advanced Filters */}
+          {showFilters && (
+            <div className="grid md:grid-cols-3 gap-4 p-4 border rounded-lg bg-muted/30">
+              <div className="space-y-2">
+                <Label>Ordenar por</Label>
+                <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="name">Nome</SelectItem>
+                    <SelectItem value="price">Preço</SelectItem>
+                    <SelectItem value="duration">Duração</SelectItem>
+                    <SelectItem value="popularity">Popularidade</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Faixa de Preço: R$ {priceRange[0]} - R$ {priceRange[1]}</Label>
+                <Slider
+                  value={priceRange}
+                  onValueChange={(v) => setPriceRange(v as [number, number])}
+                  min={0}
+                  max={500}
+                  step={10}
+                  className="mt-2"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Duração: {durationRange[0]} - {durationRange[1]} min</Label>
+                <Slider
+                  value={durationRange}
+                  onValueChange={(v) => setDurationRange(v as [number, number])}
+                  min={0}
+                  max={240}
+                  step={15}
+                  className="mt-2"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-2">
             <Button

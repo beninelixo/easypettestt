@@ -1432,9 +1432,11 @@ export type Database = {
           icon: string | null
           id: string
           name: string
+          popularity_score: number | null
           suggested_duration_minutes: number
           suggested_price_max: number | null
           suggested_price_min: number | null
+          times_used: number | null
         }
         Insert: {
           active?: boolean | null
@@ -1444,9 +1446,11 @@ export type Database = {
           icon?: string | null
           id?: string
           name: string
+          popularity_score?: number | null
           suggested_duration_minutes: number
           suggested_price_max?: number | null
           suggested_price_min?: number | null
+          times_used?: number | null
         }
         Update: {
           active?: boolean | null
@@ -1456,9 +1460,11 @@ export type Database = {
           icon?: string | null
           id?: string
           name?: string
+          popularity_score?: number | null
           suggested_duration_minutes?: number
           suggested_price_max?: number | null
           suggested_price_min?: number | null
+          times_used?: number | null
         }
         Relationships: []
       }
@@ -1974,6 +1980,20 @@ export type Database = {
       cleanup_old_logs: { Args: never; Returns: number }
       generate_pet_shop_code: { Args: never; Returns: string }
       generate_user_code: { Args: never; Returns: string }
+      get_appointments_by_period: {
+        Args: {
+          _end_date?: string
+          _period?: string
+          _pet_shop_id: string
+          _start_date?: string
+        }
+        Returns: {
+          cancelled: number
+          completed: number
+          day: string
+          pending: number
+        }[]
+      }
       get_appointments_by_service: {
         Args: { _days_back?: number; _pet_shop_id: string }
         Returns: {
@@ -2015,6 +2035,13 @@ export type Database = {
         Returns: {
           appointment_count: number
           hour: number
+        }[]
+      }
+      get_revenue_by_period: {
+        Args: { _months?: number; _period?: string; _pet_shop_id: string }
+        Returns: {
+          period_label: string
+          revenue: number
         }[]
       }
       get_security_stats: { Args: never; Returns: Json }

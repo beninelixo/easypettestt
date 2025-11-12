@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, TrendingUp, Users, DollarSign, Clock, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +25,8 @@ const ProfessionalDashboard = () => {
   });
   const [revenueData, setRevenueData] = useState<Array<{ month: string; revenue: number }>>([]);
   const [weekData, setWeekData] = useState<Array<{ day: string; completed: number; cancelled: number; pending: number }>>([]);
+  const [appointmentPeriod, setAppointmentPeriod] = useState<'week' | 'month' | 'year'>('week');
+  const [revenuePeriod, setRevenuePeriod] = useState<'month' | 'year'>('month');
   const { lastUpdate } = useRealtimeMetrics(petShopId);
 
   useEffect(() => {
@@ -37,7 +40,7 @@ const ProfessionalDashboard = () => {
       loadAppointments(petShopId);
       loadStats(petShopId);
     }
-  }, [petShopId, lastUpdate]);
+  }, [petShopId, lastUpdate, appointmentPeriod, revenuePeriod]);
 
   const loadPetShopAndData = async () => {
     try {
@@ -122,24 +125,27 @@ const ProfessionalDashboard = () => {
       });
     }
 
-    // Load real revenue data from last 6 months
+    // Load revenue data based on selected period
+    const revenueMonths = revenuePeriod === 'year' ? 12 : 6;
     const { data: revenueDataFromDb, error: revenueError } = await supabase
-      .rpc('get_monthly_revenue', { 
+      .rpc('get_revenue_by_period', { 
         _pet_shop_id: shopId,
-        _months: 6
+        _period: revenuePeriod,
+        _months: revenueMonths
       });
 
     if (!revenueError && revenueDataFromDb) {
       setRevenueData(revenueDataFromDb.map(item => ({
-        month: item.month,
+        month: item.period_label,
         revenue: Number(item.revenue)
       })));
     }
 
-    // Load real weekly appointments data
+    // Load appointments data based on selected period
     const { data: weekDataFromDb, error: weekError } = await supabase
-      .rpc('get_weekly_appointments', { 
-        _pet_shop_id: shopId
+      .rpc('get_appointments_by_period', { 
+        _pet_shop_id: shopId,
+        _period: appointmentPeriod
       });
 
     if (!weekError && weekDataFromDb) {
@@ -205,8 +211,46 @@ const ProfessionalDashboard = () => {
 
         {/* Charts */}
         <div className="grid lg:grid-cols-2 gap-6">
-          <RevenueChart data={revenueData} />
-          <AppointmentsChart data={weekData} />
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Faturamento</CardTitle>
+                  <CardDescription>Receita ao longo do tempo</CardDescription>
+                </div>
+                <Tabs value={revenuePeriod} onValueChange={(v) => setRevenuePeriod(v as 'month' | 'year')}>
+                  <TabsList>
+                    <TabsTrigger value="month">6 Meses</TabsTrigger>
+                    <TabsTrigger value="year">12 Meses</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <RevenueChart data={revenueData} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Agendamentos</CardTitle>
+                  <CardDescription>Status dos agendamentos por período</CardDescription>
+                </div>
+                <Tabs value={appointmentPeriod} onValueChange={(v) => setAppointmentPeriod(v as 'week' | 'month' | 'year')}>
+                  <TabsList>
+                    <TabsTrigger value="week">Semana</TabsTrigger>
+                    <TabsTrigger value="month">Mês</TabsTrigger>
+                    <TabsTrigger value="year">Ano</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <AppointmentsChart data={weekData} />
+            </CardContent>
+          </Card>
         </div>
 
         {/* Today's Schedule */}
