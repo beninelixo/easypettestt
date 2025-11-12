@@ -40,7 +40,7 @@ const Navigation = () => {
           <img 
             src={logo} 
             alt="EasyPet Logo" 
-            className="h-14 w-14 relative transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 drop-shadow-[0_0_12px_rgba(0,200,150,0.5)]"
+            className="h-14 w-auto relative transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 drop-shadow-[0_0_12px_rgba(0,200,150,0.5)] object-contain"
           />
           <span className="font-bold text-xl text-foreground relative">
             <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">EasyPet</span>
