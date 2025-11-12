@@ -128,6 +128,8 @@ const PerformanceMetricsHistory = lazy(() => import("./pages/admin/PerformanceMe
 const ConsolidatedHealthDashboard = lazy(() => import("./pages/admin/ConsolidatedHealthDashboard"));
 const WebhookManagement = lazy(() => import("./pages/admin/WebhookManagement"));
 const SystemAnalysisDashboard = lazy(() => import("./pages/admin/SystemAnalysis"));
+const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
+const AcceptInvite = lazy(() => import("./pages/admin/AcceptInvite"));
 
 // Admin Layout
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -186,6 +188,7 @@ const App = () => {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/system-overview" element={<SystemOverview />} />
             <Route path="/admin/regenerate-images" element={<RegenerateImages />} />
+            <Route path="/admin/accept-invite" element={<AcceptInvite />} />
             
             {/* Multi-Unit Management Routes */}
             <Route path="/multi-unit/dashboard" element={
@@ -348,6 +351,7 @@ const App = () => {
             <Route path="performance-history" element={<PerformanceMetricsHistory />} />
             <Route path="health-dashboard" element={<ConsolidatedHealthDashboard />} />
             <Route path="webhooks" element={<WebhookManagement />} />
+            <Route path="user-management" element={<UserManagement />} />
             <Route path="notification-preferences" element={<NotificationPreferences />} />
           </Route>
 

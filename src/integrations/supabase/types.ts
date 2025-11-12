@@ -74,6 +74,39 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_invites: {
+        Row: {
+          accepted: boolean | null
+          accepted_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          token: string
+        }
+        Insert: {
+          accepted?: boolean | null
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          token: string
+        }
+        Update: {
+          accepted?: boolean | null
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          token?: string
+        }
+        Relationships: []
+      }
       admin_notification_preferences: {
         Row: {
           admin_id: string
@@ -1465,6 +1498,45 @@ export type Database = {
         }
         Relationships: []
       }
+      role_changes_audit: {
+        Row: {
+          action: string
+          changed_by: string
+          changed_user_id: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          new_role: Database["public"]["Enums"]["app_role"]
+          old_role: Database["public"]["Enums"]["app_role"] | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          changed_by: string
+          changed_user_id: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          new_role: Database["public"]["Enums"]["app_role"]
+          old_role?: Database["public"]["Enums"]["app_role"] | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          changed_by?: string
+          changed_user_id?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          new_role?: Database["public"]["Enums"]["app_role"]
+          old_role?: Database["public"]["Enums"]["app_role"] | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       royalties: {
         Row: {
           created_at: string
@@ -2286,6 +2358,7 @@ export type Database = {
     Functions: {
       calculate_next_retry: { Args: { attempt_count: number }; Returns: string }
       cleanup_expired_blocks: { Args: never; Returns: number }
+      cleanup_expired_invites: { Args: never; Returns: number }
       cleanup_expired_mfa_sessions: { Args: never; Returns: number }
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       cleanup_old_login_attempts: { Args: never; Returns: undefined }
