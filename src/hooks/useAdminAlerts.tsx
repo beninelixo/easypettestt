@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export interface AdminAlert {
   id: string;
@@ -8,18 +8,18 @@ export interface AdminAlert {
   severity: 'info' | 'warning' | 'critical' | 'emergency';
   title: string;
   message: string;
-  context: Record<string, any>;
-  source_module?: string | null;
-  source_function?: string | null;
-  metadata: Record<string, any>;
+  source_module?: string;
+  source_function?: string;
+  context?: any;
+  metadata?: any;
   read: boolean;
-  read_at?: string | null;
-  read_by?: string | null;
+  read_at?: string;
+  read_by?: string;
   resolved: boolean;
-  resolved_at?: string | null;
-  resolved_by?: string | null;
+  resolved_at?: string;
+  resolved_by?: string;
+  expires_at?: string;
   created_at: string;
-  expires_at: string;
 }
 
 export const useAdminAlerts = () => {
@@ -28,21 +28,20 @@ export const useAdminAlerts = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  // Fetch inicial de alertas
   const fetchAlerts = async () => {
     try {
       const { data, error } = await supabase
-        .from('admin_alerts')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(100);
+        .from("admin_alerts")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50);
 
       if (error) throw error;
 
-      setAlerts(data as any as AdminAlert[] || []);
+      setAlerts((data || []) as AdminAlert[]);
       setUnreadCount(data?.filter(a => !a.read).length || 0);
     } catch (error) {
-      console.error('Error fetching alerts:', error);
+      console.error("Error fetching alerts:", error);
     } finally {
       setLoading(false);
     }
@@ -51,9 +50,9 @@ export const useAdminAlerts = () => {
   useEffect(() => {
     fetchAlerts();
 
-    // Subscribe to realtime changes
+    // Subscribe to real-time alerts
     const channel = supabase
-      .channel('admin_alerts_realtime')
+      .channel('admin-alerts-realtime')
       .on(
         'postgres_changes',
         {
@@ -63,28 +62,21 @@ export const useAdminAlerts = () => {
         },
         (payload) => {
           const newAlert = payload.new as AdminAlert;
-          console.log('🚨 New admin alert:', newAlert);
-
-          // Adicionar ao início da lista
+          
           setAlerts(prev => [newAlert, ...prev]);
           setUnreadCount(prev => prev + 1);
 
-          // Mostrar toast para alertas críticos
-          if (['critical', 'emergency'].includes(newAlert.severity)) {
+          // Show notification for critical/emergency alerts
+          if (newAlert.severity === 'critical' || newAlert.severity === 'emergency') {
             toast({
               title: `🚨 ${newAlert.title}`,
               description: newAlert.message,
-              variant: 'destructive',
-              duration: 10000,
+              variant: "destructive",
             });
 
-            // Play alert sound for critical/emergency
-            try {
-              const audio = new Audio('/notification-sound.mp3');
-              audio.play().catch(e => console.log('Could not play alert sound:', e));
-            } catch (e) {
-              console.log('Audio not supported');
-            }
+            // Play alert sound
+            const audio = new Audio('/notification.mp3');
+            audio.play().catch(() => {});
           }
         }
       )
@@ -97,19 +89,15 @@ export const useAdminAlerts = () => {
         },
         (payload) => {
           const updatedAlert = payload.new as AdminAlert;
-          console.log('🔄 Alert updated:', updatedAlert.id);
-
+          
           setAlerts(prev => 
-            prev.map(a => a.id === updatedAlert.id ? updatedAlert : a)
+            prev.map(alert => alert.id === updatedAlert.id ? updatedAlert : alert)
           );
-
-          // Recalcular unread count
-          setUnreadCount(prev => {
-            const oldAlert = alerts.find(a => a.id === updatedAlert.id);
-            if (oldAlert && !oldAlert.read && updatedAlert.read) {
-              return Math.max(0, prev - 1);
-            }
-            return prev;
+          
+          // Recalculate unread count
+          setAlerts(current => {
+            setUnreadCount(current.filter(a => !a.read).length);
+            return current;
           });
         }
       )
@@ -118,86 +106,54 @@ export const useAdminAlerts = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [toast]);
 
   const markAsRead = async (alertId: string) => {
     try {
-      const { error } = await supabase.rpc('mark_alert_read', {
-        alert_id: alertId
-      });
+      const { error } = await supabase
+        .from("admin_alerts")
+        .update({ read: true })
+        .eq("id", alertId);
 
       if (error) throw error;
-
-      // Update local state
-      setAlerts(prev => 
-        prev.map(a => a.id === alertId ? { ...a, read: true, read_at: new Date().toISOString() } : a)
-      );
-      setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error: any) {
-      console.error('Error marking alert as read:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível marcar alerta como lido',
-        variant: 'destructive'
-      });
+    } catch (error) {
+      console.error("Error marking alert as read:", error);
     }
   };
 
   const markAllAsRead = async () => {
     try {
-      const unreadAlerts = alerts.filter(a => !a.read);
+      const { error } = await supabase
+        .from("admin_alerts")
+        .update({ read: true })
+        .eq("read", false);
+
+      if (error) throw error;
       
-      for (const alert of unreadAlerts) {
-        await supabase.rpc('mark_alert_read', {
-          alert_id: alert.id
-        });
-      }
-
-      setAlerts(prev => prev.map(a => ({ ...a, read: true, read_at: new Date().toISOString() })));
       setUnreadCount(0);
-
       toast({
-        title: 'Sucesso',
-        description: 'Todos os alertas foram marcados como lidos',
+        title: "Todas as notificações marcadas como lidas",
       });
-    } catch (error: any) {
-      console.error('Error marking all as read:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível marcar todos como lidos',
-        variant: 'destructive'
-      });
+    } catch (error) {
+      console.error("Error marking all as read:", error);
     }
   };
 
   const resolveAlert = async (alertId: string) => {
     try {
       const { error } = await supabase
-        .from('admin_alerts')
-        .update({
-          resolved: true,
-          resolved_at: new Date().toISOString(),
-          resolved_by: (await supabase.auth.getUser()).data.user?.id
-        })
-        .eq('id', alertId);
+        .from("admin_alerts")
+        .update({ resolved: true, read: true })
+        .eq("id", alertId);
 
       if (error) throw error;
 
-      setAlerts(prev => 
-        prev.map(a => a.id === alertId ? { ...a, resolved: true, resolved_at: new Date().toISOString() } : a)
-      );
-
       toast({
-        title: 'Sucesso',
-        description: 'Alerta resolvido com sucesso',
+        title: "Alerta resolvido",
+        description: "O alerta foi marcado como resolvido.",
       });
-    } catch (error: any) {
-      console.error('Error resolving alert:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível resolver o alerta',
-        variant: 'destructive'
-      });
+    } catch (error) {
+      console.error("Error resolving alert:", error);
     }
   };
 
@@ -208,6 +164,6 @@ export const useAdminAlerts = () => {
     markAsRead,
     markAllAsRead,
     resolveAlert,
-    refetch: fetchAlerts
+    refetch: fetchAlerts,
   };
 };

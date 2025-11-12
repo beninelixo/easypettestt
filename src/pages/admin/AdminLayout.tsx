@@ -5,6 +5,7 @@ import { Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SecurityNotificationsPanel } from "@/components/admin/SecurityNotificationsPanel";
 import { AdminAlertsPanel } from "@/components/admin/AdminAlertsPanel";
+import { AdminNotificationsPanel } from "@/components/admin/AdminNotificationsPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { useNewUserNotifications } from "@/hooks/useNewUserNotifications";
 import logo from "@/assets/easypet-logo.png";
@@ -43,7 +44,12 @@ export default function AdminLayout() {
               </div>
               
               {/* Alertas Panel */}
-              {userRole === 'admin' && <AdminAlertsPanel />}
+              {userRole === 'admin' && (
+                <div className="flex items-center gap-2">
+                  <AdminNotificationsPanel />
+                  <AdminAlertsPanel />
+                </div>
+              )}
             </div>
           </header>
 
