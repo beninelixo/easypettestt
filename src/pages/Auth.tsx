@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { PawPrint, Loader2, Shield, Lock, ArrowLeft } from "lucide-react";
+import { Loader2, Shield, Lock, ArrowLeft } from "lucide-react";
 import { useAuth, UserRole } from "@/hooks/useAuth";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +16,7 @@ import { useRememberMe } from "@/hooks/useRememberMe";
 import { AuthIllustration } from "@/components/auth/AuthIllustration";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
+import logo from "@/assets/easypet-logo.png";
 
 // Validation Schemas
 const loginSchema = z.object({
@@ -355,8 +356,15 @@ const Auth = () => {
           {/* Mobile Logo */}
           <div className="text-center space-y-3 lg:hidden">
             <Link to="/" className="inline-flex items-center justify-center gap-3 group">
-              <div className="bg-gradient-to-br from-primary to-secondary text-primary-foreground p-4 rounded-2xl transition-all group-hover:scale-110 group-hover:shadow-xl">
-                <PawPrint className="h-10 w-10" />
+              <div className="relative group-hover:scale-110 transition-transform duration-300">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-2xl blur-md opacity-50 group-hover:opacity-70 transition-opacity duration-500" />
+                <div className="relative bg-gradient-to-br from-primary/10 to-secondary/10 p-4 rounded-2xl">
+                  <img 
+                    src={logo} 
+                    alt="EasyPet Logo" 
+                    className="h-10 w-auto drop-shadow-[0_0_8px_rgba(0,200,150,0.4)] object-contain"
+                  />
+                </div>
               </div>
             </Link>
             <div>
