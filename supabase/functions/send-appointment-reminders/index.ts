@@ -122,18 +122,19 @@ Deno.serve(async (req) => {
 
         const validAppointment = validation.data;
 
-        // Buscar email do cliente
+        // Buscar email e telefone do cliente
         const { data: userData, error: userError } = await supabase.auth.admin.getUserById(
           validAppointment.client_id
         );
 
-        if (userError || !userData.user?.email) {
-          console.error(`⚠️ Email não encontrado para cliente ${validAppointment.client_id}`);
+        if (userError || (!userData.user?.email && !userData.user?.user_metadata?.phone)) {
+          console.error(`⚠️ Nenhum contato encontrado para cliente ${validAppointment.client_id}`);
           failCount++;
           continue;
         }
 
-        const email = userData.user.email;
+        const email = userData.user?.email;
+        const phone = userData.user?.user_metadata?.phone;
         const appointmentTime = validAppointment.scheduled_time.substring(0, 5);
         
         // Sanitize user-controlled data for HTML
@@ -149,9 +150,57 @@ Deno.serve(async (req) => {
           year: 'numeric',
         });
 
-        console.log(`📧 Enviando lembrete para: ${email}`);
+        // Send WhatsApp reminder if phone is available
+        if (phone) {
+          try {
+            const whatsappResponse = await fetch(`${supabaseUrl}/functions/v1/send-whatsapp`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${supabaseServiceKey}`,
+              },
+              body: JSON.stringify({
+                to: phone,
+                template_name: 'appointment_reminder',
+                template_language: 'pt_BR',
+                parameters: [
+                  { type: 'text', text: validAppointment.pet?.name || 'seu pet' },
+                  { type: 'text', text: validAppointment.service?.name || 'serviço' },
+                  { type: 'text', text: formattedDate },
+                  { type: 'text', text: appointmentTime },
+                  { type: 'text', text: validAppointment.pet_shop?.name || 'pet shop' }
+                ]
+              }),
+            });
 
-        // Enviar email via Resend
+            if (whatsappResponse.ok) {
+              console.log(`✅ WhatsApp reminder sent to ${phone.substring(0, 4)}****`);
+              
+              // Registrar envio no banco
+              await supabase.from('notifications').insert({
+                client_id: validAppointment.client_id,
+                appointment_id: validAppointment.id,
+                notification_type: 'lembrete',
+                channel: 'whatsapp',
+                message: `Lembrete WhatsApp: Agendamento amanhã às ${appointmentTime}`,
+                status: 'enviada',
+                sent_at: new Date().toISOString(),
+              });
+            } else {
+              console.warn(`⚠️ WhatsApp failed for ${phone.substring(0, 4)}****`);
+            }
+          } catch (whatsappError) {
+            console.error('WhatsApp error:', whatsappError);
+            // Continue to email if WhatsApp fails
+          }
+        }
+
+        // Enviar email via Resend if available
+        if (!email) {
+          successCount++;
+          continue;
+        }
+
         const { error: emailError } = await resend.emails.send({
           from: 'EasyPet <easypetc@gmail.com>',
           to: [email],

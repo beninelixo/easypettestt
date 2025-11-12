@@ -19,8 +19,8 @@ const whatsappMessageSchema = z.object({
     .min(1, 'Template name required')
     .max(100, 'Template name too long'),
   template_language: z.string()
-    .default('pt_BR')
-    .regex(/^[a-z]{2}_[A-Z]{2}$/, 'Invalid language code. Use format: pt_BR'),
+    .regex(/^[a-z]{2}_[A-Z]{2}$/, 'Invalid language code. Use format: pt_BR')
+    .default('pt_BR'),
   parameters: z.array(
     z.object({
       type: z.enum(['text', 'currency', 'date_time']),
@@ -57,15 +57,16 @@ Deno.serve(async (req) => {
     }
 
     const { to, template_name, template_language, parameters } = validation.data;
+    const phoneNumber = to || '';
 
-    console.log(`📱 Sending WhatsApp to: ${to.substring(0, 4)}****`);
+    console.log(`📱 Sending WhatsApp to: ${phoneNumber.substring(0, 4)}****`);
 
     // WhatsApp Business Cloud API
     const whatsappUrl = `https://graph.facebook.com/v18.0/${WHATSAPP_PHONE_NUMBER_ID}/messages`;
     
     const messagePayload: any = {
       messaging_product: 'whatsapp',
-      to: to,
+      to: phoneNumber,
       type: 'template',
       template: {
         name: template_name,
@@ -117,7 +118,7 @@ Deno.serve(async (req) => {
     await supabase.from('system_logs').insert({
       module: 'whatsapp',
       log_type: 'success',
-      message: `WhatsApp sent to ${to.substring(0, 4)}****`,
+      message: `WhatsApp sent to ${phoneNumber.substring(0, 4)}****`,
       details: {
         template: template_name,
         message_id: responseData.messages?.[0]?.id,
