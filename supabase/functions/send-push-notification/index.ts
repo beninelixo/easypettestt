@@ -1,9 +1,18 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema
+const pushNotificationSchema = z.object({
+  userId: z.string().uuid('Invalid user ID'),
+  title: z.string().min(1, 'Title required').max(100, 'Title too long'),
+  body: z.string().min(1, 'Body required').max(500, 'Body too long'),
+  data: z.record(z.any()).optional(),
+});
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,11 +20,23 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { userId, title, body, data } = await req.json();
-
-    if (!userId || !title || !body) {
-      throw new Error('userId, title, and body are required');
+    // Validate input with Zod
+    const rawBody = await req.json();
+    const validation = pushNotificationSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'Invalid input data',
+          details: validation.error.errors[0].message 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    const { userId, title, body, data } = validation.data;
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;

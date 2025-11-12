@@ -52,7 +52,7 @@ const plans: Plan[] = [
   },
   {
     id: "pet_gold",
-    name: "Pet Gold",
+    name: "Pet Gold Mensal",
     price: 79.90,
     description: "Ideal para crescimento",
     icon: Sparkles,
@@ -73,12 +73,56 @@ const plans: Plan[] = [
     ],
   },
   {
+    id: "pet_gold_anual",
+    name: "Pet Gold Anual",
+    price: 799,
+    description: "2 meses grátis no plano anual",
+    icon: Sparkles,
+    features: [
+      { text: "💰 Economize R$ 160/ano", included: true },
+      { text: "Agendamentos ilimitados", included: true },
+      { text: "Até 5 usuários simultâneos", included: true },
+      { text: "Gestão completa de clientes e pets", included: true },
+      { text: "Controle de estoque básico", included: true },
+      { text: "Calendário e agenda online", included: true },
+      { text: "Relatórios financeiros básicos", included: true },
+      { text: "Lembretes automáticos por email", included: true },
+      { text: "App mobile completo", included: true },
+      { text: "Suporte prioritário", included: true },
+      { text: "WhatsApp Business", included: false },
+      { text: "Programa de fidelidade", included: false },
+      { text: "Multi-unidades", included: false },
+    ],
+  },
+  {
     id: "pet_platinum",
-    name: "Pet Platinum",
+    name: "Pet Platinum Mensal",
     price: 149.90,
     description: "Para operações profissionais",
     icon: Building2,
     features: [
+      { text: "✨ Tudo do Pet Gold, mais:", included: true },
+      { text: "Usuários ilimitados", included: true },
+      { text: "Multi-unidades e franquias", included: true },
+      { text: "WhatsApp Business integrado", included: true },
+      { text: "Programa de fidelidade avançado", included: true },
+      { text: "Relatórios financeiros avançados", included: true },
+      { text: "API aberta para integrações", included: true },
+      { text: "White label (marca própria)", included: true },
+      { text: "Gerente de conta dedicado", included: true },
+      { text: "Consultoria estratégica mensal", included: true },
+      { text: "Suporte técnico 24/7 Premium", included: true },
+      { text: "SLA de uptime 99.9%", included: true },
+    ],
+  },
+  {
+    id: "pet_platinum_anual",
+    name: "Pet Platinum Anual",
+    price: 1499,
+    description: "Máxima economia e recursos premium",
+    icon: Building2,
+    features: [
+      { text: "💰 Economize R$ 300/ano", included: true },
       { text: "✨ Tudo do Pet Gold, mais:", included: true },
       { text: "Usuários ilimitados", included: true },
       { text: "Multi-unidades e franquias", included: true },
@@ -308,7 +352,9 @@ const ProfessionalPlans = () => {
           <div className="space-y-4">
             <div className="text-3xl font-bold">
               R$ {plans.find(p => p.id === currentPlan)?.price}
-              <span className="text-lg font-normal text-muted-foreground">/mês</span>
+              <span className="text-lg font-normal text-muted-foreground">
+                {currentPlan.includes('anual') ? '/ano' : '/mês'}
+              </span>
             </div>
             
             {expiresAt && (
@@ -335,7 +381,7 @@ const ProfessionalPlans = () => {
       {/* Available Plans */}
       <div>
         <h2 className="text-2xl font-bold mb-6">Planos Disponíveis</h2>
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
           {plans.map((plan) => {
             const Icon = plan.icon;
             const isActive = isPlanActive(plan.id);
@@ -377,9 +423,14 @@ const ProfessionalPlans = () => {
                     <div className="text-3xl font-bold">
                       R$ {plan.price}
                       <span className="text-lg font-normal text-muted-foreground">
-                        /mês
+                        {plan.id.includes('anual') ? '/ano' : '/mês'}
                       </span>
                     </div>
+                    {plan.id.includes('anual') && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Equivalente a R$ {(plan.price / 10).toFixed(2)}/mês
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-3">

@@ -1,9 +1,21 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema
+const subscriptionSchema = z.object({
+  subscription: z.object({
+    endpoint: z.string().url('Invalid endpoint URL').max(500, 'Endpoint too long'),
+    keys: z.object({
+      p256dh: z.string().optional(),
+      auth: z.string().optional(),
+    }).optional(),
+  }),
+});
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,11 +23,23 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { subscription } = await req.json();
-
-    if (!subscription || !subscription.endpoint) {
-      throw new Error('Invalid subscription object');
+    // Validate input with Zod
+    const rawBody = await req.json();
+    const validation = subscriptionSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'Invalid subscription object',
+          details: validation.error.errors[0].message 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    const { subscription } = validation.data;
 
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {

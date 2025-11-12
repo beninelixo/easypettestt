@@ -1,30 +1,40 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface CheckoutRequest {
-  plan: 'pet_gold' | 'pet_platinum';
-  petshop_id: string;
-}
+// Validation schema
+const checkoutSchema = z.object({
+  plan: z.enum(['pet_gold', 'pet_platinum', 'pet_gold_anual', 'pet_platinum_anual'], {
+    errorMap: () => ({ message: 'Invalid plan' })
+  }),
+  petshop_id: z.string().uuid('Invalid petshop ID'),
+});
 
 const PLAN_PRICES = {
   pet_gold: 7990, // R$ 79,90 in cents
   pet_platinum: 14990, // R$ 149,90 in cents
+  pet_gold_anual: 79900, // R$ 799,00 in cents (10 meses pelo preço de 12)
+  pet_platinum_anual: 149900, // R$ 1.499,00 in cents (10 meses pelo preço de 12)
 };
 
 const PLAN_NAMES = {
-  pet_gold: 'Pet Gold',
-  pet_platinum: 'Pet Platinum',
+  pet_gold: 'Pet Gold Mensal',
+  pet_platinum: 'Pet Platinum Mensal',
+  pet_gold_anual: 'Pet Gold Anual',
+  pet_platinum_anual: 'Pet Platinum Anual',
 };
 
 // Direct payment links from Cakto dashboard (already created offers)
 const PLAN_CHECKOUT_URLS = {
   pet_gold: 'https://pay.cakto.com.br/f72gob9_634441',
   pet_platinum: 'https://pay.cakto.com.br/qym84js_634453',
+  pet_gold_anual: 'https://pay.cakto.com.br/f72gob9_634441', // TODO: Replace with annual checkout URL
+  pet_platinum_anual: 'https://pay.cakto.com.br/qym84js_634453', // TODO: Replace with annual checkout URL
 };
 
 serve(async (req) => {
@@ -65,15 +75,22 @@ serve(async (req) => {
     
     console.log('User authenticated', { user_id: user.id, email: user.email });
 
-    const { plan, petshop_id }: CheckoutRequest = await req.json();
-
-    if (!plan || !petshop_id) {
-      throw new Error('Plan and petshop_id are required');
+    // Validate input with Zod
+    const rawBody = await req.json();
+    const validation = checkoutSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input data',
+          details: validation.error.errors[0].message 
+        }),
+        { status: 400, headers: corsHeaders }
+      );
     }
 
-    if (!['pet_gold', 'pet_platinum'].includes(plan)) {
-      throw new Error('Invalid plan');
-    }
+    const { plan, petshop_id } = validation.data;
 
     // 4. CRITICAL: Verify ownership before proceeding
     const { data: petShop, error: petShopError } = await supabaseAdmin
