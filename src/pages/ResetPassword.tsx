@@ -59,9 +59,21 @@ const ResetPassword = () => {
       });
 
       if (error) {
+        let errorMsg = 'Não foi possível enviar o código. ';
+        
+        if (error.message.includes('non-2xx')) {
+          errorMsg = '🌐 Servidor temporariamente indisponível. Aguarde alguns instantes e tente novamente.';
+        } else if (error.message.includes('network')) {
+          errorMsg = '📡 Erro de conexão. Verifique sua internet e tente novamente.';
+        } else if (error.message.includes('timeout')) {
+          errorMsg = '⏱️ A requisição demorou muito. Tente novamente.';
+        } else {
+          errorMsg = error.message || errorMsg;
+        }
+        
         toast({
-          title: "Erro ao enviar código",
-          description: (error as any).message || "Tente novamente.",
+          title: "❌ Erro ao enviar código",
+          description: errorMsg,
           variant: "destructive",
         });
         return;
@@ -82,10 +94,23 @@ const ResetPassword = () => {
 
       setStep("otp");
     } catch (error: any) {
-      const errorMessage = error.message || "Não foi possível enviar o código. Tente novamente.";
+      let errorMessage = error.message || "Não foi possível enviar o código. Tente novamente.";
+      let errorTitle = "❌ Erro ao Enviar Código";
+      
+      // Map errors to better messages
+      if (error.message?.includes('non-2xx')) {
+        errorTitle = '🌐 Servidor Indisponível';
+        errorMessage = 'Servidor temporariamente indisponível. Aguarde alguns instantes e tente novamente.';
+      } else if (error.message?.includes('network')) {
+        errorTitle = '📡 Erro de Conexão';
+        errorMessage = 'Não foi possível conectar ao servidor. Verifique sua internet.';
+      } else if (error.message?.includes('timeout')) {
+        errorTitle = '⏱️ Tempo Esgotado';
+        errorMessage = 'A requisição demorou muito tempo. Tente novamente.';
+      }
       
       toast({
-        title: "Erro ao enviar código",
+        title: errorTitle,
         description: errorMessage,
         variant: "destructive",
       });
@@ -141,7 +166,22 @@ const ResetPassword = () => {
           newPassword: newPassword,
         },
       });
-      if (error) throw error;
+      
+      // Handle edge function connection errors
+      if (error) {
+        let errorMsg = error.message;
+        
+        if (error.message.includes('non-2xx')) {
+          errorMsg = '🌐 Servidor temporariamente indisponível. Aguarde alguns instantes e tente novamente.';
+        } else if (error.message.includes('network')) {
+          errorMsg = '📡 Erro de conexão. Verifique sua internet e tente novamente.';
+        } else if (error.message.includes('timeout')) {
+          errorMsg = '⏱️ A requisição demorou muito. Tente novamente.';
+        }
+        
+        throw new Error(errorMsg);
+      }
+      
       if (data?.error) throw new Error(data.error);
 
       toast({

@@ -167,10 +167,32 @@ const Auth = () => {
         }
       );
 
-      if (rateLimitError || (rateLimitData && !rateLimitData.allowed)) {
+      if (rateLimitError) {
+        let errorMsg = 'Erro ao validar login. ';
+        
+        if (rateLimitError.message.includes('non-2xx')) {
+          errorMsg = '🌐 Servidor temporariamente indisponível. Aguarde alguns instantes e tente novamente.';
+        } else if (rateLimitError.message.includes('network')) {
+          errorMsg = '📡 Erro de conexão. Verifique sua internet e tente novamente.';
+        } else if (rateLimitError.message.includes('timeout')) {
+          errorMsg = '⏱️ A requisição demorou muito. Tente novamente.';
+        } else {
+          errorMsg = rateLimitError.message;
+        }
+        
         toast({
-          title: "Muitas tentativas",
-          description: rateLimitData?.message || "Por favor, aguarde antes de tentar novamente.",
+          title: "⚠️ Erro de Validação",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (rateLimitData && !rateLimitData.allowed) {
+        toast({
+          title: "⏱️ Muitas Tentativas",
+          description: rateLimitData?.message || "Por favor, aguarde alguns minutos antes de tentar novamente.",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -208,16 +230,34 @@ const Auth = () => {
           });
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
       
       // Incrementar contador mesmo em erros
       const attempts = failedLoginAttempts + 1;
       setFailedLoginAttempts(attempts);
       
+      let errorMsg = 'Ocorreu um erro ao tentar fazer login. Tente novamente.';
+      let errorTitle = "❌ Erro no Login";
+      
+      if (error?.message) {
+        if (error.message.includes('non-2xx')) {
+          errorTitle = '🌐 Servidor Indisponível';
+          errorMsg = 'Servidor temporariamente indisponível. Aguarde alguns instantes e tente novamente.';
+        } else if (error.message.includes('network')) {
+          errorTitle = '📡 Erro de Conexão';
+          errorMsg = 'Não foi possível conectar ao servidor. Verifique sua internet.';
+        } else if (error.message.includes('timeout')) {
+          errorTitle = '⏱️ Tempo Esgotado';
+          errorMsg = 'A requisição demorou muito tempo. Tente novamente.';
+        } else {
+          errorMsg = error.message;
+        }
+      }
+      
       toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao tentar fazer login. Tente novamente.",
+        title: errorTitle,
+        description: errorMsg,
         variant: "destructive",
       });
     }
@@ -313,30 +353,41 @@ const Auth = () => {
       }, 1500);
     } catch (error: any) {
       let errorMessage = error.message;
+      let errorTitle = "❌ Erro ao Criar Conta";
       
-      // Map specific Supabase errors to user-friendly messages
+      // Map specific Supabase errors to user-friendly messages with better visuals
       if (error.message.includes("already registered") || error.message.includes("User already registered")) {
-        errorMessage = "📧 Este email já está cadastrado. Tente fazer login ou recuperar sua senha.";
+        errorTitle = "📧 Email Já Cadastrado";
+        errorMessage = "Este email já possui uma conta. Tente fazer login ou recuperar sua senha.";
       } else if (error.message.includes("weak password") || error.message.includes("Password")) {
+        errorTitle = "🔒 Senha Não Segura";
         if (error.message.includes("pwned")) {
-          errorMessage = "🚨 Esta senha foi encontrada em vazamentos de dados e não é segura. Escolha uma senha completamente diferente.";
+          errorMessage = "Esta senha foi encontrada em vazamentos de dados na internet e não é segura. Por favor, escolha uma senha completamente diferente que você nunca usou antes.";
         } else {
-          errorMessage = "⚠️ Senha muito fraca. Use pelo menos 8 caracteres com letras maiúsculas, minúsculas, números e símbolos especiais (@, #, $, etc.).";
+          errorMessage = "Senha muito fraca. Use pelo menos 8 caracteres combinando letras maiúsculas, minúsculas, números e símbolos especiais (@, #, $, etc.).";
         }
       } else if (error.message.includes("invalid email") || error.message.includes("Email")) {
-        errorMessage = "📧 Email inválido. Verifique se digitou corretamente.";
+        errorTitle = "📧 Email Inválido";
+        errorMessage = "O formato do email está incorreto. Verifique se digitou corretamente.";
+      } else if (error.message.includes("non-2xx")) {
+        errorTitle = "🌐 Servidor Indisponível";
+        errorMessage = "Servidor temporariamente indisponível. Aguarde alguns instantes e tente novamente.";
       } else if (error.message.includes("network") || error.message.includes("fetch")) {
-        errorMessage = "🌐 Erro de conexão. Verifique sua internet e tente novamente.";
+        errorTitle = "📡 Erro de Conexão";
+        errorMessage = "Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.";
+      } else if (error.message.includes("timeout")) {
+        errorTitle = "⏱️ Tempo Esgotado";
+        errorMessage = "A requisição demorou muito tempo. Tente novamente.";
       }
       
       toast({
-        title: "Erro ao criar conta",
+        title: errorTitle,
         description: errorMessage,
         variant: "destructive",
       });
       
       // Set field-specific error if it's a password issue
-      if (errorMessage.includes("senha") || errorMessage.includes("Password")) {
+      if (errorMessage.includes("senha") || errorMessage.includes("Senha") || errorMessage.includes("password") || errorMessage.includes("Password")) {
         setFormErrors(prev => ({ ...prev, password: errorMessage }));
       }
     } finally {

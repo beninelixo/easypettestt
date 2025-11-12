@@ -154,14 +154,29 @@ export const useAuth = () => {
         }
       });
 
-      if (functionError) throw functionError;
+      // Handle edge function errors with specific messages
+      if (functionError) {
+        let errorMsg = '🔒 Erro ao fazer login. ';
+        
+        if (functionError.message.includes('non-2xx')) {
+          errorMsg += 'Servidor temporariamente indisponível. Tente novamente em alguns instantes.';
+        } else if (functionError.message.includes('network')) {
+          errorMsg += 'Verifique sua conexão com a internet.';
+        } else if (functionError.message.includes('timeout')) {
+          errorMsg += 'A requisição demorou muito. Tente novamente.';
+        } else {
+          errorMsg = functionError.message;
+        }
+        
+        throw new Error(errorMsg);
+      }
       
-      if (functionData.error) {
+      if (functionData?.error) {
         // Handle rate limiting specifically
         if (functionData.blocked) {
-          throw new Error(functionData.message || 'Muitas tentativas de login');
+          throw new Error('⏱️ ' + (functionData.message || 'Muitas tentativas de login. Aguarde alguns minutos.'));
         }
-        throw new Error(functionData.error);
+        throw new Error('❌ ' + functionData.error);
       }
 
       // Set session from Edge Function response
