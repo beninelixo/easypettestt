@@ -339,6 +339,7 @@ const App = () => {
             <Route path="system-monitoring" element={<SystemMonitoring />} />
             <Route path="system-analysis" element={<SystemAnalysisDashboard />} />
             <Route path="auth-monitoring" element={<AuthMonitoring />} />
+            <Route path="auth-monitor" element={<AuthMonitoring />} />
             <Route path="system-health" element={<SystemHealth />} />
             <Route path="system-diagnostics" element={<SystemDiagnostics />} />
             <Route path="ai-monitor" element={<AIMonitorDashboard />} />

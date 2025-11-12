@@ -27,21 +27,6 @@ supabase.auth.onAuthStateChange(async (event, session) => {
     sessionStorage.clear();
   }
   
-  // Verificar se o token JWT é válido
-  if (session && session.access_token) {
-    try {
-      // Tentar verificar a validade do token
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) {
-        console.log('❌ Invalid JWT token detected, clearing session');
-        localStorage.removeItem('supabase.auth.token');
-        sessionStorage.clear();
-        await supabase.auth.signOut();
-      }
-    } catch (error) {
-      console.error('❌ Error validating token:', error);
-      localStorage.removeItem('supabase.auth.token');
-      sessionStorage.clear();
-    }
-  }
+  // Session management is handled automatically by Supabase client
+  // with autoRefreshToken: true. Manual validation removed to prevent deadlocks.
 });

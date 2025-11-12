@@ -267,6 +267,48 @@ export type Database = {
         }
         Relationships: []
       }
+      auth_events_log: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          event_status: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          role_source: string | null
+          user_agent: string | null
+          user_id: string | null
+          user_role: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          event_status: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          role_source?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          user_role?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          event_status?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          role_source?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          user_role?: string | null
+        }
+        Relationships: []
+      }
       backup_history: {
         Row: {
           backup_id: string

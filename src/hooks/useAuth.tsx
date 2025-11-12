@@ -16,6 +16,31 @@ export const useAuth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Helper function to log auth events
+  const logAuthEvent = async (
+    userId: string | null,
+    eventType: 'login' | 'logout' | 'token_refresh' | 'role_fetch',
+    eventStatus: 'success' | 'error' | 'pending',
+    roleSource?: 'metadata' | 'database',
+    userRole?: string,
+    errorMessage?: string
+  ) => {
+    try {
+      await supabase.from('auth_events_log').insert({
+        user_id: userId,
+        event_type: eventType,
+        event_status: eventStatus,
+        role_source: roleSource || null,
+        user_role: userRole || null,
+        ip_address: window.location.hostname,
+        user_agent: navigator.userAgent,
+        error_message: errorMessage || null,
+      });
+    } catch (error) {
+      console.error('Failed to log auth event:', error);
+    }
+  };
+
   // Memoize fetchUserRole to avoid recreation
   const fetchUserRole = useCallback(async (userId: string) => {
     try {
@@ -28,6 +53,7 @@ export const useAuth = () => {
 
       if (error) {
         console.error('❌ Error fetching roles:', error);
+        await logAuthEvent(userId, 'role_fetch', 'error', undefined, undefined, error.message);
         throw error;
       }
 
@@ -52,8 +78,10 @@ export const useAuth = () => {
         setUserRole(selectedRole);
         setLastRoleUpdate(Date.now());
         setRoleSource('database');
+        await logAuthEvent(userId, 'role_fetch', 'success', 'database', selectedRole);
       } else {
         console.log('⚠️ No roles found for user');
+        await logAuthEvent(userId, 'role_fetch', 'error', undefined, undefined, 'No roles found in database');
       }
     } catch (error) {
       console.error("❌ Error fetching user role:", error);
@@ -85,6 +113,9 @@ export const useAuth = () => {
         if (metaRole) {
           setUserRole(metaRole);
           setRoleSource('metadata');
+          if (session?.user) {
+            logAuthEvent(session.user.id, 'role_fetch', 'success', 'metadata', metaRole);
+          }
         }
         
         if (session?.user) {
@@ -251,6 +282,10 @@ export const useAuth = () => {
       });
 
       console.log('✅ Login completed successfully');
+      
+      // Log successful login
+      await logAuthEvent(returnedUser.id, 'login', 'success', roleSource || undefined, userRole || undefined);
+      
       return { data: functionData, error: null };
     } catch (error: any) {
       let errorMessage = error.message;
@@ -277,6 +312,8 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
+      const userId = user?.id || null;
+      
       // Clear remember me data
       localStorage.removeItem('easypet_remember_me');
       localStorage.removeItem('easypet_saved_email');
@@ -285,9 +322,15 @@ export const useAuth = () => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
 
+      // Log logout event
+      if (userId) {
+        await logAuthEvent(userId, 'logout', 'success');
+      }
+
       setUser(null);
       setSession(null);
       setUserRole(null);
+      setRoleSource(null);
       
       // Navigate first, then show toast to avoid navigation issues
       navigate("/");
