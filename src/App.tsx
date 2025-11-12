@@ -109,6 +109,7 @@ const PerformanceDashboard = lazy(() => import("./pages/admin/PerformanceDashboa
 const BackupManagement = lazy(() => import("./pages/admin/BackupManagement"));
 const AuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
 const EmailSystemTest = lazy(() => import("./pages/admin/EmailSystemTest"));
+const EmailAnalyticsDashboard = lazy(() => import("./pages/admin/EmailAnalyticsDashboard"));
 const ResendDomainSetup = lazy(() => import("./pages/admin/ResendDomainSetup"));
 const GodModeDashboard = lazy(() => import("./pages/admin/GodModeDashboard"));
 const IPWhitelist = lazy(() => import("./pages/admin/IPWhitelist"));
@@ -310,6 +311,7 @@ const App = () => {
             <Route path="backups" element={<BackupManagement />} />
             <Route path="audit-logs" element={<AuditLogs />} />
             <Route path="email-test" element={<EmailSystemTest />} />
+            <Route path="email-analytics" element={<EmailAnalyticsDashboard />} />
             <Route path="domain-setup" element={<ResendDomainSetup />} />
             <Route path="notifications" element={<NotificationQueue />} />
             <Route path="monitor" element={<SystemMonitor />} />
