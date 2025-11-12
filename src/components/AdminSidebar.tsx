@@ -76,8 +76,8 @@ export function AdminSidebar() {
   };
 
   return (
-    <Sidebar className={isCollapsed ? "w-14" : "w-64"} collapsible="icon">
-      <SidebarContent className="bg-card border-r border-border">
+    <Sidebar className={`${isCollapsed ? "w-14" : "w-64"} z-50 bg-card`} collapsible="icon">
+      <SidebarContent className="bg-card border-r border-border z-50">
         <SidebarGroup>
           <SidebarGroupLabel className="text-primary font-bold text-lg px-4 py-3">
             {!isCollapsed && "EasyPet Admin"}

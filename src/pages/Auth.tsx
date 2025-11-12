@@ -113,12 +113,16 @@ const Auth = () => {
   }, [savedEmail]);
 
   useEffect(() => {
-    console.log('🔍 Auth redirect check:', { loading, user: !!user, userRole });
+    console.log('🔄 Auth redirect check:', { loading, user: user?.email, userRole });
     
     if (!loading && user && userRole) {
       const redirectTo = searchParams.get("redirect") || getDashboardRoute(userRole);
-      console.log('✅ Redirecting to:', redirectTo);
-      navigate(redirectTo, { replace: true });
+      console.log('✅ User authenticated, redirecting to:', redirectTo, 'with role:', userRole);
+      
+      // Small delay to ensure role is fully loaded
+      setTimeout(() => {
+        navigate(redirectTo, { replace: true });
+      }, 150);
     }
   }, [user, userRole, loading, navigate, searchParams]);
 

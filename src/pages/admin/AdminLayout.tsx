@@ -11,10 +11,12 @@ import { useNewUserNotifications } from "@/hooks/useNewUserNotifications";
 import logo from "@/assets/easypet-logo.png";
 
 export default function AdminLayout() {
-  const { userRole } = useAuth();
+  const { userRole, user } = useAuth();
 
   // Enable real-time notifications for new users
   useNewUserNotifications();
+
+  console.log('🎯 AdminLayout - userRole:', userRole, 'user:', user?.email);
 
   return (
     <SidebarProvider defaultOpen>
