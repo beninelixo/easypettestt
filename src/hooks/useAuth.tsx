@@ -17,29 +17,42 @@ export const useAuth = () => {
   // Memoize fetchUserRole to avoid recreation
   const fetchUserRole = useCallback(async (userId: string) => {
     try {
+      console.log('🔍 Fetching user role for:', userId);
+      
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", userId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error fetching roles:', error);
+        throw error;
+      }
+
+      console.log('📋 User roles from DB:', data);
 
       // Se houver múltiplas roles, priorizar: admin > pet_shop > client
       if (data && data.length > 0) {
         const roles = data.map(r => r.role);
         
+        let selectedRole: UserRole;
         if (roles.includes('admin')) {
-          setUserRole('admin' as UserRole);
+          selectedRole = 'admin' as UserRole;
         } else if (roles.includes('pet_shop')) {
-          setUserRole('pet_shop' as UserRole);
+          selectedRole = 'pet_shop' as UserRole;
         } else if (roles.includes('client')) {
-          setUserRole('client' as UserRole);
+          selectedRole = 'client' as UserRole;
         } else {
-          setUserRole(roles[0] as UserRole);
+          selectedRole = roles[0] as UserRole;
         }
+        
+        console.log('✅ Selected role:', selectedRole);
+        setUserRole(selectedRole);
+      } else {
+        console.log('⚠️ No roles found for user');
       }
     } catch (error) {
-      console.error("Error fetching user role:", error);
+      console.error("❌ Error fetching user role:", error);
     } finally {
       setLoading(false);
     }
@@ -144,6 +157,8 @@ export const useAuth = () => {
 
   const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
     try {
+      console.log('🔐 Starting login for:', email);
+      
       // Get client IP and user agent for rate limiting
       let ipAddress = 'unknown';
       try {
@@ -159,7 +174,10 @@ export const useAuth = () => {
         ipAddress = 'unknown'; // Fallback seguro
       }
 
+      console.log('📍 IP address:', ipAddress);
+
       // Call rate-limited login Edge Function
+      console.log('🚀 Calling login edge function...');
       const { data: functionData, error: functionError } = await supabase.functions.invoke('login-with-rate-limit', {
         body: {
           email,
@@ -171,6 +189,7 @@ export const useAuth = () => {
 
       // Handle edge function errors with specific messages
       if (functionError) {
+        console.error('❌ Edge function error:', functionError);
         let errorMsg = '🔒 Erro ao fazer login. ';
         
         if (functionError.message.includes('non-2xx')) {
@@ -186,7 +205,10 @@ export const useAuth = () => {
         throw new Error(errorMsg);
       }
       
+      console.log('📦 Edge function response:', functionData);
+      
       if (functionData?.error) {
+        console.error('❌ Function returned error:', functionData.error);
         // Handle rate limiting specifically
         if (functionData.blocked) {
           throw new Error('⏱️ ' + (functionData.message || 'Muitas tentativas de login. Aguarde alguns minutos.'));
@@ -194,12 +216,15 @@ export const useAuth = () => {
         throw new Error('❌ ' + functionData.error);
       }
 
+      console.log('✅ Setting session...');
       // Set session from Edge Function response
       const { session: returnedSession, user: returnedUser } = functionData;
       await supabase.auth.setSession({
         access_token: returnedSession.access_token,
         refresh_token: returnedSession.refresh_token
       });
+
+      console.log('💾 Session set successfully');
 
       // Save email for remember me if enabled
       if (rememberMe) {
@@ -218,6 +243,7 @@ export const useAuth = () => {
         description: rememberMe ? "Você será conectado automaticamente na próxima visita." : "Login realizado com sucesso.",
       });
 
+      console.log('✅ Login completed successfully');
       return { data: functionData, error: null };
     } catch (error: any) {
       let errorMessage = error.message;

@@ -113,8 +113,11 @@ const Auth = () => {
   }, [savedEmail]);
 
   useEffect(() => {
+    console.log('🔍 Auth redirect check:', { loading, user: !!user, userRole });
+    
     if (!loading && user && userRole) {
       const redirectTo = searchParams.get("redirect") || getDashboardRoute(userRole);
+      console.log('✅ Redirecting to:', redirectTo);
       navigate(redirectTo, { replace: true });
     }
   }, [user, userRole, loading, navigate, searchParams]);

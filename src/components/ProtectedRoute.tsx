@@ -19,8 +19,11 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   const normalizedRole = effectiveRole === "unit_manager" ? "pet_shop" : effectiveRole;
 
   useEffect(() => {
+    console.log('🔒 ProtectedRoute check:', { loading, user: !!user, normalizedRole, allowedRoles });
+    
     if (!loading) {
       if (!user) {
+        console.log('❌ No user, redirecting to /auth');
         navigate("/auth", { replace: true });
       } else if (allowedRoles && normalizedRole && !allowedRoles.includes(normalizedRole as UserRole)) {
         // Redirect to appropriate dashboard based on role
@@ -33,7 +36,10 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
           return "/";
         })();
         
+        console.log('🔀 Wrong role, redirecting to:', targetPath);
         navigate(targetPath, { replace: true });
+      } else {
+        console.log('✅ Access granted');
       }
     }
   }, [user, normalizedRole, loading, navigate, allowedRoles]);
