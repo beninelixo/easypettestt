@@ -7,6 +7,7 @@ const corsHeaders = {
 };
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 interface DiagnosticResult {
   category: string;
@@ -60,7 +61,26 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { auto_fix = false } = await req.json();
+    // Validate input with Zod
+    const requestSchema = z.object({
+      auto_fix: z.boolean().optional().default(false)
+    });
+
+    const rawBody = await req.json();
+    const validation = requestSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input data',
+          details: validation.error.errors[0].message 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { auto_fix } = validation.data;
     
     const results: DiagnosticResult[] = [];
     let fixedCount = 0;

@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 import { TOTP } from 'https://deno.land/x/god_crypto@v1.4.11/mod.ts';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -34,14 +35,28 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { token: otpToken, enable_mfa, session_id }: VerifyRequest = await req.json();
+    // Validate input with Zod
+    const requestSchema = z.object({
+      token: z.string().regex(/^\d{6}$/, 'Token must be exactly 6 digits'),
+      enable_mfa: z.boolean().optional(),
+      session_id: z.string().uuid().optional()
+    });
 
-    if (!otpToken || otpToken.length !== 6) {
+    const rawBody = await req.json();
+    const validation = requestSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
       return new Response(
-        JSON.stringify({ valid: false, error: 'Token inválido' }),
+        JSON.stringify({ 
+          valid: false, 
+          error: validation.error.errors[0].message 
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const { token: otpToken, enable_mfa, session_id } = validation.data;
 
     // Buscar secret do usuário
     const { data: mfaSecret, error: secretError } = await supabase

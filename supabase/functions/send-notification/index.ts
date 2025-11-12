@@ -3,6 +3,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+
 interface NotificationRequest {
   subject: string;
   results?: any[];
@@ -56,7 +58,28 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { subject, results, backups, execution_time_ms }: NotificationRequest = await req.json();
+    // Validate input with Zod
+    const requestSchema = z.object({
+      subject: z.string().min(1).max(200),
+      results: z.array(z.any()).optional(),
+      backups: z.any().optional(),
+      execution_time_ms: z.number().optional()
+    });
+
+    const rawBody = await req.json();
+    const validation = requestSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ 
+          error: validation.error.errors[0].message 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { subject, results, backups, execution_time_ms } = validation.data;
 
     // Gerar HTML do relatório
     let htmlContent = `

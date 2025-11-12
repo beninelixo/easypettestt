@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,15 +25,25 @@ serve(async (req) => {
     }
     logStep("Lovable API key verified");
 
-    const { prompt } = await req.json();
+    // Validate input with Zod
+    const requestSchema = z.object({
+      prompt: z.string().min(1, 'Prompt é obrigatório').max(2000, 'Prompt muito longo')
+    });
+
+    const rawBody = await req.json();
+    const validation = requestSchema.safeParse(rawBody);
     
-    if (!prompt) {
-      logStep("ERROR: No prompt provided");
+    if (!validation.success) {
+      logStep("ERROR: Validation failed", validation.error);
       return new Response(
-        JSON.stringify({ error: "Prompt é obrigatório" }),
+        JSON.stringify({ 
+          error: validation.error.errors[0].message
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }
+
+    const { prompt } = validation.data;
 
     logStep("Generating image with prompt", { prompt });
 

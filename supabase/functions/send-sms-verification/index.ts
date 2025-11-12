@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,11 +12,27 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { phoneNumber } = await req.json();
+    // Validate input with Zod
+    const requestSchema = z.object({
+      phoneNumber: z.string()
+        .regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format')
+        .max(20, 'Phone number too long')
+    });
 
-    if (!phoneNumber) {
-      throw new Error('Phone number is required');
+    const rawBody = await req.json();
+    const validation = requestSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ 
+          error: validation.error.errors[0].message 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    const { phoneNumber } = validation.data;
 
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {

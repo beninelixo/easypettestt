@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 import { Resend } from 'https://esm.sh/resend@4.0.0';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -64,7 +65,29 @@ Deno.serve(async (req) => {
       }
     }
 
-    const { alert_id, alert_type, severity, description, metadata }: AlertEmailRequest = await req.json();
+    // Validate input with Zod
+    const requestSchema = z.object({
+      alert_id: z.string().uuid('Invalid alert ID format'),
+      alert_type: z.string().min(1).max(100),
+      severity: z.string().min(1).max(50),
+      description: z.string().min(1).max(1000),
+      metadata: z.any().optional()
+    });
+
+    const rawBody = await req.json();
+    const validation = requestSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ 
+          error: validation.error.errors[0].message 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { alert_id, alert_type, severity, description, metadata } = validation.data;
 
     // Buscar emails de admins
     const { data: adminRoles, error: adminsError } = await supabase

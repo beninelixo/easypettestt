@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const LOOPS_API_KEY = Deno.env.get('LOOPS_API_KEY');
 const LOOPS_API_URL = 'https://app.loops.so/api/v1';
@@ -29,7 +30,36 @@ serve(async (req) => {
   }
 
   try {
-    const { action, ...payload } = await req.json();
+    // Validate input with Zod
+    const requestSchema = z.object({
+      action: z.enum(['send_transactional', 'create_contact', 'update_contact', 'delete_contact', 'send_event']),
+      email: z.string().email().optional(),
+      transactionalId: z.string().optional(),
+      dataVariables: z.record(z.any()).optional(),
+      addToAudience: z.boolean().optional(),
+      firstName: z.string().optional(),
+      lastName: z.string().optional(),
+      userGroup: z.string().optional(),
+      subscribed: z.boolean().optional(),
+      eventName: z.string().optional(),
+      eventProperties: z.record(z.any()).optional()
+    });
+
+    const rawBody = await req.json();
+    const validation = requestSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: validation.error.errors[0].message 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { action, ...payload } = validation.data;
 
     if (!LOOPS_API_KEY) {
       throw new Error('LOOPS_API_KEY not configured');

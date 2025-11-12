@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,7 +12,39 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { type, record, old_record } = await req.json();
+    // Validate input with Zod
+    const requestSchema = z.object({
+      type: z.enum(['INSERT', 'UPDATE']),
+      record: z.object({
+        id: z.string().uuid(),
+        pet_shop_id: z.string().uuid(),
+        client_id: z.string().uuid(),
+        service_id: z.string().uuid(),
+        scheduled_date: z.string(),
+        scheduled_time: z.string(),
+        status: z.string()
+      }),
+      old_record: z.object({
+        status: z.string()
+      }).optional()
+    });
+
+    const rawBody = await req.json();
+    const validation = requestSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Invalid input data',
+          details: validation.error.errors[0].message 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { type, record, old_record } = validation.data;
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -53,7 +86,7 @@ Deno.serve(async (req) => {
     if (type === 'INSERT') {
       title = '🎉 Novo Agendamento!';
       body = `${clientName} agendou ${serviceName} para ${record.scheduled_date} às ${record.scheduled_time}`;
-    } else if (type === 'UPDATE') {
+    } else if (type === 'UPDATE' && old_record) {
       if (old_record.status !== record.status) {
         if (record.status === 'cancelled') {
           title = '❌ Agendamento Cancelado';

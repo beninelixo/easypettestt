@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const LOOPS_API_KEY = Deno.env.get('LOOPS_API_KEY');
 const LOOPS_API_URL = 'https://app.loops.so/api/v1';
@@ -24,7 +25,29 @@ serve(async (req) => {
   }
 
   try {
-    const { userId, email, fullName, role }: WelcomeEmailRequest = await req.json();
+    // Validate input with Zod
+    const requestSchema = z.object({
+      userId: z.string().uuid('Invalid user ID format'),
+      email: z.string().email('Invalid email format'),
+      fullName: z.string().optional(),
+      role: z.enum(['client', 'pet_shop', 'admin'])
+    });
+
+    const rawBody = await req.json();
+    const validation = requestSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: validation.error.errors[0].message 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { userId, email, fullName, role } = validation.data;
 
     if (!LOOPS_API_KEY) {
       throw new Error('LOOPS_API_KEY not configured');
