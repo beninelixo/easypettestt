@@ -1,15 +1,17 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface LoginAttemptRequest {
-  email: string;
-  ip_address?: string;
-  user_agent?: string;
-}
+// Validation schema
+const loginAttemptSchema = z.object({
+  email: z.string().email('Invalid email format').max(255, 'Email too long'),
+  ip_address: z.string().max(45, 'IP address too long').optional(),
+  user_agent: z.string().max(500, 'User agent too long').optional(),
+});
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -21,14 +23,22 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { email, ip_address, user_agent }: LoginAttemptRequest = await req.json();
-
-    if (!email) {
+    // Validate input with Zod
+    const rawBody = await req.json();
+    const validation = loginAttemptSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
       return new Response(
-        JSON.stringify({ error: 'Email is required' }),
+        JSON.stringify({ 
+          error: 'Invalid input data',
+          details: validation.error.errors[0].message 
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const { email, ip_address, user_agent } = validation.data;
 
     // Check if IP is blocked first (but skip if whitelisted)
     if (ip_address) {

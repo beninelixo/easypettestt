@@ -1,11 +1,19 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema
+const testWebhookSchema = z.object({
+  webhook_id: z.string().uuid('Invalid webhook ID'),
+  simulate_failure: z.boolean().optional().default(false),
+  test_retry: z.boolean().optional().default(false),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -17,7 +25,22 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { webhook_id, simulate_failure, test_retry } = await req.json();
+    // Validate input with Zod
+    const rawBody = await req.json();
+    const validation = testWebhookSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input data',
+          details: validation.error.errors[0].message 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { webhook_id, simulate_failure, test_retry } = validation.data;
 
     console.log('🧪 Testing webhook:', webhook_id);
 

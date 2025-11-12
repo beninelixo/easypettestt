@@ -1,11 +1,23 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema
+const webhookTriggerSchema = z.object({
+  alert: z.object({
+    title: z.string().max(200, 'Title too long'),
+    message: z.string().max(1000, 'Message too long'),
+    severity: z.enum(['critical', 'emergency', 'warning', 'info']),
+    alert_type: z.string().max(100, 'Alert type too long'),
+  }),
+  event_type: z.string().max(100, 'Event type too long'),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -17,7 +29,22 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { alert, event_type } = await req.json();
+    // Validate input with Zod
+    const rawBody = await req.json();
+    const validation = webhookTriggerSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input data',
+          details: validation.error.errors[0].message 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { alert, event_type } = validation.data;
 
     console.log('🔔 Triggering webhooks for event:', event_type);
 
