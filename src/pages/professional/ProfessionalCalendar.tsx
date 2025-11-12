@@ -9,22 +9,28 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { z } from "zod";
+
+// Schema de validação para agendamentos
+const appointmentSchema = z.object({
+  pet_id: z.string().uuid("ID do pet inválido"),
+  service_id: z.string().uuid("ID do serviço inválido"),
+  pet_shop_id: z.string().uuid("ID do pet shop inválido"),
+  client_id: z.string().uuid("ID do cliente inválido"),
+  scheduled_date: z.string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida (formato YYYY-MM-DD)"),
+  scheduled_time: z.string()
+    .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Formato de horário inválido (HH:MM)"),
+  notes: z.string()
+    .max(500, "Notas não podem exceder 500 caracteres")
+    .optional()
+    .transform(val => val?.trim() || ""),
+});
 import { Calendar as CalendarIcon, Clock, Plus, CheckCircle, PlayCircle, XCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { z } from "zod";
 import { useRealtimeMetrics } from "@/hooks/useRealtimeMetrics";
-
-const appointmentSchema = z.object({
-  pet_id: z.string().uuid("Pet inválido"),
-  service_id: z.string().uuid("Serviço inválido"),
-  pet_shop_id: z.string().uuid("Pet shop inválido"),
-  client_id: z.string().uuid("Cliente inválido"),
-  scheduled_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida"),
-  scheduled_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, "Horário inválido (formato HH:MM)"),
-  notes: z.string().max(500, "Observações devem ter no máximo 500 caracteres").optional(),
-});
 
 interface Appointment {
   id: string;

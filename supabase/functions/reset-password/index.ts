@@ -59,17 +59,26 @@ serve(async (req) => {
     
     console.log('Codes found for email:', allCodes?.length || 0);
 
-    // Verify code from database
+    // Verify code from database with detailed logging
     const { data: resetData, error: queryError } = await supabase
       .from('password_resets')
       .select('*')
       .eq('email', email.toLowerCase().trim())
-      .eq('code', code)
+      .eq('code', code.trim())
       .eq('used', false)
       .gt('expires_at', new Date().toISOString())
       .maybeSingle();
     
     console.log('Code validation result:', queryError ? 'error' : (resetData ? 'valid' : 'invalid'));
+    
+    // Enhanced logging for debugging
+    if (!resetData && !queryError) {
+      console.log('Code validation failed - Details:', {
+        emailMatch: allCodes?.some(c => !c.used),
+        hasUnusedCodes: allCodes?.filter(c => !c.used).length,
+        codeProvided: code.substring(0, 2) + '****'
+      });
+    }
 
     if (queryError) {
       console.error('Query error:', queryError);
@@ -142,6 +151,17 @@ serve(async (req) => {
     }
 
     console.log('Password reset completed successfully');
+    
+    // Log successful password reset to structured logs
+    await supabase.from('structured_logs').insert({
+      level: 'info',
+      module: 'password_reset',
+      message: 'Password reset successful',
+      context: { 
+        email: email.substring(0, 3) + '***',
+        userId: user.id
+      }
+    });
 
     return new Response(
       JSON.stringify({ 

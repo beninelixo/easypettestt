@@ -183,12 +183,23 @@ serve(async (req) => {
           emailData.message?.includes('testing emails') ||
           emailData.name === 'validation_error') {
         console.log('TEST MODE - Code stored in database for email:', email.substring(0, 3) + '***');
-        // Return success with test mode flag to avoid crashes
+        console.log('TEST MODE - Returning code to frontend for testing');
+        
+        // Log to structured_logs for monitoring
+        await supabase.from('structured_logs').insert({
+          level: 'warn',
+          module: 'password_reset',
+          message: 'Email domain not verified - test mode active',
+          context: { email: email.substring(0, 3) + '***', reason: emailData.message }
+        });
+        
+        // CRITICAL FIX: Return the code for testing when domain is not verified
         return new Response(
           JSON.stringify({ 
             success: true,
             testMode: true,
-            message: 'Domínio não verificado. Verifique um domínio em resend.com/domains para enviar emails reais. Para testes, consulte a tabela password_resets no banco de dados.',
+            devCode: code, // Return the code for frontend testing
+            message: 'Domínio não verificado. Use o código exibido para testes.',
             details: emailData.message,
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
