@@ -214,7 +214,7 @@ const ProfessionalServices = () => {
         <h1 className="text-3xl font-bold">Gerenciar Serviços</h1>
         <div className="flex gap-2">
           <Button asChild variant="outline" className="bg-gradient-to-r from-cyan-500 to-green-500 text-white border-0 hover:from-cyan-600 hover:to-green-600">
-            <Link to="/petshop/service-templates">
+            <Link to="/petshop-dashboard/service-templates">
               <Sparkles className="mr-2 h-4 w-4" />
               Catálogo de Serviços
             </Link>
@@ -318,7 +318,7 @@ const ProfessionalServices = () => {
             </div>
           </div>
           <Button asChild size="lg" className="bg-gradient-to-r from-cyan-500 to-green-500 hover:from-cyan-600 hover:to-green-600">
-            <Link to="/petshop/service-templates">
+            <Link to="/petshop-dashboard/service-templates">
               Ver Catálogo
             </Link>
           </Button>
