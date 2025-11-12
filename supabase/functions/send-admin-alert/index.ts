@@ -103,6 +103,33 @@ serve(async (req) => {
         }
         console.log(`📬 Sent ${adminEmails.length} email notifications`);
       }
+
+      // Trigger webhooks for critical/emergency alerts
+      console.log('🔔 Triggering webhooks...');
+      try {
+        const { error: webhookError } = await supabase.functions.invoke('trigger-webhooks', {
+          body: {
+            alert: {
+              title: alertData.title,
+              message: alertData.message,
+              severity: alertData.severity,
+              alert_type: alertData.alert_type,
+              context: alertData.context
+            },
+            event_type: `${alertData.severity}_alert`
+          }
+        });
+
+        if (webhookError) {
+          console.error('Warning: Failed to trigger webhooks:', webhookError);
+          // Não falhar o envio do alerta se webhooks falharem
+        } else {
+          console.log('✅ Webhooks triggered');
+        }
+      } catch (webhookError) {
+        console.error('Warning: Error triggering webhooks:', webhookError);
+        // Continuar mesmo se webhooks falharem
+      }
     }
 
     // Log para structured_logs

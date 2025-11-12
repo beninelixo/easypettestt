@@ -1,6 +1,6 @@
 import { 
   Home, Zap, Activity, Brain, Shield, Lock, FileText, Mail, 
-  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown, Gauge, ScrollText, UserCheck, History, BarChart, TestTube, RefreshCw
+  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown, Gauge, ScrollText, UserCheck, History, BarChart, TestTube, RefreshCw, LineChart, Webhook
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,11 +26,13 @@ const godModeItems = [
 ];
 
 const monitoringItems = [
+  { title: "Health Dashboard", url: "/admin/health-dashboard", icon: Activity, badge: "NEW" },
+  { title: "Performance History", url: "/admin/performance-history", icon: LineChart, badge: "NEW" },
   { title: "System Monitoring", url: "/admin/system-monitoring", icon: Monitor },
   { title: "System Analysis", url: "/admin/system-analysis", icon: Brain, badge: "IA" },
   { title: "Auth Monitoring", url: "/admin/auth-monitoring", icon: Shield },
-  { title: "System Health", url: "/admin/system-health", icon: Activity, badge: "NEW" },
-  { title: "Failed Jobs", url: "/admin/failed-jobs", icon: RefreshCw, badge: "NEW" },
+  { title: "System Health", url: "/admin/system-health", icon: Gauge },
+  { title: "Failed Jobs", url: "/admin/failed-jobs", icon: RefreshCw },
   { title: "System Diagnostics", url: "/admin/system-diagnostics", icon: FileText },
   { title: "AI Monitor", url: "/admin/ai-monitor", icon: Brain, badge: "AUTO" },
 ];
@@ -45,12 +47,13 @@ const securityItems = [
 ];
 
 const settingsItems = [
-  { title: "Performance Dashboard", url: "/admin/performance", icon: Gauge, badge: "NEW" },
-  { title: "Error Logs", url: "/admin/error-logs", icon: ScrollText, badge: "NEW" },
+  { title: "Webhooks", url: "/admin/webhooks", icon: Webhook, badge: "NEW" },
+  { title: "Performance Dashboard", url: "/admin/performance", icon: Gauge },
+  { title: "Error Logs", url: "/admin/error-logs", icon: ScrollText },
   { title: "Email System Test", url: "/admin/email-test", icon: TestTube },
-  { title: "Email Analytics", url: "/admin/email-analytics", icon: BarChart, badge: "NEW" },
+  { title: "Email Analytics", url: "/admin/email-analytics", icon: BarChart },
   { title: "Resend Domain Setup", url: "/admin/domain-setup", icon: Globe },
-  { title: "Loops Domain Setup", url: "/admin/loops-domain-setup", icon: Mail, badge: "NEW" },
+  { title: "Loops Domain Setup", url: "/admin/loops-domain-setup", icon: Mail },
   { title: "Notification Queue", url: "/admin/notifications", icon: Bell },
   { title: "System Monitor", url: "/admin/monitor", icon: Monitor },
   { title: "Success Stories", url: "/admin/success-stories", icon: Award },

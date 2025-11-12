@@ -122,6 +122,9 @@ const LoginHistory = lazy(() => import("./pages/admin/LoginHistory"));
 const SystemErrorLogs = lazy(() => import("./pages/admin/SystemErrorLogs"));
 const SystemHealthDashboard = lazy(() => import("./pages/admin/SystemHealthDashboard"));
 const FailedJobsManagement = lazy(() => import("./pages/admin/FailedJobsManagement"));
+const PerformanceMetricsHistory = lazy(() => import("./pages/admin/PerformanceMetricsHistory"));
+const ConsolidatedHealthDashboard = lazy(() => import("./pages/admin/ConsolidatedHealthDashboard"));
+const WebhookManagement = lazy(() => import("./pages/admin/WebhookManagement"));
 
 // Admin Layout
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -338,6 +341,9 @@ const App = () => {
             <Route path="error-logs" element={<SystemErrorLogs />} />
             <Route path="system-health" element={<SystemHealthDashboard />} />
             <Route path="failed-jobs" element={<FailedJobsManagement />} />
+            <Route path="performance-history" element={<PerformanceMetricsHistory />} />
+            <Route path="health-dashboard" element={<ConsolidatedHealthDashboard />} />
+            <Route path="webhooks" element={<WebhookManagement />} />
           </Route>
 
           {/* Legacy Admin Routes - Redirect to new structure */}

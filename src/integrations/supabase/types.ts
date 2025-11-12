@@ -2077,6 +2077,57 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_endpoints: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          enabled: boolean | null
+          events: string[] | null
+          id: string
+          last_error: string | null
+          last_status_code: number | null
+          last_triggered_at: string | null
+          metadata: Json | null
+          name: string
+          secret_token: string | null
+          service_type: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          enabled?: boolean | null
+          events?: string[] | null
+          id?: string
+          last_error?: string | null
+          last_status_code?: number | null
+          last_triggered_at?: string | null
+          metadata?: Json | null
+          name: string
+          secret_token?: string | null
+          service_type: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          enabled?: boolean | null
+          events?: string[] | null
+          id?: string
+          last_error?: string | null
+          last_status_code?: number | null
+          last_triggered_at?: string | null
+          metadata?: Json | null
+          name?: string
+          secret_token?: string | null
+          service_type?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       whatsapp_settings: {
         Row: {
           auto_confirmation: boolean
