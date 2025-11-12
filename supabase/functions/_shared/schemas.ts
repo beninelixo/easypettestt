@@ -23,8 +23,7 @@ export const phoneSchema = z
 
 export const ipAddressSchema = z
   .string()
-  .max(45, 'IP address too long')
-  .regex(/^(?:\d{1,3}\.){3}\d{1,3}$|^(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}$/, 'Invalid IP address format')
+  .max(255, 'IP address or hostname too long')
   .optional();
 
 export const userAgentSchema = z

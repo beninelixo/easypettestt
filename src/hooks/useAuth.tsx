@@ -137,11 +137,16 @@ export const useAuth = () => {
       // Get client IP and user agent for rate limiting
       let ipAddress = 'unknown';
       try {
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipResponse = await fetch('https://api.ipify.org?format=json', {
+          signal: AbortSignal.timeout(3000) // 3 second timeout
+        });
         const ipData = await ipResponse.json();
-        ipAddress = ipData.ip;
+        if (ipData && ipData.ip) {
+          ipAddress = ipData.ip;
+        }
       } catch (ipError) {
-        console.warn('Could not fetch IP address:', ipError);
+        console.warn('Could not fetch IP address, using unknown:', ipError);
+        ipAddress = 'unknown'; // Fallback seguro
       }
 
       // Call rate-limited login Edge Function

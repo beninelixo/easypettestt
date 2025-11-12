@@ -9,7 +9,7 @@ const corsHeaders = {
 // Validation schema
 const loginAttemptSchema = z.object({
   email: z.string().email('Invalid email format').max(255, 'Email too long'),
-  ip_address: z.string().max(45, 'IP address too long').optional(),
+  ip_address: z.string().max(255, 'IP or hostname too long').optional(),
   user_agent: z.string().max(500, 'User agent too long').optional(),
 });
 
