@@ -16,22 +16,24 @@ import { useRememberMe } from "@/hooks/useRememberMe";
 import { AuthIllustration } from "@/components/auth/AuthIllustration";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
+import { getCSRFToken, clearCSRFToken } from "@/lib/csrf";
 import logo from "@/assets/easypet-logo.png";
 
-// Validation Schemas
+// Validation Schemas - Updated with stronger password requirements
 const loginSchema = z.object({
   email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
-  password: z.string().min(8, "Senha deve ter no mínimo 8 caracteres").max(50, "Senha muito longa"),
+  password: z.string().min(10, "Senha deve ter no mínimo 10 caracteres").max(50, "Senha muito longa"),
 });
 
 const registerClientSchema = z.object({
   email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
   password: z.string()
-    .min(8, "Senha deve ter no mínimo 8 caracteres")
+    .min(10, "Senha deve ter no mínimo 10 caracteres")
     .max(50, "Senha muito longa")
     .regex(/[a-z]/, "Deve conter pelo menos uma letra minúscula")
-    .regex(/[A-Z]/, "Deve conter pelo menos uma letra maiúscula")
-    .regex(/[0-9]/, "Deve conter pelo menos um número"),
+    .regex(/[A-Z]/, "Deve conter pelo menos uma letra MAIÚSCULA")
+    .regex(/[0-9]/, "Deve conter pelo menos um número")
+    .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "Deve conter pelo menos um caractere especial"),
   confirmPassword: z.string(),
   full_name: z.string().trim().min(2, "Nome completo é obrigatório").max(100, "Nome muito longo"),
   phone: z.string().trim().min(10, "Telefone inválido").max(15, "Telefone muito longo"),
@@ -44,11 +46,12 @@ const registerClientSchema = z.object({
 const registerProfessionalSchema = z.object({
   email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
   password: z.string()
-    .min(8, "Senha deve ter no mínimo 8 caracteres")
+    .min(10, "Senha deve ter no mínimo 10 caracteres")
     .max(50, "Senha muito longa")
     .regex(/[a-z]/, "Deve conter pelo menos uma letra minúscula")
-    .regex(/[A-Z]/, "Deve conter pelo menos uma letra maiúscula")
-    .regex(/[0-9]/, "Deve conter pelo menos um número"),
+    .regex(/[A-Z]/, "Deve conter pelo menos uma letra MAIÚSCULA")
+    .regex(/[0-9]/, "Deve conter pelo menos um número")
+    .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "Deve conter pelo menos um caractere especial"),
   confirmPassword: z.string(),
   full_name: z.string().trim().min(2, "Nome do responsável é obrigatório").max(100, "Nome muito longo"),
   phone: z.string().trim().min(10, "Telefone inválido").max(15, "Telefone muito longo"),

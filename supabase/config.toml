@@ -107,3 +107,6 @@ verify_jwt = false
 
 [functions.verify-backup]
 verify_jwt = true
+
+[functions.validate-upload]
+verify_jwt = true
