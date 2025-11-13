@@ -16,9 +16,11 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
+    // Performance optimizations
     rollupOptions: {
       output: {
         manualChunks: {
+          // Vendor chunks for better caching
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': [
             '@radix-ui/react-dialog',
@@ -26,17 +28,39 @@ export default defineConfig(({ mode }) => ({
             '@radix-ui/react-select',
             '@radix-ui/react-tabs',
             '@radix-ui/react-toast',
+            '@radix-ui/react-tooltip'
           ],
-          'query-vendor': ['@tanstack/react-query'],
           'chart-vendor': ['recharts'],
+          'form-vendor': ['react-hook-form', 'zod', '@hookform/resolvers'],
           'supabase': ['@supabase/supabase-js'],
+          'query-vendor': ['@tanstack/react-query'],
         },
+        // Asset naming for better caching
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
       },
     },
-    chunkSizeWarningLimit: 600,
+    // Optimize chunk size warnings
+    chunkSizeWarningLimit: 1000,
+    // Minification options
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: mode === 'production', // Remove console.logs in production only
+        drop_debugger: true,
+        pure_funcs: mode === 'production' ? ['console.log', 'console.debug'] : []
+      }
+    },
     sourcemap: false,
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom'],
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@supabase/supabase-js',
+      '@tanstack/react-query'
+    ]
   },
 }));
