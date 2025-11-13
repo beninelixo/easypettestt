@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/AppSidebar";
+import { PetShopSidebar } from "@/components/PetShopSidebar";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -47,7 +47,7 @@ const PetShopDashboardLayout = () => {
   return (
     <SidebarProvider defaultOpen>
       <div className="min-h-screen flex w-full">
-        <AppSidebar />
+        <PetShopSidebar />
         
         <div className="flex-1 flex flex-col">
           {/* Header */}
