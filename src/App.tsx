@@ -101,6 +101,7 @@ const ProfessionalCalendar = lazy(() => import("./pages/professional/Professiona
 const ProfessionalServices = lazy(() => import("./pages/professional/ProfessionalServices"));
 const ProfessionalClients = lazy(() => import("./pages/professional/ProfessionalClientsVirtual"));
 const ProfessionalReports = lazy(() => import("./pages/professional/ProfessionalReports"));
+const ProfessionalBackup = lazy(() => import("./pages/professional/ProfessionalBackup"));
 const ProfessionalProfile = lazy(() => import("./pages/professional/ProfessionalProfile"));
 const ProfessionalPlans = lazy(() => import("./pages/professional/ProfessionalPlans"));
 const PaymentSuccess = lazy(() => import("./pages/professional/PaymentSuccess"));
@@ -290,6 +291,7 @@ const App = () => {
             <Route path="services" element={<ProfessionalServices />} />
             <Route path="clients" element={<ProfessionalClients />} />
             <Route path="reports" element={<ProfessionalReports />} />
+            <Route path="backup" element={<ProfessionalBackup />} />
             <Route path="plans" element={<ProfessionalPlans />} />
             <Route path="payment-success" element={<PaymentSuccess />} />
             <Route path="profile" element={<ProfessionalProfile />} />
