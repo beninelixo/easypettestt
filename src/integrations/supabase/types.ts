@@ -1363,43 +1363,79 @@ export type Database = {
         Row: {
           age: number | null
           allergies: string | null
+          birth_date: string | null
           breed: string | null
+          chronic_diseases: string | null
+          coat_color: string | null
+          coat_type: string | null
           created_at: string
           deleted_at: string | null
+          gender: string | null
+          grooming_preferences: string | null
           id: string
           name: string
+          neutered: boolean | null
           observations: string | null
           owner_id: string
           photo_url: string | null
+          restrictions: string | null
+          size: string | null
+          species: string | null
+          temperament: string | null
           updated_at: string
+          vaccination_history: Json | null
           weight: number | null
         }
         Insert: {
           age?: number | null
           allergies?: string | null
+          birth_date?: string | null
           breed?: string | null
+          chronic_diseases?: string | null
+          coat_color?: string | null
+          coat_type?: string | null
           created_at?: string
           deleted_at?: string | null
+          gender?: string | null
+          grooming_preferences?: string | null
           id?: string
           name: string
+          neutered?: boolean | null
           observations?: string | null
           owner_id: string
           photo_url?: string | null
+          restrictions?: string | null
+          size?: string | null
+          species?: string | null
+          temperament?: string | null
           updated_at?: string
+          vaccination_history?: Json | null
           weight?: number | null
         }
         Update: {
           age?: number | null
           allergies?: string | null
+          birth_date?: string | null
           breed?: string | null
+          chronic_diseases?: string | null
+          coat_color?: string | null
+          coat_type?: string | null
           created_at?: string
           deleted_at?: string | null
+          gender?: string | null
+          grooming_preferences?: string | null
           id?: string
           name?: string
+          neutered?: boolean | null
           observations?: string | null
           owner_id?: string
           photo_url?: string | null
+          restrictions?: string | null
+          size?: string | null
+          species?: string | null
+          temperament?: string | null
           updated_at?: string
+          vaccination_history?: Json | null
           weight?: number | null
         }
         Relationships: []
@@ -1510,10 +1546,69 @@ export type Database = {
           },
         ]
       }
+      professional_backups: {
+        Row: {
+          backup_type: string
+          created_at: string
+          created_by: string
+          date_range_end: string | null
+          date_range_start: string | null
+          error_message: string | null
+          file_size_bytes: number | null
+          format: string
+          id: string
+          metadata: Json | null
+          pet_shop_id: string
+          status: string
+          storage_path: string | null
+        }
+        Insert: {
+          backup_type: string
+          created_at?: string
+          created_by: string
+          date_range_end?: string | null
+          date_range_start?: string | null
+          error_message?: string | null
+          file_size_bytes?: number | null
+          format: string
+          id?: string
+          metadata?: Json | null
+          pet_shop_id: string
+          status?: string
+          storage_path?: string | null
+        }
+        Update: {
+          backup_type?: string
+          created_at?: string
+          created_by?: string
+          date_range_end?: string | null
+          date_range_start?: string | null
+          error_message?: string | null
+          file_size_bytes?: number | null
+          format?: string
+          id?: string
+          metadata?: Json | null
+          pet_shop_id?: string
+          status?: string
+          storage_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_backups_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          address: string | null
           avatar_url: string | null
+          contact_preference: string | null
           created_at: string
+          document: string | null
           full_name: string
           id: string
           phone: string | null
@@ -1521,8 +1616,11 @@ export type Database = {
           user_code: string | null
         }
         Insert: {
+          address?: string | null
           avatar_url?: string | null
+          contact_preference?: string | null
           created_at?: string
+          document?: string | null
           full_name: string
           id: string
           phone?: string | null
@@ -1530,8 +1628,11 @@ export type Database = {
           user_code?: string | null
         }
         Update: {
+          address?: string | null
           avatar_url?: string | null
+          contact_preference?: string | null
           created_at?: string
+          document?: string | null
           full_name?: string
           id?: string
           phone?: string | null
@@ -2399,6 +2500,7 @@ export type Database = {
     }
     Functions: {
       calculate_next_retry: { Args: { attempt_count: number }; Returns: string }
+      calculate_pet_age: { Args: { birth_date: string }; Returns: number }
       cleanup_expired_blocks: { Args: never; Returns: number }
       cleanup_expired_invites: { Args: never; Returns: number }
       cleanup_expired_mfa_sessions: { Args: never; Returns: number }
