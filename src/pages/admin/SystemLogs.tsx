@@ -1,4 +1,15 @@
 import { useState } from 'react';
+import { useTranslation } from '@/lib/i18n/useTranslation';
+import { useAdvancedLogs, type LogFilters } from '@/hooks/useAdvancedLogs';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Search, Download, Info, AlertTriangle, AlertCircle, XCircle } from 'lucide-react';
+import { format as formatDate } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+
 export default function SystemLogs() {
   const { t } = useTranslation();
   const [filters, setFilters] = useState<LogFilters>({});
@@ -30,8 +41,7 @@ export default function SystemLogs() {
   };
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">{t('admin.logs.title')}</h1>
@@ -118,7 +128,7 @@ export default function SystemLogs() {
                         </span>
                         <span className="text-xs text-muted-foreground">•</span>
                         <span className="text-xs text-muted-foreground">
-                          {format(new Date(log.timestamp), 'dd/MM/yyyy HH:mm:ss', { locale: ptBR })}
+                          {formatDate(new Date(log.timestamp), 'dd/MM/yyyy HH:mm:ss', { locale: ptBR })}
                         </span>
                         {log.trace_id && (
                           <>
@@ -148,6 +158,5 @@ export default function SystemLogs() {
           <span>Atualização em tempo real ativa</span>
         </div>
       </div>
-    </AdminLayout>
   );
 }
