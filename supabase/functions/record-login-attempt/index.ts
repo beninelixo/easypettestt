@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
     const requestSchema = z.object({
       email: z.string().email('Invalid email format').max(255, 'Email too long'),
       success: z.boolean(),
-      ip_address: z.string().max(45, 'IP address too long').optional(),
+      ip_address: z.string().max(255, 'IP address/hostname too long').optional(),
       user_agent: z.string().max(500, 'User agent too long').optional()
     });
 
