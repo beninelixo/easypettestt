@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_audit: {
+        Row: {
+          action: Database["public"]["Enums"]["app_action"]
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          module: Database["public"]["Enums"]["app_module"]
+          pet_shop_id: string | null
+          resource_id: string | null
+          resource_type: string | null
+          success: boolean | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["app_action"]
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          module: Database["public"]["Enums"]["app_module"]
+          pet_shop_id?: string | null
+          resource_id?: string | null
+          resource_type?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["app_action"]
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          module?: Database["public"]["Enums"]["app_module"]
+          pet_shop_id?: string | null
+          resource_id?: string | null
+          resource_type?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_audit_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_alerts: {
         Row: {
           alert_type: string
@@ -616,6 +669,45 @@ export type Database = {
             columns: ["unit_id"]
             isOneToOne: false
             referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_permissions: {
+        Row: {
+          employee_id: string
+          granted_at: string | null
+          granted_by: string
+          id: string
+          permission_id: string
+        }
+        Insert: {
+          employee_id: string
+          granted_at?: string | null
+          granted_by: string
+          id?: string
+          permission_id: string
+        }
+        Update: {
+          employee_id?: string
+          granted_at?: string | null
+          granted_by?: string
+          id?: string
+          permission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_permissions_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "petshop_employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_permissions_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
             referencedColumns: ["id"]
           },
         ]
@@ -1247,6 +1339,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      permissions: {
+        Row: {
+          action: Database["public"]["Enums"]["app_action"]
+          created_at: string | null
+          description: string | null
+          id: string
+          module: Database["public"]["Enums"]["app_module"]
+          name: string
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["app_action"]
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          module: Database["public"]["Enums"]["app_module"]
+          name: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["app_action"]
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          module?: Database["public"]["Enums"]["app_module"]
+          name?: string
+        }
+        Relationships: []
       }
       pet_photos: {
         Row: {
@@ -2560,6 +2679,15 @@ export type Database = {
         Args: { _date?: string; _pet_shop_id: string }
         Returns: Json
       }
+      get_employee_permissions: {
+        Args: { _pet_shop_id: string; _user_id: string }
+        Returns: {
+          action: Database["public"]["Enums"]["app_action"]
+          description: string
+          module: Database["public"]["Enums"]["app_module"]
+          permission_name: string
+        }[]
+      }
       get_monthly_revenue: {
         Args: { _months?: number; _pet_shop_id: string }
         Returns: {
@@ -2599,6 +2727,15 @@ export type Database = {
           pending: number
         }[]
       }
+      has_permission: {
+        Args: {
+          _action: Database["public"]["Enums"]["app_action"]
+          _module: Database["public"]["Enums"]["app_module"]
+          _pet_shop_id: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2623,12 +2760,39 @@ export type Database = {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean
       }
+      log_access: {
+        Args: {
+          _action: Database["public"]["Enums"]["app_action"]
+          _metadata?: Json
+          _module: Database["public"]["Enums"]["app_module"]
+          _pet_shop_id: string
+          _resource_id?: string
+          _resource_type?: string
+          _success?: boolean
+          _user_id: string
+        }
+        Returns: string
+      }
       mark_alert_read: { Args: { alert_id: string }; Returns: boolean }
       resolve_old_alerts: { Args: never; Returns: number }
       set_current_tenant: { Args: { _tenant_id: string }; Returns: undefined }
       update_global_metrics: { Args: never; Returns: undefined }
     }
     Enums: {
+      app_action: "view" | "create" | "edit" | "delete" | "manage"
+      app_module:
+        | "dashboard"
+        | "appointments"
+        | "clients"
+        | "pets"
+        | "services"
+        | "products"
+        | "inventory"
+        | "financial"
+        | "reports"
+        | "marketing"
+        | "settings"
+        | "employees"
       app_role:
         | "client"
         | "pet_shop"
@@ -2762,6 +2926,21 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_action: ["view", "create", "edit", "delete", "manage"],
+      app_module: [
+        "dashboard",
+        "appointments",
+        "clients",
+        "pets",
+        "services",
+        "products",
+        "inventory",
+        "financial",
+        "reports",
+        "marketing",
+        "settings",
+        "employees",
+      ],
       app_role: [
         "client",
         "pet_shop",

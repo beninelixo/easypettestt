@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Users, UserPlus, Mail, Briefcase, Calendar, Trash2, Check, X } from "lucide-react";
+import { Users, UserPlus, Mail, Briefcase, Calendar, Trash2, Check, X, Shield } from "lucide-react";
+import { EmployeePermissionsManager } from "@/components/permissions/EmployeePermissionsManager";
 import {
   Dialog,
   DialogContent,
@@ -48,7 +49,9 @@ const Funcionarios = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<string>("");
+  const [selectedEmployeeForPermissions, setSelectedEmployeeForPermissions] = useState<Employee | null>(null);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -426,6 +429,31 @@ const Funcionarios = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Dialog de Gerenciamento de Permissões */}
+      <Dialog open={permissionsDialogOpen} onOpenChange={setPermissionsDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Gerenciar Permissões</DialogTitle>
+            <DialogDescription>
+              Configure as permissões de acesso do funcionário
+            </DialogDescription>
+          </DialogHeader>
+          {selectedEmployeeForPermissions && (
+            <EmployeePermissionsManager
+              employeeId={selectedEmployeeForPermissions.id}
+              employeeName={selectedEmployeeForPermissions.profiles.full_name}
+              onSave={() => {
+                setPermissionsDialogOpen(false);
+                toast({
+                  title: "Permissões atualizadas",
+                  description: "As permissões foram salvas com sucesso.",
+                });
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
