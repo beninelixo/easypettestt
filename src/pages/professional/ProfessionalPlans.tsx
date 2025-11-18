@@ -59,7 +59,7 @@ const plans: Plan[] = [
     popular: true,
     features: [
       { text: "Agendamentos ilimitados", included: true },
-      { text: "Até 5 usuários simultâneos", included: true },
+      { text: "Até 3 usuários simultâneos", included: true },
       { text: "Gestão completa de clientes e pets", included: true },
       { text: "Controle de estoque básico", included: true },
       { text: "Calendário e agenda online", included: true },

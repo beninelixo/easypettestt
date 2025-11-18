@@ -41,7 +41,7 @@ const Pricing = () => {
       borderColor: "border-yellow-500",
       features: [
         "Agendamentos ilimitados",
-        "Até 5 usuários simultâneos",
+        "Até 3 usuários simultâneos",
         "Gestão de clientes e pets",
         "Controle de estoque básico",
         "Calendário e agenda online",

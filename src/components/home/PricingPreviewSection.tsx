@@ -27,7 +27,7 @@ export const PricingPreviewSection = () => {
       period: "/mês",
       description: "Perfeito para crescer",
       features: [
-        "Até 5 usuários",
+        "Até 3 usuários",
         "Agendamentos ilimitados",
         "Gestão completa de clientes",
         "Relatórios avançados",

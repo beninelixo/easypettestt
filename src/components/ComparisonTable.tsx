@@ -139,7 +139,7 @@ const ComparisonTable = () => {
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
                   <li className="flex items-center gap-2">✅ Agendamentos ilimitados</li>
-                  <li className="flex items-center gap-2">✅ Até 5 usuários</li>
+                  <li className="flex items-center gap-2">✅ Até 3 usuários</li>
                   <li className="flex items-center gap-2">✅ Gestão completa de clientes</li>
                   <li className="flex items-center gap-2">✅ Relatórios básicos</li>
                   <li className="flex items-center gap-2">✅ Lembretes por email</li>

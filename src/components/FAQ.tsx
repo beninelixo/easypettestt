@@ -10,7 +10,7 @@ const FAQ = () => {
   const faqs = [
     {
       question: "Qual a diferença entre os planos?",
-      answer: "O Pet Gold (R$ 79,90/mês) é ideal para clínicas em crescimento com até 5 usuários. O Pet Platinum (R$ 149,90/mês) oferece usuários ilimitados, multi-unidades e white label. O Platinum Anual (R$ 1.798/ano) tem o melhor custo-benefício com economia de R$ 200,80 no ano."
+      answer: "O Pet Gold (R$ 79,90/mês) é ideal para clínicas em crescimento com até 3 usuários. O Pet Platinum (R$ 149,90/mês) oferece usuários ilimitados, multi-unidades e white label. O Platinum Anual (R$ 1.798/ano) tem o melhor custo-benefício com economia de R$ 200,80 no ano."
     },
     {
       question: "Posso mudar de plano depois?",
@@ -74,7 +74,7 @@ const FAQ = () => {
     },
     {
       question: "Quantos usuários podem usar o sistema simultaneamente?",
-      answer: "O Plano Pet Gold permite até 5 usuários simultâneos. Isso é perfeito para clínicas e pet shops que precisam de múltiplos funcionários acessando o sistema ao mesmo tempo."
+      answer: "O Plano Pet Gold permite até 3 usuários simultâneos. Isso é perfeito para clínicas e pet shops que precisam de múltiplos funcionários acessando o sistema ao mesmo tempo."
     }
   ];
 
