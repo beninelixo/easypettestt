@@ -4,6 +4,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import App from "./App.tsx";
 import "./index.css";
 import { initWebVitalsTracking } from "./lib/vitals";
+import { TenantProvider } from "@/lib/tenant-context";
 
 // Inicializar tracking de Web Vitals
 initWebVitalsTracking();
@@ -64,7 +65,9 @@ if ('serviceWorker' in navigator) {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <HelmetProvider>
-      <App />
+      <TenantProvider>
+        <App />
+      </TenantProvider>
     </HelmetProvider>
   </StrictMode>
 );
