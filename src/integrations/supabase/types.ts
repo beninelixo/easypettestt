@@ -1425,7 +1425,9 @@ export type Database = {
           email: string | null
           hours: string | null
           id: string
+          latitude: number | null
           logo_url: string | null
+          longitude: number | null
           name: string
           owner_id: string
           phone: string | null
@@ -1446,7 +1448,9 @@ export type Database = {
           email?: string | null
           hours?: string | null
           id?: string
+          latitude?: number | null
           logo_url?: string | null
+          longitude?: number | null
           name: string
           owner_id: string
           phone?: string | null
@@ -1467,7 +1471,9 @@ export type Database = {
           email?: string | null
           hours?: string | null
           id?: string
+          latitude?: number | null
           logo_url?: string | null
+          longitude?: number | null
           name?: string
           owner_id?: string
           phone?: string | null
@@ -2618,6 +2624,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_distance: {
+        Args: { lat1: number; lat2: number; lon1: number; lon2: number }
+        Returns: number
+      }
       calculate_next_retry: { Args: { attempt_count: number }; Returns: string }
       calculate_pet_age: { Args: { birth_date: string }; Returns: number }
       cleanup_expired_blocks: { Args: never; Returns: number }
@@ -2634,6 +2644,27 @@ export type Database = {
           p_title: string
         }
         Returns: string
+      }
+      find_nearby_pet_shops: {
+        Args: {
+          client_lat: number
+          client_lng: number
+          limit_results?: number
+          radius_km?: number
+        }
+        Returns: {
+          address: string
+          city: string
+          distance_km: number
+          email: string
+          id: string
+          latitude: number
+          logo_url: string
+          longitude: number
+          name: string
+          phone: string
+          state: string
+        }[]
       }
       generate_pet_shop_code: { Args: never; Returns: string }
       generate_user_code: { Args: never; Returns: string }

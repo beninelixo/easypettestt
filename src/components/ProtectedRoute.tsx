@@ -22,31 +22,41 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   const [awaitingRole, setAwaitingRole] = useState(false);
 
   useEffect(() => {
-    console.log('🔒 ProtectedRoute check:', { loading, user: !!user, normalizedRole, allowedRoles });
+    if (import.meta.env.DEV) {
+      console.log('🔒 ProtectedRoute check:', { loading, user: !!user, normalizedRole, allowedRoles });
+    }
     
     if (!loading) {
       if (!user) {
-        console.log('❌ No user, clearing invalid tokens and redirecting to /auth');
+        if (import.meta.env.DEV) {
+          console.log('❌ No user, clearing invalid tokens and redirecting to /auth');
+        }
         // Limpar tokens potencialmente corrompidos
         localStorage.removeItem('supabase.auth.token');
         sessionStorage.clear();
         navigate("/auth", { replace: true });
       } else if (allowedRoles && !normalizedRole) {
         // User exists, allowedRoles specified, but role not loaded yet
-        console.log('⏳ ProtectedRoute: Waiting for role to load...');
+        if (import.meta.env.DEV) {
+          console.log('⏳ ProtectedRoute: Waiting for role to load...');
+        }
         setAwaitingRole(true);
         
         // Wait for role with timeout
         const timeout = setTimeout(async () => {
           if (!normalizedRole && !forceRefreshAttemptedRef.current) {
-            console.log('🔄 ProtectedRoute: Role missing, forcing refresh...');
+            if (import.meta.env.DEV) {
+              console.log('🔄 ProtectedRoute: Role missing, forcing refresh...');
+            }
             forceRefreshAttemptedRef.current = true;
             await forceRefreshAuth();
             
             // After refresh attempt, wait a bit more
             setTimeout(() => {
               if (!normalizedRole) {
-                console.log('❌ ProtectedRoute: Role still missing after refresh, redirecting to /auth');
+                if (import.meta.env.DEV) {
+                  console.log('❌ ProtectedRoute: Role still missing after refresh, redirecting to /auth');
+                }
                 navigate("/auth?role=missing", { replace: true });
               }
             }, 1000);
@@ -66,11 +76,15 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
           return "/";
         })();
         
-        console.log('🔀 Wrong role, redirecting to:', targetPath);
+        if (import.meta.env.DEV) {
+          console.log('🔀 Wrong role, redirecting to:', targetPath);
+        }
         navigate(targetPath, { replace: true });
       } else {
         setAwaitingRole(false);
-        console.log('✅ Access granted');
+        if (import.meta.env.DEV) {
+          console.log('✅ Access granted');
+        }
       }
     }
   }, [user, normalizedRole, loading, navigate, allowedRoles, forceRefreshAuth]);
