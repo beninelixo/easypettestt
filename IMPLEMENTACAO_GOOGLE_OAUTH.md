@@ -38,6 +38,7 @@ O código para login com Google OAuth foi completamente implementado no sistema 
 ## 🎨 Interface do Usuário
 
 ### Tela de Login
+
 ```
 ┌─────────────────────────────────────┐
 │  [Entrar]                          │ ← Botão primário (gradiente)
@@ -51,6 +52,7 @@ O código para login com Google OAuth foi completamente implementado no sistema 
 ```
 
 ### Tela de Registro
+
 ```
 ┌─────────────────────────────────────┐
 │  [🛡️ Criar Conta Grátis]           │ ← Botão primário
@@ -84,7 +86,7 @@ A autenticação com Google precisa ser habilitada nas configurações do projet
    - Tipo de Usuário: **Externo**
    - Preencha:
      - Nome do aplicativo: **EasyPet**
-     - E-mail de suporte: [seu email]
+     - E-mail de suporte: easypetc@gmail.com
      - Domínio autorizado: `easypet.lovable.app`
      - Logo (opcional): Upload do logo EasyPet
    - Escopos necessários:
@@ -97,14 +99,16 @@ A autenticação com Google precisa ser habilitada nas configurações do projet
    - Clique em: `Create Credentials > OAuth Client ID`
    - Tipo de aplicativo: **Web Application**
    - Nome: `EasyPet - Lovable App`
-   
+
    **Origens JavaScript autorizadas:**
+
    ```
    https://easypet.lovable.app
    https://xkfkrdorghyagtwbxory.supabase.co
    ```
-   
+
    **URIs de redirecionamento autorizados:**
+
    ```
    https://xkfkrdorghyagtwbxory.supabase.co/auth/v1/callback
    https://easypet.lovable.app/auth/callback
@@ -129,11 +133,13 @@ A autenticação com Google precisa ser habilitada nas configurações do projet
 No Lovable Cloud Dashboard, certifique-se de que as seguintes URLs estão configuradas:
 
 **Site URL:**
+
 ```
 https://easypet.lovable.app
 ```
 
 **Redirect URLs:**
+
 ```
 https://easypet.lovable.app/**
 https://easypet.lovable.app/auth/callback
@@ -182,6 +188,7 @@ http://localhost:5173/** (para desenvolvimento)
 ## 🧪 Como Testar (Após Configuração)
 
 ### Teste 1: Registro com Google
+
 1. Acesse: `https://easypet.lovable.app/auth`
 2. Clique em "Continuar com Google" na aba **Registrar**
 3. Selecione conta Google
@@ -192,6 +199,7 @@ http://localhost:5173/** (para desenvolvimento)
    - ✅ Acesso ao dashboard
 
 ### Teste 2: Login com Google (Usuário Existente)
+
 1. Use a mesma conta Google usada no Teste 1
 2. Clique em "Continuar com Google" na aba **Login**
 3. Verifique:
@@ -200,6 +208,7 @@ http://localhost:5173/** (para desenvolvimento)
    - ✅ Redirecionamento para dashboard apropriado
 
 ### Teste 3: Associação de Conta
+
 1. Crie uma conta manual com email: `teste@example.com`
 2. Tente fazer login com Google usando o mesmo email
 3. Verifique:
@@ -211,9 +220,11 @@ http://localhost:5173/** (para desenvolvimento)
 ## 🐛 Troubleshooting
 
 ### Erro: "requested path is invalid"
+
 **Causa:** Site URL ou Redirect URLs não configuradas corretamente
 
 **Solução:**
+
 1. Acesse Lovable Cloud Dashboard
 2. Verifique: `Auth Settings > Site URL` e `Redirect URLs`
 3. Adicione todas as URLs mencionadas no Passo 4
@@ -221,9 +232,11 @@ http://localhost:5173/** (para desenvolvimento)
 ---
 
 ### Erro: "redirect_uri_mismatch"
+
 **Causa:** URI de redirecionamento não está autorizada no Google Cloud Console
 
 **Solução:**
+
 1. Acesse Google Cloud Console
 2. Navegue para: `APIs & Services > Credentials`
 3. Edite o OAuth Client ID
@@ -232,9 +245,11 @@ http://localhost:5173/** (para desenvolvimento)
 ---
 
 ### Erro: "Invalid client"
+
 **Causa:** Client ID ou Client Secret incorretos
 
 **Solução:**
+
 1. Verifique se copiou corretamente do Google Cloud Console
 2. Re-insira as credenciais no Lovable Cloud Dashboard
 3. Certifique-se de não incluir espaços extras
@@ -242,9 +257,11 @@ http://localhost:5173/** (para desenvolvimento)
 ---
 
 ### Botão não funciona (nada acontece)
+
 **Causa:** Google OAuth não está habilitado no Supabase
 
 **Solução:**
+
 1. Acesse Lovable Cloud Dashboard
 2. Habilite Google Provider
 3. Insira Client ID e Secret
@@ -256,12 +273,12 @@ http://localhost:5173/** (para desenvolvimento)
 
 Quando um usuário faz login com Google, o sistema captura:
 
-| Campo | Origem | Uso |
-|-------|--------|-----|
-| **Email** | Google Profile | Identificação única do usuário |
-| **Nome Completo** | Google Profile | Exibição no sistema |
-| **Foto de Perfil** | Google Profile | Avatar do usuário (opcional) |
-| **ID do Google** | OAuth | Associação de conta |
+| Campo              | Origem         | Uso                            |
+| ------------------ | -------------- | ------------------------------ |
+| **Email**          | Google Profile | Identificação única do usuário |
+| **Nome Completo**  | Google Profile | Exibição no sistema            |
+| **Foto de Perfil** | Google Profile | Avatar do usuário (opcional)   |
+| **ID do Google**   | OAuth          | Associação de conta            |
 
 **Privacidade:** Apenas os dados essenciais são capturados conforme os escopos solicitados (`email`, `profile`, `openid`). Nenhuma informação adicional é acessada sem consentimento explícito.
 
@@ -273,13 +290,14 @@ Quando um usuário faz login com Google, o sistema captura:
 ✅ **State Parameter** - Previne ataques CSRF  
 ✅ **Validação de Redirect URI** - Apenas URIs autorizadas são aceitas  
 ✅ **Token Seguro** - Tokens armazenados de forma segura pelo Supabase  
-✅ **Session Management** - Sessões gerenciadas com segurança  
+✅ **Session Management** - Sessões gerenciadas com segurança
 
 ---
 
 ## 📋 Checklist de Implementação
 
 ### Código ✅
+
 - [x] Biblioteca OAuth implementada (`googleOAuth.ts`)
 - [x] Página de callback criada (`GoogleCallback.tsx`)
 - [x] Botões de Google adicionados aos formulários
@@ -287,6 +305,7 @@ Quando um usuário faz login com Google, o sistema captura:
 - [x] Fluxo de redirecionamento configurado
 
 ### Configuração ⏳ (Requer ação manual)
+
 - [ ] Google Cloud Console - Projeto criado
 - [ ] Google Cloud Console - Tela de consentimento configurada
 - [ ] Google Cloud Console - Credenciais OAuth 2.0 criadas
@@ -316,6 +335,7 @@ Quando um usuário faz login com Google, o sistema captura:
 ## 📞 Suporte
 
 Para dúvidas sobre a configuração:
+
 1. Verifique o Console do navegador (F12) em busca de erros
 2. Revise os logs no Lovable Cloud Dashboard
 3. Confirme que todas as URLs estão corretas (sem typos)
