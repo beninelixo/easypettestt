@@ -99,6 +99,16 @@ export const Blog = lazyLoadWithRetry(
   'Blog'
 );
 
+export const SuperAdminDashboard = lazyLoadWithRetry(
+  () => import('@/pages/admin/SuperAdminDashboard'),
+  'SuperAdminDashboard'
+);
+
+export const GoogleCallback = lazyLoadWithRetry(
+  () => import('@/pages/auth/GoogleCallback'),
+  'GoogleCallback'
+);
+
 export const BlogPost = lazyLoadWithRetry(
   () => import('@/pages/BlogPost'),
   'BlogPost'
