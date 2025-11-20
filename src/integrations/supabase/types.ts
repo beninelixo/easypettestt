@@ -1606,6 +1606,33 @@ export type Database = {
           },
         ]
       }
+      plan_features: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          feature_key: string
+          feature_value: Json
+          id: string
+          plan_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          feature_key: string
+          feature_value?: Json
+          id?: string
+          plan_name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          feature_key?: string
+          feature_value?: Json
+          id?: string
+          plan_name?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           active: boolean | null
@@ -2749,6 +2776,14 @@ export type Database = {
       get_system_health: { Args: never; Returns: Json }
       get_system_health_summary: { Args: never; Returns: Json }
       get_system_stats: { Args: never; Returns: Json }
+      get_user_features: {
+        Args: { _user_id: string }
+        Returns: {
+          description: string
+          feature_key: string
+          feature_value: Json
+        }[]
+      }
       get_weekly_appointments: {
         Args: { _pet_shop_id: string }
         Returns: {
@@ -2757,6 +2792,10 @@ export type Database = {
           day: string
           pending: number
         }[]
+      }
+      has_feature: {
+        Args: { _feature_key: string; _user_id: string }
+        Returns: Json
       }
       has_permission: {
         Args: {

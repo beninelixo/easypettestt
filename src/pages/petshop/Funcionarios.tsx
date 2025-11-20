@@ -107,6 +107,28 @@ const Funcionarios = () => {
     e.preventDefault();
 
     try {
+      // Verificar limite do plano antes de adicionar
+      const { data: currentEmployees } = await supabase
+        .from("petshop_employees")
+        .select("id")
+        .eq("pet_shop_id", petShopId)
+        .eq("active", true);
+
+      // Buscar limite do plano
+      const { data: featureData } = await supabase
+        .rpc('has_feature', { _user_id: user?.id, _feature_key: 'multi_user_limit' });
+
+      const userLimit = featureData ? parseInt(featureData as string, 10) : 1;
+
+      if (currentEmployees && currentEmployees.length >= userLimit) {
+        toast({
+          title: "Limite atingido",
+          description: `Seu plano permite no máximo ${userLimit} usuários adicionais. Faça upgrade para adicionar mais.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
       // 1. Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
@@ -131,8 +153,8 @@ const Funcionarios = () => {
       const { error: employeeError } = await supabase
         .from("petshop_employees")
         .insert({
-          pet_shop_id: petShopId,
           user_id: authData.user.id,
+          pet_shop_id: petShopId,
           position: formData.position,
           active: true,
         });
@@ -140,8 +162,8 @@ const Funcionarios = () => {
       if (employeeError) throw employeeError;
 
       toast({
-        title: "Funcionário adicionado!",
-        description: `${formData.full_name} foi adicionado com sucesso.`,
+        title: "Funcionário adicionado com sucesso!",
+        description: "Um email de confirmação foi enviado ao funcionário.",
       });
 
       setDialogOpen(false);
@@ -152,9 +174,9 @@ const Funcionarios = () => {
         position: "attendant",
         password: "",
       });
-      
       await loadEmployees(petShopId);
     } catch (error: any) {
+      console.error("Error adding employee:", error);
       toast({
         title: "Erro ao adicionar funcionário",
         description: error.message,
