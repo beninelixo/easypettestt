@@ -138,6 +138,8 @@ const MaintenanceDashboard = lazy(() => import("./pages/admin/MaintenanceDashboa
 const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 const AuthMonitoring = lazy(() => import("./pages/admin/AuthMonitoring"));
 const AuthMetricsDashboard = lazy(() => import("./pages/admin/AuthMetricsDashboard"));
+const SuperAdminDashboard = lazy(() => import("./pages/admin/SuperAdminDashboard"));
+const GoogleCallback = lazy(() => import("./pages/auth/GoogleCallback"));
 
 // Admin Layout
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -196,6 +198,7 @@ const App = () => {
             <Route path="/faq" element={<FAQ />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/google/callback" element={<GoogleCallback />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -338,6 +341,7 @@ const App = () => {
           >
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="superadmin" element={<SuperAdminDashboard />} />
             <Route path="god-mode" element={<GodModeDashboard />} />
             <Route path="system-monitoring" element={<SystemMonitoring />} />
             <Route path="system-analysis" element={<SystemAnalysisDashboard />} />
