@@ -68,9 +68,33 @@ export const SuperAdminPetShops = () => {
 
   const updatePlan = async (petShopId: string, newPlan: string) => {
     try {
+      // Check rate limit
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData.user) {
+        const { data: rateLimitOk, error: rateLimitError } = await supabase
+          .rpc('check_admin_rate_limit', {
+            p_admin_id: userData.user.id,
+            p_endpoint: 'update_subscription',
+            p_max_requests: 50,
+            p_window_minutes: 5
+          });
+
+        if (rateLimitError || !rateLimitOk) {
+          toast({
+            title: "Rate Limit Atingido",
+            description: "Muitas atualizações. Aguarde 5 minutos.",
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
       const { error } = await supabase
         .from("pet_shops")
-        .update({ subscription_plan: newPlan })
+        .update({ 
+          subscription_plan: newPlan,
+          subscription_expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+        })
         .eq("id", petShopId);
 
       if (error) throw error;

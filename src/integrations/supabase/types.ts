@@ -127,6 +127,33 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_api_rate_limits: {
+        Row: {
+          admin_id: string
+          created_at: string | null
+          endpoint: string
+          id: string
+          request_count: number | null
+          window_start: string | null
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          request_count?: number | null
+          window_start?: string | null
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          request_count?: number | null
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       admin_invites: {
         Row: {
           accepted: boolean | null
@@ -2657,6 +2684,15 @@ export type Database = {
       }
       calculate_next_retry: { Args: { attempt_count: number }; Returns: string }
       calculate_pet_age: { Args: { birth_date: string }; Returns: number }
+      check_admin_rate_limit: {
+        Args: {
+          p_admin_id: string
+          p_endpoint: string
+          p_max_requests?: number
+          p_window_minutes?: number
+        }
+        Returns: boolean
+      }
       cleanup_expired_blocks: { Args: never; Returns: number }
       cleanup_expired_invites: { Args: never; Returns: number }
       cleanup_expired_mfa_sessions: { Args: never; Returns: number }
