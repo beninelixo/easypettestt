@@ -20,8 +20,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Search, UserCheck, UserX, Eye, Mail, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, UserCheck, UserX, Eye, Mail, ChevronLeft, ChevronRight, Edit, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { EditUserDialog } from "./EditUserDialog";
+import { BlockUserDialog } from "./BlockUserDialog";
+import { ImpersonateUserDialog } from "./ImpersonateUserDialog";
 
 interface User {
   id: string;
@@ -46,6 +49,9 @@ export const SuperAdminUsers = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [rateLimitReached, setRateLimitReached] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [blockingUser, setBlockingUser] = useState<{ id: string; email: string } | null>(null);
+  const [impersonatingUser, setImpersonatingUser] = useState<{ id: string; email: string; name: string } | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -191,9 +197,31 @@ export const SuperAdminUsers = () => {
                       : 'Nunca'}
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="ghost">
-                        <Eye className="h-4 w-4" />
+                    <div className="flex gap-1">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => setEditingUser(user)}
+                        title="Editar usuário"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => setImpersonatingUser({ id: user.id, email: user.email, name: user.profiles.full_name })}
+                        title="Impersonar usuário"
+                      >
+                        <Shield className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => setBlockingUser({ id: user.id, email: user.email })}
+                        className="text-destructive hover:text-destructive"
+                        title="Bloquear usuário"
+                      >
+                        <UserX className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>
@@ -236,6 +264,36 @@ export const SuperAdminUsers = () => {
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
+        )}
+
+        {/* Dialogs */}
+        {editingUser && (
+          <EditUserDialog
+            open={!!editingUser}
+            onOpenChange={(open) => !open && setEditingUser(null)}
+            user={editingUser}
+            onSuccess={loadUsers}
+          />
+        )}
+        
+        {blockingUser && (
+          <BlockUserDialog
+            open={!!blockingUser}
+            onOpenChange={(open) => !open && setBlockingUser(null)}
+            userId={blockingUser.id}
+            userEmail={blockingUser.email}
+            onSuccess={loadUsers}
+          />
+        )}
+
+        {impersonatingUser && (
+          <ImpersonateUserDialog
+            open={!!impersonatingUser}
+            onOpenChange={(open) => !open && setImpersonatingUser(null)}
+            userId={impersonatingUser.id}
+            userEmail={impersonatingUser.email}
+            userName={impersonatingUser.name}
+          />
         )}
       </CardContent>
     </Card>

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { UpdateNotification } from "@/components/UpdateNotification";
+import { ImpersonationBanner } from "@/components/admin/ImpersonationBanner";
 
 // Configuração otimizada de cache para performance
 const queryClient = new QueryClient({

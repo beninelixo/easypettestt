@@ -1,6 +1,6 @@
 import { 
   Home, Zap, Activity, Brain, Shield, Lock, FileText, Mail, 
-  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown, Gauge, ScrollText, UserCheck, History, BarChart, TestTube, RefreshCw, LineChart, Webhook, Users, TrendingUp
+  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown, Gauge, ScrollText, UserCheck, History, BarChart, TestTube, RefreshCw, LineChart, Webhook, Users, TrendingUp, Crown
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,6 +23,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 
 const godModeItems = [
   { title: "God Mode", url: "/admin/god-mode", icon: Zap, badge: "DEUS", badgeColor: "destructive" as const },
+];
+
+const superAdminItems = [
+  { title: "SuperAdmin", url: "/admin/superadmin", icon: Crown, badge: "SUPER", badgeColor: "destructive" as const },
 ];
 
 const monitoringItems = [
@@ -105,6 +109,37 @@ export function AdminSidebar() {
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+
+          {/* Super Admin */}
+          <SidebarGroupContent className="mb-2">
+            {!isCollapsed && <SidebarGroupLabel className="text-xs text-muted-foreground px-4 py-2">👑 Super Admin</SidebarGroupLabel>}
+            <SidebarMenu>
+              {superAdminItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                          isActive
+                            ? "bg-destructive text-destructive-foreground font-medium shadow-sm"
+                            : "hover:bg-destructive/10 text-destructive hover:text-destructive"
+                        }`
+                      }
+                    >
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      {!isCollapsed && (
+                        <>
+                          <span className="flex-1">{item.title}</span>
+                          <Badge variant={item.badgeColor} className="text-xs">{item.badge}</Badge>
+                        </>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
 
