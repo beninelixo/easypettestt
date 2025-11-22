@@ -883,6 +883,42 @@ export type Database = {
         }
         Relationships: []
       }
+      impersonation_sessions: {
+        Row: {
+          active: boolean | null
+          admin_user_id: string
+          ended_at: string | null
+          id: string
+          ip_address: string | null
+          reason: string | null
+          started_at: string
+          target_user_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          admin_user_id: string
+          ended_at?: string | null
+          id?: string
+          ip_address?: string | null
+          reason?: string | null
+          started_at?: string
+          target_user_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          admin_user_id?: string
+          ended_at?: string | null
+          id?: string
+          ip_address?: string | null
+          reason?: string | null
+          started_at?: string
+          target_user_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       ip_whitelist: {
         Row: {
           added_by: string | null
@@ -1785,11 +1821,15 @@ export type Database = {
         Row: {
           address: string | null
           avatar_url: string | null
+          blocked_at: string | null
+          blocked_by: string | null
+          blocked_reason: string | null
           contact_preference: string | null
           created_at: string
           document: string | null
           full_name: string
           id: string
+          is_blocked: boolean | null
           phone: string | null
           updated_at: string
           user_code: string | null
@@ -1797,11 +1837,15 @@ export type Database = {
         Insert: {
           address?: string | null
           avatar_url?: string | null
+          blocked_at?: string | null
+          blocked_by?: string | null
+          blocked_reason?: string | null
           contact_preference?: string | null
           created_at?: string
           document?: string | null
           full_name: string
           id: string
+          is_blocked?: boolean | null
           phone?: string | null
           updated_at?: string
           user_code?: string | null
@@ -1809,11 +1853,15 @@ export type Database = {
         Update: {
           address?: string | null
           avatar_url?: string | null
+          blocked_at?: string | null
+          blocked_by?: string | null
+          blocked_reason?: string | null
           contact_preference?: string | null
           created_at?: string
           document?: string | null
           full_name?: string
           id?: string
+          is_blocked?: boolean | null
           phone?: string | null
           updated_at?: string
           user_code?: string | null
@@ -2861,11 +2909,13 @@ export type Database = {
         Args: { _franchise_id: string; _user_id: string }
         Returns: boolean
       }
+      is_god_user: { Args: { _user_id: string }; Returns: boolean }
       is_ip_blocked: { Args: { _ip_address: string }; Returns: boolean }
       is_tenant_admin: {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean
       }
+      is_user_blocked: { Args: { _user_id: string }; Returns: boolean }
       log_access: {
         Args: {
           _action: Database["public"]["Enums"]["app_action"]
@@ -2905,6 +2955,7 @@ export type Database = {
         | "admin"
         | "professional"
         | "petshop_owner"
+        | "super_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3053,6 +3104,7 @@ export const Constants = {
         "admin",
         "professional",
         "petshop_owner",
+        "super_admin",
       ],
     },
   },

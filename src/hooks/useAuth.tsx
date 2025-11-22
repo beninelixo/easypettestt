@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
-export type UserRole = "client" | "pet_shop" | "admin";
+export type UserRole = "client" | "pet_shop" | "admin" | "super_admin";
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -13,6 +13,7 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
   const [lastRoleUpdate, setLastRoleUpdate] = useState<number>(Date.now());
   const [roleSource, setRoleSource] = useState<'metadata' | 'database' | null>(null);
+  const [isGodUser, setIsGodUser] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -63,12 +64,14 @@ export const useAuth = () => {
         console.log('📋 User roles from DB:', data);
       }
 
-      // Se houver múltiplas roles, priorizar: admin > pet_shop > client
+      // Se houver múltiplas roles, priorizar: super_admin > admin > pet_shop > client
       if (data && data.length > 0) {
         const roles = data.map(r => r.role);
         
         let selectedRole: UserRole;
-        if (roles.includes('admin')) {
+        if (roles.includes('super_admin')) {
+          selectedRole = 'super_admin' as UserRole;
+        } else if (roles.includes('admin')) {
           selectedRole = 'admin' as UserRole;
         } else if (roles.includes('pet_shop')) {
           selectedRole = 'pet_shop' as UserRole;
@@ -106,6 +109,10 @@ export const useAuth = () => {
         setSession(session);
         setUser(session?.user ?? null);
 
+        // Check if is God User
+        const godUser = session?.user?.email === 'beninelixo@gmail.com';
+        setIsGodUser(godUser);
+
         // Handle token refresh
         if (event === 'TOKEN_REFRESHED') {
           console.log('Token refreshed successfully');
@@ -114,6 +121,7 @@ export const useAuth = () => {
         // Handle sign out
         if (event === 'SIGNED_OUT') {
           setUserRole(null);
+          setIsGodUser(false);
           setLoading(false);
         }
 
@@ -395,6 +403,7 @@ export const useAuth = () => {
     loading,
     lastRoleUpdate,
     roleSource,
+    isGodUser,
     signUp,
     signIn,
     signOut,

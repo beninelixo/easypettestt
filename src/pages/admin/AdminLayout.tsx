@@ -13,7 +13,7 @@ import { useAdminAlertSubscription } from "@/hooks/useAdminAlertSubscription";
 import logo from "@/assets/easypet-logo.png";
 
 export default function AdminLayout() {
-  const { userRole, user } = useAuth();
+  const { userRole, user, isGodUser } = useAuth();
   const navigate = useNavigate();
 
   // Enable real-time notifications for new users
@@ -49,10 +49,12 @@ export default function AdminLayout() {
                 </button>
                 <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Painel Administrativo</h1>
                 <Badge variant="default" className="bg-primary/10 text-primary">Admin</Badge>
-                <Badge variant="destructive" className="animate-pulse">
-                  <Zap className="h-3 w-3 mr-1" />
-                  MODO DEUS
-                </Badge>
+                {isGodUser && (
+                  <Badge variant="destructive" className="animate-pulse">
+                    <Zap className="h-3 w-3 mr-1" />
+                    GOD MODE ATIVO
+                  </Badge>
+                )}
               </div>
               
               {/* Alertas Panel */}

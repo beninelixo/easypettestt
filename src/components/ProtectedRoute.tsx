@@ -10,13 +10,19 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
-  const { user, userRole, loading: authLoading, forceRefreshAuth } = useAuth();
+  const { user, userRole, loading: authLoading, forceRefreshAuth, isGodUser } = useAuth();
   const { userRole: tenantRole, loading: tenantLoading } = useTenant();
   const navigate = useNavigate();
   
   const loading = authLoading || tenantLoading;
   const effectiveRole = tenantRole || userRole;
-  const normalizedRole = effectiveRole === "unit_manager" ? "pet_shop" : effectiveRole;
+  
+  // Normalize role and handle super_admin
+  let normalizedRole = effectiveRole === "unit_manager" ? "pet_shop" : effectiveRole;
+  // Treat super_admin as admin with extra privileges
+  if (normalizedRole === "super_admin") {
+    normalizedRole = "admin";
+  }
 
   const forceRefreshAttemptedRef = useRef(false);
   const [awaitingRole, setAwaitingRole] = useState(false);
@@ -64,8 +70,9 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
         }, 2000);
         
         return () => clearTimeout(timeout);
-      } else if (allowedRoles && normalizedRole && !allowedRoles.includes(normalizedRole as UserRole)) {
+      } else if (allowedRoles && normalizedRole && !allowedRoles.includes(normalizedRole as UserRole) && !isGodUser) {
         setAwaitingRole(false);
+        // God User bypasses all role restrictions
         // Redirect to appropriate dashboard based on role
         const targetPath = (() => {
           if (normalizedRole === "tenant_admin") return "/tenant-dashboard";
@@ -105,7 +112,8 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
     return null;
   }
 
-  if (allowedRoles && normalizedRole && !allowedRoles.includes(normalizedRole as UserRole)) {
+  // God User bypasses all role restrictions
+  if (allowedRoles && normalizedRole && !allowedRoles.includes(normalizedRole as UserRole) && !isGodUser) {
     return null;
   }
 
