@@ -93,28 +93,6 @@ const plans: Plan[] = [
       { text: "SLA de uptime 99.9%", included: true },
     ],
   },
-  {
-    id: "pet_platinum_anual",
-    name: "Pet Platinum Anual",
-    price: 1499,
-    description: "Máxima economia e recursos premium",
-    icon: Building2,
-    features: [
-      { text: "💰 Economize R$ 300/ano", included: true },
-      { text: "✨ Tudo do Pet Gold, mais:", included: true },
-      { text: "Usuários ilimitados", included: true },
-      { text: "Multi-unidades e franquias", included: true },
-      { text: "WhatsApp Business integrado", included: true },
-      { text: "Programa de fidelidade avançado", included: true },
-      { text: "Relatórios financeiros avançados", included: true },
-      { text: "API aberta para integrações", included: true },
-      { text: "White label (marca própria)", included: true },
-      { text: "Gerente de conta dedicado", included: true },
-      { text: "Consultoria estratégica mensal", included: true },
-      { text: "Suporte técnico 24/7 Premium", included: true },
-      { text: "SLA de uptime 99.9%", included: true },
-    ],
-  },
 ];
 
 const ProfessionalPlans = () => {
