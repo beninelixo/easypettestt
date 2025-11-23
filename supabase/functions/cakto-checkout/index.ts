@@ -9,7 +9,7 @@ const corsHeaders = {
 
 // Validation schema
 const checkoutSchema = z.object({
-  plan: z.enum(['pet_gold', 'pet_platinum', 'pet_gold_anual', 'pet_platinum_anual'], {
+  plan: z.enum(['pet_gold', 'pet_platinum', 'pet_gold_anual'], {
     errorMap: () => ({ message: 'Invalid plan' })
   }),
   petshop_id: z.string().uuid('Invalid petshop ID'),
@@ -19,22 +19,19 @@ const PLAN_PRICES = {
   pet_gold: 7990, // R$ 79,90 in cents
   pet_platinum: 14990, // R$ 149,90 in cents
   pet_gold_anual: 79900, // R$ 799,00 in cents (10 meses pelo preço de 12)
-  pet_platinum_anual: 149900, // R$ 1.499,00 in cents (10 meses pelo preço de 12)
 };
 
 const PLAN_NAMES = {
   pet_gold: 'Pet Gold Mensal',
   pet_platinum: 'Pet Platinum Mensal',
   pet_gold_anual: 'Pet Gold Anual',
-  pet_platinum_anual: 'Pet Platinum Anual',
 };
 
 // Direct payment links from Cakto dashboard (already created offers)
 const PLAN_CHECKOUT_URLS = {
   pet_gold: 'https://pay.cakto.com.br/f72gob9_634441',
   pet_platinum: 'https://pay.cakto.com.br/qym84js_634453',
-  pet_gold_anual: 'https://pay.cakto.com.br/f72gob9_634441', // TODO: Replace with annual checkout URL
-  pet_platinum_anual: 'https://pay.cakto.com.br/qym84js_634453', // TODO: Replace with annual checkout URL
+  pet_gold_anual: 'https://pay.cakto.com.br/f72gob9_634441', // Annual Gold checkout
 };
 
 serve(async (req) => {
@@ -132,8 +129,9 @@ serve(async (req) => {
     }
 
     // Add success and cancel URLs as query parameters
-    const successUrl = `${req.headers.get('origin')}/professional/payment-success?plan=${plan}&petshop_id=${petshop_id}`;
-    const cancelUrl = `${req.headers.get('origin')}/professional/plans?cancelled=true`;
+    const origin = req.headers.get('origin') || 'https://easypetbr.lovable.app';
+    const successUrl = `${origin}/professional/payment-success?plan=${plan}&petshop_id=${petshop_id}`;
+    const cancelUrl = `${origin}/professional/plans?cancelled=true`;
     
     // Build final URL with metadata
     const finalCheckoutUrl = `${checkoutUrl}?success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}&metadata[petshop_id]=${petshop_id}&metadata[user_id]=${user.id}`;
