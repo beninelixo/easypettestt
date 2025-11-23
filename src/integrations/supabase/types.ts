@@ -2741,6 +2741,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_employee_limit: { Args: { _pet_shop_id: string }; Returns: boolean }
       cleanup_expired_blocks: { Args: never; Returns: number }
       cleanup_expired_invites: { Args: never; Returns: number }
       cleanup_expired_mfa_sessions: { Args: never; Returns: number }

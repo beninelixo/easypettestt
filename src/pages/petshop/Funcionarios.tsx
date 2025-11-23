@@ -108,22 +108,32 @@ const Funcionarios = () => {
 
     try {
       // Verificar limite do plano antes de adicionar
-      const { data: currentEmployees } = await supabase
-        .from("petshop_employees")
-        .select("id")
-        .eq("pet_shop_id", petShopId)
-        .eq("active", true);
+      const { data: canAdd, error: limitError } = await supabase
+        .rpc('check_employee_limit', { _pet_shop_id: petShopId });
 
-      // Buscar limite do plano
-      const { data: featureData } = await supabase
-        .rpc('has_feature', { _user_id: user?.id, _feature_key: 'multi_user_limit' });
+      if (limitError) {
+        console.error("Error checking limit:", limitError);
+      }
 
-      const userLimit = featureData ? parseInt(featureData as string, 10) : 1;
+      if (!canAdd) {
+        // Get current plan to show proper message
+        const { data: petShop } = await supabase
+          .from("pet_shops")
+          .select("subscription_plan")
+          .eq("id", petShopId)
+          .single();
 
-      if (currentEmployees && currentEmployees.length >= userLimit) {
+        const planLimits: Record<string, number> = {
+          'gratuito': 0,
+          'pet_gold': 3,
+          'pet_platinum': 5,
+        };
+
+        const limit = planLimits[petShop?.subscription_plan || 'gratuito'] || 1;
+
         toast({
-          title: "Limite atingido",
-          description: `Seu plano permite no máximo ${userLimit} usuários adicionais. Faça upgrade para adicionar mais.`,
+          title: "Limite de usuários atingido",
+          description: `Seu plano ${petShop?.subscription_plan || 'gratuito'} permite no máximo ${limit} ${limit === 1 ? 'usuário adicional' : 'usuários adicionais'}. Faça upgrade para adicionar mais.`,
           variant: "destructive",
         });
         return;
@@ -369,7 +379,7 @@ const Funcionarios = () => {
                 <Calendar className="h-3 w-3" />
                 Admitido em {new Date(employee.hired_at).toLocaleDateString("pt-BR")}
               </p>
-              <div className="pt-2">
+              <div className="pt-2 flex justify-between items-center">
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${
                     employee.active
@@ -379,6 +389,17 @@ const Funcionarios = () => {
                 >
                   {employee.active ? "Ativo" : "Inativo"}
                 </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedEmployeeForPermissions(employee);
+                    setPermissionsDialogOpen(true);
+                  }}
+                >
+                  <Shield className="h-3 w-3 mr-1" />
+                  Permissões
+                </Button>
               </div>
             </CardContent>
           </Card>
