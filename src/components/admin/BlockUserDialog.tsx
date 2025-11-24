@@ -31,19 +31,41 @@ export const BlockUserDialog = ({ open, onOpenChange, userId, userEmail, onSucce
     setLoading(true);
     try {
       if (!reason.trim()) {
-        throw new Error('Por favor, informe o motivo do bloqueio');
+        toast({
+          title: "⚠️ Campo Obrigatório",
+          description: "Por favor, informe o motivo do bloqueio",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (reason.trim().length < 10) {
+        toast({
+          title: "⚠️ Motivo Muito Curto",
+          description: "O motivo deve ter no mínimo 10 caracteres",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
       }
 
       const { data, error } = await supabase.functions.invoke('block-user', {
-        body: { userId, reason }
+        body: { userId, reason: reason.trim() }
       });
 
-      if (error) throw error;
+      if (error) {
+        throw new Error(error.message || 'Erro ao bloquear usuário');
+      }
+
+      // Check for errors in the response
+      if (data && typeof data === 'object' && 'error' in data) {
+        throw new Error((data as any).error || 'Erro ao bloquear usuário');
+      }
 
       toast({
         title: "🚫 Usuário Bloqueado",
         description: `${userEmail} foi bloqueado com sucesso`,
-        variant: "destructive",
       });
 
       onOpenChange(false);
@@ -51,9 +73,21 @@ export const BlockUserDialog = ({ open, onOpenChange, userId, userEmail, onSucce
       if (onSuccess) onSuccess();
     } catch (error: any) {
       console.error('Error blocking user:', error);
+      
+      // Parse error message for better UX
+      let errorMessage = error.message || 'Erro desconhecido ao bloquear usuário';
+      
+      if (errorMessage.includes('god user')) {
+        errorMessage = 'Não é possível bloquear o usuário god';
+      } else if (errorMessage.includes('Permission denied') || errorMessage.includes('Acesso negado')) {
+        errorMessage = 'Você não tem permissão para bloquear usuários';
+      } else if (errorMessage.includes('not found') || errorMessage.includes('não encontrado')) {
+        errorMessage = 'Usuário não encontrado';
+      }
+      
       toast({
-        title: "Erro ao Bloquear Usuário",
-        description: error.message,
+        title: "❌ Erro ao Bloquear Usuário",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
