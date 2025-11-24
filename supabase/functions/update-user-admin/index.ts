@@ -1,10 +1,22 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema
+const updateUserSchema = z.object({
+  userId: z.string().uuid("ID de usuário inválido"),
+  full_name: z.string().min(2, "Nome deve ter no mínimo 2 caracteres").max(100).optional(),
+  email: z.string().email("Email inválido").optional(),
+  phone: z.string().regex(/^\+?[1-9]\d{10,14}$/, "Telefone inválido").optional().or(z.literal('')),
+  role: z.enum(['client', 'pet_shop', 'admin', 'super_admin'], {
+    errorMap: () => ({ message: "Role inválido" })
+  }).optional()
+});
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -20,83 +32,153 @@ serve(async (req) => {
     // Verificar autenticação
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error('Missing Authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Cabeçalho de autorização ausente' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const token = authHeader.replace('Bearer ', '');
     const { data: { user: adminUser }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !adminUser) {
-      throw new Error('Unauthorized');
+      return new Response(
+        JSON.stringify({ error: 'Não autorizado' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Verificar se é admin
-    const { data: roleData } = await supabase
+    const { data: roleData, error: roleError } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', adminUser.id)
-      .single();
+      .maybeSingle();
+
+    if (roleError) {
+      console.error('Error checking admin role:', roleError);
+      return new Response(
+        JSON.stringify({ error: 'Erro ao verificar permissões de admin' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const isAdmin = roleData?.role === 'admin' || roleData?.role === 'super_admin' || adminUser.email === 'beninelixo@gmail.com';
     
     if (!isAdmin) {
-      throw new Error('Permission denied: Admin access required');
+      return new Response(
+        JSON.stringify({ error: 'Acesso negado: você precisa ser admin para executar esta ação' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    // Obter dados do corpo da requisição
-    const { userId, full_name, email, phone, role } = await req.json();
+    // Validate input
+    const body = await req.json();
+    const validationResult = updateUserSchema.safeParse(body);
+    
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ');
+      return new Response(
+        JSON.stringify({ 
+          error: "Erro de validação", 
+          details: errors 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
-    if (!userId) {
-      throw new Error('Missing userId');
+    const { userId, full_name, email, phone, role } = validationResult.data;
+
+    // Verificar se usuário alvo existe
+    const { data: targetUser, error: targetError } = await supabase.auth.admin.getUserById(userId);
+    if (targetError || !targetUser) {
+      return new Response(
+        JSON.stringify({ error: 'Usuário não encontrado' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Não permitir alterar role do God User
-    const { data: targetUser } = await supabase.auth.admin.getUserById(userId);
-    if (targetUser?.user?.email === 'beninelixo@gmail.com' && role) {
-      throw new Error('Cannot change God User role');
+    if (targetUser.user.email === 'beninelixo@gmail.com' && role && role !== roleData?.role) {
+      return new Response(
+        JSON.stringify({ error: 'Não é possível alterar o role do usuário god' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    // Atualizar perfil
-    const profileUpdates: any = {};
-    if (full_name !== undefined) profileUpdates.full_name = full_name;
-    if (phone !== undefined) profileUpdates.phone = phone;
+    // Atualizar perfil se fornecido
+    if (full_name !== undefined || phone !== undefined) {
+      const profileUpdates: any = {};
+      if (full_name !== undefined) profileUpdates.full_name = full_name;
+      if (phone !== undefined) profileUpdates.phone = phone === '' ? null : phone;
 
-    if (Object.keys(profileUpdates).length > 0) {
       const { error: profileError } = await supabase
         .from('profiles')
         .update(profileUpdates)
         .eq('id', userId);
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Error updating profile:', profileError);
+        return new Response(
+          JSON.stringify({ error: 'Erro ao atualizar perfil do usuário', details: profileError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // Atualizar email se fornecido e diferente
+    if (email && email !== targetUser.user.email) {
+      const { error: emailError } = await supabase.auth.admin.updateUserById(
+        userId,
+        { email: email, email_confirm: true }
+      );
+
+      if (emailError) {
+        console.error('Error updating email:', emailError);
+        return new Response(
+          JSON.stringify({ error: 'Erro ao atualizar email do usuário', details: emailError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     // Atualizar role se fornecido
     if (role) {
-      // Deletar roles existentes
-      await supabase
+      // Verificar se role já existe
+      const { data: existingRole } = await supabase
         .from('user_roles')
-        .delete()
-        .eq('user_id', userId);
+        .select('role')
+        .eq('user_id', userId)
+        .maybeSingle();
 
-      // Inserir nova role
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: userId,
-          role: role
-        });
+      if (existingRole) {
+        // Atualizar role existente
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .update({ role })
+          .eq('user_id', userId);
 
-      if (roleError) throw roleError;
-    }
+        if (roleError) {
+          console.error('Error updating role:', roleError);
+          return new Response(
+            JSON.stringify({ error: 'Erro ao atualizar role do usuário', details: roleError.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      } else {
+        // Inserir nova role
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({ user_id: userId, role });
 
-    // Atualizar email no auth se fornecido
-    if (email && email !== targetUser?.user?.email) {
-      const { error: emailError } = await supabase.auth.admin.updateUserById(
-        userId,
-        { email: email }
-      );
-
-      if (emailError) throw emailError;
+        if (roleError) {
+          console.error('Error inserting role:', roleError);
+          return new Response(
+            JSON.stringify({ error: 'Erro ao criar role do usuário', details: roleError.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      }
     }
 
     // Registrar em audit logs
@@ -111,16 +193,20 @@ serve(async (req) => {
     console.log(`✅ User ${userId} updated by admin ${adminUser.email}`);
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Usuário atualizado com sucesso' }),
+      JSON.stringify({ 
+        success: true, 
+        message: 'Usuário atualizado com sucesso',
+        updated: { full_name, email, phone, role }
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
     console.error('❌ Error updating user:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
     return new Response(
       JSON.stringify({ error: errorMessage }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

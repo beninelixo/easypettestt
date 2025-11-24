@@ -78,25 +78,46 @@ export const EditUserDialog = ({ open, onOpenChange, user, onSuccess }: EditUser
           userId: user.id,
           full_name: data.full_name,
           email: data.email,
-          phone: data.phone,
+          phone: data.phone || '',
           role: data.role
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        throw new Error(error.message || 'Erro ao atualizar usuário');
+      }
+
+      // Check for errors in the response
+      if (result && typeof result === 'object' && 'error' in result) {
+        throw new Error((result as any).error || 'Erro ao atualizar usuário');
+      }
 
       toast({
         title: "✅ Usuário Atualizado",
-        description: "Dados do usuário foram atualizados com sucesso",
+        description: `Dados de ${data.full_name} foram atualizados com sucesso`,
       });
 
       onOpenChange(false);
       if (onSuccess) onSuccess();
     } catch (error: any) {
       console.error('Error updating user:', error);
+      
+      // Parse error message for better UX
+      let errorMessage = error.message || 'Erro desconhecido ao atualizar usuário';
+      
+      if (errorMessage.includes('Permission denied')) {
+        errorMessage = 'Você não tem permissão para atualizar este usuário';
+      } else if (errorMessage.includes('god user')) {
+        errorMessage = 'Não é possível alterar o usuário god';
+      } else if (errorMessage.includes('not found')) {
+        errorMessage = 'Usuário não encontrado';
+      } else if (errorMessage.includes('validation')) {
+        errorMessage = 'Dados inválidos. Verifique os campos e tente novamente';
+      }
+      
       toast({
-        title: "Erro ao Atualizar Usuário",
-        description: error.message,
+        title: "❌ Erro ao Atualizar Usuário",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

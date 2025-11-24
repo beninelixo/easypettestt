@@ -5,7 +5,7 @@ import { AlertCircle, LogOut } from "lucide-react";
 import { useImpersonate } from "@/hooks/useImpersonate";
 
 export const ImpersonationBanner = () => {
-  const { isImpersonating, endImpersonation } = useImpersonate();
+  const { isImpersonating, stopImpersonation } = useImpersonate();
   const [impersonatedEmail, setImpersonatedEmail] = useState<string>('');
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export const ImpersonationBanner = () => {
         <Button
           variant="outline"
           size="sm"
-          onClick={endImpersonation}
+          onClick={stopImpersonation}
           className="bg-destructive-foreground text-destructive hover:bg-destructive-foreground/90 border-0"
         >
           <LogOut className="h-4 w-4 mr-2" />
