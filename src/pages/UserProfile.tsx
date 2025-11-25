@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, User, Mail, Phone, Camera, Save, Shield, Lock } from "lucide-react";
 import { z } from "zod";
 import { useMFA } from "@/hooks/useMFA";
+import { PrivacyNotice } from "@/components/shared/PrivacyNotice";
 
 const profileSchema = z.object({
   full_name: z.string().trim().min(2, "Nome deve ter no mínimo 2 caracteres").max(100, "Nome muito longo"),
@@ -173,15 +174,13 @@ const UserProfile = () => {
                   <Camera className="h-4 w-4" />
                   Alterar Foto
                 </Button>
-                <div className="bg-muted/50 border border-border rounded-lg p-3 max-w-md">
-                  <p className="text-xs text-muted-foreground text-center">
-                    <strong>⚠️ Aviso de Privacidade:</strong> Sua foto de perfil será visível publicamente. 
-                    Não use imagens com informações sensíveis.
-                  </p>
-                  <p className="text-xs text-muted-foreground text-center mt-1">
-                    Formatos: JPG, PNG (máx 2MB)
-                  </p>
-                </div>
+                <PrivacyNotice 
+                  message="Sua foto de perfil será visível publicamente. Não use imagens com informações sensíveis."
+                  className="max-w-md"
+                />
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  Formatos: JPG, PNG (máx 2MB)
+                </p>
               </div>
 
               {/* Email (read-only) */}

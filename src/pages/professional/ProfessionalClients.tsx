@@ -15,9 +15,12 @@ import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 const clientSchema = z.object({
-  full_name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
-  email: z.string().email("Email inválido").optional(),
-  phone: z.string().min(10, "Telefone inválido"),
+  full_name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres").max(100, "Nome muito longo"),
+  email: z.string().email("Email inválido").optional().or(z.literal("")),
+  phone: z.string().min(10, "Telefone deve ter no mínimo 10 dígitos").max(15, "Telefone muito longo"),
+  address: z.string().max(200, "Endereço muito longo").optional(),
+  notes: z.string().max(500, "Notas muito longas").optional(),
+  pet_type: z.enum(["dog", "cat", "bird", "other"]).optional(),
 });
 
 interface Client {
@@ -41,6 +44,9 @@ const ProfessionalClients = () => {
     full_name: "",
     email: "",
     phone: "",
+    address: "",
+    notes: "",
+    pet_type: "" as "" | "dog" | "cat" | "bird" | "other",
   });
 
   useEffect(() => {
@@ -179,7 +185,14 @@ const ProfessionalClients = () => {
       });
 
       setDialogOpen(false);
-      setFormData({ full_name: "", email: "", phone: "" });
+      setFormData({ 
+        full_name: "", 
+        email: "", 
+        phone: "", 
+        address: "", 
+        notes: "", 
+        pet_type: "" 
+      });
       loadClients();
     } catch (error: any) {
       toast({
@@ -225,7 +238,19 @@ const ProfessionalClients = () => {
                 <Input
                   id="phone"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) => {
+                    // Simple phone mask: (XX) XXXXX-XXXX
+                    let value = e.target.value.replace(/\D/g, "");
+                    if (value.length > 11) value = value.slice(0, 11);
+                    if (value.length > 10) {
+                      value = value.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+                    } else if (value.length > 6) {
+                      value = value.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
+                    } else if (value.length > 2) {
+                      value = value.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
+                    }
+                    setFormData({ ...formData, phone: value });
+                  }}
                   placeholder="(00) 00000-0000"
                 />
               </div>
@@ -241,9 +266,50 @@ const ProfessionalClients = () => {
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="address">Endereço (opcional)</Label>
+                <Input
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  placeholder="Rua, número, bairro"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="pet_type">Tipo de Pet</Label>
+                <select
+                  id="pet_type"
+                  value={formData.pet_type}
+                  onChange={(e) => setFormData({ ...formData, pet_type: e.target.value as any })}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="">Selecione...</option>
+                  <option value="dog">Cachorro</option>
+                  <option value="cat">Gato</option>
+                  <option value="bird">Pássaro</option>
+                  <option value="other">Outro</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="notes">Observações (opcional)</Label>
+                <textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  placeholder="Informações adicionais sobre o cliente ou pet"
+                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                  maxLength={500}
+                />
+                <p className="text-xs text-muted-foreground text-right">
+                  {formData.notes.length}/500
+                </p>
+              </div>
+
               <div className="flex gap-2">
                 <Button className="flex-1" onClick={handleCreateClient}>
-                  Cadastrar
+                  Cadastrar Cliente
                 </Button>
                 <Button variant="outline" onClick={() => setDialogOpen(false)}>
                   Cancelar
