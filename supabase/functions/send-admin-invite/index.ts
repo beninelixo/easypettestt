@@ -1,14 +1,16 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface InviteRequest {
-  email: string;
-}
+// Validation schema
+const inviteSchema = z.object({
+  email: z.string().email('Email inválido').max(255, 'Email muito longo').toLowerCase().trim()
+});
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -45,11 +47,18 @@ serve(async (req) => {
       throw new Error("Only admins can send invites");
     }
 
-    const { email }: InviteRequest = await req.json();
-
-    if (!email || !email.includes("@")) {
-      throw new Error("Valid email required");
+    // Validate input
+    const rawBody = await req.json();
+    const validation = inviteSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      return new Response(
+        JSON.stringify({ error: validation.error.errors[0].message }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
+
+    const { email } = validation.data;
 
     // Check if user already has admin role
     const { data: existingUser } = await supabase
