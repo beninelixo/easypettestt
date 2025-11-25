@@ -173,9 +173,15 @@ const UserProfile = () => {
                   <Camera className="h-4 w-4" />
                   Alterar Foto
                 </Button>
-                <p className="text-xs text-muted-foreground text-center">
-                  Formatos aceitos: JPG, PNG (máx 2MB)
-                </p>
+                <div className="bg-muted/50 border border-border rounded-lg p-3 max-w-md">
+                  <p className="text-xs text-muted-foreground text-center">
+                    <strong>⚠️ Aviso de Privacidade:</strong> Sua foto de perfil será visível publicamente. 
+                    Não use imagens com informações sensíveis.
+                  </p>
+                  <p className="text-xs text-muted-foreground text-center mt-1">
+                    Formatos: JPG, PNG (máx 2MB)
+                  </p>
+                </div>
               </div>
 
               {/* Email (read-only) */}
