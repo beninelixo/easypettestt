@@ -1,10 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema
+const impersonateSchema = z.object({
+  targetUserId: z.string().uuid('ID de usuário inválido'),
+  reason: z.string().min(5, 'Motivo deve ter no mínimo 5 caracteres').max(500, 'Motivo muito longo').optional()
+});
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -43,8 +50,22 @@ serve(async (req) => {
       throw new Error('Permission denied: Admin access required');
     }
 
-    // Obter dados do corpo da requisição
-    const { targetUserId, reason } = await req.json();
+    // Validate input with Zod
+    const rawBody = await req.json();
+    const validation = impersonateSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Dados inválidos',
+          details: validation.error.errors.map((e: any) => e.message).join(', ')
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { targetUserId, reason } = validation.data;
 
     if (!targetUserId) {
       throw new Error('Missing targetUserId');
