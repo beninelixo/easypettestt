@@ -57,25 +57,41 @@ export async function isGoogleOAuthConfigured(): Promise<boolean> {
  */
 export async function handleGoogleCallback() {
   try {
+    // Wait for auth state to settle
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     const { data: { session }, error } = await supabase.auth.getSession();
     
     if (error) {
-      throw error;
+      console.error('Session error:', error);
+      throw new Error('Falha ao recuperar sessão após login com Google');
     }
 
-    if (session?.user) {
-      // User authenticated successfully
-      return {
-        user: session.user,
-        session,
-        isNewUser: !session.user.last_sign_in_at || 
-                   session.user.last_sign_in_at === session.user.created_at,
-      };
+    if (!session) {
+      throw new Error('Nenhuma sessão encontrada. Por favor, tente fazer login novamente.');
     }
 
-    return null;
-  } catch (error) {
-    console.error('Error handling Google callback:', error);
+    if (!session.user) {
+      throw new Error('Usuário não encontrado na sessão.');
+    }
+
+    // Determine if this is a new user
+    const isNewUser = !session.user.last_sign_in_at || 
+                     session.user.last_sign_in_at === session.user.created_at;
+
+    console.log('✅ Google OAuth callback successful:', {
+      userId: session.user.id,
+      email: session.user.email,
+      isNewUser
+    });
+
+    return {
+      user: session.user,
+      session,
+      isNewUser,
+    };
+  } catch (error: any) {
+    console.error('❌ Error handling Google callback:', error);
     throw error;
   }
 }

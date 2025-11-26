@@ -200,7 +200,7 @@ const App = () => {
             <Route path="/faq" element={<FAQ />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/auth/google/callback" element={<GoogleCallback />} />
+            <Route path="/auth/callback" element={<GoogleCallback />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
