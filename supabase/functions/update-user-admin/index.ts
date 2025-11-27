@@ -15,7 +15,8 @@ const updateUserSchema = z.object({
   phone: z.string().regex(/^\+?[1-9]\d{10,14}$/, "Telefone inválido").optional().or(z.literal('')),
   role: z.enum(['client', 'pet_shop', 'admin', 'super_admin'], {
     errorMap: () => ({ message: "Role inválido" })
-  }).optional()
+  }).optional(),
+  action: z.enum(['update', 'delete']).default('update'),
 });
 
 serve(async (req) => {
@@ -87,7 +88,7 @@ serve(async (req) => {
       );
     }
 
-    const { userId, full_name, email, phone, role } = validationResult.data;
+    const { userId, full_name, email, phone, role, action } = validationResult.data;
 
     // Verificar se usuário alvo existe
     const { data: targetUser, error: targetError } = await supabase.auth.admin.getUserById(userId);
@@ -98,11 +99,44 @@ serve(async (req) => {
       );
     }
 
-    // Não permitir alterar role do God User
-    if (targetUser.user.email === 'beninelixo@gmail.com' && role && role !== roleData?.role) {
+    // Não permitir alterar/deletar o God User
+    if (targetUser.user.email === 'beninelixo@gmail.com' && (action === 'delete' || (role && role !== roleData?.role))) {
       return new Response(
-        JSON.stringify({ error: 'Não é possível alterar o role do usuário god' }),
+        JSON.stringify({ error: 'Não é possível modificar o usuário god' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Se a ação é deletar, executar deleção
+    if (action === 'delete') {
+      // Deletar usuário do auth
+      const { error: deleteError } = await supabase.auth.admin.deleteUser(userId);
+      
+      if (deleteError) {
+        console.error('Error deleting user:', deleteError);
+        return new Response(
+          JSON.stringify({ error: 'Erro ao deletar usuário', details: deleteError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Registrar em audit logs
+      await supabase.from('audit_logs').insert({
+        user_id: adminUser.id,
+        table_name: 'auth.users',
+        operation: 'DELETE_USER_ADMIN',
+        record_id: userId,
+        old_data: { email: targetUser.user.email, full_name }
+      });
+
+      console.log(`✅ User ${userId} deleted by admin ${adminUser.email}`);
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: 'Usuário deletado com sucesso'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

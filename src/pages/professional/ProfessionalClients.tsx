@@ -1,27 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
-import { Plus, Search, User, MapPin, Phone, Mail, Calendar, PawPrint } from "lucide-react";
+import { Plus, Search, User, Phone, Calendar, PawPrint } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { z } from "zod";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-
-const clientSchema = z.object({
-  full_name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres").max(100, "Nome muito longo"),
-  email: z.string().email("Email inválido").optional().or(z.literal("")),
-  phone: z.string().min(10, "Telefone deve ter no mínimo 10 dígitos").max(15, "Telefone muito longo"),
-  address: z.string().max(200, "Endereço muito longo").optional(),
-  notes: z.string().max(500, "Notas muito longas").optional(),
-  pet_type: z.enum(["dog", "cat", "bird", "other"]).optional(),
-});
+import { ClientFormComplete } from "@/components/professional/ClientFormComplete";
 
 interface Client {
   id: string;
@@ -37,17 +26,7 @@ const ProfessionalClients = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const { user } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
-    full_name: "",
-    email: "",
-    phone: "",
-    address: "",
-    notes: "",
-    pet_type: "" as "" | "dog" | "cat" | "bird" | "other",
-  });
 
   useEffect(() => {
     if (user) {
@@ -151,56 +130,9 @@ const ProfessionalClients = () => {
     }
   };
 
-  const handleCreateClient = async () => {
-    try {
-      const validation = clientSchema.safeParse(formData);
-      
-      if (!validation.success) {
-        toast({
-          title: "Erro de validação",
-          description: validation.error.errors[0].message,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Criar conta do cliente
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email || `${formData.phone}@easypet.com.br`,
-        password: Math.random().toString(36).slice(-8) + "Aa1!", // Senha aleatória
-        options: {
-          data: {
-            full_name: formData.full_name,
-            phone: formData.phone,
-            user_type: 'client',
-          },
-        },
-      });
-
-      if (authError) throw authError;
-
-      toast({
-        title: "Cliente cadastrado!",
-        description: "O cliente foi cadastrado com sucesso. Ele pode fazer login com o email/telefone fornecido.",
-      });
-
-      setDialogOpen(false);
-      setFormData({ 
-        full_name: "", 
-        email: "", 
-        phone: "", 
-        address: "", 
-        notes: "", 
-        pet_type: "" 
-      });
-      loadClients();
-    } catch (error: any) {
-      toast({
-        title: "Erro ao cadastrar cliente",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+  const handleClientCreated = () => {
+    setDialogOpen(false);
+    loadClients();
   };
 
   const filteredClients = clients.filter((client) =>
@@ -218,104 +150,12 @@ const ProfessionalClients = () => {
               Novo Cliente
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Cadastrar Novo Cliente</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="full_name">Nome Completo *</Label>
-                <Input
-                  id="full_name"
-                  value={formData.full_name}
-                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  placeholder="Nome do cliente"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone *</Label>
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => {
-                    // Simple phone mask: (XX) XXXXX-XXXX
-                    let value = e.target.value.replace(/\D/g, "");
-                    if (value.length > 11) value = value.slice(0, 11);
-                    if (value.length > 10) {
-                      value = value.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
-                    } else if (value.length > 6) {
-                      value = value.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
-                    } else if (value.length > 2) {
-                      value = value.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
-                    }
-                    setFormData({ ...formData, phone: value });
-                  }}
-                  placeholder="(00) 00000-0000"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email (opcional)</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="email@exemplo.com"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="address">Endereço (opcional)</Label>
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder="Rua, número, bairro"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="pet_type">Tipo de Pet</Label>
-                <select
-                  id="pet_type"
-                  value={formData.pet_type}
-                  onChange={(e) => setFormData({ ...formData, pet_type: e.target.value as any })}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <option value="">Selecione...</option>
-                  <option value="dog">Cachorro</option>
-                  <option value="cat">Gato</option>
-                  <option value="bird">Pássaro</option>
-                  <option value="other">Outro</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">Observações (opcional)</Label>
-                <textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Informações adicionais sobre o cliente ou pet"
-                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
-                  maxLength={500}
-                />
-                <p className="text-xs text-muted-foreground text-right">
-                  {formData.notes.length}/500
-                </p>
-              </div>
-
-              <div className="flex gap-2">
-                <Button className="flex-1" onClick={handleCreateClient}>
-                  Cadastrar Cliente
-                </Button>
-                <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                  Cancelar
-                </Button>
-              </div>
-            </div>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <ClientFormComplete 
+              open={dialogOpen} 
+              onOpenChange={setDialogOpen}
+              onSuccess={handleClientCreated}
+            />
           </DialogContent>
         </Dialog>
       </div>

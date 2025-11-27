@@ -47,6 +47,18 @@ export default {
           DEFAULT: "hsl(var(--info))",
           foreground: "hsl(var(--info-foreground))",
         },
+        "plan-gold": {
+          primary: "hsl(var(--plan-gold-primary))",
+          secondary: "hsl(var(--plan-gold-secondary))",
+          accent: "hsl(var(--plan-gold-accent))",
+          foreground: "hsl(var(--plan-gold-foreground))",
+        },
+        "plan-platinum": {
+          primary: "hsl(var(--plan-platinum-primary))",
+          secondary: "hsl(var(--plan-platinum-secondary))",
+          accent: "hsl(var(--plan-platinum-accent))",
+          foreground: "hsl(var(--plan-platinum-foreground))",
+        },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
