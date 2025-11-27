@@ -73,6 +73,18 @@ All colors MUST be HSL.
     --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
+    /* Plan-specific colors - Gold */
+    --plan-gold-primary: 45 93% 47%;
+    --plan-gold-secondary: 43 96% 56%;
+    --plan-gold-accent: 48 100% 67%;
+    --plan-gold-foreground: 0 0% 100%;
+
+    /* Plan-specific colors - Platinum */
+    --plan-platinum-primary: 240 5% 64%;
+    --plan-platinum-secondary: 240 6% 83%;
+    --plan-platinum-accent: 240 5% 96%;
+    --plan-platinum-foreground: 0 0% 100%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5% 26%;
     --sidebar-primary: 221 83% 53%;
@@ -134,6 +146,18 @@ All colors MUST be HSL.
     --shadow-large: 0 20px 60px hsl(0 0% 0% / 0.6);
     --shadow-glow: 0 0 60px hsl(190 75% 80% / 0.5);
     --shadow-green: 0 10px 40px hsl(140 70% 55% / 0.4);
+
+    /* Plan-specific colors - Gold (dark mode) */
+    --plan-gold-primary: 45 93% 57%;
+    --plan-gold-secondary: 43 96% 66%;
+    --plan-gold-accent: 48 100% 77%;
+    --plan-gold-foreground: 0 0% 100%;
+
+    /* Plan-specific colors - Platinum (dark mode) */
+    --plan-platinum-primary: 240 5% 74%;
+    --plan-platinum-secondary: 240 6% 88%;
+    --plan-platinum-accent: 240 5% 96%;
+    --plan-platinum-foreground: 0 0% 100%;
 
     --sidebar-background: 240 6% 10%;
     --sidebar-foreground: 240 5% 96%;

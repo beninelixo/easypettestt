@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/lib/tenant-context";
+import { usePlanTheme } from "@/hooks/usePlanTheme";
 import { Separator } from "@/components/ui/separator";
 
 const professionalMenuItems = [
@@ -38,6 +39,7 @@ export function ProfessionalSidebar() {
   const { state } = useSidebar();
   const { signOut } = useAuth();
   const { can, tenantId } = useTenant();
+  const planTheme = usePlanTheme();
   const isCollapsed = state === "collapsed";
   
   // Show multi-unit menu if user has tenant access
@@ -59,13 +61,21 @@ export function ProfessionalSidebar() {
                     <NavLink
                       to={item.url}
                       end
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                          isActive
-                            ? "bg-primary text-primary-foreground font-medium shadow-sm"
-                            : "hover:bg-muted text-muted-foreground hover:text-foreground"
-                        }`
-                      }
+                      className={({ isActive }) => {
+                        let baseClass = "flex items-center gap-3 px-4 py-3 rounded-lg transition-all";
+                        
+                        if (isActive && planTheme.plan !== 'free') {
+                          // Aplicar cores do plano para item ativo
+                          baseClass += ` ${planTheme.badgeClass} font-medium shadow-sm`;
+                        } else if (isActive) {
+                          // Cores padrão para item ativo (plano free)
+                          baseClass += " bg-primary text-primary-foreground font-medium shadow-sm";
+                        } else {
+                          baseClass += " hover:bg-muted text-muted-foreground hover:text-foreground";
+                        }
+                        
+                        return baseClass;
+                      }}
                     >
                       <item.icon className="h-5 w-5 flex-shrink-0" />
                       {!isCollapsed && <span>{item.title}</span>}
@@ -94,13 +104,19 @@ export function ProfessionalSidebar() {
                         <NavLink
                           to={item.url}
                           end
-                          className={({ isActive }) =>
-                            `flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                              isActive
-                                ? "bg-primary text-primary-foreground font-medium shadow-sm"
-                                : "hover:bg-muted text-muted-foreground hover:text-foreground"
-                            }`
-                          }
+                          className={({ isActive }) => {
+                            let baseClass = "flex items-center gap-3 px-4 py-3 rounded-lg transition-all";
+                            
+                            if (isActive && planTheme.plan !== 'free') {
+                              baseClass += ` ${planTheme.badgeClass} font-medium shadow-sm`;
+                            } else if (isActive) {
+                              baseClass += " bg-primary text-primary-foreground font-medium shadow-sm";
+                            } else {
+                              baseClass += " hover:bg-muted text-muted-foreground hover:text-foreground";
+                            }
+                            
+                            return baseClass;
+                          }}
                         >
                           <item.icon className="h-5 w-5 flex-shrink-0" />
                           {!isCollapsed && <span>{item.title}</span>}
