@@ -68,6 +68,7 @@ const Financeiro = lazy(() => import("./pages/petshop/Financeiro"));
 const Fidelidade = lazy(() => import("./pages/petshop/Fidelidade"));
 const Marketing = lazy(() => import("./pages/petshop/Marketing"));
 const Funcionarios = lazy(() => import("./pages/petshop/Funcionarios"));
+const ProfessionalEmployees = lazy(() => import("./pages/petshop/Funcionarios"));
 const NewAppointment = lazy(() => import("./pages/NewAppointment"));
 const PetProfile = lazy(() => import("./pages/PetProfile"));
 const PetShopSetup = lazy(() => import("./pages/PetShopSetup"));
@@ -295,6 +296,7 @@ const App = () => {
             <Route path="calendar" element={<ProfessionalCalendar />} />
             <Route path="services" element={<ProfessionalServices />} />
             <Route path="clients" element={<ProfessionalClients />} />
+            <Route path="employees" element={<ProfessionalEmployees />} />
             <Route path="reports" element={<ProfessionalReports />} />
             <Route path="backup" element={<ProfessionalBackup />} />
             <Route path="plans" element={<ProfessionalPlans />} />

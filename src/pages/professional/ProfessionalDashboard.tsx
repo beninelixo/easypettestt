@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, TrendingUp, Users, DollarSign, Clock, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,13 +9,18 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import RevenueChart from "@/components/dashboard/RevenueChart";
 import AppointmentsChart from "@/components/dashboard/AppointmentsChart";
+import { StatCardSkeleton, CardSkeleton } from "@/components/ui/skeleton-loader";
+import { PeakHoursChart } from "@/components/dashboard/PeakHoursChart";
+import { NoShowMetrics } from "@/components/dashboard/NoShowMetrics";
+import { ServiceBreakdownChart } from "@/components/dashboard/ServiceBreakdownChart";
 import { useRealtimeMetrics } from "@/hooks/useRealtimeMetrics";
 
-const ProfessionalDashboard = () => {
+const PetShopDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [petShopId, setPetShopId] = useState<string>("");
+  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     todayAppointments: 0,
     monthlyRevenue: "R$ 0,00",
@@ -25,8 +29,10 @@ const ProfessionalDashboard = () => {
   });
   const [revenueData, setRevenueData] = useState<Array<{ month: string; revenue: number }>>([]);
   const [weekData, setWeekData] = useState<Array<{ day: string; completed: number; cancelled: number; pending: number }>>([]);
-  const [appointmentPeriod, setAppointmentPeriod] = useState<'week' | 'month' | 'year'>('week');
-  const [revenuePeriod, setRevenuePeriod] = useState<'month' | 'year'>('month');
+  const [peakHours, setPeakHours] = useState<Array<{ hour: number; appointment_count: number }>>([]);
+  const [noShowStats, setNoShowStats] = useState<any>(null);
+  const [serviceBreakdown, setServiceBreakdown] = useState<Array<any>>([]);
+
   const { lastUpdate } = useRealtimeMetrics(petShopId);
 
   useEffect(() => {
@@ -37,54 +43,44 @@ const ProfessionalDashboard = () => {
 
   useEffect(() => {
     if (petShopId) {
-      loadAppointments(petShopId);
-      loadStats(petShopId);
+      loadAllMetrics();
     }
-  }, [petShopId, lastUpdate, appointmentPeriod, revenuePeriod]);
+  }, [petShopId, lastUpdate]);
 
   const loadPetShopAndData = async () => {
-    try {
-      let shopId: string | null = null;
+    setLoading(true);
+    // First, get the pet shop owned by this user or where the user is an active employee
+    let shopId: string | null = null;
 
-      const { data: ownedShop, error: ownedErr } = await supabase
-        .from("pet_shops")
-        .select("id")
-        .eq("owner_id", user?.id)
+    const { data: ownedShop } = await supabase
+      .from("pet_shops")
+      .select("id")
+      .eq("owner_id", user?.id)
+      .maybeSingle();
+
+    if (ownedShop) {
+      shopId = ownedShop.id;
+    } else {
+      const { data: employeeShop } = await supabase
+        .from("petshop_employees")
+        .select("pet_shop_id")
+        .eq("user_id", user?.id)
+        .eq("active", true)
         .maybeSingle();
-
-      if (ownedErr) {
-        console.error("Erro ao buscar pet shop:", ownedErr);
-      }
-
-      if (ownedShop) {
-        shopId = ownedShop.id;
-      } else {
-        const { data: employeeShop, error: empErr } = await supabase
-          .from("petshop_employees")
-          .select("pet_shop_id")
-          .eq("user_id", user?.id)
-          .eq("active", true)
-          .maybeSingle();
-
-        if (empErr) {
-          console.error("Erro ao buscar vínculo de funcionário:", empErr);
-        }
-        if (employeeShop) {
-          shopId = employeeShop.pet_shop_id;
-        }
-      }
-
-      if (!shopId) {
-        navigate("/petshop-setup");
-        return;
-      }
-
-      setPetShopId(shopId);
-      await loadAppointments(shopId);
-      await loadStats(shopId);
-    } catch (error) {
-      console.error("Erro ao carregar dados:", error);
+      if (employeeShop) shopId = employeeShop.pet_shop_id;
     }
+
+    if (!shopId) {
+      // If no pet shop exists, redirect to setup
+      navigate("/petshop-setup");
+      setLoading(false);
+      return;
+    }
+
+    setPetShopId(shopId);
+    await loadAppointments(shopId);
+    await loadStats(shopId);
+    setLoading(false);
   };
 
   const loadAppointments = async (shopId: string) => {
@@ -107,6 +103,16 @@ const ProfessionalDashboard = () => {
     }
   };
 
+  const loadAllMetrics = async () => {
+    if (!petShopId) return;
+    await Promise.all([
+      loadStats(petShopId),
+      loadPeakHours(petShopId),
+      loadNoShowStats(petShopId),
+      loadServiceBreakdown(petShopId)
+    ]);
+  };
+
   const loadStats = async (shopId: string) => {
     // Use otimized database function for dashboard stats
     const { data: statsData, error: statsError } = await supabase
@@ -125,27 +131,24 @@ const ProfessionalDashboard = () => {
       });
     }
 
-    // Load revenue data based on selected period
-    const revenueMonths = revenuePeriod === 'year' ? 12 : 6;
+    // Load real revenue data from last 6 months
     const { data: revenueDataFromDb, error: revenueError } = await supabase
-      .rpc('get_revenue_by_period', { 
+      .rpc('get_monthly_revenue', { 
         _pet_shop_id: shopId,
-        _period: revenuePeriod,
-        _months: revenueMonths
+        _months: 6
       });
 
     if (!revenueError && revenueDataFromDb) {
       setRevenueData(revenueDataFromDb.map(item => ({
-        month: item.period_label,
+        month: item.month,
         revenue: Number(item.revenue)
       })));
     }
 
-    // Load appointments data based on selected period
+    // Load real weekly appointments data
     const { data: weekDataFromDb, error: weekError } = await supabase
-      .rpc('get_appointments_by_period', { 
-        _pet_shop_id: shopId,
-        _period: appointmentPeriod
+      .rpc('get_weekly_appointments', { 
+        _pet_shop_id: shopId
       });
 
     if (!weekError && weekDataFromDb) {
@@ -156,6 +159,21 @@ const ProfessionalDashboard = () => {
         cancelled: Number(item.cancelled)
       })));
     }
+  };
+
+  const loadPeakHours = async (shopId: string) => {
+    const { data } = await supabase.rpc('get_peak_hours', { _pet_shop_id: shopId });
+    if (data) setPeakHours(data);
+  };
+
+  const loadNoShowStats = async (shopId: string) => {
+    const { data } = await supabase.rpc('get_no_show_stats', { _pet_shop_id: shopId });
+    if (data) setNoShowStats(data);
+  };
+
+  const loadServiceBreakdown = async (shopId: string) => {
+    const { data } = await supabase.rpc('get_appointments_by_service', { _pet_shop_id: shopId });
+    if (data) setServiceBreakdown(data);
   };
 
   const updateAppointmentStatus = async (appointmentId: string, newStatus: string) => {
@@ -184,6 +202,26 @@ const ProfessionalDashboard = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
+      {loading ? (
+        <>
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+              <div className="h-4 w-64 bg-muted animate-pulse rounded" />
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <StatCardSkeleton key={i} />
+            ))}
+          </div>
+          <div className="grid lg:grid-cols-2 gap-6">
+            <CardSkeleton />
+            <CardSkeleton />
+          </div>
+        </>
+      ) : (
+        <>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
@@ -211,46 +249,20 @@ const ProfessionalDashboard = () => {
 
         {/* Charts */}
         <div className="grid lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Faturamento</CardTitle>
-                  <CardDescription>Receita ao longo do tempo</CardDescription>
-                </div>
-                <Tabs value={revenuePeriod} onValueChange={(v) => setRevenuePeriod(v as 'month' | 'year')}>
-                  <TabsList>
-                    <TabsTrigger value="month">6 Meses</TabsTrigger>
-                    <TabsTrigger value="year">12 Meses</TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <RevenueChart data={revenueData} />
-            </CardContent>
-          </Card>
+          <RevenueChart data={revenueData} />
+          <AppointmentsChart data={weekData} />
+        </div>
 
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Agendamentos</CardTitle>
-                  <CardDescription>Status dos agendamentos por período</CardDescription>
-                </div>
-                <Tabs value={appointmentPeriod} onValueChange={(v) => setAppointmentPeriod(v as 'week' | 'month' | 'year')}>
-                  <TabsList>
-                    <TabsTrigger value="week">Semana</TabsTrigger>
-                    <TabsTrigger value="month">Mês</TabsTrigger>
-                    <TabsTrigger value="year">Ano</TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <AppointmentsChart data={weekData} />
-            </CardContent>
-          </Card>
+        {/* New Metrics */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          <PeakHoursChart data={peakHours} />
+          <ServiceBreakdownChart data={serviceBreakdown} />
+        </div>
+
+        {noShowStats && <NoShowMetrics stats={noShowStats} />}
+
+        <div className="text-xs text-muted-foreground text-right">
+          Última atualização: {lastUpdate.toLocaleTimeString('pt-BR')}
         </div>
 
         {/* Today's Schedule */}
@@ -350,7 +362,7 @@ const ProfessionalDashboard = () => {
             <Button 
               variant="outline" 
               className="h-24 flex flex-col gap-2 hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all"
-              onClick={() => navigate("/professional/clients")}
+              onClick={() => navigate("/petshop-dashboard/clientes")}
             >
               <Users className="h-6 w-6" />
               Gerenciar Clientes
@@ -358,7 +370,7 @@ const ProfessionalDashboard = () => {
             <Button 
               variant="outline" 
               className="h-24 flex flex-col gap-2 hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all"
-              onClick={() => navigate("/professional/calendar")}
+              onClick={() => navigate("/petshop-dashboard/calendario")}
             >
               <Calendar className="h-6 w-6" />
               Calendário Completo
@@ -366,15 +378,17 @@ const ProfessionalDashboard = () => {
             <Button 
               variant="outline" 
               className="h-24 flex flex-col gap-2 hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all"
-              onClick={() => navigate("/professional/reports")}
+              onClick={() => navigate("/petshop-dashboard/relatorios")}
             >
               <TrendingUp className="h-6 w-6" />
               Relatórios
             </Button>
           </div>
         </section>
+        </>
+      )}
       </div>
     );
   };
 
-export default ProfessionalDashboard;
+export default PetShopDashboard;
