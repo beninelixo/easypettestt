@@ -82,7 +82,7 @@ const ProfessionalDashboard = () => {
     }
 
     if (!shopId) {
-      navigate("/petshop-setup");
+      // Se não encontrou pet shop, mostra estado vazio em vez de redirecionar
       setLoading(false);
       return;
     }
