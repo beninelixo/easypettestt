@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Calendar, TrendingUp, Users, DollarSign, Clock, Sparkles, 
   ArrowRight, CheckCircle2, XCircle, Play, BarChart3,
-  PawPrint, Bell, Settings, ChevronRight
+  PawPrint, Bell, Settings, ChevronRight, Scissors
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -248,9 +248,9 @@ const ProfessionalDashboard = () => {
   ];
 
   const quickActions = [
-    { label: "Clientes", icon: Users, path: "/professional/clients", color: "from-cyan-500 to-blue-600" },
-    { label: "Calendário", icon: Calendar, path: "/professional/calendar", color: "from-emerald-500 to-green-600" },
-    { label: "Relatórios", icon: BarChart3, path: "/professional/reports", color: "from-violet-500 to-purple-600" },
+    { label: "Novo Agendamento", icon: Calendar, path: "/professional/calendar", color: "from-cyan-500 to-blue-600" },
+    { label: "Clientes", icon: Users, path: "/professional/clients", color: "from-emerald-500 to-green-600" },
+    { label: "Serviços", icon: Scissors, path: "/professional/services", color: "from-violet-500 to-purple-600" },
     { label: "Configurações", icon: Settings, path: "/professional/settings", color: "from-amber-500 to-orange-600" },
   ];
 

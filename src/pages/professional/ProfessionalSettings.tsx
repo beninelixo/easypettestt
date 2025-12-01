@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Settings, Bell, Lock, CreditCard, Users, Scissors, Key } from "lucide-react";
+import { 
+  Settings, Bell, Lock, CreditCard, Users, Scissors, Key, 
+  BarChart3, Database, AlertCircle, Shield, ChevronRight
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSettingsPassword } from "@/hooks/useSettingsPassword";
 import { SettingsPasswordDialog } from "@/components/settings/SettingsPasswordDialog";
@@ -10,7 +13,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 
 const ProfessionalSettings = () => {
   const { toast } = useToast();
@@ -21,6 +23,7 @@ const ProfessionalSettings = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<"create" | "verify">("verify");
   const [loadingPetShop, setLoadingPetShop] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
   
   const {
     hasPassword,
@@ -28,7 +31,6 @@ const ProfessionalSettings = () => {
     isAuthenticated,
     createPassword,
     verifyPassword,
-    resetAuthentication,
   } = useSettingsPassword(petShopId);
 
   useEffect(() => {
@@ -36,17 +38,21 @@ const ProfessionalSettings = () => {
   }, [user]);
 
   useEffect(() => {
-    // When password status is loaded, check authentication
-    if (!loading && hasPassword !== null && !isAuthenticated) {
-      if (hasPassword) {
-        setDialogMode("verify");
-        setDialogOpen(true);
+    if (!loading && hasPassword !== null && petShopId) {
+      if (isAuthenticated) {
+        setShowSettings(true);
+        setDialogOpen(false);
       } else {
-        setDialogMode("create");
+        setShowSettings(false);
+        if (hasPassword) {
+          setDialogMode("verify");
+        } else {
+          setDialogMode("create");
+        }
         setDialogOpen(true);
       }
     }
-  }, [hasPassword, loading, isAuthenticated]);
+  }, [hasPassword, loading, isAuthenticated, petShopId]);
 
   const loadPetShopId = async () => {
     if (!user) return;
@@ -82,7 +88,12 @@ const ProfessionalSettings = () => {
         });
         return false;
       }
-      return await createPassword(password);
+      const success = await createPassword(password);
+      if (success) {
+        setShowSettings(true);
+        setDialogOpen(false);
+      }
+      return success;
     } else {
       const success = await verifyPassword(password);
       if (!success) {
@@ -94,57 +105,62 @@ const ProfessionalSettings = () => {
             variant: "destructive",
           });
           setTimeout(() => {
-            navigate("/professional/services");
+            navigate("/professional/dashboard");
           }, 2000);
         }
       } else {
         setAttempts(0);
+        setShowSettings(true);
+        setDialogOpen(false);
       }
       return success;
     }
   };
 
+  const handleDialogClose = (open: boolean) => {
+    if (!open && !isAuthenticated) {
+      navigate("/professional/dashboard");
+    }
+    setDialogOpen(open);
+  };
+
   if (loadingPetShop || loading) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-12 w-64" />
-        <div className="grid md:grid-cols-2 gap-6">
-          <Skeleton className="h-48" />
-          <Skeleton className="h-48" />
-          <Skeleton className="h-48" />
-          <Skeleton className="h-48" />
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-6 lg:p-8">
+        <div className="max-w-6xl mx-auto space-y-6">
+          <Skeleton className="h-12 w-64" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Skeleton key={i} className="h-44 rounded-2xl" />
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
+  if (!showSettings) {
     return (
-      <>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-6 lg:p-8">
         <SettingsPasswordDialog
           open={dialogOpen}
-          onOpenChange={(open) => {
-            if (!open && !isAuthenticated) {
-              navigate("/professional/services");
-            }
-            setDialogOpen(open);
-          }}
+          onOpenChange={handleDialogClose}
           mode={dialogMode}
           onSubmit={handlePasswordSubmit}
           attempts={attempts}
           maxAttempts={3}
         />
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Alert className="max-w-md">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Alert className="max-w-md border-border/50 bg-card/80 backdrop-blur-sm">
+            <Shield className="h-5 w-5 text-primary" />
+            <AlertDescription className="ml-2">
               {hasPassword
-                ? "Digite a senha para acessar as configurações"
+                ? "Digite a senha para acessar as configurações protegidas"
                 : "Crie uma senha para proteger suas configurações"}
             </AlertDescription>
           </Alert>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -153,49 +169,49 @@ const ProfessionalSettings = () => {
       title: "Gerenciar Serviços",
       description: "Adicione, edite ou remova serviços oferecidos",
       icon: Scissors,
-      action: "Gerenciar",
+      gradient: "from-emerald-500 to-green-600",
       onClick: () => navigate("/professional/services"),
+    },
+    {
+      title: "Relatórios",
+      description: "Visualize relatórios e análises detalhadas",
+      icon: BarChart3,
+      gradient: "from-pink-500 to-rose-600",
+      onClick: () => navigate("/professional/reports"),
     },
     {
       title: "Perfil do Negócio",
       description: "Edite as informações do seu pet shop",
       icon: Users,
-      action: "Editar Perfil",
+      gradient: "from-cyan-500 to-blue-600",
       onClick: () => navigate("/professional/profile"),
     },
     {
       title: "Funcionários",
       description: "Gerencie funcionários e permissões",
       icon: Users,
-      action: "Gerenciar",
+      gradient: "from-violet-500 to-purple-600",
       onClick: () => navigate("/professional/employees"),
-    },
-    {
-      title: "Relatórios",
-      description: "Visualize relatórios e análises",
-      icon: Settings,
-      action: "Ver Relatórios",
-      onClick: () => navigate("/professional/reports"),
     },
     {
       title: "Backup",
       description: "Realize backup dos seus dados",
-      icon: Settings,
-      action: "Acessar",
+      icon: Database,
+      gradient: "from-slate-500 to-slate-600",
       onClick: () => navigate("/professional/backup"),
     },
     {
       title: "Planos e Pagamentos",
       description: "Configure métodos de pagamento e planos",
       icon: CreditCard,
-      action: "Ver Planos",
+      gradient: "from-amber-500 to-orange-600",
       onClick: () => navigate("/professional/plans"),
     },
     {
       title: "Alterar Senha de Configurações",
       description: "Atualize sua senha de acesso às configurações",
       icon: Key,
-      action: "Alterar",
+      gradient: "from-red-500 to-rose-600",
       onClick: () => {
         toast({
           title: "Funcionalidade em desenvolvimento",
@@ -207,7 +223,7 @@ const ProfessionalSettings = () => {
       title: "Notificações",
       description: "Configure lembretes e alertas",
       icon: Bell,
-      action: "Configurar",
+      gradient: "from-teal-500 to-cyan-600",
       onClick: () =>
         toast({
           title: "Funcionalidade em desenvolvimento",
@@ -218,7 +234,7 @@ const ProfessionalSettings = () => {
       title: "Segurança",
       description: "Altere sua senha e configurações de segurança",
       icon: Lock,
-      action: "Gerenciar",
+      gradient: "from-indigo-500 to-blue-600",
       onClick: () =>
         toast({
           title: "Funcionalidade em desenvolvimento",
@@ -228,34 +244,54 @@ const ProfessionalSettings = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <Settings className="h-8 w-8 text-primary" />
-          Configurações
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Gerencie as configurações do seu pet shop
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="max-w-6xl mx-auto p-6 lg:p-8 space-y-8">
+        {/* Header */}
+        <header className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-500/10 via-slate-400/10 to-slate-500/5 border border-border/50 p-6">
+          <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary/10 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          
+          <div className="relative flex items-center gap-4">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 shadow-lg">
+              <Settings className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+                Configurações
+              </h1>
+              <p className="text-muted-foreground text-sm mt-1">
+                Gerencie todas as configurações do seu pet shop
+              </p>
+            </div>
+          </div>
+        </header>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {settingsSections.map((section, index) => (
-          <Card key={index} className="hover:shadow-lg transition-all">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <section.icon className="h-5 w-5 text-primary" />
-                {section.title}
-              </CardTitle>
-              <CardDescription>{section.description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button variant="outline" className="w-full" onClick={section.onClick}>
-                {section.action}
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+        {/* Settings Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {settingsSections.map((section, index) => (
+            <Card 
+              key={index} 
+              className="group relative overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+              onClick={section.onClick}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className={`p-2.5 rounded-xl bg-gradient-to-br ${section.gradient} shadow-md group-hover:scale-110 transition-transform duration-300`}>
+                    <section.icon className="h-5 w-5 text-white" />
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+                </div>
+                <CardTitle className="text-base mt-3 group-hover:text-primary transition-colors">
+                  {section.title}
+                </CardTitle>
+                <CardDescription className="text-sm">
+                  {section.description}
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );
