@@ -6,10 +6,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Validation schema
+// Validation schema - password min 1 to match frontend flexibility
 const loginSchema = z.object({
   email: z.string().email('Invalid email format').max(255, 'Email too long'),
-  password: z.string().min(8, 'Password must be at least 8 characters').max(100, 'Password too long'),
+  password: z.string().min(1, 'Password is required').max(100, 'Password too long'),
   ip_address: z.string().max(45, 'IP address too long').optional(),
   user_agent: z.string().max(500, 'User agent too long').optional(),
 });
