@@ -45,8 +45,9 @@ serve(async (req) => {
 
     const { prompt } = validation.data;
 
-    logStep("Generating image with prompt", { prompt });
+    logStep("Generating image with prompt (ultra-realistic)", { promptLength: prompt.length });
 
+    // Use the best image generation model for ultra-realistic results
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -54,11 +55,11 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image-preview",
+        model: "google/gemini-3-pro-image-preview",
         messages: [
           {
             role: "user",
-            content: prompt,
+            content: `Generate an ultra-realistic, photorealistic 8K quality image. ${prompt}`,
           },
         ],
         modalities: ["image", "text"],

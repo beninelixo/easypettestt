@@ -24,48 +24,56 @@ export const images: ImageConfig[] = [
     filename: "hero-petshop.jpg",
     path: "src/assets/hero-petshop.jpg",
     aspectRatio: "16:9",
-    prompt: `Ultra high resolution 16:9 hero image. Professional modern pet shop interior with warm lighting. 
-    Showcase: Clean reception desk with modern computer, colorful pet accessories on organized shelves, 
-    grooming station visible in background. Friendly staff member smiling at camera. 
-    Beautiful golden retriever sitting calmly at reception. Bright natural lighting through large windows. 
-    Professional photography, high-end commercial quality, welcoming atmosphere. 
-    Colors: warm tones, clean white surfaces, pops of blue and green from pet products. 
-    Ultra detailed, 8K quality, magazine-worthy composition.`,
+    prompt: `Photorealistic 8K ultra-detailed hero image, 16:9 aspect ratio. Modern premium pet shop interior 
+    with Brazilian aesthetic and contemporary design. Natural warm golden hour lighting streaming through 
+    floor-to-ceiling windows. Clean minimalist reception desk with white marble surface and modern computer.
+    Colorful premium pet accessories beautifully organized on wooden shelves. Professional grooming station 
+    visible in background with chrome fixtures. Friendly young Brazilian female staff member with warm smile 
+    wearing teal uniform. Beautiful healthy golden retriever sitting calmly at reception, looking at camera.
+    Plants adding greenery. Shot with Sony A7R IV, 35mm f/1.4 lens, professional lighting setup.
+    Magazine-quality commercial photography, editorial style. NO text, NO logos, NO watermarks, 
+    NO artificial elements. Authentic natural scene only.`,
   },
   {
     filename: "system-dashboard.jpg",
     path: "src/assets/system-dashboard.jpg",
     aspectRatio: "16:9",
-    prompt: `Ultra high resolution 16:9 image. Modern laptop displaying a professional pet management dashboard. 
-    Screen shows: clean UI with calendar view, appointment cards, colorful charts with pet statistics, 
-    sidebar with navigation menu. Professional workspace setting with coffee cup, notepad, and phone nearby. 
-    Soft natural lighting from window. Dashboard has modern design with blue/purple gradient accents. 
-    Visible elements: today's schedule, revenue graphs, client list with pet photos. 
-    Ultra realistic, professional product photography, 8K quality, sharp details, bokeh background.`,
+    prompt: `Hyperrealistic 8K product photography mockup, 16:9 aspect ratio. MacBook Pro 16-inch on 
+    clean modern wooden desk displaying a pet management SaaS dashboard interface. Screen shows: 
+    clean minimalist UI with soft cyan and green gradient accents, calendar view with appointments,
+    revenue charts with smooth curves, client list section. Dashboard aesthetic matches modern fintech apps.
+    Professional home office setting: ceramic coffee cup, small succulent plant, leather notebook, 
+    iPhone nearby. Soft natural window light creating gentle shadows. Slight bokeh on background.
+    Shot with Canon 5D Mark IV, 50mm f/1.8 lens. Product photography style like Apple marketing.
+    NO readable text on screen, aesthetic UI elements only. NO watermarks, NO logos.`,
   },
   {
     filename: "happy-clients.jpg",
     path: "src/assets/happy-clients.jpg",
     aspectRatio: "4:3",
-    prompt: `Ultra high resolution 4:3 image. Happy diverse family at modern pet shop reception. 
-    Scene: Smiling mother, father, and young daughter with their happy labrador puppy. 
-    Professional staff member showing them something on tablet. Bright, clean, modern pet shop interior. 
-    Everyone genuine smiling, natural poses. Warm and welcoming atmosphere. 
-    Professional commercial photography, natural lighting, shallow depth of field focusing on family. 
-    Colors: warm and inviting, professional grade image. Ultra detailed faces, 8K quality, 
-    authentic emotions, lifestyle photography style.`,
+    prompt: `Ultra-realistic 8K lifestyle photography, 4:3 aspect ratio. Happy Brazilian family at modern 
+    pet shop reception area. Scene composition: Mother (30s), father (30s), and young daughter (8 years old) 
+    with their adorable cream-colored labrador puppy. Professional female staff member in teal uniform 
+    showing them pet care information on tablet. Modern bright pet shop interior with natural wood elements
+    and green plants. Everyone with genuine warm smiles, natural candid poses, authentic interaction.
+    Warm ambient lighting, shallow depth of field focusing on family. Shot with Canon 5D Mark IV, 
+    85mm f/1.2 portrait lens. Lifestyle commercial photography like stock photography premium tier.
+    Ultra detailed facial features, authentic emotions, natural skin tones. NO text, NO logos, 
+    NO artificial poses.`,
   },
   {
     filename: "vet-care.jpg",
     path: "src/assets/vet-care.jpg",
     aspectRatio: "4:3",
-    prompt: `Ultra high resolution 4:3 image. Professional veterinarian gently examining cute beagle puppy. 
-    Scene: Vet in clean white coat with stethoscope, kind smile, carefully checking puppy. 
-    Modern veterinary clinic examination room with medical equipment visible but not overwhelming. 
-    Puppy looking calm and trusting. Clean, bright environment with soft professional lighting. 
-    Focus on care and compassion. Medical professionalism meets warmth. 
-    High-end commercial photography, 8K quality, shallow depth of field, detailed textures, 
-    professional medical setting, magazine-worthy composition.`,
+    prompt: `Hyperrealistic 8K medical photography, 4:3 aspect ratio. Young female Brazilian veterinarian 
+    (late 20s) gently examining an adorable beagle puppy on examination table. Vet wearing crisp white 
+    coat with silver stethoscope, kind compassionate expression, carefully checking puppy's ear.
+    Modern veterinary clinic examination room: stainless steel table, medical cabinets with subtle blur,
+    professional medical equipment visible but not overwhelming. Puppy calm and trusting, looking at vet.
+    Clean bright environment with professional studio-quality soft lighting. Focus on care and compassion.
+    Shot with Sony A7R IV, 50mm f/1.4 macro lens. Editorial healthcare photography quality.
+    Ultra detailed textures (fur, fabric, medical equipment). NO text, NO logos, NO watermarks.
+    Professional medical setting with warm human connection.`,
   },
 ];
 
