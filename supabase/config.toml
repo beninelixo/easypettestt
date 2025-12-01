@@ -201,5 +201,3 @@ verify_jwt = true
 [functions.validate-profiles]
 verify_jwt = true
 
-[functions.verify-captcha]
-verify_jwt = false
