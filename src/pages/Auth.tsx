@@ -197,19 +197,32 @@ const Auth = () => {
 
       if (rateLimitError) {
         let errorMsg = 'Erro ao validar login. ';
+        let errorTitle = "⚠️ Erro de Validação";
         
-        if (rateLimitError.message.includes('non-2xx')) {
-          errorMsg = '🌐 Servidor temporariamente indisponível. Aguarde alguns instantes e tente novamente.';
+        // Check if the error response indicates rate limiting (429 or blocked status)
+        const isRateLimited = rateLimitError.message.includes('429') || 
+                             rateLimitError.message.includes('rate limit') ||
+                             rateLimitError.message.includes('Too many');
+        
+        if (isRateLimited) {
+          errorTitle = "⏱️ Muitas Tentativas";
+          errorMsg = 'Você excedeu o limite de tentativas de login. Por favor, aguarde alguns minutos antes de tentar novamente.';
+        } else if (rateLimitError.message.includes('non-2xx')) {
+          // Could still be rate limiting - check error context
+          errorTitle = "⏱️ Acesso Temporariamente Bloqueado";
+          errorMsg = 'Muitas tentativas de login detectadas. Aguarde 15 minutos antes de tentar novamente.';
         } else if (rateLimitError.message.includes('network')) {
-          errorMsg = '📡 Erro de conexão. Verifique sua internet e tente novamente.';
+          errorTitle = "📡 Erro de Conexão";
+          errorMsg = 'Erro de conexão. Verifique sua internet e tente novamente.';
         } else if (rateLimitError.message.includes('timeout')) {
-          errorMsg = '⏱️ A requisição demorou muito. Tente novamente.';
+          errorTitle = "⏱️ Tempo Esgotado";
+          errorMsg = 'A requisição demorou muito. Tente novamente.';
         } else {
           errorMsg = rateLimitError.message;
         }
         
         toast({
-          title: "⚠️ Erro de Validação",
+          title: errorTitle,
           description: errorMsg,
           variant: "destructive",
         });

@@ -90,7 +90,15 @@ const ProfessionalSettings = () => {
       }
       const success = await createPassword(password);
       if (success) {
-        navigate("/petshop-dashboard", { replace: true });
+        toast({
+          title: "✅ Senha criada!",
+          description: "Redirecionando para o dashboard...",
+        });
+        // Close dialog first, then navigate with delay
+        setDialogOpen(false);
+        setTimeout(() => {
+          navigate("/petshop-dashboard", { replace: true });
+        }, 150);
       }
       return success;
     } else {
@@ -109,7 +117,15 @@ const ProfessionalSettings = () => {
         }
       } else {
         setAttempts(0);
-        navigate("/petshop-dashboard", { replace: true });
+        toast({
+          title: "✅ Senha verificada!",
+          description: "Redirecionando para o dashboard...",
+        });
+        // Close dialog first, then navigate with delay
+        setDialogOpen(false);
+        setTimeout(() => {
+          navigate("/petshop-dashboard", { replace: true });
+        }, 150);
       }
       return success;
     }
