@@ -1,14 +1,39 @@
 import { Outlet } from "react-router-dom";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { ProfessionalSidebar } from "@/components/ProfessionalSidebar";
-import { Menu } from "lucide-react";
+import { Menu, PanelLeft, PanelLeftClose } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import logo from "@/assets/easypet-logo.png";
+
+// Desktop toggle button component
+const DesktopSidebarToggle = () => {
+  const { state, toggleSidebar } = useSidebar();
+  const isCollapsed = state === "collapsed";
+  
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={toggleSidebar}
+      className="hidden lg:flex fixed top-4 left-4 z-50 h-10 w-10 rounded-xl bg-card/90 backdrop-blur-sm border border-border/50 hover:bg-muted shadow-sm transition-all"
+    >
+      {isCollapsed ? (
+        <PanelLeft className="h-5 w-5 text-muted-foreground" />
+      ) : (
+        <PanelLeftClose className="h-5 w-5 text-muted-foreground" />
+      )}
+    </Button>
+  );
+};
 
 const ProfessionalLayout = () => {
   return (
     <SidebarProvider defaultOpen>
       <div className="min-h-screen flex w-full bg-background">
         <ProfessionalSidebar />
+        
+        {/* Desktop Sidebar Toggle */}
+        <DesktopSidebarToggle />
         
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Mobile Header Only */}
