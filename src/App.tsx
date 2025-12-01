@@ -105,6 +105,7 @@ const SuccessStoriesManager = lazy(() => import("@/pages/admin/SuccessStoriesMan
 const SubmitSuccessStory = lazy(() => import("@/pages/petshop/SubmitSuccessStory"));
 const ConsolidatedSecurityDashboard = lazy(() => import("./pages/admin/ConsolidatedSecurityDashboard"));
 const SecurityMonitoring = lazy(() => import("./pages/admin/SecurityMonitoring"));
+const SecurityFixes = lazy(() => import("./pages/admin/SecurityFixes"));
 const PerformanceDashboard = lazy(() => import("./pages/admin/PerformanceDashboard"));
 const BackupManagement = lazy(() => import("./pages/admin/BackupManagement"));
 const AuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
@@ -320,6 +321,7 @@ const App = () => {
             <Route path="ai-monitor" element={<AIMonitorDashboard />} />
             <Route path="maintenance" element={<MaintenanceDashboard />} />
             <Route path="security" element={<ConsolidatedSecurityDashboard />} />
+            <Route path="security-fixes" element={<SecurityFixes />} />
             <Route path="security-monitoring" element={<SecurityMonitoring />} />
             <Route path="backups" element={<BackupManagement />} />
             <Route path="audit-logs" element={<AuditLogs />} />
