@@ -23,10 +23,10 @@ import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 const HCAPTCHA_SITE_KEY = "c3b0324c-939a-4c78-8de4-826cdea0b2b0";
 
-// Validation Schemas - Updated with stronger password requirements
+// Validation Schemas - Login accepts any password, registration enforces complexity
 const loginSchema = z.object({
   email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
-  password: z.string().min(10, "Senha deve ter no mínimo 10 caracteres").max(50, "Senha muito longa"),
+  password: z.string().min(1, "Senha é obrigatória").max(100, "Senha muito longa"),
 });
 
 const registerClientSchema = z.object({
