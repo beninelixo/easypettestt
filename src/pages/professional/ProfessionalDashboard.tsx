@@ -201,7 +201,7 @@ const PetShopDashboard = () => {
   ];
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <div className="container mx-auto p-6 lg:p-8 space-y-8 animate-fade-in">
       {loading ? (
         <>
           <div className="flex items-center justify-between">
@@ -222,26 +222,31 @@ const PetShopDashboard = () => {
         </>
       ) : (
         <>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-2">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Sparkles className="h-8 w-8 text-primary" />
-              Dashboard
+            <h1 className="text-4xl font-bold flex items-center gap-3 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+              <Sparkles className="h-9 w-9 text-primary animate-pulse" />
+              Dashboard Profissional
             </h1>
-            <p className="text-muted-foreground mt-1">Visão geral do seu negócio</p>
+            <p className="text-muted-foreground mt-2 text-base">Visão geral completa do seu negócio</p>
           </div>
         </div>
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {statsArray.map((stat, index) => (
-            <Card key={index} className="hover:shadow-lg transition-all">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
-                <stat.icon className={`h-5 w-5 ${stat.color}`} />
+            <Card key={index} className="group hover:shadow-2xl hover:scale-105 transition-all duration-300 border-l-4 border-l-primary/50 hover:border-l-primary">
+              <CardHeader className="flex flex-row items-center justify-between pb-3 space-y-0">
+                <CardTitle className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
+                  {stat.title}
+                </CardTitle>
+                <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                  <stat.icon className={`h-6 w-6 ${stat.color} group-hover:scale-110 transition-transform`} />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{stat.value}</div>
+                <div className="text-3xl font-extrabold text-foreground tracking-tight">{stat.value}</div>
+                <p className="text-xs text-muted-foreground mt-1">Atualizado em tempo real</p>
               </CardContent>
             </Card>
           ))}
