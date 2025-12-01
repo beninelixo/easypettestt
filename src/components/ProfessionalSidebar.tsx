@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, Calendar, Scissors, Users, BarChart3, User, CreditCard, LogOut, Building2, LayoutDashboard, Database, UserCog } from "lucide-react";
+import { Home, Calendar, Scissors, Users, BarChart3, User, CreditCard, LogOut, Building2, LayoutDashboard, Database, UserCog, Settings } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -20,13 +20,13 @@ import { usePlanTheme } from "@/hooks/usePlanTheme";
 import { Separator } from "@/components/ui/separator";
 
 const professionalMenuItems = [
-  { title: "Dashboard", url: "/professional/dashboard", icon: Home },
-  { title: "Calendário", url: "/professional/calendar", icon: Calendar },
   { title: "Serviços", url: "/professional/services", icon: Scissors },
+  { title: "Calendário", url: "/professional/calendar", icon: Calendar },
   { title: "Clientes", url: "/professional/clients", icon: Users },
   { title: "Funcionários", url: "/professional/employees", icon: UserCog },
   { title: "Relatórios", url: "/professional/reports", icon: BarChart3 },
   { title: "Backup", url: "/professional/backup", icon: Database },
+  { title: "Configurações", url: "/professional/settings", icon: Settings },
   { title: "Plano", url: "/professional/plans", icon: CreditCard },
   { title: "Perfil", url: "/professional/profile", icon: User },
 ];

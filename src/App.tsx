@@ -53,22 +53,8 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const Contact = lazy(() => import("./pages/Contact"));
 const ClientDashboard = lazy(() => import("./pages/ClientDashboard"));
 const ClientAppointmentHistory = lazy(() => import("./pages/client/ClientAppointmentHistory"));
-const PetShopDashboardLayout = lazy(() => import("./pages/PetShopDashboardLayout"));
-const PetShopDashboard = lazy(() => import("./pages/PetShopDashboard"));
-const Clientes = lazy(() => import("./pages/petshop/ClientesVirtual"));
-const Calendario = lazy(() => import("./pages/petshop/Calendario"));
-const Relatorios = lazy(() => import("./pages/petshop/Relatorios"));
-const Configuracoes = lazy(() => import("./pages/petshop/Configuracoes"));
-const Servicos = lazy(() => import("./pages/petshop/Servicos"));
-const ServiceTemplates = lazy(() => import("./pages/petshop/ServiceTemplates"));
-const LoopsDomainSetup = lazy(() => import("./pages/admin/LoopsDomainSetup"));
-const WhatsAppSettings = lazy(() => import("./pages/petshop/WhatsAppSettings"));
-const Estoque = lazy(() => import("./pages/petshop/EstoqueVirtual"));
-const Financeiro = lazy(() => import("./pages/petshop/Financeiro"));
-const Fidelidade = lazy(() => import("./pages/petshop/Fidelidade"));
-const Marketing = lazy(() => import("./pages/petshop/Marketing"));
-const Funcionarios = lazy(() => import("./pages/petshop/Funcionarios"));
 const ProfessionalEmployees = lazy(() => import("./pages/petshop/Funcionarios"));
+const LoopsDomainSetup = lazy(() => import("./pages/admin/LoopsDomainSetup"));
 const NewAppointment = lazy(() => import("./pages/NewAppointment"));
 const PetProfile = lazy(() => import("./pages/PetProfile"));
 const PetShopSetup = lazy(() => import("./pages/PetShopSetup"));
@@ -101,6 +87,7 @@ const ProfessionalLayout = lazy(() => import("./pages/professional/ProfessionalL
 const ProfessionalDashboard = lazy(() => import("./pages/professional/ProfessionalDashboard"));
 const ProfessionalCalendar = lazy(() => import("./pages/professional/ProfessionalCalendar"));
 const ProfessionalServices = lazy(() => import("./pages/professional/ProfessionalServices"));
+const ProfessionalSettings = lazy(() => import("./pages/professional/ProfessionalSettings"));
 const ProfessionalClients = lazy(() => import("./pages/professional/ProfessionalClientsVirtual"));
 const ProfessionalReports = lazy(() => import("./pages/professional/ProfessionalReports"));
 const ProfessionalBackup = lazy(() => import("./pages/professional/ProfessionalBackup"));
@@ -292,48 +279,23 @@ const App = () => {
               <ProfessionalLayout />
             </ProtectedRoute>
           }>
-            <Route path="dashboard" element={<ProfessionalDashboard />} />
-            <Route path="calendar" element={<ProfessionalCalendar />} />
+            <Route index element={<Navigate to="/professional/services" replace />} />
             <Route path="services" element={<ProfessionalServices />} />
+            <Route path="calendar" element={<ProfessionalCalendar />} />
             <Route path="clients" element={<ProfessionalClients />} />
             <Route path="employees" element={<ProfessionalEmployees />} />
             <Route path="reports" element={<ProfessionalReports />} />
             <Route path="backup" element={<ProfessionalBackup />} />
+            <Route path="settings" element={<ProfessionalSettings />} />
             <Route path="plans" element={<ProfessionalPlans />} />
             <Route path="payment-success" element={<PaymentSuccess />} />
             <Route path="payment-cancelled" element={<PaymentCancelled />} />
             <Route path="profile" element={<ProfessionalProfile />} />
           </Route>
           
-          {/* Legacy Pet Shop Routes for backward compatibility */}
-          <Route path="/petshop-setup" element={
-            <ProtectedRoute allowedRoles={["pet_shop"]}>
-              <PetShopSetup />
-            </ProtectedRoute>
-          } />
-          <Route path="/petshop-dashboard" element={
-            <ProtectedRoute allowedRoles={["pet_shop"]}>
-              <PetShopDashboardLayout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<Navigate to="/professional/dashboard" replace />} />
-            <Route path="servicos" element={<Servicos />} />
-            <Route path="service-templates" element={<ServiceTemplates />} />
-            <Route path="whatsapp" element={<WhatsAppSettings />} />
-            <Route path="analytics" element={<Analytics />} />
-            <Route path="clientes" element={<Clientes />} />
-            <Route path="cliente/:clientId" element={<ClientProfile />} />
-            <Route path="funcionarios" element={<Funcionarios />} />
-            <Route path="calendario" element={<Calendario />} />
-            <Route path="estoque" element={<Estoque />} />
-            <Route path="financeiro" element={<Financeiro />} />
-            <Route path="fidelidade" element={<Fidelidade />} />
-            <Route path="marketing" element={<Marketing />} />
-            <Route path="relatorios" element={<Relatorios />} />
-            <Route path="configuracoes" element={<Configuracoes />} />
-            <Route path="editar-petshop" element={<EditarPetshop />} />
-            <Route path="submit-success-story" element={<SubmitSuccessStory />} />
-          </Route>
+          {/* Legacy Pet Shop Routes - Redirect to Professional */}
+          <Route path="/petshop-setup" element={<Navigate to="/professional/services" replace />} />
+          <Route path="/petshop-dashboard/*" element={<Navigate to="/professional/services" replace />} />
           
           {/* Admin Routes - Nested under AdminLayout */}
           <Route 
