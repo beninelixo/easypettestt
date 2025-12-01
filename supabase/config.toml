@@ -201,3 +201,5 @@ verify_jwt = true
 [functions.validate-profiles]
 verify_jwt = true
 
+[functions.admin-reset-password]
+verify_jwt = true
