@@ -21,7 +21,7 @@ import { useRealtimeMetrics } from "@/hooks/useRealtimeMetrics";
 import { usePlanTheme } from "@/hooks/usePlanTheme";
 
 const ProfessionalDashboard = () => {
-  const { user } = useAuth();
+  const { user, isGodUser } = useAuth();
   const navigate = useNavigate();
   const planTheme = usePlanTheme();
   const [appointments, setAppointments] = useState<any[]>([]);
@@ -59,6 +59,7 @@ const ProfessionalDashboard = () => {
     let shopId: string | null = null;
     let shopName: string = "";
 
+    // Primeiro tentar encontrar pet_shop do próprio usuário
     const { data: ownedShop } = await supabase
       .from("pet_shops")
       .select("id, name")
@@ -69,6 +70,7 @@ const ProfessionalDashboard = () => {
       shopId = ownedShop.id;
       shopName = ownedShop.name;
     } else {
+      // Tentar como funcionário
       const { data: employeeShop } = await supabase
         .from("petshop_employees")
         .select("pet_shop_id, pet_shops(name)")
@@ -81,8 +83,21 @@ const ProfessionalDashboard = () => {
       }
     }
 
+    // ✅ God User: se não encontrou pet shop próprio, buscar primeiro disponível para visualização
+    if (!shopId && (isGodUser || user?.email === 'beninelixo@gmail.com')) {
+      const { data: anyShop } = await supabase
+        .from("pet_shops")
+        .select("id, name")
+        .limit(1)
+        .maybeSingle();
+      
+      if (anyShop) {
+        shopId = anyShop.id;
+        shopName = `[GOD MODE] ${anyShop.name}`;
+      }
+    }
+
     if (!shopId) {
-      // Se não encontrou pet shop, mostra estado vazio em vez de redirecionar
       setLoading(false);
       return;
     }
