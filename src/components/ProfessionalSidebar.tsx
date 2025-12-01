@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { 
-  Calendar, Scissors, Users, BarChart3, LogOut, Building2, 
-  LayoutDashboard, Settings, PawPrint, ChevronRight, Sparkles
+  Calendar, Scissors, Users, LogOut, Building2, 
+  LayoutDashboard, Settings, ChevronRight, Sparkles, Moon, Sun
 } from "lucide-react";
 import {
   Sidebar,
@@ -19,16 +19,11 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/lib/tenant-context";
 import { usePlanTheme } from "@/hooks/usePlanTheme";
+import { useTheme } from "@/hooks/useTheme";
 import { Separator } from "@/components/ui/separator";
 import logo from "@/assets/easypet-logo.png";
 
 const professionalMenuItems = [
-  { 
-    title: "Dashboard", 
-    url: "/professional/dashboard", 
-    icon: LayoutDashboard,
-    gradient: "from-cyan-500 to-blue-600"
-  },
   { 
     title: "Serviços", 
     url: "/professional/services", 
@@ -75,6 +70,7 @@ export function ProfessionalSidebar() {
   const { signOut, user } = useAuth();
   const { can, tenantId } = useTenant();
   const planTheme = usePlanTheme();
+  const { theme, toggleTheme } = useTheme();
   const isCollapsed = state === "collapsed";
   
   const showMultiUnit = tenantId && (can('view_consolidated') || can('manage_units'));
@@ -236,7 +232,18 @@ export function ProfessionalSidebar() {
       </SidebarContent>
       
       {/* Footer */}
-      <SidebarFooter className="border-t border-border/50 bg-card/50 backdrop-blur-sm p-3">
+      <SidebarFooter className="border-t border-border/50 bg-card/50 backdrop-blur-sm p-3 space-y-2">
+        {/* Theme Toggle */}
+        <Button
+          variant="ghost"
+          onClick={toggleTheme}
+          className={`w-full ${isCollapsed ? 'justify-center px-0' : 'justify-start gap-3'} text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-xl transition-all`}
+        >
+          {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          {!isCollapsed && <span>{theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}</span>}
+        </Button>
+        
+        {/* Logout */}
         <Button
           variant="ghost"
           onClick={signOut}
