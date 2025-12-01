@@ -29,7 +29,8 @@ serve(async (req) => {
       );
     }
 
-    const valid = await bcrypt.compare(password, hash);
+    // Use synchronous compare (Deno doesn't support Worker for async bcrypt)
+    const valid = bcrypt.compareSync(password, hash);
 
     return new Response(
       JSON.stringify({ valid }),

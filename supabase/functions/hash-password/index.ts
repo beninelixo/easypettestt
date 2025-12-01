@@ -44,7 +44,9 @@ serve(async (req) => {
       );
     }
 
-    const hash = await bcrypt.hash(password);
+    // Generate salt and hash synchronously (Deno doesn't support Worker for async bcrypt)
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
 
     return new Response(
       JSON.stringify({ hash }),
