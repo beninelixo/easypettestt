@@ -42,11 +42,85 @@ export const useAuth = () => {
     }
   };
 
+  // Função para garantir que usuário tem profile e role (fallback)
+  const ensureUserData = useCallback(async (userId: string, userEmail: string, userMetadata: any) => {
+    try {
+      console.log('🔄 Ensuring user data exists for:', userId);
+      
+      // Verificar se profile existe
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', userId)
+        .maybeSingle();
+      
+      if (!profile) {
+        console.log('⚠️ Profile missing, creating...');
+        await supabase.from('profiles').insert({
+          id: userId,
+          full_name: userMetadata?.full_name || 'Usuário',
+          phone: userMetadata?.phone || '',
+        });
+        console.log('✅ Profile created');
+      }
+
+      // Verificar se role existe
+      const { data: existingRole } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .maybeSingle();
+      
+      if (!existingRole) {
+        console.log('⚠️ Role missing, creating...');
+        const userType = userMetadata?.user_type || 'client';
+        const mappedRole = userType === 'professional' ? 'pet_shop' : userType;
+        await supabase.from('user_roles').insert({
+          user_id: userId,
+          role: mappedRole,
+        });
+        console.log('✅ Role created:', mappedRole);
+        
+        // Se for pet_shop, criar pet_shop também
+        if (mappedRole === 'pet_shop') {
+          const { data: existingPetShop } = await supabase
+            .from('pet_shops')
+            .select('id')
+            .eq('owner_id', userId)
+            .maybeSingle();
+          
+          if (!existingPetShop) {
+            console.log('⚠️ Pet shop missing, creating...');
+            await supabase.from('pet_shops').insert({
+              owner_id: userId,
+              name: userMetadata?.pet_shop_name || 'Meu PetShop',
+              address: userMetadata?.pet_shop_address || '',
+              city: userMetadata?.pet_shop_city || '',
+              state: userMetadata?.pet_shop_state || '',
+              phone: userMetadata?.phone || '',
+              email: userEmail,
+              code: 'PET-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
+            });
+            console.log('✅ Pet shop created');
+          }
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error ensuring user data:', error);
+    }
+  }, []);
+
   // Memoize fetchUserRole to avoid recreation
   const fetchUserRole = useCallback(async (userId: string) => {
     try {
       if (import.meta.env.DEV) {
         console.log('🔍 Fetching user role for:', userId);
+      }
+      
+      // Primeiro, garantir que os dados do usuário existem
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser) {
+        await ensureUserData(userId, currentUser.email || '', currentUser.user_metadata);
       }
       
       const { data, error } = await supabase
@@ -100,7 +174,7 @@ export const useAuth = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [ensureUserData]);
 
   useEffect(() => {
     // Set up auth state listener FIRST
