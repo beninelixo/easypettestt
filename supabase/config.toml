@@ -1,4 +1,4 @@
-project_id = "xkfkrdorghyagtwbxory"
+project_id = "zxdbsimthnfprrthszoh"
 
 [functions.send-loops-email]
 verify_jwt = true
@@ -112,4 +112,91 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.generate-professional-backup]
+verify_jwt = true
+
+[functions.hash-password]
+verify_jwt = true
+
+[functions.verify-password]
+verify_jwt = true
+
+[functions.block-user]
+verify_jwt = true
+
+[functions.unblock-user]
+verify_jwt = true
+
+[functions.impersonate-user]
+verify_jwt = true
+
+[functions.list-users-admin]
+verify_jwt = true
+
+[functions.update-user-admin]
+verify_jwt = true
+
+[functions.send-admin-invite]
+verify_jwt = true
+
+[functions.send-admin-alert]
+verify_jwt = true
+
+[functions.collect-metrics]
+verify_jwt = true
+
+[functions.collect-health-metrics]
+verify_jwt = true
+
+[functions.process-failed-jobs]
+verify_jwt = true
+
+[functions.cleanup-old-data]
+verify_jwt = true
+
+[functions.register-push-subscription]
+verify_jwt = true
+
+[functions.send-push-notification]
+verify_jwt = true
+
+[functions.requeue-notification]
+verify_jwt = true
+
+[functions.send-sms-verification]
+verify_jwt = true
+
+[functions.verify-sms-code]
+verify_jwt = true
+
+[functions.setup-mfa]
+verify_jwt = true
+
+[functions.verify-mfa-token]
+verify_jwt = true
+
+[functions.test-webhook]
+verify_jwt = true
+
+[functions.trigger-webhooks]
+verify_jwt = true
+
+[functions.worker-healthcheck]
+verify_jwt = true
+
+[functions.backup-to-cloud]
+verify_jwt = true
+
+[functions.complete-pending-todos]
+verify_jwt = true
+
+[functions.generate-security-report]
+verify_jwt = true
+
+[functions.security-headers]
+verify_jwt = false
+
+[functions.send-whatsapp]
+verify_jwt = true
+
+[functions.validate-profiles]
 verify_jwt = true
