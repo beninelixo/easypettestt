@@ -12,7 +12,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -80,7 +79,7 @@ export function ProfessionalSidebar() {
       className={isCollapsed ? "w-[70px]" : "w-72"} 
       collapsible="icon"
     >
-      <SidebarContent className="bg-gradient-to-b from-card via-card to-card/95 border-r border-border/50">
+      <SidebarContent className="bg-gradient-to-b from-card via-card to-card/95 border-r border-border/50 overflow-hidden scrollbar-hide">
         {/* Logo Section */}
         <div className={`flex items-center ${isCollapsed ? 'justify-center py-5' : 'gap-3 px-5 py-6'}`}>
           <div className="relative group">
@@ -229,30 +228,33 @@ export function ProfessionalSidebar() {
             </div>
           </div>
         )}
+
+        {/* Separador antes dos botões de ação */}
+        <Separator className="mx-4 bg-border/50" />
+
+        {/* Tema e Sair - DENTRO do SidebarContent */}
+        <div className="px-3 pb-4 pt-2 space-y-2">
+          {/* Theme Toggle */}
+          <Button
+            variant="ghost"
+            onClick={toggleTheme}
+            className={`w-full ${isCollapsed ? 'justify-center px-0' : 'justify-start gap-3'} text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-xl transition-all`}
+          >
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {!isCollapsed && <span>{theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}</span>}
+          </Button>
+          
+          {/* Logout */}
+          <Button
+            variant="ghost"
+            onClick={signOut}
+            className={`w-full ${isCollapsed ? 'justify-center px-0' : 'justify-start gap-3'} text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all`}
+          >
+            <LogOut className="h-5 w-5" />
+            {!isCollapsed && <span>Sair</span>}
+          </Button>
+        </div>
       </SidebarContent>
-      
-      {/* Footer */}
-      <SidebarFooter className="border-t border-border/50 bg-card/50 backdrop-blur-sm p-3 space-y-2">
-        {/* Theme Toggle */}
-        <Button
-          variant="ghost"
-          onClick={toggleTheme}
-          className={`w-full ${isCollapsed ? 'justify-center px-0' : 'justify-start gap-3'} text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-xl transition-all`}
-        >
-          {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          {!isCollapsed && <span>{theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}</span>}
-        </Button>
-        
-        {/* Logout */}
-        <Button
-          variant="ghost"
-          onClick={signOut}
-          className={`w-full ${isCollapsed ? 'justify-center px-0' : 'justify-start gap-3'} text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all`}
-        >
-          <LogOut className="h-5 w-5" />
-          {!isCollapsed && <span>Sair</span>}
-        </Button>
-      </SidebarFooter>
     </Sidebar>
   );
 }
