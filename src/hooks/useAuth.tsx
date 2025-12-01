@@ -226,6 +226,10 @@ export const useAuth = () => {
       setSession(session);
       setUser(session?.user ?? null);
       
+      // ✅ Check if is God User on initial session load
+      const godUser = session?.user?.email === 'beninelixo@gmail.com';
+      setIsGodUser(godUser);
+      
       if (session?.user) {
         fetchUserRole(session.user.id);
       } else {
