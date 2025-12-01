@@ -164,12 +164,39 @@ const ProfessionalSettings = () => {
       onClick: () => navigate("/professional/profile"),
     },
     {
+      title: "Funcionários",
+      description: "Gerencie funcionários e permissões",
+      icon: Users,
+      action: "Gerenciar",
+      onClick: () => navigate("/professional/employees"),
+    },
+    {
+      title: "Relatórios",
+      description: "Visualize relatórios e análises",
+      icon: Settings,
+      action: "Ver Relatórios",
+      onClick: () => navigate("/professional/reports"),
+    },
+    {
+      title: "Backup",
+      description: "Realize backup dos seus dados",
+      icon: Settings,
+      action: "Acessar",
+      onClick: () => navigate("/professional/backup"),
+    },
+    {
+      title: "Planos e Pagamentos",
+      description: "Configure métodos de pagamento e planos",
+      icon: CreditCard,
+      action: "Ver Planos",
+      onClick: () => navigate("/professional/plans"),
+    },
+    {
       title: "Alterar Senha de Configurações",
       description: "Atualize sua senha de acesso às configurações",
       icon: Key,
       action: "Alterar",
       onClick: () => {
-        // TODO: Implement password change dialog
         toast({
           title: "Funcionalidade em desenvolvimento",
           description: "Alterar senha estará disponível em breve",
@@ -197,13 +224,6 @@ const ProfessionalSettings = () => {
           title: "Funcionalidade em desenvolvimento",
           description: "Gerenciar segurança estará disponível em breve",
         }),
-    },
-    {
-      title: "Pagamentos",
-      description: "Configure métodos de pagamento e planos",
-      icon: CreditCard,
-      action: "Ver Planos",
-      onClick: () => navigate("/professional/plans"),
     },
   ];
 

@@ -32,22 +32,26 @@ export default function AdminDashboard() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+      <div className="mb-8">
+        <h1 className="text-4xl font-extrabold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
           Dashboard Administrativo
         </h1>
-        <p className="text-muted-foreground mt-2">Visão geral completa do sistema EasyPet</p>
+        <p className="text-muted-foreground mt-2 text-base">Visão geral completa do sistema EasyPet</p>
       </div>
 
       {/* Estatísticas em Tempo Real */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Pet Shops</CardTitle>
-            <Building2 className="h-5 w-5 text-primary" />
+        <Card className="group hover:shadow-2xl hover:scale-105 transition-all duration-300 border-l-4 border-l-primary/50 hover:border-l-primary">
+          <CardHeader className="flex flex-row items-center justify-between pb-3 space-y-0">
+            <CardTitle className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
+              Total Pet Shops
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+              <Building2 className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.totalPetShops}</div>
+            <div className="text-3xl font-extrabold text-foreground tracking-tight">{stats.totalPetShops}</div>
             <Badge variant="secondary" className="mt-2 text-xs">
               <TrendingUp className="h-3 w-3 mr-1" />
               +12% este mês
@@ -55,13 +59,17 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Clientes</CardTitle>
-            <Users className="h-5 w-5 text-secondary" />
+        <Card className="group hover:shadow-2xl hover:scale-105 transition-all duration-300 border-l-4 border-l-secondary/50 hover:border-l-secondary">
+          <CardHeader className="flex flex-row items-center justify-between pb-3 space-y-0">
+            <CardTitle className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
+              Total Clientes
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-secondary/10 group-hover:bg-secondary/20 transition-colors">
+              <Users className="h-6 w-6 text-secondary group-hover:scale-110 transition-transform" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.totalClients}</div>
+            <div className="text-3xl font-extrabold text-foreground tracking-tight">{stats.totalClients}</div>
             <Badge variant="secondary" className="mt-2 text-xs">
               <TrendingUp className="h-3 w-3 mr-1" />
               +8% este mês
@@ -69,13 +77,17 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Agendamentos Hoje</CardTitle>
-            <Calendar className="h-5 w-5 text-accent" />
+        <Card className="group hover:shadow-2xl hover:scale-105 transition-all duration-300 border-l-4 border-l-accent/50 hover:border-l-accent">
+          <CardHeader className="flex flex-row items-center justify-between pb-3 space-y-0">
+            <CardTitle className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
+              Agendamentos Hoje
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-accent/10 group-hover:bg-accent/20 transition-colors">
+              <Calendar className="h-6 w-6 text-accent group-hover:scale-110 transition-transform" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.appointmentsToday}</div>
+            <div className="text-3xl font-extrabold text-foreground tracking-tight">{stats.appointmentsToday}</div>
             <Badge variant="secondary" className="mt-2 text-xs">
               <Activity className="h-3 w-3 mr-1" />
               Em tempo real
@@ -83,13 +95,17 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Faturamento Mensal</CardTitle>
-            <DollarSign className="h-5 w-5 text-green-600" />
+        <Card className="group hover:shadow-2xl hover:scale-105 transition-all duration-300 border-l-4 border-l-green-500/50 hover:border-l-green-600">
+          <CardHeader className="flex flex-row items-center justify-between pb-3 space-y-0">
+            <CardTitle className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
+              Faturamento Mensal
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-green-500/10 group-hover:bg-green-500/20 transition-colors">
+              <DollarSign className="h-6 w-6 text-green-600 group-hover:scale-110 transition-transform" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">
+            <div className="text-3xl font-extrabold text-foreground tracking-tight">
               R$ {stats.monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </div>
             <Badge variant="secondary" className="mt-2 text-xs">

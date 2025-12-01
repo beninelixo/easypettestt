@@ -85,43 +85,55 @@ export function EnhancedClientDashboard() {
   ).length || 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pontos de Fidelidade</CardTitle>
-            <Award className="h-4 w-4 text-primary" />
+        <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-t-4 border-t-primary">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
+              Pontos de Fidelidade
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+              <Award className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">{loyaltyPoints}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-3xl font-extrabold text-primary tracking-tight">{loyaltyPoints}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               Próxima recompensa em {Math.max(0, 100 - (loyaltyPoints % 100))} pontos
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Serviços Realizados</CardTitle>
-            <Heart className="h-4 w-4 text-accent" />
+        <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-t-4 border-t-accent">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
+              Serviços Realizados
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-accent/10 group-hover:bg-accent/20 transition-colors">
+              <Heart className="h-5 w-5 text-accent group-hover:scale-110 transition-transform" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{completedCount}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-3xl font-extrabold text-foreground tracking-tight">{completedCount}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               Total de serviços concluídos
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Próximos Agendamentos</CardTitle>
-            <Calendar className="h-4 w-4 text-secondary" />
+        <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-t-4 border-t-secondary">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
+              Próximos Agendamentos
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-secondary/10 group-hover:bg-secondary/20 transition-colors">
+              <Calendar className="h-5 w-5 text-secondary group-hover:scale-110 transition-transform" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{upcomingCount}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-3xl font-extrabold text-foreground tracking-tight">{upcomingCount}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               Serviços agendados
             </p>
           </CardContent>

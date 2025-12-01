@@ -23,12 +23,7 @@ const professionalMenuItems = [
   { title: "Serviços", url: "/professional/services", icon: Scissors },
   { title: "Calendário", url: "/professional/calendar", icon: Calendar },
   { title: "Clientes", url: "/professional/clients", icon: Users },
-  { title: "Funcionários", url: "/professional/employees", icon: UserCog },
-  { title: "Relatórios", url: "/professional/reports", icon: BarChart3 },
-  { title: "Backup", url: "/professional/backup", icon: Database },
   { title: "Configurações", url: "/professional/settings", icon: Settings },
-  { title: "Plano", url: "/professional/plans", icon: CreditCard },
-  { title: "Perfil", url: "/professional/profile", icon: User },
 ];
 
 const multiUnitMenuItems = [
