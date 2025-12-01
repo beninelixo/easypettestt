@@ -1,16 +1,22 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
-import { Shield, Zap, Database, Activity, Brain, AlertTriangle, CheckCircle, XCircle, Eye, EyeOff } from "lucide-react";
+import { Shield, Zap, Database, Activity, Brain, AlertTriangle, CheckCircle, XCircle, Eye, EyeOff, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAdminPasswordReset } from "@/hooks/useAdminPasswordReset";
 
 const GodModeDashboard = () => {
   const { toast } = useToast();
+  const { resetPassword, loading: resetLoading } = useAdminPasswordReset();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showSecrets, setShowSecrets] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetNewPassword, setResetNewPassword] = useState("");
 
   useEffect(() => {
     loadSystemStats();
@@ -313,6 +319,55 @@ const GodModeDashboard = () => {
                 <div className="text-2xl font-bold text-red-500">
                   {stats?.security?.failed_logins_24h || 0}
                 </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Password Reset - God Mode */}
+        <Card className="border-orange-500/30 bg-gradient-to-br from-orange-500/5 to-background">
+          <CardHeader>
+            <CardTitle className="text-xl font-bold flex items-center gap-3">
+              <KeyRound className="h-5 w-5 text-orange-500" />
+              🔑 Redefinir Senha de Usuário
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="resetEmail">Email do usuário</Label>
+                <Input
+                  id="resetEmail"
+                  type="email"
+                  placeholder="usuario@email.com"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="resetPassword">Nova senha</Label>
+                <Input
+                  id="resetPassword"
+                  type="password"
+                  placeholder="Nova senha (mín. 8 caracteres)"
+                  value={resetNewPassword}
+                  onChange={(e) => setResetNewPassword(e.target.value)}
+                />
+              </div>
+              <div className="flex items-end">
+                <Button
+                  className="w-full bg-orange-500 hover:bg-orange-600"
+                  disabled={resetLoading || !resetEmail || !resetNewPassword}
+                  onClick={async () => {
+                    const result = await resetPassword(resetEmail, resetNewPassword);
+                    if (result.success) {
+                      setResetEmail("");
+                      setResetNewPassword("");
+                    }
+                  }}
+                >
+                  {resetLoading ? "Redefinindo..." : "Redefinir Senha"}
+                </Button>
               </div>
             </div>
           </CardContent>
