@@ -103,7 +103,7 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.send-real-time-alert]
-verify_jwt = false
+verify_jwt = true
 
 [functions.verify-backup]
 verify_jwt = true
