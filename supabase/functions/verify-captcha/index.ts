@@ -15,6 +15,7 @@ serve(async (req) => {
     const { token } = await req.json();
 
     if (!token) {
+      console.error('No captcha token provided');
       return new Response(
         JSON.stringify({ success: false, error: 'Token do captcha é obrigatório' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -24,12 +25,15 @@ serve(async (req) => {
     const secretKey = Deno.env.get('HCAPTCHA_SECRET_KEY');
     
     if (!secretKey) {
-      console.error('HCAPTCHA_SECRET_KEY not configured');
+      console.error('HCAPTCHA_SECRET_KEY not configured in environment');
       return new Response(
         JSON.stringify({ success: false, error: 'Captcha não configurado no servidor' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log('Verifying captcha with token length:', token.length);
+    console.log('Secret key configured:', secretKey ? `Yes (${secretKey.length} chars)` : 'No');
 
     // Verify with hCaptcha API
     const verifyResponse = await fetch('https://hcaptcha.com/siteverify', {
@@ -45,14 +49,16 @@ serve(async (req) => {
 
     const verifyData = await verifyResponse.json();
     
-    console.log('hCaptcha verification result:', { success: verifyData.success });
+    console.log('hCaptcha full response:', JSON.stringify(verifyData));
 
     if (verifyData.success) {
+      console.log('Captcha verification successful');
       return new Response(
         JSON.stringify({ success: true }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     } else {
+      console.error('Captcha verification failed:', verifyData['error-codes']);
       return new Response(
         JSON.stringify({ 
           success: false, 
