@@ -111,7 +111,7 @@ function getRoleBasedPath(role: string): string {
     case "admin":
       return "/admin/dashboard";
     case "pet_shop":
-      return "/professional/dashboard";
+      return "/professional/services";
     case "client":
       return "/client/pets";
     case "tenant_admin":

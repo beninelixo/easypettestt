@@ -2175,6 +2175,38 @@ export type Database = {
           },
         ]
       }
+      settings_passwords: {
+        Row: {
+          created_at: string
+          id: string
+          password_hash: string
+          pet_shop_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          password_hash: string
+          pet_shop_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          password_hash?: string
+          pet_shop_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_pet_shop"
+            columns: ["pet_shop_id"]
+            isOneToOne: true
+            referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shop_schedule: {
         Row: {
           created_at: string | null
