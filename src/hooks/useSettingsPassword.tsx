@@ -51,7 +51,14 @@ export const useSettingsPassword = (petShopId: string | undefined) => {
   };
 
   const createPassword = async (password: string): Promise<boolean> => {
-    if (!petShopId || !user) return false;
+    if (!petShopId || !user) {
+      toast({
+        title: "Erro de Autenticação",
+        description: "Você precisa estar autenticado para criar uma senha.",
+        variant: "destructive",
+      });
+      return false;
+    }
 
     try {
       // Hash password using bcrypt via edge function
@@ -62,14 +69,25 @@ export const useSettingsPassword = (petShopId: string | undefined) => {
         }
       );
 
-      if (hashError) throw hashError;
+      if (hashError) {
+        throw new Error(`Falha ao gerar hash da senha: ${hashError.message}`);
+      }
 
-      const { error } = await supabase.from("settings_passwords").insert({
+      if (!hashData?.hash) {
+        throw new Error("Hash da senha não foi retornado pelo servidor.");
+      }
+
+      const { error: insertError } = await supabase.from("settings_passwords").insert({
         pet_shop_id: petShopId,
         password_hash: hashData.hash,
       });
 
-      if (error) throw error;
+      if (insertError) {
+        if (insertError.code === "23505") {
+          throw new Error("Já existe uma senha configurada para este pet shop.");
+        }
+        throw new Error(`Erro ao salvar senha no banco: ${insertError.message}`);
+      }
 
       setHasPassword(true);
       setIsAuthenticated(true);
@@ -83,8 +101,8 @@ export const useSettingsPassword = (petShopId: string | undefined) => {
     } catch (error: any) {
       console.error("Error creating settings password:", error);
       toast({
-        title: "Erro",
-        description: "Erro ao criar senha de configurações",
+        title: "Erro ao Criar Senha",
+        description: error.message || "Não foi possível criar a senha. Tente novamente.",
         variant: "destructive",
       });
       return false;
@@ -92,7 +110,14 @@ export const useSettingsPassword = (petShopId: string | undefined) => {
   };
 
   const verifyPassword = async (password: string): Promise<boolean> => {
-    if (!petShopId || !user) return false;
+    if (!petShopId || !user) {
+      toast({
+        title: "Erro de Autenticação",
+        description: "Você precisa estar autenticado para verificar a senha.",
+        variant: "destructive",
+      });
+      return false;
+    }
 
     try {
       const { data: hashData, error: hashError } = await supabase
@@ -101,7 +126,12 @@ export const useSettingsPassword = (petShopId: string | undefined) => {
         .eq("pet_shop_id", petShopId)
         .single();
 
-      if (hashError) throw hashError;
+      if (hashError) {
+        if (hashError.code === "PGRST116") {
+          throw new Error("Nenhuma senha configurada para este pet shop.");
+        }
+        throw new Error(`Erro ao buscar senha no banco: ${hashError.message}`);
+      }
 
       // Verify password using bcrypt via edge function
       const { data: verifyData, error: verifyError } = await supabase.functions.invoke(
@@ -114,15 +144,21 @@ export const useSettingsPassword = (petShopId: string | undefined) => {
         }
       );
 
-      if (verifyError) throw verifyError;
+      if (verifyError) {
+        throw new Error(`Falha ao verificar senha: ${verifyError.message}`);
+      }
 
-      if (verifyData.valid) {
+      if (verifyData?.valid) {
         setIsAuthenticated(true);
+        toast({
+          title: "Acesso Liberado",
+          description: "Senha verificada com sucesso!",
+        });
         return true;
       } else {
         toast({
-          title: "Senha incorreta",
-          description: "A senha informada está incorreta",
+          title: "Senha Incorreta",
+          description: "A senha informada não está correta. Tente novamente.",
           variant: "destructive",
         });
         return false;
@@ -130,8 +166,8 @@ export const useSettingsPassword = (petShopId: string | undefined) => {
     } catch (error: any) {
       console.error("Error verifying settings password:", error);
       toast({
-        title: "Erro",
-        description: "Erro ao verificar senha",
+        title: "Erro ao Verificar Senha",
+        description: error.message || "Não foi possível verificar a senha. Tente novamente.",
         variant: "destructive",
       });
       return false;
