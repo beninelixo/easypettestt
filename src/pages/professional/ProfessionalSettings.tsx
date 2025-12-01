@@ -90,8 +90,7 @@ const ProfessionalSettings = () => {
       }
       const success = await createPassword(password);
       if (success) {
-        setShowSettings(true);
-        setDialogOpen(false);
+        navigate("/petshop-dashboard");
       }
       return success;
     } else {
@@ -110,8 +109,7 @@ const ProfessionalSettings = () => {
         }
       } else {
         setAttempts(0);
-        setShowSettings(true);
-        setDialogOpen(false);
+        navigate("/petshop-dashboard");
       }
       return success;
     }
