@@ -105,7 +105,7 @@ const ProfessionalSettings = () => {
             variant: "destructive",
           });
           setTimeout(() => {
-            navigate("/professional/dashboard");
+            navigate("/professional/services");
           }, 2000);
         }
       } else {
@@ -119,7 +119,7 @@ const ProfessionalSettings = () => {
 
   const handleDialogClose = (open: boolean) => {
     if (!open && !isAuthenticated) {
-      navigate("/professional/dashboard");
+      navigate("/professional/services");
     }
     setDialogOpen(open);
   };
@@ -251,18 +251,30 @@ const ProfessionalSettings = () => {
           <div className="absolute inset-0 bg-grid-pattern opacity-5" />
           <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary/10 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           
-          <div className="relative flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 shadow-lg">
-              <Settings className="h-6 w-6 text-white" />
+          <div className="relative flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 shadow-lg">
+                <Settings className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+                  Configurações
+                </h1>
+                <p className="text-muted-foreground text-sm mt-1">
+                  Gerencie todas as configurações do seu pet shop
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
-                Configurações
-              </h1>
-              <p className="text-muted-foreground text-sm mt-1">
-                Gerencie todas as configurações do seu pet shop
-              </p>
-            </div>
+            
+            {/* Back Button */}
+            <Button
+              variant="outline"
+              onClick={() => navigate("/professional/services")}
+              className="flex items-center gap-2 rounded-xl border-border/50 hover:bg-muted/60"
+            >
+              <ChevronRight className="h-4 w-4 rotate-180" />
+              Voltar
+            </Button>
           </div>
         </header>
 
