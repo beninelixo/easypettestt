@@ -55,22 +55,22 @@ export default function SecurityFixes() {
       description: "Tabela com RLS ativado mas sem políticas, bloqueando criação de senhas",
       severity: "critical",
       status: "pending",
-      checkQuery: "SELECT COUNT(*) as count FROM pg_policies WHERE tablename = 'settings_passwords'"
+      checkQuery: "SELECT COUNT(*) as count FROM pg_policies WHERE tablename = 'settings_passwords'",
     },
     {
       id: "search_path",
       title: "Funções SECURITY DEFINER sem search_path fixo",
       description: "7 funções vulneráveis a ataques de hijacking de search_path",
       severity: "high",
-      status: "pending"
+      status: "pending",
     },
     {
       id: "extension_schema",
       title: "Extensão pg_net no schema público",
       description: "Extensão deve estar no schema 'extensions' para melhor organização",
       severity: "medium",
-      status: "pending"
-    }
+      status: "pending",
+    },
   ]);
 
   const copySQL = async () => {
@@ -92,17 +92,18 @@ export default function SecurityFixes() {
   };
 
   const openSupabaseDashboard = () => {
-    window.open("https://supabase.com/dashboard/project/xkfkrdorghyagtwbxory/sql/new", "_blank");
+    window.open("https://supabase.com/dashboard/project/zxdbsimthnfprrthszoh/sql/new", "_blank");
   };
 
   const checkStatus = async () => {
     setChecking(true);
-    
+
     toast({
       title: "Verificação manual necessária",
-      description: "Execute o SQL no dashboard do Supabase. As políticas RLS aparecerão na tabela settings_passwords após execução.",
+      description:
+        "Execute o SQL no dashboard do Supabase. As políticas RLS aparecerão na tabela settings_passwords após execução.",
     });
-    
+
     setChecking(false);
   };
 
@@ -144,8 +145,8 @@ export default function SecurityFixes() {
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          <strong>Importante:</strong> Estas correções requerem acesso ao SQL Editor do Supabase. 
-          As mudanças são seguras e não afetam dados existentes.
+          <strong>Importante:</strong> Estas correções requerem acesso ao SQL Editor do Supabase. As mudanças são
+          seguras e não afetam dados existentes.
         </AlertDescription>
       </Alert>
 
@@ -161,7 +162,9 @@ export default function SecurityFixes() {
                   </div>
                   <CardDescription className="mt-1">{issue.description}</CardDescription>
                 </div>
-                <span className={`text-xs font-semibold uppercase px-2 py-1 rounded ${getSeverityColor(issue.severity)}`}>
+                <span
+                  className={`text-xs font-semibold uppercase px-2 py-1 rounded ${getSeverityColor(issue.severity)}`}
+                >
                   {issue.severity}
                 </span>
               </div>
@@ -173,9 +176,7 @@ export default function SecurityFixes() {
       <Card>
         <CardHeader>
           <CardTitle>Como Aplicar as Correções</CardTitle>
-          <CardDescription>
-            Siga estes passos simples para aplicar todas as correções automaticamente
-          </CardDescription>
+          <CardDescription>Siga estes passos simples para aplicar todas as correções automaticamente</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -185,7 +186,9 @@ export default function SecurityFixes() {
               </div>
               <div className="flex-1">
                 <p className="font-medium">Copie o SQL de correção</p>
-                <p className="text-sm text-muted-foreground">Clique no botão abaixo para copiar todo o SQL necessário</p>
+                <p className="text-sm text-muted-foreground">
+                  Clique no botão abaixo para copiar todo o SQL necessário
+                </p>
               </div>
             </div>
 
@@ -246,9 +249,7 @@ export default function SecurityFixes() {
       <Card>
         <CardHeader>
           <CardTitle>SQL de Correção Completo</CardTitle>
-          <CardDescription>
-            Você também pode copiar manualmente daqui se preferir
-          </CardDescription>
+          <CardDescription>Você também pode copiar manualmente daqui se preferir</CardDescription>
         </CardHeader>
         <CardContent>
           <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs">
