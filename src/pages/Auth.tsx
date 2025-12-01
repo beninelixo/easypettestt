@@ -153,6 +153,7 @@ const Auth = () => {
       case "pet_shop":
         return "/professional/dashboard";
       case "admin":
+      case "super_admin":
         return "/admin/dashboard";
       default:
         return "/";

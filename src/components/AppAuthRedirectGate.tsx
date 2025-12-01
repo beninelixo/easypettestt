@@ -109,6 +109,7 @@ export const AppAuthRedirectGate = () => {
 function getRoleBasedPath(role: string): string {
   switch (role) {
     case "admin":
+    case "super_admin":
       return "/admin/dashboard";
     case "pet_shop":
       return "/professional/services";
