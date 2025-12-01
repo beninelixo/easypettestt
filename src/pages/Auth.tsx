@@ -168,21 +168,50 @@ const Auth = () => {
     }
   };
 
-  // Verify captcha token
+  // Verify captcha token with timeout
   const verifyCaptcha = async (token: string): Promise<boolean> => {
     try {
-      const { data, error } = await supabase.functions.invoke('verify-captcha', {
+      console.log('🔐 Starting captcha verification...');
+      
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Captcha verification timeout')), 10000);
+      });
+      
+      const verifyPromise = supabase.functions.invoke('verify-captcha', {
         body: { token },
       });
       
+      const { data, error } = await Promise.race([verifyPromise, timeoutPromise]) as any;
+      
+      console.log('🔐 Captcha response:', { data, error });
+      
       if (error) {
         console.error('Captcha verification error:', error);
+        toast({
+          title: "⚠️ Erro na Verificação",
+          description: "Não foi possível verificar o captcha. Tente novamente.",
+          variant: "destructive",
+        });
         return false;
       }
       
-      return data?.success === true;
-    } catch (error) {
+      if (data?.success === true) {
+        console.log('✅ Captcha verified successfully');
+        return true;
+      }
+      
+      console.log('❌ Captcha verification failed:', data?.errorCodes);
+      return false;
+    } catch (error: any) {
       console.error('Captcha verification failed:', error);
+      toast({
+        title: "⚠️ Erro na Verificação",
+        description: error.message === 'Captcha verification timeout' 
+          ? "Verificação demorou muito. Tente novamente."
+          : "Erro ao verificar captcha. Tente novamente.",
+        variant: "destructive",
+      });
       return false;
     }
   };
