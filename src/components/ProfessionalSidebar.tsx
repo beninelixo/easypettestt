@@ -1,7 +1,8 @@
 import { NavLink } from "react-router-dom";
 import { 
   Calendar, Scissors, Users, LogOut, Building2, 
-  LayoutDashboard, Settings, ChevronRight, Sparkles, Moon, Sun
+  LayoutDashboard, Settings, ChevronRight, Sparkles, Moon, Sun,
+  PanelLeftClose, PanelLeft
 } from "lucide-react";
 import {
   Sidebar,
@@ -12,6 +13,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -80,26 +82,37 @@ export function ProfessionalSidebar() {
       collapsible="icon"
     >
       <SidebarContent className="bg-gradient-to-b from-card via-card to-card/95 border-r border-border/50 overflow-hidden scrollbar-hide">
-        {/* Logo Section */}
-        <div className={`flex items-center ${isCollapsed ? 'justify-center py-5' : 'gap-3 px-5 py-6'}`}>
-          <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative p-2 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-border/50">
-              <img 
-                src={logo} 
-                alt="EasyPet" 
-                className="h-8 w-8 object-contain"
-              />
+        {/* Logo Section with Toggle */}
+        <div className={`flex items-center ${isCollapsed ? 'justify-center py-5' : 'justify-between px-5 py-6'}`}>
+          <div className={`flex items-center ${isCollapsed ? '' : 'gap-3'}`}>
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative p-2 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-border/50">
+                <img 
+                  src={logo} 
+                  alt="EasyPet" 
+                  className="h-8 w-8 object-contain"
+                />
+              </div>
             </div>
+            {!isCollapsed && (
+              <div>
+                <h1 className="font-bold text-lg bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  EasyPet
+                </h1>
+                <p className="text-xs text-muted-foreground">Área Profissional</p>
+              </div>
+            )}
           </div>
-          {!isCollapsed && (
-            <div>
-              <h1 className="font-bold text-lg bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                EasyPet
-              </h1>
-              <p className="text-xs text-muted-foreground">Área Profissional</p>
-            </div>
-          )}
+          
+          {/* Desktop Toggle Button */}
+          <SidebarTrigger className="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted/60 transition-all text-muted-foreground hover:text-foreground">
+            {isCollapsed ? (
+              <PanelLeft className="h-4 w-4" />
+            ) : (
+              <PanelLeftClose className="h-4 w-4" />
+            )}
+          </SidebarTrigger>
         </div>
 
         <Separator className="mx-4 bg-border/50" />
