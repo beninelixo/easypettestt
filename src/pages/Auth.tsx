@@ -19,9 +19,6 @@ import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthInd
 import { getCSRFToken, clearCSRFToken } from "@/lib/csrf";
 import { signInWithGoogle } from "@/lib/auth/googleOAuth";
 import logo from "@/assets/easypet-logo.png";
-import HCaptcha from "@hcaptcha/react-hcaptcha";
-
-const HCAPTCHA_SITE_KEY = "c3b0324c-939a-4c78-8de4-826cdea0b2b0";
 
 // Validation Schemas - Login accepts any password, registration enforces complexity
 const loginSchema = z.object({
@@ -91,10 +88,6 @@ const Auth = () => {
   const [petShopCity, setPetShopCity] = useState("");
   const [petShopState, setPetShopState] = useState("");
   
-  // Captcha states
-  const [loginCaptchaToken, setLoginCaptchaToken] = useState<string | null>(null);
-  const [registerCaptchaToken, setRegisterCaptchaToken] = useState<string | null>(null);
-  
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   
   const { signIn, user, userRole, loading } = useAuth();
@@ -104,11 +97,9 @@ const Auth = () => {
   const { savedEmail, saveRememberMe } = useRememberMe();
   const [rememberMeChecked, setRememberMeChecked] = useState(false);
 
-  // Refs for auto-focus and captcha
+  // Refs for auto-focus
   const loginEmailRef = useRef<HTMLInputElement>(null);
   const registerNameRef = useRef<HTMLInputElement>(null);
-  const loginCaptchaRef = useRef<HCaptcha>(null);
-  const registerCaptchaRef = useRef<HCaptcha>(null);
 
   // Rate limiting for login attempts
   const loginRateLimit = useRateLimit('login', {
@@ -168,67 +159,10 @@ const Auth = () => {
     }
   };
 
-  // Verify captcha token with timeout
-  const verifyCaptcha = async (token: string): Promise<boolean> => {
-    try {
-      console.log('🔐 Starting captcha verification...');
-      
-      // Add timeout to prevent infinite loading
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Captcha verification timeout')), 10000);
-      });
-      
-      const verifyPromise = supabase.functions.invoke('verify-captcha', {
-        body: { token },
-      });
-      
-      const { data, error } = await Promise.race([verifyPromise, timeoutPromise]) as any;
-      
-      console.log('🔐 Captcha response:', { data, error });
-      
-      if (error) {
-        console.error('Captcha verification error:', error);
-        toast({
-          title: "⚠️ Erro na Verificação",
-          description: "Não foi possível verificar o captcha. Tente novamente.",
-          variant: "destructive",
-        });
-        return false;
-      }
-      
-      if (data?.success === true) {
-        console.log('✅ Captcha verified successfully');
-        return true;
-      }
-      
-      console.log('❌ Captcha verification failed:', data?.errorCodes);
-      return false;
-    } catch (error: any) {
-      console.error('Captcha verification failed:', error);
-      toast({
-        title: "⚠️ Erro na Verificação",
-        description: error.message === 'Captcha verification timeout' 
-          ? "Verificação demorou muito. Tente novamente."
-          : "Erro ao verificar captcha. Tente novamente.",
-        variant: "destructive",
-      });
-      return false;
-    }
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormErrors({});
-
-    // Verify captcha first
-    if (!loginCaptchaToken) {
-      toast({
-        title: "🤖 Verificação Necessária",
-        description: "Por favor, complete o captcha para continuar.",
-        variant: "destructive",
-      });
-      return;
-    }
 
     const validation = loginSchema.safeParse({
       email: loginEmail,
@@ -249,20 +183,6 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      // Verify captcha with server
-      const captchaValid = await verifyCaptcha(loginCaptchaToken);
-      if (!captchaValid) {
-        toast({
-          title: "❌ Verificação Falhou",
-          description: "Captcha inválido. Por favor, tente novamente.",
-          variant: "destructive",
-        });
-        loginCaptchaRef.current?.resetCaptcha();
-        setLoginCaptchaToken(null);
-        setIsLoading(false);
-        return;
-      }
-
       // Server-side rate limiting check
       const { data: rateLimitData, error: rateLimitError } = await supabase.functions.invoke(
         'validate-login',
@@ -377,16 +297,6 @@ const Auth = () => {
     e.preventDefault();
     setFormErrors({});
 
-    // Verify captcha first
-    if (!registerCaptchaToken) {
-      toast({
-        title: "🤖 Verificação Necessária",
-        description: "Por favor, complete o captcha para continuar.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     // Validate based on user type
     const schema = userType === "client" ? registerClientSchema : registerProfessionalSchema;
     
@@ -433,20 +343,6 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      // Verify captcha with server
-      const captchaValid = await verifyCaptcha(registerCaptchaToken);
-      if (!captchaValid) {
-        toast({
-          title: "❌ Verificação Falhou",
-          description: "Captcha inválido. Por favor, tente novamente.",
-          variant: "destructive",
-        });
-        registerCaptchaRef.current?.resetCaptcha();
-        setRegisterCaptchaToken(null);
-        setIsLoading(false);
-        return;
-      }
-
       const { data, error } = await supabase.auth.signUp({
         email: registerEmail,
         password: registerPassword,
@@ -667,16 +563,6 @@ const Auth = () => {
                       </div>
                     )}
 
-                    {/* hCaptcha */}
-                    <div className="flex justify-center">
-                      <HCaptcha
-                        ref={loginCaptchaRef}
-                        sitekey={HCAPTCHA_SITE_KEY}
-                        onVerify={(token) => setLoginCaptchaToken(token)}
-                        onExpire={() => setLoginCaptchaToken(null)}
-                        onError={() => setLoginCaptchaToken(null)}
-                      />
-                    </div>
                   </CardContent>
                   <CardFooter className="flex flex-col gap-4 pt-6">
                     <Button 
@@ -980,16 +866,6 @@ const Auth = () => {
                       <p className="text-sm text-destructive">⚠️ {formErrors.acceptTerms}</p>
                     )}
 
-                    {/* hCaptcha */}
-                    <div className="flex justify-center">
-                      <HCaptcha
-                        ref={registerCaptchaRef}
-                        sitekey={HCAPTCHA_SITE_KEY}
-                        onVerify={(token) => setRegisterCaptchaToken(token)}
-                        onExpire={() => setRegisterCaptchaToken(null)}
-                        onError={() => setRegisterCaptchaToken(null)}
-                      />
-                    </div>
                   </CardContent>
                   <CardFooter className="flex flex-col gap-4 pt-6">
                     <Button
