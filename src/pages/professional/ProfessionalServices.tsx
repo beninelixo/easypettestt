@@ -26,6 +26,8 @@ const ProfessionalServices = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [petShopId, setPetShopId] = useState<string | undefined>();
+  const [isOwner, setIsOwner] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -45,18 +47,43 @@ const ProfessionalServices = () => {
 
   const loadServices = async () => {
     try {
+      // Verifica se é dono
       const { data: petShop } = await supabase
         .from("pet_shops")
-        .select("id")
+        .select("id, owner_id")
         .eq("owner_id", user?.id)
-        .single();
+        .maybeSingle();
 
-      if (!petShop) return;
+      if (petShop) {
+        // É dono
+        setPetShopId(petShop.id);
+        setIsOwner(true);
+      } else {
+        // É funcionário - busca pet shop pelo relacionamento
+        const { data: employee } = await supabase
+          .from("petshop_employees")
+          .select("pet_shop_id")
+          .eq("user_id", user?.id)
+          .maybeSingle();
+
+        if (employee) {
+          setPetShopId(employee.pet_shop_id);
+          setIsOwner(false);
+        }
+      }
+
+      const shopId = petShop?.id || (await supabase
+        .from("petshop_employees")
+        .select("pet_shop_id")
+        .eq("user_id", user?.id)
+        .maybeSingle()).data?.pet_shop_id;
+
+      if (!shopId) return;
 
       const { data, error } = await supabase
         .from("services")
         .select("*")
-        .eq("pet_shop_id", petShop.id)
+        .eq("pet_shop_id", shopId)
         .order("name");
 
       if (error) throw error;
@@ -97,13 +124,7 @@ const ProfessionalServices = () => {
 
   const handleSubmit = async () => {
     try {
-      const { data: petShop } = await supabase
-        .from("pet_shops")
-        .select("id")
-        .eq("owner_id", user?.id)
-        .single();
-
-      if (!petShop) {
+      if (!petShopId) {
         toast({
           title: "Erro",
           description: "PetShop não encontrado.",
@@ -118,7 +139,7 @@ const ProfessionalServices = () => {
         price: parseFloat(formData.price),
         duration_minutes: parseInt(formData.duration_minutes),
         active: formData.active,
-        pet_shop_id: petShop.id,
+        pet_shop_id: petShopId,
       };
 
       if (editingService) {
@@ -213,12 +234,14 @@ const ProfessionalServices = () => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold">Gerenciar Serviços</h1>
         <div className="flex gap-2">
-          <Button asChild variant="outline" className="bg-gradient-to-r from-cyan-500 to-green-500 text-white border-0 hover:from-cyan-600 hover:to-green-600">
-            <Link to="/petshop-dashboard/service-templates">
-              <Sparkles className="mr-2 h-4 w-4" />
-              Catálogo de Serviços
-            </Link>
-          </Button>
+          {isOwner && (
+            <Button asChild variant="outline" className="bg-gradient-to-r from-cyan-500 to-green-500 text-white border-0 hover:from-cyan-600 hover:to-green-600">
+              <Link to="/petshop-dashboard/service-templates">
+                <Sparkles className="mr-2 h-4 w-4" />
+                Catálogo de Serviços
+              </Link>
+            </Button>
+          )}
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button onClick={() => handleOpenDialog()}>
@@ -304,26 +327,28 @@ const ProfessionalServices = () => {
         </div>
       </div>
 
-      <Card className="border-primary/30 bg-gradient-to-r from-cyan-50/50 to-green-50/50 dark:from-cyan-950/20 dark:to-green-950/20">
-        <CardContent className="flex items-center justify-between py-6">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-gradient-to-r from-cyan-500 to-green-500 flex items-center justify-center">
-              <Sparkles className="h-6 w-6 text-white" />
+      {isOwner && (
+        <Card className="border-primary/30 bg-gradient-to-r from-cyan-50/50 to-green-50/50 dark:from-cyan-950/20 dark:to-green-950/20">
+          <CardContent className="flex items-center justify-between py-6">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-gradient-to-r from-cyan-500 to-green-500 flex items-center justify-center">
+                <Sparkles className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">Adicione Serviços Rapidamente</h3>
+                <p className="text-sm text-muted-foreground">
+                  Escolha serviços prontos do nosso catálogo e personalize conforme necessário
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-lg">Adicione Serviços Rapidamente</h3>
-              <p className="text-sm text-muted-foreground">
-                Escolha serviços prontos do nosso catálogo e personalize conforme necessário
-              </p>
-            </div>
-          </div>
-          <Button asChild size="lg" className="bg-gradient-to-r from-cyan-500 to-green-500 hover:from-cyan-600 hover:to-green-600">
-            <Link to="/petshop-dashboard/service-templates">
-              Ver Catálogo
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
+            <Button asChild size="lg" className="bg-gradient-to-r from-cyan-500 to-green-500 hover:from-cyan-600 hover:to-green-600">
+              <Link to="/petshop-dashboard/service-templates">
+                Ver Catálogo
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {loading ? (
         <p className="text-muted-foreground">Carregando serviços...</p>
