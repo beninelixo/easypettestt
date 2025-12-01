@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Lock } from "lucide-react";
+import { usePasswordValidation } from "@/hooks/usePasswordValidation";
+import { Progress } from "@/components/ui/progress";
 
 interface SettingsPasswordDialogProps {
   open: boolean;
@@ -34,12 +36,19 @@ export const SettingsPasswordDialog = ({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  const passwordStrength = usePasswordValidation(password);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (mode === "create" && password !== confirmPassword) {
-      return;
+    if (mode === "create") {
+      if (password !== confirmPassword) {
+        return;
+      }
+      if (!passwordStrength.isValid) {
+        return;
+      }
     }
 
     setLoading(true);
@@ -89,8 +98,8 @@ export const SettingsPasswordDialog = ({
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={mode === "create" ? "Mínimo 8 caracteres" : "Digite a senha"}
-                minLength={mode === "create" ? 8 : undefined}
+                placeholder={mode === "create" ? "Mínimo 10 caracteres" : "Digite a senha"}
+                minLength={mode === "create" ? 10 : undefined}
                 required
                 disabled={loading || (mode === "verify" && remainingAttempts === 0)}
               />
@@ -108,6 +117,32 @@ export const SettingsPasswordDialog = ({
                 )}
               </Button>
             </div>
+            
+            {mode === "create" && password && (
+              <div className="space-y-2 mt-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Força da senha:</span>
+                  <span className={`font-medium ${
+                    passwordStrength.score >= 4 ? 'text-green-600' :
+                    passwordStrength.score >= 3 ? 'text-yellow-600' :
+                    'text-red-600'
+                  }`}>
+                    {passwordStrength.label}
+                  </span>
+                </div>
+                <Progress 
+                  value={(passwordStrength.score / 5) * 100} 
+                  className={`h-2 ${passwordStrength.color}`}
+                />
+                <div className="text-xs space-y-1">
+                  {passwordStrength.feedback.map((msg, idx) => (
+                    <p key={idx} className={passwordStrength.isValid ? 'text-green-600' : 'text-muted-foreground'}>
+                      {msg}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {mode === "create" && (
@@ -120,7 +155,7 @@ export const SettingsPasswordDialog = ({
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Digite a senha novamente"
-                  minLength={8}
+                  minLength={10}
                   required
                   disabled={loading}
                 />
@@ -158,7 +193,7 @@ export const SettingsPasswordDialog = ({
               disabled={
                 loading ||
                 !password ||
-                (mode === "create" && password !== confirmPassword) ||
+                (mode === "create" && (!passwordStrength.isValid || password !== confirmPassword)) ||
                 (mode === "verify" && remainingAttempts === 0)
               }
             >

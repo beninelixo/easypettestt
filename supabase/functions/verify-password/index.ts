@@ -17,14 +17,14 @@ serve(async (req) => {
 
     if (!password || typeof password !== "string") {
       return new Response(
-        JSON.stringify({ error: "Password is required" }),
+        JSON.stringify({ error: "Senha é obrigatória" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     if (!hash || typeof hash !== "string") {
       return new Response(
-        JSON.stringify({ error: "Hash is required" }),
+        JSON.stringify({ error: "Hash da senha é obrigatório" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -37,9 +37,9 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("Error verifying password:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error ? error.message : "Erro desconhecido ao verificar senha";
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: `Falha ao verificar senha: ${errorMessage}` }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
