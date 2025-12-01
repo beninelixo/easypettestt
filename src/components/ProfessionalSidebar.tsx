@@ -48,12 +48,6 @@ const professionalMenuItems = [
     gradient: "from-amber-500 to-orange-600"
   },
   { 
-    title: "Relatórios", 
-    url: "/professional/reports", 
-    icon: BarChart3,
-    gradient: "from-pink-500 to-rose-600"
-  },
-  { 
     title: "Configurações", 
     url: "/professional/settings", 
     icon: Settings,
