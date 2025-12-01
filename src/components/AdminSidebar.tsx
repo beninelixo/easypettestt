@@ -45,6 +45,7 @@ const monitoringItems = [
 ];
 
 const securityItems = [
+  { title: "Correções de Segurança", url: "/admin/security-fixes", icon: Shield, badge: "NOVO" },
   { title: "Security Dashboard", url: "/admin/security", icon: Shield },
   { title: "Security Monitoring", url: "/admin/security-monitoring", icon: Lock },
   { title: "IP Whitelist", url: "/admin/ip-whitelist", icon: UserCheck, badge: "NEW" },
