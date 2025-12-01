@@ -294,9 +294,20 @@ const App = () => {
             <Route path="profile" element={<ProfessionalProfile />} />
           </Route>
           
-          {/* Legacy Pet Shop Routes - Redirect to Professional */}
+          {/* Legacy Pet Shop Routes */}
           <Route path="/petshop-setup" element={<Navigate to="/professional/services" replace />} />
-          <Route path="/petshop-dashboard/*" element={<Navigate to="/professional/services" replace />} />
+          
+          {/* Protected Pet Shop Dashboard - Only accessible after settings password verification */}
+          <Route 
+            path="/petshop-dashboard" 
+            element={
+              <ProtectedRoute allowedRoles={["pet_shop"]}>
+                <ProfessionalLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<ProfessionalDashboard />} />
+          </Route>
           
           {/* Admin Routes - Nested under AdminLayout */}
           <Route 

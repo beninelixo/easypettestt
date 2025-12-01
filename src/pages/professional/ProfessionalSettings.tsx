@@ -90,7 +90,7 @@ const ProfessionalSettings = () => {
       }
       const success = await createPassword(password);
       if (success) {
-        navigate("/petshop-dashboard");
+        navigate("/petshop-dashboard", { replace: true });
       }
       return success;
     } else {
@@ -109,7 +109,7 @@ const ProfessionalSettings = () => {
         }
       } else {
         setAttempts(0);
-        navigate("/petshop-dashboard");
+        navigate("/petshop-dashboard", { replace: true });
       }
       return success;
     }
