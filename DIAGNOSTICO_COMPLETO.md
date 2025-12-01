@@ -894,7 +894,7 @@ SELECT cron.schedule(
   '0 0 * * *',
   $$
   SELECT net.http_post(
-    url:='https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/process-overdue-appointments',
+    url:='https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/process-overdue-appointments',
     headers:='{"Authorization": "Bearer YOUR_SERVICE_ROLE_KEY"}'::jsonb
   );
   $$
@@ -906,7 +906,7 @@ SELECT cron.schedule(
   '0 6 * * *',
   $$
   SELECT net.http_post(
-    url:='https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/check-expiring-products',
+    url:='https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/check-expiring-products',
     headers:='{"Authorization": "Bearer YOUR_SERVICE_ROLE_KEY"}'::jsonb
   );
   $$
@@ -918,7 +918,7 @@ SELECT cron.schedule(
   '0 2 * * *',
   $$
   SELECT net.http_post(
-    url:='https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/backup-critical-data',
+    url:='https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/backup-critical-data',
     headers:='{"Authorization": "Bearer YOUR_SERVICE_ROLE_KEY"}'::jsonb
   );
   $$
@@ -930,7 +930,7 @@ SELECT cron.schedule(
   '0 0 * * 0',
   $$
   SELECT net.http_post(
-    url:='https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/validate-profiles',
+    url:='https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/validate-profiles',
     headers:='{"Authorization": "Bearer YOUR_SERVICE_ROLE_KEY"}'::jsonb
   );
   $$

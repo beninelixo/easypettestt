@@ -424,7 +424,7 @@ Cron jobs devem usar a chave de serviço:
 ```sql
 -- Usar service_role_key nos cron jobs
 select net.http_post(
-  url:='https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/check-expiring-products',
+  url:='https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/check-expiring-products',
   headers:=jsonb_build_object(
     'Content-Type', 'application/json',
     'Authorization', 'Bearer ' || current_setting('app.settings')::jsonb->>'service_role_key'

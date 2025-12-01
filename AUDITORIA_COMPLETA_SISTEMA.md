@@ -259,7 +259,7 @@ VALUES (
 # Via API:
 curl -X POST \
   -H "Authorization: Bearer $JWT_TOKEN" \
-  https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/auto-diagnostico
+  https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/auto-diagnostico
 
 # Via SQL:
 SELECT get_system_health();

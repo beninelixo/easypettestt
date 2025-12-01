@@ -104,13 +104,13 @@ A autenticação com Google precisa ser habilitada nas configurações do projet
 
    ```
    https://easypet.lovable.app
-   https://xkfkrdorghyagtwbxory.supabase.co
+   https://zxdbsimthnfprrthszoh.supabase.co
    ```
 
    **URIs de redirecionamento autorizados:**
 
    ```
-   https://xkfkrdorghyagtwbxory.supabase.co/auth/v1/callback
+   https://zxdbsimthnfprrthszoh.supabase.co/auth/v1/callback
    https://easypet.lovable.app/auth/callback
    ```
 
@@ -240,7 +240,7 @@ http://localhost:5173/** (para desenvolvimento)
 1. Acesse Google Cloud Console
 2. Navegue para: `APIs & Services > Credentials`
 3. Edite o OAuth Client ID
-4. Adicione a URI correta: `https://xkfkrdorghyagtwbxory.supabase.co/auth/v1/callback`
+4. Adicione a URI correta: `https://zxdbsimthnfprrthszoh.supabase.co/auth/v1/callback`
 
 ---
 

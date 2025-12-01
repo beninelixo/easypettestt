@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useToast } from './use-toast';
 
 // Versão da aplicação - incrementar quando houver mudanças que requerem limpeza de cache
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '3.1.0';
 const VERSION_KEY = 'easypet_app_version';
 const LAST_CLEAR_KEY = 'easypet_last_clear';
 
@@ -70,7 +70,7 @@ const clearOutdatedData = () => {
     'easypet_saved_email',
     'theme',
     'supabase.auth.token',
-    'sb-xkfkrdorghyagtwbxory-auth-token'
+    'sb-zxdbsimthnfprrthszoh-auth-token'
   ];
 
   const allKeys = Object.keys(localStorage);
@@ -111,13 +111,13 @@ const clearTemporaryData = () => {
 const validateStoredData = () => {
   try {
     // Validar token do Supabase
-    const authToken = localStorage.getItem('sb-xkfkrdorghyagtwbxory-auth-token');
+    const authToken = localStorage.getItem('sb-zxdbsimthnfprrthszoh-auth-token');
     if (authToken) {
       try {
         JSON.parse(authToken);
       } catch {
         console.warn('Token corrompido detectado, removendo...');
-        localStorage.removeItem('sb-xkfkrdorghyagtwbxory-auth-token');
+        localStorage.removeItem('sb-zxdbsimthnfprrthszoh-auth-token');
         localStorage.removeItem('supabase.auth.token');
       }
     }

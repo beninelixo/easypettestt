@@ -343,7 +343,7 @@ SELECT cron.schedule(
   'complete-pending-todos',
   '0 3 * * *',
   $$SELECT net.http_post(
-    url := 'https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/complete-pending-todos',
+    url := 'https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/complete-pending-todos',
     headers := '{"Authorization": "Bearer ' || current_setting('app.service_role_key') || '"}'
   )$$
 );

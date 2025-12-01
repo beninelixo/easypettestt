@@ -69,7 +69,7 @@ As seguintes funções foram atualizadas para enviar alertas automáticos:
 
 ```typescript
 const response = await fetch(
-  'https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/send-alert-email',
+  'https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/send-alert-email',
   {
     method: 'POST',
     headers: {
@@ -250,7 +250,7 @@ ORDER BY quantidade DESC;
 
 ```bash
 curl -X POST \
-  https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/send-alert-email \
+  https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/send-alert-email \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer SEU_SERVICE_ROLE_KEY" \
   -d '{

@@ -123,7 +123,7 @@ Parameters:
 After approval, test the integration:
 
 ```bash
-curl -X POST https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/send-whatsapp \
+curl -X POST https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/send-whatsapp \
   -H "Authorization: Bearer YOUR_SERVICE_ROLE_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -152,7 +152,7 @@ curl -X POST https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/send-whatsapp
 Create a `.env.test` file in your project root:
 
 ```bash
-SUPABASE_URL=https://xkfkrdorghyagtwbxory.supabase.co
+SUPABASE_URL=https://zxdbsimthnfprrthszoh.supabase.co
 SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
@@ -240,7 +240,7 @@ The system automatically verifies backup integrity by:
 To manually verify a backup:
 
 ```bash
-curl -X POST https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/verify-backup \
+curl -X POST https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/verify-backup \
   -H "Authorization: Bearer YOUR_SERVICE_ROLE_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -259,7 +259,7 @@ SELECT cron.schedule(
   '0 4 * * *', -- Daily at 4 AM
   $$
   SELECT net.http_post(
-    url := 'https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/verify-backup',
+    url := 'https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/verify-backup',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
       'Authorization', 'Bearer YOUR_SERVICE_ROLE_KEY'
