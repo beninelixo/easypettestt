@@ -422,7 +422,7 @@ Total de usuários: 5
 # Via API (requer JWT admin)
 curl -X POST \
   -H "Authorization: Bearer $JWT_TOKEN" \
-  https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/auto-diagnostico
+  https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/auto-diagnostico
 ```
 
 **Última Execução:**

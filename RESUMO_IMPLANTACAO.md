@@ -220,7 +220,7 @@ SELECT get_system_health();
 ```bash
 # Exemplo: testar process-overdue-appointments
 curl -X POST \
-  https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/process-overdue-appointments \
+  https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/process-overdue-appointments \
   -H "Authorization: Bearer SEU_ANON_KEY"
 ```
 

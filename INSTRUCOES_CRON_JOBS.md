@@ -24,8 +24,8 @@ SELECT cron.schedule(
   '0 1 * * *',
   $$
   SELECT net.http_post(
-    url:='https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/process-overdue-appointments',
-    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZmtyZG9yZ2h5YWd0d2J4b3J5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1OTQ5MTEsImV4cCI6MjA3NzE3MDkxMX0.R8kZ4o1Ll2gRLfp4Y2MQWbD_fvJ0WoRWEKHCdU3yhpQ"}'::jsonb
+    url:='https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/process-overdue-appointments',
+    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4ZGJzaW10aG5mcHJydGhzem9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMDYwMjUsImV4cCI6MjA3Nzc4MjAyNX0.bSrcAOQ0KcIKp5vtfFvu9MCXC1ZQBd0XmcTqbHOe8M0"}'::jsonb
   ) as request_id;
   $$
 );
@@ -36,8 +36,8 @@ SELECT cron.schedule(
   '0 6 * * *',
   $$
   SELECT net.http_post(
-    url:='https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/check-expiring-products',
-    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZmtyZG9yZ2h5YWd0d2J4b3J5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1OTQ5MTEsImV4cCI6MjA3NzE3MDkxMX0.R8kZ4o1Ll2gRLfp4Y2MQWbD_fvJ0WoRWEKHCdU3yhpQ"}'::jsonb
+    url:='https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/check-expiring-products',
+    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4ZGJzaW10aG5mcHJydGhzem9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMDYwMjUsImV4cCI6MjA3Nzc4MjAyNX0.bSrcAOQ0KcIKp5vtfFvu9MCXC1ZQBd0XmcTqbHOe8M0"}'::jsonb
   ) as request_id;
   $$
 );
@@ -48,8 +48,8 @@ SELECT cron.schedule(
   '0 3 * * 0',
   $$
   SELECT net.http_post(
-    url:='https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/validate-profiles',
-    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZmtyZG9yZ2h5YWd0d2J4b3J5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1OTQ5MTEsImV4cCI6MjA3NzE3MDkxMX0.R8kZ4o1Ll2gRLfp4Y2MQWbD_fvJ0WoRWEKHCdU3yhpQ"}'::jsonb
+    url:='https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/validate-profiles',
+    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4ZGJzaW10aG5mcHJydGhzem9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMDYwMjUsImV4cCI6MjA3Nzc4MjAyNX0.bSrcAOQ0KcIKp5vtfFvu9MCXC1ZQBd0XmcTqbHOe8M0"}'::jsonb
   ) as request_id;
   $$
 );
@@ -60,8 +60,8 @@ SELECT cron.schedule(
   '0 2 * * *',
   $$
   SELECT net.http_post(
-    url:='https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/reconcile-payments',
-    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZmtyZG9yZ2h5YWd0d2J4b3J5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1OTQ5MTEsImV4cCI6MjA3NzE3MDkxMX0.R8kZ4o1Ll2gRLfp4Y2MQWbD_fvJ0WoRWEKHCdU3yhpQ"}'::jsonb
+    url:='https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/reconcile-payments',
+    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4ZGJzaW10aG5mcHJydGhzem9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMDYwMjUsImV4cCI6MjA3Nzc4MjAyNX0.bSrcAOQ0KcIKp5vtfFvu9MCXC1ZQBd0XmcTqbHOe8M0"}'::jsonb
   ) as request_id;
   $$
 );
@@ -72,8 +72,8 @@ SELECT cron.schedule(
   '0 4 * * *',
   $$
   SELECT net.http_post(
-    url:='https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/backup-critical-data',
-    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZmtyZG9yZ2h5YWd0d2J4b3J5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1OTQ5MTEsImV4cCI6MjA3NzE3MDkxMX0.R8kZ4o1Ll2gRLfp4Y2MQWbD_fvJ0WoRWEKHCdU3yhpQ"}'::jsonb
+    url:='https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/backup-critical-data',
+    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4ZGJzaW10aG5mcHJydGhzem9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMDYwMjUsImV4cCI6MjA3Nzc4MjAyNX0.bSrcAOQ0KcIKp5vtfFvu9MCXC1ZQBd0XmcTqbHOe8M0"}'::jsonb
   ) as request_id;
   $$
 );
@@ -84,8 +84,8 @@ SELECT cron.schedule(
   '*/5 * * * *',
   $$
   SELECT net.http_post(
-    url:='https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/collect-health-metrics',
-    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZmtyZG9yZ2h5YWd0d2J4b3J5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1OTQ5MTEsImV4cCI6MjA3NzE3MDkxMX0.R8kZ4o1Ll2gRLfp4Y2MQWbD_fvJ0WoRWEKHCdU3yhpQ"}'::jsonb
+    url:='https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/collect-health-metrics',
+    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4ZGJzaW10aG5mcHJydGhzem9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMDYwMjUsImV4cCI6MjA3Nzc4MjAyNX0.bSrcAOQ0KcIKp5vtfFvu9MCXC1ZQBd0XmcTqbHOe8M0"}'::jsonb
   ) as request_id;
   $$
 );
@@ -96,8 +96,8 @@ SELECT cron.schedule(
   '* * * * *',
   $$
   SELECT net.http_post(
-    url:='https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/process-failed-jobs',
-    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZmtyZG9yZ2h5YWd0d2J4b3J5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1OTQ5MTEsImV4cCI6MjA3NzE3MDkxMX0.R8kZ4o1Ll2gRLfp4Y2MQWbD_fvJ0WoRWEKHCdU3yhpQ"}'::jsonb
+    url:='https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/process-failed-jobs',
+    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4ZGJzaW10aG5mcHJydGhzem9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMDYwMjUsImV4cCI6MjA3Nzc4MjAyNX0.bSrcAOQ0KcIKp5vtfFvu9MCXC1ZQBd0XmcTqbHOe8M0"}'::jsonb
   ) as request_id;
   $$
 );

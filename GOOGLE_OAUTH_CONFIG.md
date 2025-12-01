@@ -45,14 +45,14 @@ Você precisa criar um projeto no Google Cloud Console e obter:
    
    Adicione TODAS estas URLs:
    ```
-   https://xkfkrdorghyagtwbxory.supabase.co/auth/v1/callback
+   https://zxdbsimthnfprrthszoh.supabase.co/auth/v1/callback
    https://seu-dominio-lovable.app/auth/callback
    http://localhost:5173/auth/callback (para desenvolvimento)
    ```
 
 6. **Configure Authorized JavaScript origins:**
    ```
-   https://xkfkrdorghyagtwbxory.supabase.co
+   https://zxdbsimthnfprrthszoh.supabase.co
    https://seu-dominio-lovable.app
    http://localhost:5173
    ```
@@ -92,7 +92,7 @@ No Google Cloud Console:
 
 ### Erro: "redirect_uri_mismatch"
 **Causa:** O redirect URI não está configurado no Google Cloud Console  
-**Solução:** Adicione exatamente: `https://xkfkrdorghyagtwbxory.supabase.co/auth/v1/callback`
+**Solução:** Adicione exatamente: `https://zxdbsimthnfprrthszoh.supabase.co/auth/v1/callback`
 
 ### Erro: "invalid_client"
 **Causa:** Client ID ou Secret incorretos  

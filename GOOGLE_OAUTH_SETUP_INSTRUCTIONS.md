@@ -56,14 +56,14 @@ O código do Google OAuth está **100% implementado e funcionando**. O que falta
    
    **Authorized JavaScript origins:**
    ```
-   https://xkfkrdorghyagtwbxory.supabase.co
+   https://zxdbsimthnfprrthszoh.supabase.co
    https://seu-dominio-lovable.app
    http://localhost:5173
    ```
    
    **Authorized redirect URIs:**
    ```
-   https://xkfkrdorghyagtwbxory.supabase.co/auth/v1/callback
+   https://zxdbsimthnfprrthszoh.supabase.co/auth/v1/callback
    https://seu-dominio-lovable.app/auth/callback
    http://localhost:5173/auth/callback
    ```
@@ -113,7 +113,7 @@ O código do Google OAuth está **100% implementado e funcionando**. O que falta
 **Solução:** 
 1. Verifique se você adicionou EXATAMENTE este URI:
    ```
-   https://xkfkrdorghyagtwbxory.supabase.co/auth/v1/callback
+   https://zxdbsimthnfprrthszoh.supabase.co/auth/v1/callback
    ```
 2. Não adicione barra `/` no final
 3. Aguarde até 5 minutos para propagar

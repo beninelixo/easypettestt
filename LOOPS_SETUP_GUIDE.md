@@ -186,7 +186,7 @@
 ### Test 1: Manual Email Send
 ```bash
 # Using curl to test send-loops-email function
-curl -X POST https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/send-loops-email \
+curl -X POST https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/send-loops-email \
   -H "Authorization: Bearer YOUR_SERVICE_ROLE_KEY" \
   -H "Content-Type: application/json" \
   -d '{

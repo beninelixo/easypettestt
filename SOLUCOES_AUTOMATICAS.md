@@ -175,7 +175,7 @@ SELECT cron.schedule(
   '0 3 * * *',
   $$
   SELECT net.http_post(
-    url := 'https://xkfkrdorghyagtwbxory.supabase.co/functions/v1/auto-diagnostico',
+    url := 'https://zxdbsimthnfprrthszoh.supabase.co/functions/v1/auto-diagnostico',
     headers := '{"Content-Type": "application/json", "Authorization": "Bearer SEU_SERVICE_ROLE_KEY"}'::jsonb,
     body := '{"auto_fix": true}'::jsonb
   ) as request_id;

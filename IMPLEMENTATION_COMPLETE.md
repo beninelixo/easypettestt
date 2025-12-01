@@ -68,7 +68,7 @@ O código está 100% implementado, faltam apenas as credenciais:
 3. Configurar tela de consentimento OAuth
 4. Criar OAuth Client ID (Web application)
 5. Configurar redirect URIs:
-   - `https://xkfkrdorghyagtwbxory.supabase.co/auth/v1/callback`
+   - `https://zxdbsimthnfprrthszoh.supabase.co/auth/v1/callback`
    - `https://seu-dominio.lovable.app/auth/callback`
 6. Copiar Client ID e Client Secret
 7. Configurar no Backend → Users → Auth Settings → Google Settings
