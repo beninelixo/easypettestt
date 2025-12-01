@@ -1,5 +1,8 @@
 import { NavLink } from "react-router-dom";
-import { Home, Calendar, Scissors, Users, BarChart3, User, CreditCard, LogOut, Building2, LayoutDashboard, Database, UserCog, Settings } from "lucide-react";
+import { 
+  Calendar, Scissors, Users, BarChart3, LogOut, Building2, 
+  LayoutDashboard, Settings, PawPrint, ChevronRight, Sparkles
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -9,7 +12,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
@@ -18,63 +20,139 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/lib/tenant-context";
 import { usePlanTheme } from "@/hooks/usePlanTheme";
 import { Separator } from "@/components/ui/separator";
+import logo from "@/assets/easypet-logo.png";
 
 const professionalMenuItems = [
-  { title: "Serviços", url: "/professional/services", icon: Scissors },
-  { title: "Calendário", url: "/professional/calendar", icon: Calendar },
-  { title: "Clientes", url: "/professional/clients", icon: Users },
-  { title: "Configurações", url: "/professional/settings", icon: Settings },
+  { 
+    title: "Dashboard", 
+    url: "/professional/dashboard", 
+    icon: LayoutDashboard,
+    gradient: "from-cyan-500 to-blue-600"
+  },
+  { 
+    title: "Serviços", 
+    url: "/professional/services", 
+    icon: Scissors,
+    gradient: "from-emerald-500 to-green-600"
+  },
+  { 
+    title: "Calendário", 
+    url: "/professional/calendar", 
+    icon: Calendar,
+    gradient: "from-violet-500 to-purple-600"
+  },
+  { 
+    title: "Clientes", 
+    url: "/professional/clients", 
+    icon: Users,
+    gradient: "from-amber-500 to-orange-600"
+  },
+  { 
+    title: "Relatórios", 
+    url: "/professional/reports", 
+    icon: BarChart3,
+    gradient: "from-pink-500 to-rose-600"
+  },
+  { 
+    title: "Configurações", 
+    url: "/professional/settings", 
+    icon: Settings,
+    gradient: "from-slate-500 to-slate-600"
+  },
 ];
 
 const multiUnitMenuItems = [
-  { title: "Dashboard Consolidado", url: "/multi-unit/dashboard", icon: LayoutDashboard },
-  { title: "Gestão de Unidades", url: "/multi-unit/management", icon: Building2 },
+  { 
+    title: "Dashboard Consolidado", 
+    url: "/multi-unit/dashboard", 
+    icon: LayoutDashboard,
+    gradient: "from-indigo-500 to-blue-600"
+  },
+  { 
+    title: "Gestão de Unidades", 
+    url: "/multi-unit/management", 
+    icon: Building2,
+    gradient: "from-teal-500 to-cyan-600"
+  },
 ];
 
 export function ProfessionalSidebar() {
   const { state } = useSidebar();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const { can, tenantId } = useTenant();
   const planTheme = usePlanTheme();
   const isCollapsed = state === "collapsed";
   
-  // Show multi-unit menu if user has tenant access
   const showMultiUnit = tenantId && (can('view_consolidated') || can('manage_units'));
 
   return (
-    <Sidebar className={isCollapsed ? "w-14" : "w-64"} collapsible="icon">
-      <SidebarContent className="bg-card border-r border-border">
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-primary font-bold text-lg px-4 py-3">
-            {!isCollapsed && "EasyPet"}
-          </SidebarGroupLabel>
+    <Sidebar 
+      className={isCollapsed ? "w-[70px]" : "w-72"} 
+      collapsible="icon"
+    >
+      <SidebarContent className="bg-gradient-to-b from-card via-card to-card/95 border-r border-border/50">
+        {/* Logo Section */}
+        <div className={`flex items-center ${isCollapsed ? 'justify-center py-5' : 'gap-3 px-5 py-6'}`}>
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative p-2 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-border/50">
+              <img 
+                src={logo} 
+                alt="EasyPet" 
+                className="h-8 w-8 object-contain"
+              />
+            </div>
+          </div>
+          {!isCollapsed && (
+            <div>
+              <h1 className="font-bold text-lg bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                EasyPet
+              </h1>
+              <p className="text-xs text-muted-foreground">Área Profissional</p>
+            </div>
+          )}
+        </div>
+
+        <Separator className="mx-4 bg-border/50" />
+
+        {/* Main Menu */}
+        <SidebarGroup className="px-3 py-4">
+          {!isCollapsed && (
+            <SidebarGroupLabel className="text-xs text-muted-foreground/70 uppercase tracking-wider font-medium px-3 mb-2">
+              Menu Principal
+            </SidebarGroupLabel>
+          )}
           
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1">
               {professionalMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      end
                       className={({ isActive }) => {
-                        let baseClass = "flex items-center gap-3 px-4 py-3 rounded-lg transition-all";
+                        const baseClass = `group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
                         
-                        if (isActive && planTheme.plan !== 'free') {
-                          // Aplicar cores do plano para item ativo
-                          baseClass += ` ${planTheme.badgeClass} font-medium shadow-sm`;
-                        } else if (isActive) {
-                          // Cores padrão para item ativo (plano free)
-                          baseClass += " bg-primary text-primary-foreground font-medium shadow-sm";
-                        } else {
-                          baseClass += " hover:bg-muted text-muted-foreground hover:text-foreground";
+                        if (isActive) {
+                          return `${baseClass} bg-gradient-to-r ${item.gradient} text-white shadow-lg shadow-primary/20`;
                         }
                         
-                        return baseClass;
+                        return `${baseClass} hover:bg-muted/60 text-muted-foreground hover:text-foreground`;
                       }}
                     >
-                      <item.icon className="h-5 w-5 flex-shrink-0" />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      {({ isActive }) => (
+                        <>
+                          <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-9 h-9'} rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
+                            <item.icon className={`h-5 w-5 ${isActive ? 'text-white' : ''}`} />
+                          </div>
+                          {!isCollapsed && (
+                            <>
+                              <span className="font-medium flex-1">{item.title}</span>
+                              <ChevronRight className={`h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all ${isActive ? 'text-white/70' : 'text-muted-foreground'}`} />
+                            </>
+                          )}
+                        </>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -83,39 +161,48 @@ export function ProfessionalSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         
-        {/* Multi-Unit Management Section */}
+        {/* Multi-Unit Section */}
         {showMultiUnit && (
           <>
-            <Separator className="my-2" />
-            <SidebarGroup>
-              <SidebarGroupLabel className="text-muted-foreground px-4 py-2">
-                {!isCollapsed && "Multi-Unidades"}
-              </SidebarGroupLabel>
+            <Separator className="mx-4 bg-border/50" />
+            <SidebarGroup className="px-3 py-4">
+              {!isCollapsed && (
+                <SidebarGroupLabel className="text-xs text-muted-foreground/70 uppercase tracking-wider font-medium px-3 mb-2 flex items-center gap-2">
+                  <Building2 className="h-3 w-3" />
+                  Multi-Unidades
+                </SidebarGroupLabel>
+              )}
               
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className="space-y-1">
                   {multiUnitMenuItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
                         <NavLink
                           to={item.url}
-                          end
                           className={({ isActive }) => {
-                            let baseClass = "flex items-center gap-3 px-4 py-3 rounded-lg transition-all";
+                            const baseClass = `group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
                             
-                            if (isActive && planTheme.plan !== 'free') {
-                              baseClass += ` ${planTheme.badgeClass} font-medium shadow-sm`;
-                            } else if (isActive) {
-                              baseClass += " bg-primary text-primary-foreground font-medium shadow-sm";
-                            } else {
-                              baseClass += " hover:bg-muted text-muted-foreground hover:text-foreground";
+                            if (isActive) {
+                              return `${baseClass} bg-gradient-to-r ${item.gradient} text-white shadow-lg shadow-primary/20`;
                             }
                             
-                            return baseClass;
+                            return `${baseClass} hover:bg-muted/60 text-muted-foreground hover:text-foreground`;
                           }}
                         >
-                          <item.icon className="h-5 w-5 flex-shrink-0" />
-                          {!isCollapsed && <span>{item.title}</span>}
+                          {({ isActive }) => (
+                            <>
+                              <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-9 h-9'} rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
+                                <item.icon className={`h-5 w-5 ${isActive ? 'text-white' : ''}`} />
+                              </div>
+                              {!isCollapsed && (
+                                <>
+                                  <span className="font-medium flex-1">{item.title}</span>
+                                  <ChevronRight className={`h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all ${isActive ? 'text-white/70' : 'text-muted-foreground'}`} />
+                                </>
+                              )}
+                            </>
+                          )}
                         </NavLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -125,13 +212,41 @@ export function ProfessionalSidebar() {
             </SidebarGroup>
           </>
         )}
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Upgrade Banner */}
+        {!isCollapsed && planTheme.plan === 'free' && (
+          <div className="mx-4 mb-4">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/10 p-4 border border-primary/20">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-primary/30 to-transparent rounded-full blur-2xl" />
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-semibold text-foreground">Upgrade Pro</span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Desbloqueie recursos avançados
+                </p>
+                <Button 
+                  size="sm" 
+                  className="w-full rounded-lg bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-white"
+                >
+                  Ver Planos
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </SidebarContent>
       
-      <SidebarFooter className="border-t border-border bg-card p-4">
+      {/* Footer */}
+      <SidebarFooter className="border-t border-border/50 bg-card/50 backdrop-blur-sm p-3">
         <Button
           variant="ghost"
           onClick={signOut}
-          className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+          className={`w-full ${isCollapsed ? 'justify-center px-0' : 'justify-start gap-3'} text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all`}
         >
           <LogOut className="h-5 w-5" />
           {!isCollapsed && <span>Sair</span>}
