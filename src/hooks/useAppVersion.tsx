@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useToast } from './use-toast';
 
 // Versão da aplicação - incrementar quando houver mudanças que requerem limpeza de cache
-const APP_VERSION = '4.0.0';
+const APP_VERSION = '5.0.0';
 const VERSION_KEY = 'easypet_app_version';
 const LAST_CLEAR_KEY = 'easypet_last_clear';
 const AUTH_TOKEN_KEY = 'sb-xkfkrdorghyagtwbxory-auth-token';
