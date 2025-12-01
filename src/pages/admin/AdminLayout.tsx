@@ -58,7 +58,7 @@ export default function AdminLayout() {
               </div>
               
               {/* Alertas Panel */}
-              {userRole === 'admin' && (
+              {(userRole === 'admin' || userRole === 'super_admin' || isGodUser) && (
                 <div className="flex items-center gap-2">
                   <AdminNotificationsPanel />
                   <AdminAlertsPanel />
@@ -73,9 +73,9 @@ export default function AdminLayout() {
               <Outlet />
             </main>
             
-            {/* Debug Panel Sidebar - Fixed Right */}
-            {userRole === 'admin' && (
-              <aside className="w-80 border-l border-border bg-background p-4 overflow-auto">
+            {/* Debug Panel Sidebar - Only in development */}
+            {import.meta.env.DEV && (userRole === 'admin' || userRole === 'super_admin' || isGodUser) && (
+              <aside className="w-80 border-l border-border bg-background p-4 overflow-auto hidden xl:block">
                 <DebugAuthPanel />
               </aside>
             )}
@@ -83,7 +83,7 @@ export default function AdminLayout() {
         </div>
 
         {/* Real-time Security Notifications (only for admins) */}
-        {userRole === 'admin' && <SecurityNotificationsPanel />}
+        {(userRole === 'admin' || userRole === 'super_admin' || isGodUser) && <SecurityNotificationsPanel />}
       </div>
     </SidebarProvider>
   );
