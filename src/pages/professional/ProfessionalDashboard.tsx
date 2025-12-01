@@ -2,28 +2,35 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, TrendingUp, Users, DollarSign, Clock, Sparkles } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Calendar, TrendingUp, Users, DollarSign, Clock, Sparkles, 
+  ArrowRight, CheckCircle2, XCircle, Play, BarChart3,
+  PawPrint, Bell, Settings, ChevronRight
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import RevenueChart from "@/components/dashboard/RevenueChart";
 import AppointmentsChart from "@/components/dashboard/AppointmentsChart";
-import { StatCardSkeleton, CardSkeleton } from "@/components/ui/skeleton-loader";
 import { PeakHoursChart } from "@/components/dashboard/PeakHoursChart";
 import { NoShowMetrics } from "@/components/dashboard/NoShowMetrics";
 import { ServiceBreakdownChart } from "@/components/dashboard/ServiceBreakdownChart";
 import { useRealtimeMetrics } from "@/hooks/useRealtimeMetrics";
+import { usePlanTheme } from "@/hooks/usePlanTheme";
 
-const PetShopDashboard = () => {
+const ProfessionalDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const planTheme = usePlanTheme();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [petShopId, setPetShopId] = useState<string>("");
+  const [petShopName, setPetShopName] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     todayAppointments: 0,
-    monthlyRevenue: "R$ 0,00",
+    monthlyRevenue: 0,
     activeClients: 0,
     completedServices: 0,
   });
@@ -49,35 +56,39 @@ const PetShopDashboard = () => {
 
   const loadPetShopAndData = async () => {
     setLoading(true);
-    // First, get the pet shop owned by this user or where the user is an active employee
     let shopId: string | null = null;
+    let shopName: string = "";
 
     const { data: ownedShop } = await supabase
       .from("pet_shops")
-      .select("id")
+      .select("id, name")
       .eq("owner_id", user?.id)
       .maybeSingle();
 
     if (ownedShop) {
       shopId = ownedShop.id;
+      shopName = ownedShop.name;
     } else {
       const { data: employeeShop } = await supabase
         .from("petshop_employees")
-        .select("pet_shop_id")
+        .select("pet_shop_id, pet_shops(name)")
         .eq("user_id", user?.id)
         .eq("active", true)
         .maybeSingle();
-      if (employeeShop) shopId = employeeShop.pet_shop_id;
+      if (employeeShop) {
+        shopId = employeeShop.pet_shop_id;
+        shopName = (employeeShop as any).pet_shops?.name || "";
+      }
     }
 
     if (!shopId) {
-      // If no pet shop exists, redirect to setup
       navigate("/petshop-setup");
       setLoading(false);
       return;
     }
 
     setPetShopId(shopId);
+    setPetShopName(shopName);
     await loadAppointments(shopId);
     await loadStats(shopId);
     setLoading(false);
@@ -90,9 +101,9 @@ const PetShopDashboard = () => {
       .from("appointments")
       .select(`
         *,
-        pet:pets(name, owner_id),
-        service:services(name, price),
-        client:profiles!appointments_client_id_fkey(full_name)
+        pet:pets(name, owner_id, species),
+        service:services(name, price, duration_minutes),
+        client:profiles!appointments_client_id_fkey(full_name, phone)
       `)
       .eq("pet_shop_id", shopId)
       .eq("scheduled_date", today)
@@ -114,7 +125,6 @@ const PetShopDashboard = () => {
   };
 
   const loadStats = async (shopId: string) => {
-    // Use otimized database function for dashboard stats
     const { data: statsData, error: statsError } = await supabase
       .rpc('get_dashboard_stats', { 
         _pet_shop_id: shopId,
@@ -125,13 +135,12 @@ const PetShopDashboard = () => {
       const stats = statsData as any;
       setStats({
         todayAppointments: stats.today_appointments || 0,
-        monthlyRevenue: `R$ ${Number(stats.monthly_revenue || 0).toFixed(2)}`,
+        monthlyRevenue: Number(stats.monthly_revenue || 0),
         activeClients: stats.active_clients || 0,
         completedServices: stats.completed_services || 0,
       });
     }
 
-    // Load real revenue data from last 6 months
     const { data: revenueDataFromDb, error: revenueError } = await supabase
       .rpc('get_monthly_revenue', { 
         _pet_shop_id: shopId,
@@ -145,7 +154,6 @@ const PetShopDashboard = () => {
       })));
     }
 
-    // Load real weekly appointments data
     const { data: weekDataFromDb, error: weekError } = await supabase
       .rpc('get_weekly_appointments', { 
         _pet_shop_id: shopId
@@ -193,207 +201,367 @@ const PetShopDashboard = () => {
     }
   };
 
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case "confirmed":
+        return { label: "Confirmado", color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30" };
+      case "in_progress":
+        return { label: "Em Andamento", color: "bg-amber-500/20 text-amber-400 border-amber-500/30" };
+      case "completed":
+        return { label: "Concluído", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" };
+      case "cancelled":
+        return { label: "Cancelado", color: "bg-red-500/20 text-red-400 border-red-500/30" };
+      default:
+        return { label: "Pendente", color: "bg-slate-500/20 text-slate-400 border-slate-500/30" };
+    }
+  };
+
   const statsArray = [
-    { title: "Agendamentos Hoje", value: stats.todayAppointments.toString(), icon: Calendar, color: "text-primary" },
-    { title: "Faturamento Mensal", value: stats.monthlyRevenue, icon: DollarSign, color: "text-secondary" },
-    { title: "Clientes Ativos", value: stats.activeClients.toString(), icon: Users, color: "text-accent" },
-    { title: "Serviços Realizados", value: stats.completedServices.toString(), icon: TrendingUp, color: "text-primary" },
+    { 
+      title: "Agendamentos Hoje", 
+      value: stats.todayAppointments, 
+      icon: Calendar, 
+      gradient: "from-cyan-500 to-blue-600",
+      bgGlow: "bg-cyan-500/10"
+    },
+    { 
+      title: "Faturamento Mensal", 
+      value: `R$ ${stats.monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 
+      icon: DollarSign, 
+      gradient: "from-emerald-500 to-green-600",
+      bgGlow: "bg-emerald-500/10"
+    },
+    { 
+      title: "Clientes Ativos", 
+      value: stats.activeClients, 
+      icon: Users, 
+      gradient: "from-violet-500 to-purple-600",
+      bgGlow: "bg-violet-500/10"
+    },
+    { 
+      title: "Serviços Realizados", 
+      value: stats.completedServices, 
+      icon: TrendingUp, 
+      gradient: "from-amber-500 to-orange-600",
+      bgGlow: "bg-amber-500/10"
+    },
   ];
 
-  return (
-    <div className="container mx-auto p-6 lg:p-8 space-y-8 animate-fade-in">
-      {loading ? (
-        <>
+  const quickActions = [
+    { label: "Clientes", icon: Users, path: "/professional/clients", color: "from-cyan-500 to-blue-600" },
+    { label: "Calendário", icon: Calendar, path: "/professional/calendar", color: "from-emerald-500 to-green-600" },
+    { label: "Relatórios", icon: BarChart3, path: "/professional/reports", color: "from-violet-500 to-purple-600" },
+    { label: "Configurações", icon: Settings, path: "/professional/settings", color: "from-amber-500 to-orange-600" },
+  ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-6 lg:p-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Header Skeleton */}
           <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <div className="h-8 w-48 bg-muted animate-pulse rounded" />
-              <div className="h-4 w-64 bg-muted animate-pulse rounded" />
+            <div className="space-y-3">
+              <div className="h-10 w-72 bg-muted/50 animate-pulse rounded-xl" />
+              <div className="h-5 w-48 bg-muted/30 animate-pulse rounded-lg" />
             </div>
+            <div className="h-10 w-32 bg-muted/50 animate-pulse rounded-xl" />
           </div>
+          
+          {/* Stats Skeleton */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
-              <StatCardSkeleton key={i} />
+              <div key={i} className="h-36 bg-card/50 border border-border/50 animate-pulse rounded-2xl" />
             ))}
           </div>
+          
+          {/* Charts Skeleton */}
           <div className="grid lg:grid-cols-2 gap-6">
-            <CardSkeleton />
-            <CardSkeleton />
-          </div>
-        </>
-      ) : (
-        <>
-        <div className="flex items-center justify-between mb-2">
-          <div>
-            <h1 className="text-4xl font-bold flex items-center gap-3 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-              <Sparkles className="h-9 w-9 text-primary animate-pulse" />
-              Dashboard Profissional
-            </h1>
-            <p className="text-muted-foreground mt-2 text-base">Visão geral completa do seu negócio</p>
+            <div className="h-80 bg-card/50 border border-border/50 animate-pulse rounded-2xl" />
+            <div className="h-80 bg-card/50 border border-border/50 animate-pulse rounded-2xl" />
           </div>
         </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="max-w-7xl mx-auto p-6 lg:p-8 space-y-8">
+        {/* Premium Header */}
+        <header className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/5 border border-border/50 p-8">
+          <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-primary/20 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          
+          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-2xl bg-gradient-to-br from-primary to-secondary shadow-lg shadow-primary/25">
+                  <PawPrint className="h-7 w-7 text-primary-foreground" />
+                </div>
+                <div>
+                  <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text">
+                    {petShopName || "Dashboard"}
+                  </h1>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    {format(new Date(), "EEEE, dd 'de' MMMM", { locale: ptBR })}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="outline" 
+                size="icon"
+                className="rounded-xl border-border/50 hover:bg-muted/50"
+              >
+                <Bell className="h-5 w-5" />
+              </Button>
+              <Button 
+                className="rounded-xl bg-gradient-to-r from-primary to-secondary hover:opacity-90 shadow-lg shadow-primary/25"
+                onClick={() => navigate("/professional/calendar")}
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                Novo Agendamento
+              </Button>
+            </div>
+          </div>
+        </header>
 
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {statsArray.map((stat, index) => (
-            <Card key={index} className="group hover:shadow-2xl hover:scale-105 transition-all duration-300 border-l-4 border-l-primary/50 hover:border-l-primary">
-              <CardHeader className="flex flex-row items-center justify-between pb-3 space-y-0">
-                <CardTitle className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-                  {stat.title}
-                </CardTitle>
-                <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                  <stat.icon className={`h-6 w-6 ${stat.color} group-hover:scale-110 transition-transform`} />
+            <Card 
+              key={index} 
+              className="group relative overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-500 hover:-translate-y-1"
+            >
+              <div className={`absolute inset-0 ${stat.bgGlow} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+              <CardContent className="relative p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
+                    <stat.icon className="h-5 w-5 text-white" />
+                  </div>
+                  <Sparkles className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-extrabold text-foreground tracking-tight">{stat.value}</div>
-                <p className="text-xs text-muted-foreground mt-1">Atualizado em tempo real</p>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground font-medium">{stat.title}</p>
+                  <p className="text-3xl font-bold tracking-tight">{stat.value}</p>
+                </div>
               </CardContent>
             </Card>
           ))}
-        </div>
+        </section>
 
-        {/* Charts */}
-        <div className="grid lg:grid-cols-2 gap-6">
-          <RevenueChart data={revenueData} />
-          <AppointmentsChart data={weekData} />
-        </div>
+        {/* Quick Actions */}
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {quickActions.map((action, index) => (
+            <Button
+              key={index}
+              variant="outline"
+              className="group h-auto py-6 flex flex-col items-center gap-3 rounded-2xl border-border/50 bg-card/50 hover:bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+              onClick={() => navigate(action.path)}
+            >
+              <div className={`p-3 rounded-xl bg-gradient-to-br ${action.color} shadow-md group-hover:scale-110 transition-transform`}>
+                <action.icon className="h-5 w-5 text-white" />
+              </div>
+              <span className="font-medium text-sm">{action.label}</span>
+            </Button>
+          ))}
+        </section>
 
-        {/* New Metrics */}
-        <div className="grid lg:grid-cols-2 gap-6">
-          <PeakHoursChart data={peakHours} />
-          <ServiceBreakdownChart data={serviceBreakdown} />
-        </div>
+        {/* Charts Grid */}
+        <section className="grid lg:grid-cols-2 gap-6">
+          <Card className="border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
+            <CardHeader className="border-b border-border/50 bg-muted/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg">Faturamento</CardTitle>
+                  <CardDescription>Últimos 6 meses</CardDescription>
+                </div>
+                <DollarSign className="h-5 w-5 text-emerald-500" />
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              <RevenueChart data={revenueData} />
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
+            <CardHeader className="border-b border-border/50 bg-muted/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg">Agendamentos</CardTitle>
+                  <CardDescription>Esta semana</CardDescription>
+                </div>
+                <Calendar className="h-5 w-5 text-cyan-500" />
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              <AppointmentsChart data={weekData} />
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* Additional Charts */}
+        <section className="grid lg:grid-cols-2 gap-6">
+          <Card className="border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
+            <CardHeader className="border-b border-border/50 bg-muted/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg">Horários de Pico</CardTitle>
+                  <CardDescription>Distribuição por hora</CardDescription>
+                </div>
+                <Clock className="h-5 w-5 text-violet-500" />
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              <PeakHoursChart data={peakHours} />
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
+            <CardHeader className="border-b border-border/50 bg-muted/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg">Serviços Populares</CardTitle>
+                  <CardDescription>Por quantidade</CardDescription>
+                </div>
+                <BarChart3 className="h-5 w-5 text-amber-500" />
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              <ServiceBreakdownChart data={serviceBreakdown} />
+            </CardContent>
+          </Card>
+        </section>
 
         {noShowStats && <NoShowMetrics stats={noShowStats} />}
 
-        <div className="text-xs text-muted-foreground text-right">
-          Última atualização: {lastUpdate.toLocaleTimeString('pt-BR')}
-        </div>
-
         {/* Today's Schedule */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold">Agenda de Hoje</h2>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Atendimentos Agendados</CardTitle>
-              <CardDescription>Gerenciamento dos agendamentos do dia</CardDescription>
+          <Card className="border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
+            <CardHeader className="border-b border-border/50 bg-muted/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                    Agenda de Hoje
+                  </CardTitle>
+                  <CardDescription>
+                    {appointments.length} agendamento{appointments.length !== 1 ? 's' : ''} para hoje
+                  </CardDescription>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-primary hover:text-primary"
+                  onClick={() => navigate("/professional/calendar")}
+                >
+                  Ver Calendário
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               {appointments.length === 0 ? (
-                <div className="text-center py-8">
-                  <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">Nenhum agendamento para hoje</p>
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="p-4 rounded-2xl bg-muted/50 mb-4">
+                    <Calendar className="h-10 w-10 text-muted-foreground" />
+                  </div>
+                  <p className="text-muted-foreground font-medium">Nenhum agendamento para hoje</p>
+                  <p className="text-sm text-muted-foreground/70 mt-1">Aproveite para organizar sua agenda</p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {appointments.map((appointment) => (
-                    <div
-                      key={appointment.id}
-                      className="flex items-center justify-between p-4 border border-border rounded-lg hover:shadow-md transition-all"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                          <Clock className="h-6 w-6 text-primary" />
+                <div className="divide-y divide-border/50">
+                  {appointments.map((appointment) => {
+                    const statusConfig = getStatusConfig(appointment.status);
+                    return (
+                      <div
+                        key={appointment.id}
+                        className="flex items-center justify-between p-5 hover:bg-muted/30 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="flex flex-col items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-border/50">
+                            <span className="text-xl font-bold text-primary">
+                              {appointment.scheduled_time?.slice(0, 2)}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {appointment.scheduled_time?.slice(3, 5)}
+                            </span>
+                          </div>
+                          <div className="space-y-1">
+                            <h3 className="font-semibold text-base">
+                              {appointment.service?.name}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              <span className="text-foreground">{appointment.client?.full_name}</span>
+                              {" · "}
+                              <span>{appointment.pet?.name}</span>
+                              {appointment.pet?.species && (
+                                <span className="text-muted-foreground/70"> ({appointment.pet.species})</span>
+                              )}
+                            </p>
+                            {appointment.service?.duration_minutes && (
+                              <p className="text-xs text-muted-foreground">
+                                Duração: {appointment.service.duration_minutes} min
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-semibold">
-                            {appointment.scheduled_time} - {appointment.service?.name}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            Cliente: {appointment.client?.full_name} | Pet: {appointment.pet?.name}
-                          </p>
+                        <div className="flex items-center gap-3">
+                          <Badge 
+                            variant="outline" 
+                            className={`${statusConfig.color} border rounded-full px-3`}
+                          >
+                            {statusConfig.label}
+                          </Badge>
+                          {appointment.status === "pending" && (
+                            <Button 
+                              size="sm"
+                              className="rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white"
+                              onClick={() => updateAppointmentStatus(appointment.id, "confirmed")}
+                            >
+                              <CheckCircle2 className="h-4 w-4 mr-1" />
+                              Confirmar
+                            </Button>
+                          )}
+                          {appointment.status === "confirmed" && (
+                            <Button 
+                              size="sm"
+                              className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white"
+                              onClick={() => updateAppointmentStatus(appointment.id, "in_progress")}
+                            >
+                              <Play className="h-4 w-4 mr-1" />
+                              Iniciar
+                            </Button>
+                          )}
+                          {appointment.status === "in_progress" && (
+                            <Button 
+                              size="sm"
+                              className="rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white"
+                              onClick={() => updateAppointmentStatus(appointment.id, "completed")}
+                            >
+                              <CheckCircle2 className="h-4 w-4 mr-1" />
+                              Concluir
+                            </Button>
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            appointment.status === "confirmed"
-                              ? "bg-accent/10 text-accent"
-                              : appointment.status === "in_progress"
-                              ? "bg-secondary/10 text-secondary"
-                              : appointment.status === "completed"
-                              ? "bg-primary/10 text-primary"
-                              : "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          {appointment.status === "confirmed" ? "Confirmado" :
-                           appointment.status === "in_progress" ? "Em Andamento" :
-                           appointment.status === "completed" ? "Concluído" :
-                           appointment.status === "pending" ? "Pendente" : "Cancelado"}
-                        </span>
-                        {appointment.status === "pending" && (
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => updateAppointmentStatus(appointment.id, "confirmed")}
-                          >
-                            Confirmar
-                          </Button>
-                        )}
-                        {appointment.status === "confirmed" && (
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => updateAppointmentStatus(appointment.id, "in_progress")}
-                          >
-                            Iniciar
-                          </Button>
-                        )}
-                        {appointment.status === "in_progress" && (
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => updateAppointmentStatus(appointment.id, "completed")}
-                          >
-                            Concluir
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
           </Card>
         </section>
 
-        {/* Quick Actions */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-4">Ações Rápidas</h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            <Button 
-              variant="outline" 
-              className="h-24 flex flex-col gap-2 hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all"
-              onClick={() => navigate("/petshop-dashboard/clientes")}
-            >
-              <Users className="h-6 w-6" />
-              Gerenciar Clientes
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-24 flex flex-col gap-2 hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all"
-              onClick={() => navigate("/petshop-dashboard/calendario")}
-            >
-              <Calendar className="h-6 w-6" />
-              Calendário Completo
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-24 flex flex-col gap-2 hover:bg-primary/10 hover:text-primary hover:scale-105 transition-all"
-              onClick={() => navigate("/petshop-dashboard/relatorios")}
-            >
-              <TrendingUp className="h-6 w-6" />
-              Relatórios
-            </Button>
-          </div>
-        </section>
-        </>
-      )}
+        {/* Footer */}
+        <footer className="text-center text-xs text-muted-foreground/60 py-4">
+          Última atualização: {lastUpdate.toLocaleTimeString('pt-BR')}
+        </footer>
       </div>
-    );
-  };
+    </div>
+  );
+};
 
-export default PetShopDashboard;
+export default ProfessionalDashboard;
