@@ -52,12 +52,14 @@ export default {
           secondary: "hsl(var(--plan-gold-secondary))",
           accent: "hsl(var(--plan-gold-accent))",
           foreground: "hsl(var(--plan-gold-foreground))",
+          dark: "hsl(var(--plan-gold-dark))",
         },
         "plan-platinum": {
           primary: "hsl(var(--plan-platinum-primary))",
           secondary: "hsl(var(--plan-platinum-secondary))",
           accent: "hsl(var(--plan-platinum-accent))",
           foreground: "hsl(var(--plan-platinum-foreground))",
+          dark: "hsl(var(--plan-platinum-dark))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",

@@ -82,17 +82,19 @@ All colors MUST be HSL.
     --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-    /* Plan-specific colors - Gold */
-    --plan-gold-primary: 45 93% 47%;
-    --plan-gold-secondary: 43 96% 56%;
-    --plan-gold-accent: 48 100% 67%;
-    --plan-gold-foreground: 0 0% 100%;
+    /* Plan-specific colors - Gold (#FFD700 base - vibrant) */
+    --plan-gold-primary: 51 100% 50%;
+    --plan-gold-secondary: 45 100% 60%;
+    --plan-gold-accent: 43 100% 70%;
+    --plan-gold-foreground: 35 100% 15%;
+    --plan-gold-dark: 45 100% 35%;
 
-    /* Plan-specific colors - Platinum */
-    --plan-platinum-primary: 240 5% 64%;
-    --plan-platinum-secondary: 240 6% 83%;
-    --plan-platinum-accent: 240 5% 96%;
-    --plan-platinum-foreground: 0 0% 100%;
+    /* Plan-specific colors - Platinum (#E5E4E2 base - metallic silver) */
+    --plan-platinum-primary: 40 7% 89%;
+    --plan-platinum-secondary: 210 10% 75%;
+    --plan-platinum-accent: 210 10% 95%;
+    --plan-platinum-foreground: 210 10% 20%;
+    --plan-platinum-dark: 210 10% 45%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5% 26%;
@@ -156,17 +158,19 @@ All colors MUST be HSL.
     --shadow-glow: 0 0 60px hsl(190 75% 80% / 0.5);
     --shadow-green: 0 10px 40px hsl(140 70% 55% / 0.4);
 
-    /* Plan-specific colors - Gold (dark mode) */
-    --plan-gold-primary: 45 93% 57%;
-    --plan-gold-secondary: 43 96% 66%;
-    --plan-gold-accent: 48 100% 77%;
-    --plan-gold-foreground: 0 0% 100%;
+    /* Plan-specific colors - Gold (dark mode - vibrant) */
+    --plan-gold-primary: 51 100% 55%;
+    --plan-gold-secondary: 45 100% 65%;
+    --plan-gold-accent: 43 100% 75%;
+    --plan-gold-foreground: 45 100% 95%;
+    --plan-gold-dark: 45 100% 40%;
 
-    /* Plan-specific colors - Platinum (dark mode) */
-    --plan-platinum-primary: 240 5% 74%;
-    --plan-platinum-secondary: 240 6% 88%;
-    --plan-platinum-accent: 240 5% 96%;
-    --plan-platinum-foreground: 0 0% 100%;
+    /* Plan-specific colors - Platinum (dark mode - metallic) */
+    --plan-platinum-primary: 40 10% 80%;
+    --plan-platinum-secondary: 210 12% 70%;
+    --plan-platinum-accent: 210 10% 90%;
+    --plan-platinum-foreground: 210 10% 95%;
+    --plan-platinum-dark: 210 10% 55%;
 
     --sidebar-background: 240 6% 10%;
     --sidebar-foreground: 240 5% 96%;
