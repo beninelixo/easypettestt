@@ -1,8 +1,8 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { 
   Calendar, Scissors, Users, LogOut, Building2, 
   LayoutDashboard, Settings, ChevronRight, Sparkles, Moon, Sun,
-  PanelLeftClose, PanelLeft, Lock
+  PanelLeftClose, PanelLeft, Lock, BarChart3, Database, CreditCard, UserCircle
 } from "lucide-react";
 import {
   Sidebar,
@@ -72,6 +72,40 @@ const multiUnitMenuItems = [
   },
 ];
 
+// Protected menu items (visible after settings password)
+const protectedMenuItems = [
+  { 
+    title: "Funcionários", 
+    url: "/professional/employees", 
+    icon: Users,
+    gradient: "from-violet-500 to-purple-600"
+  },
+  { 
+    title: "Relatórios", 
+    url: "/professional/reports", 
+    icon: BarChart3,
+    gradient: "from-pink-500 to-rose-600"
+  },
+  { 
+    title: "Backup", 
+    url: "/professional/backup", 
+    icon: Database,
+    gradient: "from-slate-500 to-slate-600"
+  },
+  { 
+    title: "Planos", 
+    url: "/professional/plans", 
+    icon: CreditCard,
+    gradient: "from-amber-500 to-orange-600"
+  },
+  { 
+    title: "Perfil", 
+    url: "/professional/profile", 
+    icon: UserCircle,
+    gradient: "from-cyan-500 to-blue-600"
+  },
+];
+
 export function ProfessionalSidebar() {
   const { state } = useSidebar();
   const { signOut, user } = useAuth();
@@ -79,6 +113,7 @@ export function ProfessionalSidebar() {
   const planTheme = usePlanTheme();
   const { theme, toggleTheme } = useTheme();
   const { isUnlocked } = useSettingsProtection();
+  const navigate = useNavigate();
   const isCollapsed = state === "collapsed";
   
   const showMultiUnit = tenantId && (can('view_consolidated') || can('manage_units'));
@@ -232,6 +267,58 @@ export function ProfessionalSidebar() {
           </>
         )}
 
+        {/* Protected Menus - Visible after settings password */}
+        {isUnlocked && (
+          <>
+            <Separator className="mx-4 bg-border/50" />
+            <SidebarGroup className="px-3 py-4">
+              {!isCollapsed && (
+                <SidebarGroupLabel className="text-xs text-muted-foreground/70 uppercase tracking-wider font-medium px-3 mb-2 flex items-center gap-2">
+                  <Lock className="h-3 w-3" />
+                  Área Protegida
+                </SidebarGroupLabel>
+              )}
+              
+              <SidebarGroupContent>
+                <SidebarMenu className="space-y-1">
+                  {protectedMenuItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <NavLink
+                          to={item.url}
+                          className={({ isActive }) => {
+                            const baseClass = `group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
+                            
+                            if (isActive) {
+                              return `${baseClass} bg-gradient-to-r ${item.gradient} text-white shadow-lg shadow-primary/20`;
+                            }
+                            
+                            return `${baseClass} hover:bg-muted/60 text-muted-foreground hover:text-foreground`;
+                          }}
+                        >
+                          {({ isActive }) => (
+                            <>
+                              <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-9 h-9'} rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
+                                <item.icon className={`h-5 w-5 ${isActive ? 'text-white' : ''}`} />
+                              </div>
+                              {!isCollapsed && (
+                                <>
+                                  <span className="font-medium flex-1">{item.title}</span>
+                                  <ChevronRight className={`h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all ${isActive ? 'text-white/70' : 'text-muted-foreground'}`} />
+                                </>
+                              )}
+                            </>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </>
+        )}
+
         {/* Spacer */}
         <div className="flex-1" />
 
@@ -251,6 +338,7 @@ export function ProfessionalSidebar() {
                 <Button 
                   size="sm" 
                   className="w-full rounded-lg bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-white"
+                  onClick={() => navigate('/professional/plans')}
                 >
                   Ver Planos
                 </Button>

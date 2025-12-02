@@ -344,17 +344,55 @@ const ProfessionalPlans = () => {
             const canUpgrade = plans.findIndex(p => p.id === plan.id) > 
                               plans.findIndex(p => p.id === currentPlan);
             const isFreePlan = plan.id === "gratuito";
+            const isGold = plan.id.includes("gold");
+            const isPlatinum = plan.id.includes("platinum");
+
+            // Plan-specific styles
+            const getPlanStyles = () => {
+              if (isGold) {
+                return {
+                  card: "border-2 border-amber-400/60 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-amber-950/40 dark:via-yellow-950/30 dark:to-orange-950/20 shadow-[0_0_30px_hsl(51_100%_50%/0.25)]",
+                  badge: "bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-950",
+                  icon: "text-amber-500",
+                  checkIcon: "text-amber-600 dark:text-amber-400",
+                  button: "bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500 hover:from-amber-500 hover:via-yellow-600 hover:to-orange-600 text-amber-950 font-semibold shadow-lg shadow-amber-500/30",
+                  price: "text-amber-600 dark:text-amber-400",
+                };
+              }
+              if (isPlatinum) {
+                return {
+                  card: "border-2 border-slate-400/60 bg-gradient-to-br from-slate-50 via-gray-100 to-zinc-100 dark:from-slate-900/60 dark:via-gray-900/40 dark:to-zinc-900/30 shadow-[0_0_30px_hsl(210_10%_75%/0.35)]",
+                  badge: "bg-gradient-to-r from-slate-300 to-gray-400 text-slate-900",
+                  icon: "text-slate-500",
+                  checkIcon: "text-slate-600 dark:text-slate-300",
+                  button: "bg-gradient-to-r from-slate-400 via-gray-500 to-slate-600 hover:from-slate-500 hover:via-gray-600 hover:to-slate-700 text-white font-semibold shadow-lg shadow-slate-500/30",
+                  price: "text-slate-600 dark:text-slate-300",
+                };
+              }
+              return {
+                card: "",
+                badge: "bg-primary",
+                icon: "text-primary",
+                checkIcon: "text-primary",
+                button: "",
+                price: "",
+              };
+            };
+
+            const styles = getPlanStyles();
 
             return (
               <Card
                 key={plan.id}
-                className={`relative ${
-                  plan.popular ? "border-primary shadow-lg" : ""
-                } ${isActive ? "bg-muted/50" : ""}`}
+                className={`relative transition-all duration-300 hover:scale-[1.02] ${styles.card} ${
+                  plan.popular && !isGold && !isPlatinum ? "border-primary shadow-lg" : ""
+                } ${isActive ? "ring-2 ring-primary ring-offset-2" : ""}`}
               >
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-primary">Mais Popular</Badge>
+                    <Badge className={styles.badge}>
+                      {isGold ? "⭐ Mais Popular" : isPlatinum ? "💎 Premium" : "Mais Popular"}
+                    </Badge>
                   </div>
                 )}
                 {isFreePlan && !isActive && (
@@ -365,18 +403,22 @@ const ProfessionalPlans = () => {
 
                 <CardHeader>
                   <div className="flex items-center justify-between mb-2">
-                    <Icon className="h-8 w-8 text-primary" />
+                    <div className={`p-2 rounded-xl ${isGold ? 'bg-gradient-to-br from-amber-200 to-yellow-300' : isPlatinum ? 'bg-gradient-to-br from-slate-200 to-gray-300' : 'bg-primary/10'}`}>
+                      <Icon className={`h-8 w-8 ${styles.icon}`} />
+                    </div>
                     {isActive && (
-                      <Badge variant="secondary">Ativo</Badge>
+                      <Badge variant="secondary" className="bg-green-500 text-white">✓ Ativo</Badge>
                     )}
                   </div>
-                  <CardTitle>{plan.name}</CardTitle>
+                  <CardTitle className={isGold ? "text-amber-700 dark:text-amber-300" : isPlatinum ? "text-slate-700 dark:text-slate-200" : ""}>
+                    {plan.name}
+                  </CardTitle>
                   <CardDescription>{plan.description}</CardDescription>
                 </CardHeader>
 
                 <CardContent>
                   <div className="mb-6">
-                    <div className="text-3xl font-bold">
+                    <div className={`text-3xl font-bold ${styles.price}`}>
                       R$ {plan.price}
                       <span className="text-lg font-normal text-muted-foreground">
                         {plan.id.includes('anual') ? '/ano' : '/mês'}
@@ -398,7 +440,7 @@ const ProfessionalPlans = () => {
                         }`}
                       >
                         {feature.included ? (
-                          <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                          <Check className={`h-4 w-4 flex-shrink-0 mt-0.5 ${styles.checkIcon}`} />
                         ) : (
                           <span className="h-4 w-4 flex-shrink-0">—</span>
                         )}
@@ -410,8 +452,8 @@ const ProfessionalPlans = () => {
 
                 <CardFooter>
                   <Button
-                    className="w-full"
-                    variant={isActive ? "secondary" : plan.popular ? "default" : isFreePlan ? "default" : "outline"}
+                    className={`w-full ${(isGold || isPlatinum) && !isActive ? styles.button : ""}`}
+                    variant={isActive ? "secondary" : plan.popular && !isGold && !isPlatinum ? "default" : isFreePlan ? "default" : "outline"}
                     disabled={isActive || processingUpgrade}
                     onClick={() => {
                       if (isFreePlan && !isActive) {

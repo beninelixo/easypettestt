@@ -92,12 +92,16 @@ const ProfessionalSettings = () => {
       if (success) {
         toast({
           title: "✅ Senha criada!",
-          description: "Configurações desbloqueadas com sucesso!",
+          description: "Configurações desbloqueadas! Redirecionando...",
         });
-        // Store unlock state in session
+        // Store unlock state and dispatch event for cross-component sync
         sessionStorage.setItem('easypet_settings_unlocked', 'true');
+        window.dispatchEvent(new Event('storage'));
         setDialogOpen(false);
-        setShowSettings(true);
+        // Redirect to dashboard after creating password
+        setTimeout(() => {
+          navigate("/petshop-dashboard");
+        }, 500);
       }
       return success;
     } else {
@@ -118,12 +122,16 @@ const ProfessionalSettings = () => {
         setAttempts(0);
         toast({
           title: "✅ Senha verificada!",
-          description: "Configurações desbloqueadas com sucesso!",
+          description: "Configurações desbloqueadas! Redirecionando...",
         });
-        // Store unlock state in session
+        // Store unlock state and dispatch event for cross-component sync
         sessionStorage.setItem('easypet_settings_unlocked', 'true');
+        window.dispatchEvent(new Event('storage'));
         setDialogOpen(false);
-        setShowSettings(true);
+        // Redirect to dashboard after verification
+        setTimeout(() => {
+          navigate("/petshop-dashboard");
+        }, 500);
       }
       return success;
     }
