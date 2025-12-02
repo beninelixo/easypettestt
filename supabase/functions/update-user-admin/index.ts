@@ -49,12 +49,11 @@ serve(async (req) => {
       );
     }
 
-    // Verificar se é admin
+    // ✅ FIX: Query all roles (user may have multiple) instead of maybeSingle()
     const { data: roleData, error: roleError } = await supabase
       .from('user_roles')
       .select('role')
-      .eq('user_id', adminUser.id)
-      .maybeSingle();
+      .eq('user_id', adminUser.id);
 
     if (roleError) {
       console.error('Error checking admin role:', roleError);
@@ -64,7 +63,9 @@ serve(async (req) => {
       );
     }
 
-    const isAdmin = roleData?.role === 'admin' || roleData?.role === 'super_admin' || adminUser.email === 'beninelixo@gmail.com';
+    // ✅ FIX: Check if any of the roles is admin or super_admin
+    const isAdmin = roleData?.some(r => r.role === 'admin' || r.role === 'super_admin') || 
+                    adminUser.email === 'beninelixo@gmail.com';
     
     if (!isAdmin) {
       return new Response(
@@ -100,9 +101,9 @@ serve(async (req) => {
     }
 
     // Não permitir alterar/deletar o God User
-    if (targetUser.user.email === 'beninelixo@gmail.com' && (action === 'delete' || (role && role !== roleData?.role))) {
+    if (targetUser.user.email === 'beninelixo@gmail.com' && action === 'delete') {
       return new Response(
-        JSON.stringify({ error: 'Não é possível modificar o usuário god' }),
+        JSON.stringify({ error: 'Não é possível deletar o usuário god' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -178,37 +179,25 @@ serve(async (req) => {
 
     // Atualizar role se fornecido
     if (role) {
-      // Verificar se role já existe
-      const { data: existingRole } = await supabase
+      // ✅ FIX: Check all existing roles for this user
+      const { data: existingRoles } = await supabase
         .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .maybeSingle();
+        .select('id, role')
+        .eq('user_id', userId);
 
-      if (existingRole) {
-        // Atualizar role existente
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .update({ role })
-          .eq('user_id', userId);
+      // Check if this specific role already exists
+      const existingRole = existingRoles?.find(r => r.role === role);
 
-        if (roleError) {
-          console.error('Error updating role:', roleError);
-          return new Response(
-            JSON.stringify({ error: 'Erro ao atualizar role do usuário', details: roleError.message }),
-            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-      } else {
-        // Inserir nova role
-        const { error: roleError } = await supabase
+      if (!existingRole) {
+        // Insert new role (user can have multiple roles)
+        const { error: roleInsertError } = await supabase
           .from('user_roles')
           .insert({ user_id: userId, role });
 
-        if (roleError) {
-          console.error('Error inserting role:', roleError);
+        if (roleInsertError) {
+          console.error('Error inserting role:', roleInsertError);
           return new Response(
-            JSON.stringify({ error: 'Erro ao criar role do usuário', details: roleError.message }),
+            JSON.stringify({ error: 'Erro ao criar role do usuário', details: roleInsertError.message }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
