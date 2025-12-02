@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { 
   Calendar, Scissors, Users, LogOut, Building2, 
   LayoutDashboard, Settings, ChevronRight, Sparkles, Moon, Sun,
-  PanelLeftClose, PanelLeft
+  PanelLeftClose, PanelLeft, Lock
 } from "lucide-react";
 import {
   Sidebar,
@@ -21,7 +21,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/lib/tenant-context";
 import { usePlanTheme } from "@/hooks/usePlanTheme";
 import { useTheme } from "@/hooks/useTheme";
+import { useSettingsProtection } from "@/hooks/useSettingsProtection";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import logo from "@/assets/easypet-logo.png";
 
 const professionalMenuItems = [
@@ -29,25 +31,29 @@ const professionalMenuItems = [
     title: "Serviços", 
     url: "/professional/services", 
     icon: Scissors,
-    gradient: "from-emerald-500 to-green-600"
+    gradient: "from-emerald-500 to-green-600",
+    protected: false
   },
   { 
     title: "Calendário", 
     url: "/professional/calendar", 
     icon: Calendar,
-    gradient: "from-violet-500 to-purple-600"
+    gradient: "from-violet-500 to-purple-600",
+    protected: false
   },
   { 
     title: "Clientes", 
     url: "/professional/clients", 
     icon: Users,
-    gradient: "from-amber-500 to-orange-600"
+    gradient: "from-amber-500 to-orange-600",
+    protected: false
   },
   { 
     title: "Configurações", 
     url: "/professional/settings", 
     icon: Settings,
-    gradient: "from-slate-500 to-slate-600"
+    gradient: "from-slate-500 to-slate-600",
+    protected: true
   },
 ];
 
@@ -72,6 +78,7 @@ export function ProfessionalSidebar() {
   const { can, tenantId } = useTenant();
   const planTheme = usePlanTheme();
   const { theme, toggleTheme } = useTheme();
+  const { isUnlocked } = useSettingsProtection();
   const isCollapsed = state === "collapsed";
   
   const showMultiUnit = tenantId && (can('view_consolidated') || can('manage_units'));
@@ -145,11 +152,21 @@ export function ProfessionalSidebar() {
                       {({ isActive }) => (
                         <>
                           <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-9 h-9'} rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
-                            <item.icon className={`h-5 w-5 ${isActive ? 'text-white' : ''}`} />
+                            {item.protected && !isUnlocked ? (
+                              <Lock className={`h-5 w-5 ${isActive ? 'text-white' : 'text-muted-foreground'}`} />
+                            ) : (
+                              <item.icon className={`h-5 w-5 ${isActive ? 'text-white' : ''}`} />
+                            )}
                           </div>
                           {!isCollapsed && (
                             <>
                               <span className="font-medium flex-1">{item.title}</span>
+                              {item.protected && !isUnlocked && (
+                                <Badge variant="outline" className="text-xs px-1.5 py-0 h-5 border-amber-500/50 text-amber-600 dark:text-amber-400">
+                                  <Lock className="h-3 w-3 mr-1" />
+                                  Protegido
+                                </Badge>
+                              )}
                               <ChevronRight className={`h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all ${isActive ? 'text-white/70' : 'text-muted-foreground'}`} />
                             </>
                           )}
