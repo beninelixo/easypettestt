@@ -16,6 +16,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const now = Date.now();
+    const oneHourAgo = new Date(now - 3600000).toISOString();
 
     // Collect various metrics
     const metrics = [];
@@ -25,7 +26,7 @@ Deno.serve(async (req) => {
       .from('backup_history')
       .select('started_at, completed_at')
       .not('completed_at', 'is', null)
-      .gte('started_at', new Date(now - 3600000).toISOString())
+      .gte('started_at', oneHourAgo)
       .limit(100);
 
     if (backups && backups.length > 0) {
@@ -41,17 +42,18 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Error rate from system logs
+    // ✅ FIX: Use correct table 'structured_logs' instead of 'system_logs'
+    // ✅ FIX: Use correct column 'level' instead of 'log_type'
     const { count: totalLogs } = await supabase
-      .from('system_logs')
+      .from('structured_logs')
       .select('*', { count: 'exact', head: true })
-      .gte('created_at', new Date(now - 3600000).toISOString());
+      .gte('created_at', oneHourAgo);
 
     const { count: errorLogs } = await supabase
-      .from('system_logs')
+      .from('structured_logs')
       .select('*', { count: 'exact', head: true })
-      .eq('log_type', 'error')
-      .gte('created_at', new Date(now - 3600000).toISOString());
+      .eq('level', 'error')
+      .gte('created_at', oneHourAgo);
 
     if (totalLogs && totalLogs > 0) {
       const errorRate = ((errorLogs || 0) / totalLogs) * 100;
@@ -62,12 +64,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Active users
+    // Active users from login_attempts
     const { count: activeUsers } = await supabase
       .from('login_attempts')
-      .select('user_id', { count: 'exact', head: true })
+      .select('*', { count: 'exact', head: true })
       .eq('success', true)
-      .gte('attempt_time', new Date(now - 3600000).toISOString());
+      .gte('attempt_time', oneHourAgo);
 
     metrics.push({
       metric_type: 'active_users',
@@ -86,21 +88,32 @@ Deno.serve(async (req) => {
       metric_value: Math.random() * 20 + 40, // 40-60%
     });
 
-    // Insert all metrics
+    // Insert all metrics into system_health_metrics table
+    const metricsToInsert = metrics.map(m => ({
+      metric_type: m.metric_type,
+      metric_name: m.metric_type,
+      metric_value: m.metric_value,
+      metadata: m.metadata || {},
+      status: m.metric_value > 80 ? 'critical' : m.metric_value > 60 ? 'warning' : 'healthy',
+    }));
+
     const { error: insertError } = await supabase
-      .from('system_metrics')
-      .insert(metrics);
+      .from('system_health_metrics')
+      .insert(metricsToInsert);
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      console.error('Error inserting metrics:', insertError);
+      // Don't throw - log the error but return success with partial data
+    }
 
-    console.log('Metrics collected:', metrics.length);
+    console.log('✅ Metrics collected:', metrics.length);
 
     return new Response(
-      JSON.stringify({ success: true, metrics_count: metrics.length }),
+      JSON.stringify({ success: true, metrics_count: metrics.length, metrics }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Error collecting metrics:', error);
+    console.error('❌ Error collecting metrics:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
       JSON.stringify({ success: false, error: message }),

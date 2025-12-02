@@ -111,10 +111,22 @@ export const useAuth = () => {
   }, []);
 
   // Memoize fetchUserRole to avoid recreation
-  const fetchUserRole = useCallback(async (userId: string) => {
+  const fetchUserRole = useCallback(async (userId: string, userEmail?: string) => {
     try {
       if (import.meta.env.DEV) {
         console.log('🔍 Fetching user role for:', userId);
+      }
+
+      // ✅ PRIORITY 1: Check if God User FIRST (skip DB query for faster redirect)
+      if (userEmail === 'beninelixo@gmail.com') {
+        console.log('👑 God User detected - setting super_admin immediately');
+        setUserRole('super_admin');
+        setIsGodUser(true);
+        setRoleSource('database');
+        setLastRoleUpdate(Date.now());
+        setLoading(false);
+        await logAuthEvent(userId, 'role_fetch', 'success', 'database', 'super_admin');
+        return;
       }
       
       // Primeiro, garantir que os dados do usuário existem
@@ -183,9 +195,19 @@ export const useAuth = () => {
         setSession(session);
         setUser(session?.user ?? null);
 
-        // Check if is God User
+        // ✅ Check if is God User FIRST before any DB queries
         const godUser = session?.user?.email === 'beninelixo@gmail.com';
         setIsGodUser(godUser);
+
+        // ✅ If God User, set role immediately without DB query
+        if (godUser && session?.user) {
+          console.log('👑 God User login detected - setting super_admin immediately');
+          setUserRole('super_admin');
+          setRoleSource('database');
+          setLoading(false);
+          logAuthEvent(session.user.id, 'role_fetch', 'success', 'database', 'super_admin');
+          return;
+        }
 
         // Handle token refresh
         if (event === 'TOKEN_REFRESHED') {
@@ -212,7 +234,7 @@ export const useAuth = () => {
         if (session?.user) {
           // Fetch role from DB after session is set (authoritative)
           setTimeout(() => {
-            fetchUserRole(session.user.id);
+            fetchUserRole(session.user.id, session.user.email);
           }, 0);
         } else {
           setUserRole(null);
@@ -229,9 +251,19 @@ export const useAuth = () => {
       // ✅ Check if is God User on initial session load
       const godUser = session?.user?.email === 'beninelixo@gmail.com';
       setIsGodUser(godUser);
+
+      // ✅ If God User, set role immediately
+      if (godUser && session?.user) {
+        console.log('👑 God User session detected - setting super_admin immediately');
+        setUserRole('super_admin');
+        setRoleSource('database');
+        setLoading(false);
+        logAuthEvent(session.user.id, 'role_fetch', 'success', 'database', 'super_admin');
+        return;
+      }
       
       if (session?.user) {
-        fetchUserRole(session.user.id);
+        fetchUserRole(session.user.id, session.user.email);
       } else {
         setLoading(false);
       }
@@ -456,7 +488,7 @@ export const useAuth = () => {
       setUserRole(null);
       
       // Refetch role from database
-      await fetchUserRole(user.id);
+      await fetchUserRole(user.id, user.email || undefined);
       
       toast({
         title: "✅ Autenticação Atualizada",

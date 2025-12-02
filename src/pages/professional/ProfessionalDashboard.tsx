@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Calendar, TrendingUp, Users, DollarSign, Clock, Sparkles, 
   ArrowRight, CheckCircle2, XCircle, Play, BarChart3,
-  PawPrint, Bell, Settings, ChevronRight, Scissors
+  PawPrint, Bell, Settings, ChevronRight, Scissors, Crown, Star
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +20,17 @@ import { ServiceBreakdownChart } from "@/components/dashboard/ServiceBreakdownCh
 import { useRealtimeMetrics } from "@/hooks/useRealtimeMetrics";
 import { usePlanTheme } from "@/hooks/usePlanTheme";
 
+// Plan display configuration
+const PLAN_CONFIG: Record<string, { name: string; icon: typeof Crown; gradient: string; badge: string }> = {
+  'gratuito': { name: 'Plano Gratuito', icon: Star, gradient: 'from-slate-500 to-slate-600', badge: 'bg-slate-500/20 text-slate-400' },
+  'free': { name: 'Plano Gratuito', icon: Star, gradient: 'from-slate-500 to-slate-600', badge: 'bg-slate-500/20 text-slate-400' },
+  'pet_gold': { name: 'Pet Gold Mensal', icon: Crown, gradient: 'from-amber-400 to-yellow-500', badge: 'bg-amber-500/20 text-amber-400' },
+  'pet_gold_anual': { name: 'Pet Gold Anual', icon: Crown, gradient: 'from-amber-400 to-yellow-500', badge: 'bg-amber-500/20 text-amber-400' },
+  'pet_platinum': { name: 'Pet Platinum Mensal', icon: Crown, gradient: 'from-slate-300 to-slate-400', badge: 'bg-slate-300/20 text-slate-300' },
+  'pet_platinum_anual': { name: 'Pet Platinum Anual', icon: Crown, gradient: 'from-slate-300 to-slate-400', badge: 'bg-slate-300/20 text-slate-300' },
+  'enterprise': { name: 'Enterprise', icon: Crown, gradient: 'from-violet-500 to-purple-600', badge: 'bg-violet-500/20 text-violet-400' },
+};
+
 const ProfessionalDashboard = () => {
   const { user, isGodUser } = useAuth();
   const navigate = useNavigate();
@@ -28,6 +39,11 @@ const ProfessionalDashboard = () => {
   const [petShopId, setPetShopId] = useState<string>("");
   const [petShopName, setPetShopName] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [currentPlan, setCurrentPlan] = useState<{
+    name: string;
+    planKey: string;
+    expiresAt: string | null;
+  }>({ name: 'Plano Gratuito', planKey: 'gratuito', expiresAt: null });
   const [stats, setStats] = useState({
     todayAppointments: 0,
     monthlyRevenue: 0,
@@ -62,24 +78,41 @@ const ProfessionalDashboard = () => {
     // Primeiro tentar encontrar pet_shop do próprio usuário
     const { data: ownedShop } = await supabase
       .from("pet_shops")
-      .select("id, name")
+      .select("id, name, subscription_plan, subscription_expires_at")
       .eq("owner_id", user?.id)
       .maybeSingle();
 
     if (ownedShop) {
       shopId = ownedShop.id;
       shopName = ownedShop.name;
+      // ✅ Load current plan from owned shop
+      const planKey = ownedShop.subscription_plan || 'gratuito';
+      const planInfo = PLAN_CONFIG[planKey] || PLAN_CONFIG['gratuito'];
+      setCurrentPlan({
+        name: planInfo.name,
+        planKey: planKey,
+        expiresAt: ownedShop.subscription_expires_at,
+      });
     } else {
       // Tentar como funcionário
       const { data: employeeShop } = await supabase
         .from("petshop_employees")
-        .select("pet_shop_id, pet_shops(name)")
+        .select("pet_shop_id, pet_shops(name, subscription_plan, subscription_expires_at)")
         .eq("user_id", user?.id)
         .eq("active", true)
         .maybeSingle();
       if (employeeShop) {
         shopId = employeeShop.pet_shop_id;
-        shopName = (employeeShop as any).pet_shops?.name || "";
+        const shopData = (employeeShop as any).pet_shops;
+        shopName = shopData?.name || "";
+        // ✅ Load current plan from employee's shop
+        const planKey = shopData?.subscription_plan || 'gratuito';
+        const planInfo = PLAN_CONFIG[planKey] || PLAN_CONFIG['gratuito'];
+        setCurrentPlan({
+          name: planInfo.name,
+          planKey: planKey,
+          expiresAt: shopData?.subscription_expires_at,
+        });
       }
     }
 
@@ -87,13 +120,20 @@ const ProfessionalDashboard = () => {
     if (!shopId && (isGodUser || user?.email === 'beninelixo@gmail.com')) {
       const { data: anyShop } = await supabase
         .from("pet_shops")
-        .select("id, name")
+        .select("id, name, subscription_plan, subscription_expires_at")
         .limit(1)
         .maybeSingle();
       
       if (anyShop) {
         shopId = anyShop.id;
         shopName = `[GOD MODE] ${anyShop.name}`;
+        const planKey = anyShop.subscription_plan || 'gratuito';
+        const planInfo = PLAN_CONFIG[planKey] || PLAN_CONFIG['gratuito'];
+        setCurrentPlan({
+          name: planInfo.name,
+          planKey: planKey,
+          expiresAt: anyShop.subscription_expires_at,
+        });
       }
     }
 
@@ -342,6 +382,81 @@ const ProfessionalDashboard = () => {
             </div>
           </div>
         </header>
+
+        {/* Current Plan Card */}
+        <section>
+          {(() => {
+            const planConfig = PLAN_CONFIG[currentPlan.planKey] || PLAN_CONFIG['gratuito'];
+            const PlanIcon = planConfig.icon;
+            const isGold = currentPlan.planKey.includes('gold');
+            const isPlatinum = currentPlan.planKey.includes('platinum');
+            
+            return (
+              <Card className={`relative overflow-hidden border-2 ${
+                isGold ? 'border-amber-400/50 bg-gradient-to-br from-amber-500/5 via-yellow-500/5 to-amber-400/10' :
+                isPlatinum ? 'border-slate-300/50 bg-gradient-to-br from-slate-300/5 via-slate-400/5 to-slate-300/10' :
+                'border-border/50 bg-card/80'
+              } backdrop-blur-sm`}>
+                {/* Glow effect for premium plans */}
+                {(isGold || isPlatinum) && (
+                  <div className={`absolute inset-0 ${
+                    isGold ? 'bg-gradient-to-r from-amber-400/10 via-transparent to-yellow-500/10' :
+                    'bg-gradient-to-r from-slate-300/10 via-transparent to-slate-400/10'
+                  }`} />
+                )}
+                
+                <CardContent className="relative p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className={`p-4 rounded-2xl bg-gradient-to-br ${planConfig.gradient} shadow-lg ${
+                        isGold ? 'shadow-amber-500/30' : isPlatinum ? 'shadow-slate-400/30' : 'shadow-primary/20'
+                      }`}>
+                        <PlanIcon className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground font-medium">Plano Atual</p>
+                        <h3 className={`text-xl font-bold ${
+                          isGold ? 'text-amber-500' : isPlatinum ? 'text-slate-300' : 'text-foreground'
+                        }`}>
+                          {currentPlan.name}
+                        </h3>
+                        {currentPlan.expiresAt && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {new Date(currentPlan.expiresAt) > new Date() 
+                              ? `Renova em ${format(new Date(currentPlan.expiresAt), "dd/MM/yyyy")}`
+                              : `Expirou em ${format(new Date(currentPlan.expiresAt), "dd/MM/yyyy")}`
+                            }
+                          </p>
+                        )}
+                        {!currentPlan.expiresAt && currentPlan.planKey !== 'gratuito' && currentPlan.planKey !== 'free' && (
+                          <p className="text-xs text-emerald-500 mt-1">Assinatura Ativa</p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <Badge className={planConfig.badge}>
+                        {isGold ? 'Gold' : isPlatinum ? 'Platinum' : 'Free'}
+                      </Badge>
+                      <Button 
+                        variant="outline"
+                        className={`rounded-xl ${
+                          isGold ? 'border-amber-400/50 hover:bg-amber-500/10 text-amber-500' :
+                          isPlatinum ? 'border-slate-300/50 hover:bg-slate-300/10 text-slate-300' :
+                          'border-primary/50 hover:bg-primary/10 text-primary'
+                        }`}
+                        onClick={() => navigate("/professional/plans")}
+                      >
+                        {currentPlan.planKey === 'gratuito' || currentPlan.planKey === 'free' ? 'Fazer Upgrade' : 'Ver Detalhes'}
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })()}
+        </section>
 
         {/* Stats Cards */}
         <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
