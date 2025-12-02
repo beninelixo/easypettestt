@@ -6,29 +6,51 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { useUserManagement, UserRole } from "@/hooks/useUserManagement";
-import { Mail, Shield, User, Clock, CheckCircle, XCircle, History, UserPlus, Search, RefreshCw } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useUserManagement, UserRole, UserWithRole } from "@/hooks/useUserManagement";
+import { EditUserDialog } from "@/components/admin/EditUserDialog";
+import { BlockUserDialog } from "@/components/admin/BlockUserDialog";
+import { ManageUserPlanDialog } from "@/components/admin/ManageUserPlanDialog";
+import { DeleteUserDialog } from "@/components/admin/DeleteUserDialog";
+import { 
+  Mail, Shield, User, Clock, CheckCircle, History, UserPlus, Search, RefreshCw,
+  MoreHorizontal, Ban, UserCheck, Trash2, Edit, Crown, Store
+} from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 const roleLabels: Record<UserRole, string> = {
   admin: "Admin",
+  super_admin: "Super Admin",
   pet_shop: "Pet Shop",
   client: "Cliente",
 };
 
-const roleColors: Record<UserRole, string> = {
+const roleColors: Record<UserRole, "destructive" | "default" | "secondary" | "outline"> = {
   admin: "destructive",
+  super_admin: "destructive",
   pet_shop: "default",
   client: "secondary",
 };
 
 export default function UserManagement() {
-  const { users, invites, roleChanges, loading, sendAdminInvite, changeUserRole, removeUserRole, refresh } = useUserManagement();
+  const { 
+    users, invites, roleChanges, loading, total,
+    sendAdminInvite, changeUserRole, removeUserRole, 
+    blockUser, unblockUser, deleteUser, updateUserPlan,
+    refresh, searchUsers 
+  } = useUserManagement();
+  
   const [inviteEmail, setInviteEmail] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [sending, setSending] = useState(false);
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  
+  // Dialog states
+  const [editUser, setEditUser] = useState<UserWithRole | null>(null);
+  const [blockUserData, setBlockUserData] = useState<{ id: string; email: string } | null>(null);
+  const [planUser, setPlanUser] = useState<UserWithRole | null>(null);
+  const [deleteUserData, setDeleteUserData] = useState<{ id: string; email: string; name: string } | null>(null);
 
   const handleSendInvite = async () => {
     if (!inviteEmail || !inviteEmail.includes("@")) return;
@@ -40,17 +62,29 @@ export default function UserManagement() {
   };
 
   const handleRoleChange = async (userId: string, newRole: string) => {
-    await changeUserRole(userId, newRole as UserRole);
+    if (newRole === "none") {
+      await removeUserRole(userId);
+    } else {
+      await changeUserRole(userId, newRole as UserRole);
+    }
   };
 
-  const handleRemoveRole = async (userId: string) => {
-    await removeUserRole(userId);
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    if (value.length >= 2 || value.length === 0) {
+      searchUsers(value || undefined);
+    }
   };
 
-  const filteredUsers = users.filter((user) =>
-    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.full_name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch = 
+      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.full_name.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesRole = roleFilter === "all" || user.role === roleFilter || (roleFilter === "none" && !user.role);
+    
+    return matchesSearch && matchesRole;
+  });
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -60,7 +94,7 @@ export default function UserManagement() {
             Gerenciamento de Usuários
           </h1>
           <p className="text-muted-foreground mt-2">
-            Gerencie usuários, roles e convites administrativos
+            Gerencie usuários, roles e convites administrativos ({total} usuários)
           </p>
         </div>
         <Button onClick={refresh} variant="outline" className="gap-2">
@@ -93,7 +127,7 @@ export default function UserManagement() {
                 Todos os Usuários ({filteredUsers.length})
               </CardTitle>
               <CardDescription>
-                Visualize e modifique roles de todos os usuários do sistema
+                Visualize, edite, bloqueie ou exclua usuários do sistema
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -103,10 +137,23 @@ export default function UserManagement() {
                   <Input
                     placeholder="Buscar por email ou nome..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => handleSearch(e.target.value)}
                     className="pl-10"
                   />
                 </div>
+                <Select value={roleFilter} onValueChange={setRoleFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Filtrar por role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os roles</SelectItem>
+                    <SelectItem value="client">Cliente</SelectItem>
+                    <SelectItem value="pet_shop">Pet Shop</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="super_admin">Super Admin</SelectItem>
+                    <SelectItem value="none">Sem role</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-3">
@@ -122,7 +169,9 @@ export default function UserManagement() {
                   filteredUsers.map((user) => (
                     <div
                       key={user.id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                      className={`flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors ${
+                        user.is_blocked ? "border-destructive/50 bg-destructive/5" : ""
+                      }`}
                     >
                       <div className="flex items-center gap-4 flex-1">
                         <Avatar className="h-10 w-10">
@@ -131,32 +180,53 @@ export default function UserManagement() {
                             {user.full_name.substring(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="flex-1">
-                          <div className="font-medium">{user.full_name}</div>
-                          <div className="text-sm text-muted-foreground">{user.email}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium flex items-center gap-2">
+                            {user.full_name}
+                            {user.is_blocked && (
+                              <Badge variant="destructive" className="text-xs">
+                                <Ban className="h-3 w-3 mr-1" />
+                                Bloqueado
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-sm text-muted-foreground truncate">{user.email}</div>
                           {user.phone && (
                             <div className="text-xs text-muted-foreground">{user.phone}</div>
                           )}
+                          {user.last_sign_in_at && (
+                            <div className="text-xs text-muted-foreground">
+                              Último acesso: {format(new Date(user.last_sign_in_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                            </div>
+                          )}
                         </div>
-                        {user.role && (
-                          <Badge variant={roleColors[user.role] as any}>
-                            {roleLabels[user.role]}
-                          </Badge>
-                        )}
+                        
+                        <div className="flex flex-col items-end gap-1">
+                          {user.role && (
+                            <Badge variant={roleColors[user.role]}>
+                              {roleLabels[user.role]}
+                            </Badge>
+                          )}
+                          {user.pet_shop && (
+                            <Badge variant="outline" className="text-xs gap-1">
+                              <Store className="h-3 w-3" />
+                              {user.pet_shop.name}
+                              {user.pet_shop.subscription_plan && (
+                                <span className="ml-1 text-amber-600">
+                                  ({user.pet_shop.subscription_plan})
+                                </span>
+                              )}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 ml-4">
                         <Select
                           value={user.role || "none"}
-                          onValueChange={(value) => {
-                            if (value === "none") {
-                              handleRemoveRole(user.id);
-                            } else {
-                              handleRoleChange(user.id, value);
-                            }
-                          }}
+                          onValueChange={(value) => handleRoleChange(user.id, value)}
                         >
-                          <SelectTrigger className="w-[150px]">
+                          <SelectTrigger className="w-[140px]">
                             <SelectValue placeholder="Selecionar role" />
                           </SelectTrigger>
                           <SelectContent>
@@ -164,8 +234,60 @@ export default function UserManagement() {
                             <SelectItem value="client">Cliente</SelectItem>
                             <SelectItem value="pet_shop">Pet Shop</SelectItem>
                             <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="super_admin">Super Admin</SelectItem>
                           </SelectContent>
                         </Select>
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setEditUser(user)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Editar Usuário
+                            </DropdownMenuItem>
+                            
+                            {user.pet_shop && (
+                              <DropdownMenuItem onClick={() => setPlanUser(user)}>
+                                <Crown className="h-4 w-4 mr-2" />
+                                Gerenciar Plano
+                              </DropdownMenuItem>
+                            )}
+                            
+                            <DropdownMenuSeparator />
+                            
+                            {user.is_blocked ? (
+                              <DropdownMenuItem onClick={() => unblockUser(user.id)}>
+                                <UserCheck className="h-4 w-4 mr-2" />
+                                Desbloquear
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem 
+                                onClick={() => setBlockUserData({ id: user.id, email: user.email })}
+                              >
+                                <Ban className="h-4 w-4 mr-2" />
+                                Bloquear
+                              </DropdownMenuItem>
+                            )}
+                            
+                            <DropdownMenuSeparator />
+                            
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => setDeleteUserData({ 
+                                id: user.id, 
+                                email: user.email, 
+                                name: user.full_name 
+                              })}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Excluir Usuário
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   ))
@@ -296,7 +418,7 @@ export default function UserManagement() {
                               </Badge>
                             )}
                             {change.action === "changed" && "→ "}
-                            <Badge variant={roleColors[change.new_role] as any}>
+                            <Badge variant={roleColors[change.new_role]}>
                               {roleLabels[change.new_role]}
                             </Badge>
                           </div>
@@ -314,6 +436,55 @@ export default function UserManagement() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Dialogs */}
+      {editUser && (
+        <EditUserDialog
+          open={!!editUser}
+          onOpenChange={(open) => !open && setEditUser(null)}
+          user={{
+            id: editUser.id,
+            email: editUser.email,
+            full_name: editUser.full_name,
+            phone: editUser.phone || "",
+            role: editUser.role || "client",
+          }}
+          onSuccess={refresh}
+        />
+      )}
+
+      {blockUserData && (
+        <BlockUserDialog
+          open={!!blockUserData}
+          onOpenChange={(open) => !open && setBlockUserData(null)}
+          userId={blockUserData.id}
+          userEmail={blockUserData.email}
+          onSuccess={refresh}
+        />
+      )}
+
+      {planUser && planUser.pet_shop && (
+        <ManageUserPlanDialog
+          open={!!planUser}
+          onOpenChange={(open) => !open && setPlanUser(null)}
+          petShopId={planUser.pet_shop.id}
+          petShopName={planUser.pet_shop.name}
+          currentPlan={planUser.pet_shop.subscription_plan}
+          currentExpiry={planUser.pet_shop.subscription_expires_at}
+          onConfirm={updateUserPlan}
+        />
+      )}
+
+      {deleteUserData && (
+        <DeleteUserDialog
+          open={!!deleteUserData}
+          onOpenChange={(open) => !open && setDeleteUserData(null)}
+          userId={deleteUserData.id}
+          userEmail={deleteUserData.email}
+          userName={deleteUserData.name}
+          onConfirm={deleteUser}
+        />
+      )}
     </div>
   );
 }

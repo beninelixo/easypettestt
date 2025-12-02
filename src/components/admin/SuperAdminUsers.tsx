@@ -271,7 +271,13 @@ export const SuperAdminUsers = () => {
           <EditUserDialog
             open={!!editingUser}
             onOpenChange={(open) => !open && setEditingUser(null)}
-            user={editingUser}
+            user={{
+              id: editingUser.id,
+              email: editingUser.email,
+              full_name: editingUser.profiles.full_name || '',
+              phone: editingUser.profiles.phone || '',
+              role: editingUser.user_roles[0]?.role || 'client',
+            }}
             onSuccess={loadUsers}
           />
         )}
