@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -47,11 +47,9 @@ interface EditUserDialogProps {
   user: {
     id: string;
     email: string;
-    profiles: {
-      full_name: string;
-      phone: string;
-    };
-    user_roles: Array<{ role: string }>;
+    full_name: string;
+    phone: string;
+    role: string;
   };
   onSuccess?: () => void;
 }
@@ -63,12 +61,24 @@ export const EditUserDialog = ({ open, onOpenChange, user, onSuccess }: EditUser
   const form = useForm<UserEditForm>({
     resolver: zodResolver(userEditSchema),
     defaultValues: {
-      full_name: user.profiles.full_name,
-      email: user.email,
-      phone: user.profiles.phone || '',
-      role: user.user_roles[0]?.role as any || 'client',
+      full_name: user.full_name || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      role: (user.role as any) || 'client',
     },
   });
+
+  // Reset form when user changes
+  useEffect(() => {
+    if (open && user) {
+      form.reset({
+        full_name: user.full_name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        role: (user.role as any) || 'client',
+      });
+    }
+  }, [open, user, form]);
 
   const onSubmit = async (data: UserEditForm) => {
     setLoading(true);
@@ -79,7 +89,8 @@ export const EditUserDialog = ({ open, onOpenChange, user, onSuccess }: EditUser
           full_name: data.full_name,
           email: data.email,
           phone: data.phone || '',
-          role: data.role
+          role: data.role,
+          action: 'update'
         }
       });
 
@@ -188,7 +199,7 @@ export const EditUserDialog = ({ open, onOpenChange, user, onSuccess }: EditUser
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Perfil/Role</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o perfil" />
