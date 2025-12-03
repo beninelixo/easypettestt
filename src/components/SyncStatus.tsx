@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { checkSync } from '@/utils/syncCheck';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, XCircle, Loader2, RefreshCw } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { getConfigReport, EXPECTED_PROJECT_ID } from '@/utils/supabaseDiagnostics';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface SyncTestResults {
   connection: boolean;
@@ -28,6 +30,7 @@ const testLabels: Record<keyof SyncTestResults, string> = {
 export const SyncStatus = () => {
   const [status, setStatus] = useState<SyncStatusData | null>(null);
   const [loading, setLoading] = useState(true);
+  const config = getConfigReport();
 
   const verify = async () => {
     setLoading(true);
@@ -58,7 +61,12 @@ export const SyncStatus = () => {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            {status?.synced ? (
+            {!config.isCorrect ? (
+              <>
+                <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                <span className="text-yellow-600">Projeto Incorreto</span>
+              </>
+            ) : status?.synced ? (
               <>
                 <CheckCircle className="h-5 w-5 text-green-500" />
                 <span className="text-green-600">Sincronizado</span>
@@ -82,6 +90,14 @@ export const SyncStatus = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
+        {!config.isCorrect && (
+          <Alert variant="destructive" className="mb-3">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription className="text-xs">
+              Projeto incorreto: {config.anonKeyProjectId} (esperado: {EXPECTED_PROJECT_ID})
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="space-y-2">
           {status?.tests &&
             Object.entries(status.tests).map(([key, value]) => (
@@ -99,7 +115,7 @@ export const SyncStatus = () => {
         </div>
         <div className="pt-2 border-t border-border space-y-1">
           <p className="text-xs text-muted-foreground">
-            Project ID: <code className="bg-muted px-1 rounded">{status?.projectId}</code>
+            Project ID: <code className={`px-1 rounded ${config.isCorrect ? 'bg-muted' : 'bg-destructive/20'}`}>{config.anonKeyProjectId}</code>
           </p>
           {status?.timestamp && (
             <p className="text-xs text-muted-foreground">

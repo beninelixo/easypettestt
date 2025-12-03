@@ -55,6 +55,7 @@ const securityItems = [
 ];
 
 const settingsItems = [
+  { title: "Teste de Conexão", url: "/admin/connection-test", icon: TestTube, badge: "DIAG" },
   { title: "Exportar Dados", url: "/admin/data-export", icon: Download, badge: "EXPORT" },
   { title: "User Management", url: "/admin/user-management", icon: Users, badge: "NEW" },
   { title: "User Analytics", url: "/admin/user-analytics", icon: TrendingUp, badge: "NEW" },

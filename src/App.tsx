@@ -133,6 +133,7 @@ const AuthMetricsDashboard = lazy(() => import("./pages/admin/AuthMetricsDashboa
 const SuperAdminDashboard = lazy(() => import("./pages/admin/SuperAdminDashboard"));
 const GoogleCallback = lazy(() => import("./pages/auth/GoogleCallback"));
 const DataExport = lazy(() => import("./pages/admin/DataExport"));
+const ConnectionTest = lazy(() => import("./pages/admin/ConnectionTest"));
 
 // Admin Layout
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -360,6 +361,7 @@ const App = () => {
               <Route path="user-analytics" element={<UserAnalytics />} />
             <Route path="notification-preferences" element={<NotificationPreferences />} />
             <Route path="data-export" element={<DataExport />} />
+            <Route path="connection-test" element={<ConnectionTest />} />
           </Route>
 
           {/* Legacy Admin Routes - Redirect to new structure */}
