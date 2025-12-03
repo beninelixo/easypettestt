@@ -15,7 +15,7 @@ import {
   Building2, Users, Calendar, DollarSign, Shield, Database, 
   Mail, HardDrive, AlertTriangle, CheckCircle, Clock, Activity,
   TrendingUp, Zap, Brain, Loader2, RefreshCw, Lock, Bell,
-  Eye, EyeOff, KeyRound, XCircle, CheckCircle2, FileCode, PawPrint
+  Eye, EyeOff, KeyRound, XCircle, CheckCircle2, FileCode, PawPrint, Trash2
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -589,6 +589,54 @@ export default function UnifiedAdminDashboard() {
                       </Button>
                     </div>
                   </div>
+                </div>
+
+                {/* User Cleanup */}
+                <div className="p-4 border border-purple-500/30 rounded-lg bg-purple-500/5">
+                  <h4 className="font-bold flex items-center gap-2 mb-4">
+                    <Trash2 className="h-5 w-5 text-purple-500" />
+                    Limpar Usuários de Teste
+                  </h4>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Remove todos os usuários do sistema exceto o God User (beninelixo@gmail.com).
+                    Use com extrema cautela - esta ação é irreversível!
+                  </p>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        className="gap-2"
+                        disabled={loadingAction !== null}
+                      >
+                        {loadingAction === 'cleanup_users' ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                        Limpar Todos os Usuários de Teste
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-red-500">⚠️ Confirmar Limpeza de Usuários</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta ação irá <strong>DELETAR PERMANENTEMENTE</strong> todos os usuários do sistema,
+                          mantendo apenas o God User (beninelixo@gmail.com).
+                          <br /><br />
+                          <strong className="text-red-500">Esta ação é IRREVERSÍVEL!</strong>
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-red-500 hover:bg-red-600"
+                          onClick={() => executeAction('cleanup_users')}
+                        >
+                          Sim, Deletar Todos
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
 
                 {/* System Secrets */}
