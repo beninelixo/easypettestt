@@ -1,9 +1,15 @@
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import systemDashboardImg from "@/assets/system-dashboard.jpg";
+import { useSiteImage } from "@/hooks/useSiteImages";
+import systemDashboardFallback from "@/assets/system-dashboard.jpg";
 
 const HowItWorks = () => {
+  const { url: systemDashboardUrl } = useSiteImage('system-dashboard');
+  const systemDashboardImg = systemDashboardUrl && !systemDashboardUrl.includes('/src/assets/') 
+    ? systemDashboardUrl 
+    : systemDashboardFallback;
+
   const steps = [
     {
       number: "01",
