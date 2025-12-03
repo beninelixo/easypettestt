@@ -198,7 +198,7 @@ const App = () => {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/system-overview" element={<SystemOverview />} />
             <Route path="/diagnostics" element={<Diagnostics />} />
-            <Route path="/admin/regenerate-images" element={<RegenerateImages />} />
+            
             <Route path="/admin/accept-invite" element={<AcceptInvite />} />
             
             {/* Multi-Unit Management Routes */}
