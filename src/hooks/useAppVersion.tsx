@@ -5,7 +5,7 @@ import { useToast } from './use-toast';
 const APP_VERSION = '5.0.0';
 const VERSION_KEY = 'easypet_app_version';
 const LAST_CLEAR_KEY = 'easypet_last_clear';
-const AUTH_TOKEN_KEY = 'sb-xkfkrdorghyagtwbxory-auth-token';
+const AUTH_TOKEN_KEY = 'sb-zxdbsimthnfprrthszoh-auth-token';
 
 export const useAppVersion = () => {
   const { toast } = useToast();
