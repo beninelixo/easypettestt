@@ -8,13 +8,14 @@ import { Label } from "@/components/ui/label";
 import { useAdminStats } from "@/hooks/useAdminStats";
 import { useGodActions } from "@/hooks/useGodActions";
 import { useAdminRealtimeStats } from "@/hooks/useAdminRealtimeStats";
+import { useAdminMetricsRealtime } from "@/hooks/useAdminMetricsRealtime";
 import { useAdminPasswordReset } from "@/hooks/useAdminPasswordReset";
 import { useAuth } from "@/hooks/useAuth";
 import { 
   Building2, Users, Calendar, DollarSign, Shield, Database, 
   Mail, HardDrive, AlertTriangle, CheckCircle, Clock, Activity,
   TrendingUp, Zap, Brain, Loader2, RefreshCw, Lock, Bell,
-  Eye, EyeOff, KeyRound, XCircle, CheckCircle2, FileCode
+  Eye, EyeOff, KeyRound, XCircle, CheckCircle2, FileCode, PawPrint
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -26,6 +27,8 @@ import { SuperAdminUsers } from "@/components/admin/SuperAdminUsers";
 import { SuperAdminPetShops } from "@/components/admin/SuperAdminPetShops";
 import { SuperAdminSystemHealth } from "@/components/admin/SuperAdminSystemHealth";
 import { SuperAdminLogs } from "@/components/admin/SuperAdminLogs";
+import { LiveMetricsCard } from "@/components/admin/LiveMetricsCard";
+import { RealtimeActivityFeed } from "@/components/admin/RealtimeActivityFeed";
 
 export default function UnifiedAdminDashboard() {
   const { isGodUser } = useAuth();
@@ -40,13 +43,14 @@ export default function UnifiedAdminDashboard() {
     refreshAll,
     markAlertRead 
   } = useAdminRealtimeStats();
+  const { metrics, isLive, refresh: refreshMetrics, isLoading: metricsLoading } = useAdminMetricsRealtime();
   const { resetPassword, loading: resetLoading } = useAdminPasswordReset();
   
   const [showSecrets, setShowSecrets] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetNewPassword, setResetNewPassword] = useState("");
 
-  if (isLoading) {
+  if (isLoading && metricsLoading) {
     return (
       <div className="container mx-auto p-6 space-y-6">
         <Skeleton className="h-12 w-64" />
@@ -57,18 +61,29 @@ export default function UnifiedAdminDashboard() {
     );
   }
 
-  const systemStatus = realtimeStats?.errors_24h === 0 && realtimeStats?.pending_jobs === 0 ? 'healthy' : 
-                       realtimeStats?.errors_24h && realtimeStats.errors_24h > 10 ? 'critical' : 'warning';
+  const systemStatus = metrics.errors24h === 0 && metrics.pendingJobs === 0 ? 'healthy' : 
+                       metrics.errors24h > 10 ? 'critical' : 'warning';
 
   return (
     <div className="container mx-auto p-4 lg:p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-            Dashboard Administrativo
-          </h1>
-          <p className="text-muted-foreground mt-1">Visão geral completa do sistema EasyPet</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-extrabold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+              Dashboard Administrativo
+            </h1>
+            <p className="text-muted-foreground mt-1">Visão geral completa do sistema EasyPet</p>
+          </div>
+          {isLive && (
+            <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20 gap-1">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+              </span>
+              LIVE
+            </Badge>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <Badge 
@@ -81,10 +96,13 @@ export default function UnifiedAdminDashboard() {
             {systemStatus === 'healthy' ? 'Sistema Saudável' : 
              systemStatus === 'warning' ? 'Atenção Necessária' : 'Crítico'}
           </Badge>
+          <span className="text-xs text-muted-foreground hidden md:inline">
+            Atualizado: {format(metrics.lastUpdate, 'HH:mm:ss', { locale: ptBR })}
+          </span>
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={refreshAll}
+            onClick={() => { refreshAll(); refreshMetrics(); }}
             disabled={isRefreshing}
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -93,67 +111,86 @@ export default function UnifiedAdminDashboard() {
         </div>
       </div>
 
-      {/* Stats Grid */}
+      {/* Live Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/20">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <Users className="h-5 w-5 text-blue-500" />
-              <span className="text-2xl font-bold">{realtimeStats?.total_users || stats.totalClients}</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Usuários</p>
-          </CardContent>
-        </Card>
+        <LiveMetricsCard
+          title="Usuários"
+          value={metrics.totalUsers}
+          icon={Users}
+          description={`+${metrics.newUsersToday} hoje`}
+          isLive={isLive}
+          variant="info"
+        />
+        <LiveMetricsCard
+          title="Pet Shops"
+          value={metrics.totalPetShops}
+          icon={Building2}
+          isLive={isLive}
+          variant="success"
+        />
+        <LiveMetricsCard
+          title="Pets"
+          value={metrics.totalPets}
+          icon={PawPrint}
+          description={`+${metrics.newPetsToday} hoje`}
+          isLive={isLive}
+        />
+        <LiveMetricsCard
+          title="Agend. Hoje"
+          value={metrics.appointmentsToday}
+          icon={Calendar}
+          description={`${metrics.appointmentsTodayCompleted} concluídos`}
+          isLive={isLive}
+          variant="info"
+        />
+        <LiveMetricsCard
+          title="Erros 24h"
+          value={metrics.errors24h}
+          icon={AlertTriangle}
+          description={`${metrics.warnings24h} avisos`}
+          isLive={isLive}
+          variant={metrics.errors24h > 10 ? 'danger' : metrics.errors24h > 0 ? 'warning' : 'success'}
+        />
+        <LiveMetricsCard
+          title="Receita Hoje"
+          value={`R$ ${metrics.revenueToday.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`}
+          icon={DollarSign}
+          isLive={isLive}
+          variant="success"
+        />
+      </div>
 
-        <Card className="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <Building2 className="h-5 w-5 text-green-500" />
-              <span className="text-2xl font-bold">{realtimeStats?.total_pet_shops || stats.totalPetShops}</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Pet Shops</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border-purple-500/20">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <Calendar className="h-5 w-5 text-purple-500" />
-              <span className="text-2xl font-bold">{realtimeStats?.appointments_today || stats.appointmentsToday}</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Agend. Hoje</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-red-500/10 to-red-600/5 border-red-500/20">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <AlertTriangle className="h-5 w-5 text-red-500" />
-              <span className="text-2xl font-bold">{realtimeStats?.errors_24h || 0}</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Erros 24h</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 border-yellow-500/20">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <Bell className="h-5 w-5 text-yellow-500" />
-              <span className="text-2xl font-bold">{realtimeStats?.unread_alerts || security.criticalAlerts}</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Alertas</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-cyan-500/10 to-cyan-600/5 border-cyan-500/20">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <DollarSign className="h-5 w-5 text-cyan-500" />
-              <span className="text-xl font-bold">R$ {(stats.monthlyRevenue / 1000).toFixed(1)}k</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Receita Mês</p>
-          </CardContent>
-        </Card>
+      {/* Secondary Stats Row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <LiveMetricsCard
+          title="Alertas Ativos"
+          value={metrics.activeAlerts}
+          icon={Bell}
+          isLive={isLive}
+          variant={metrics.activeAlerts > 5 ? 'warning' : 'default'}
+        />
+        <LiveMetricsCard
+          title="Logins Falhos 1h"
+          value={metrics.failedLogins1h}
+          icon={Shield}
+          description={`${metrics.failedLogins24h} últimas 24h`}
+          isLive={isLive}
+          variant={metrics.failedLogins1h > 10 ? 'danger' : metrics.failedLogins1h > 5 ? 'warning' : 'default'}
+        />
+        <LiveMetricsCard
+          title="IPs Bloqueados"
+          value={metrics.blockedIps}
+          icon={Lock}
+          isLive={isLive}
+          variant={metrics.blockedIps > 0 ? 'warning' : 'default'}
+        />
+        <LiveMetricsCard
+          title="Jobs Pendentes"
+          value={metrics.pendingJobs}
+          icon={Clock}
+          isLive={isLive}
+          variant={metrics.pendingJobs > 10 ? 'danger' : metrics.pendingJobs > 0 ? 'warning' : 'success'}
+        />
       </div>
 
       {/* System Health Quick View */}
@@ -340,32 +377,35 @@ export default function UnifiedAdminDashboard() {
 
         {/* Activity Tab */}
         <TabsContent value="activity" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Atividade Recente</CardTitle>
-              <CardDescription>Últimas ações no sistema</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[400px]">
-                <div className="space-y-3">
-                  {recentActivity.map((activity, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border">
-                      <div className="flex items-center gap-3">
-                        <Activity className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">{activity.operation} em {activity.table_name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true, locale: ptBR })}
-                          </p>
+          <div className="grid lg:grid-cols-2 gap-6">
+            <RealtimeActivityFeed />
+            <Card>
+              <CardHeader>
+                <CardTitle>Logs de Auditoria</CardTitle>
+                <CardDescription>Últimas operações no banco de dados</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-3">
+                    {recentActivity.map((activity, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border">
+                        <div className="flex items-center gap-3">
+                          <Activity className="h-4 w-4 text-muted-foreground" />
+                          <div>
+                            <p className="text-sm font-medium">{activity.operation} em {activity.table_name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true, locale: ptBR })}
+                            </p>
+                          </div>
                         </div>
+                        <Badge variant="outline">{activity.operation}</Badge>
                       </div>
-                      <Badge variant="outline">{activity.operation}</Badge>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* Actions Tab */}
