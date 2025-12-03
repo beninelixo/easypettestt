@@ -11,6 +11,7 @@ import { useAdminRealtimeStats } from "@/hooks/useAdminRealtimeStats";
 import { useAdminMetricsRealtime } from "@/hooks/useAdminMetricsRealtime";
 import { useAdminPasswordReset } from "@/hooks/useAdminPasswordReset";
 import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "react-router-dom";
 import { 
   Building2, Users, Calendar, DollarSign, Shield, Database, 
   Mail, HardDrive, AlertTriangle, CheckCircle, Clock, Activity,
@@ -31,8 +32,13 @@ import { LiveMetricsCard } from "@/components/admin/LiveMetricsCard";
 import { RealtimeActivityFeed } from "@/components/admin/RealtimeActivityFeed";
 
 export default function UnifiedAdminDashboard() {
+  const location = useLocation();
   const { isGodUser } = useAuth();
   const { stats, systemHealth, security, recentActivity, isLoading } = useAdminStats();
+  
+  // Auto-select God Mode tab when accessing /admin/god-mode route
+  const isGodModeRoute = location.pathname.includes('/admin/god-mode');
+  const defaultTab = isGodModeRoute && isGodUser ? "godmode" : "overview";
   const { executeAction, loadingAction } = useGodActions();
   const { 
     stats: realtimeStats, 
@@ -244,7 +250,7 @@ export default function UnifiedAdminDashboard() {
       </div>
 
       {/* Main Tabs */}
-      <Tabs defaultValue="overview" className="space-y-4">
+      <Tabs defaultValue={defaultTab} className="space-y-4">
         <TabsList className="grid grid-cols-4 w-full max-w-lg">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
           <TabsTrigger value="activity">Atividade</TabsTrigger>
