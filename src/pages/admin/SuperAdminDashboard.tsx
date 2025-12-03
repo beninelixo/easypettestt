@@ -29,22 +29,25 @@ interface SystemStats {
 }
 
 const SuperAdminDashboard = () => {
-  const { user, userRole, loading: authLoading } = useAuth();
+  const { user, userRole, loading: authLoading, isGodUser } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!authLoading && userRole !== 'admin') {
-      navigate('/');
-    }
-  }, [user, userRole, authLoading, navigate]);
+  // Check if user has access (admin, super_admin, or god user)
+  const hasAccess = isGodUser || userRole === 'admin' || userRole === 'super_admin';
 
   useEffect(() => {
-    if (userRole === 'admin') {
+    if (!authLoading && !hasAccess) {
+      navigate('/admin/dashboard');
+    }
+  }, [user, userRole, authLoading, navigate, hasAccess, isGodUser]);
+
+  useEffect(() => {
+    if (hasAccess) {
       loadSystemStats();
     }
-  }, [userRole]);
+  }, [hasAccess]);
 
   const loadSystemStats = async () => {
     try {
@@ -69,7 +72,7 @@ const SuperAdminDashboard = () => {
     );
   }
 
-  if (userRole !== 'admin') {
+  if (!hasAccess) {
     return null;
   }
 

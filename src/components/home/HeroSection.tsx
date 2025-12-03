@@ -1,11 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import heroImage from "@/assets/hero-petshop.jpg";
 import { Link } from "react-router-dom";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useSiteImage } from "@/hooks/useSiteImages";
+
+// Fallback local image
+import heroImageFallback from "@/assets/hero-petshop.jpg";
 
 export const HeroSection = () => {
   const statsReveal = useScrollReveal({ threshold: 0.5 });
+  const { url: heroImageUrl, isLoading } = useSiteImage('hero-petshop');
+  
+  // Use dynamic URL if available, otherwise fallback to local asset
+  const heroImage = heroImageUrl && !heroImageUrl.includes('/src/assets/') 
+    ? heroImageUrl 
+    : heroImageFallback;
   
   return (
     <section className="relative pt-32 pb-20 px-4 overflow-hidden">
@@ -86,11 +95,15 @@ export const HeroSection = () => {
           {/* Right Image */}
           <div className="relative lg:h-[600px] animate-fade-in" style={{ animationDelay: "0.2s" }}>
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-accent/20 rounded-3xl" />
-            <img
-              src={heroImage}
-              alt="Sistema EasyPet em ação"
-              className="rounded-3xl shadow-2xl object-cover w-full h-full border-4 border-primary/10"
-            />
+            {isLoading ? (
+              <div className="rounded-3xl shadow-2xl w-full h-full border-4 border-primary/10 bg-muted animate-pulse" />
+            ) : (
+              <img
+                src={heroImage}
+                alt="Sistema EasyPet em ação"
+                className="rounded-3xl shadow-2xl object-cover w-full h-full border-4 border-primary/10"
+              />
+            )}
             
             {/* Floating Stats */}
             <div 
