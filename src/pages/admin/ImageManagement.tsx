@@ -113,6 +113,7 @@ export default function ImageManagement() {
   const [appliedSiteImages, setAppliedSiteImages] = useState<Record<string, boolean>>({});
   const [resultsSite, setResultsSite] = useState<{ success: string[]; failed: string[] }>({ success: [], failed: [] });
   const [replacingImageSite, setReplacingImageSite] = useState<string | null>(null);
+  const [uploadingSite, setUploadingSite] = useState<string | null>(null);
   
   // Blog images state
   const [isGeneratingBlog, setIsGeneratingBlog] = useState(false);
@@ -122,6 +123,7 @@ export default function ImageManagement() {
   const [appliedBlogImages, setAppliedBlogImages] = useState<Record<number, boolean>>({});
   const [resultsBlog, setResultsBlog] = useState<{ success: string[]; failed: string[] }>({ success: [], failed: [] });
   const [replacingImageBlog, setReplacingImageBlog] = useState<number | null>(null);
+  const [uploadingBlog, setUploadingBlog] = useState<number | null>(null);
   
   // Storage state
   const [buckets, setBuckets] = useState<BucketInfo[]>([]);
@@ -185,6 +187,29 @@ export default function ImageManagement() {
       toast({ title: "❌ Erro ao aplicar", description: `Falha ao aplicar ${filename}`, variant: "destructive" });
     } finally {
       setReplacingImageSite(null);
+    }
+  };
+
+  // Manual upload for site images
+  const handleManualUploadSite = async (config: typeof images[0], file: File) => {
+    setUploadingSite(config.filename);
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('site-images')
+        .upload(config.filename, file, { cacheControl: '3600', upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage.from('site-images').getPublicUrl(config.filename);
+      await updateSiteImage(config.key, urlData.publicUrl, user?.id);
+
+      setAppliedSiteImages(prev => ({ ...prev, [config.filename]: true }));
+      toast({ title: "✅ Upload realizado!", description: `${config.filename} foi aplicada com sucesso.` });
+    } catch (error) {
+      console.error('Erro ao fazer upload:', error);
+      toast({ title: "❌ Erro no upload", description: `Falha ao enviar ${config.filename}`, variant: "destructive" });
+    } finally {
+      setUploadingSite(null);
     }
   };
 
@@ -253,6 +278,31 @@ export default function ImageManagement() {
       sonnerToast.error(`Falha ao aplicar imagem no blog`);
     } finally {
       setReplacingImageBlog(null);
+    }
+  };
+
+  // Manual upload for blog images
+  const handleManualUploadBlog = async (config: BlogImageConfig, file: File) => {
+    setUploadingBlog(config.id);
+    try {
+      const filename = `blog-${config.slug}.jpg`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('blog-images')
+        .upload(filename, file, { cacheControl: '3600', upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage.from('blog-images').getPublicUrl(filename);
+      await updateSiteImage(`blog-${config.slug}`, urlData.publicUrl, user?.id);
+
+      setAppliedBlogImages(prev => ({ ...prev, [config.id]: true }));
+      sonnerToast.success(`Upload realizado! Imagem aplicada no blog.`);
+    } catch (error) {
+      console.error('Erro ao fazer upload:', error);
+      sonnerToast.error(`Falha ao enviar imagem`);
+    } finally {
+      setUploadingBlog(null);
     }
   };
 
@@ -436,8 +486,37 @@ export default function ImageManagement() {
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-muted/50 rounded-lg p-4">
-                      <p className="text-xs text-muted-foreground line-clamp-3 font-mono">{config.prompt.substring(0, 150)}...</p>
+                    <div className="space-y-3">
+                      <div className="bg-muted/50 rounded-lg p-4">
+                        <p className="text-xs text-muted-foreground line-clamp-3 font-mono">{config.prompt.substring(0, 150)}...</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="file"
+                          id={`upload-site-${config.filename}`}
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleManualUploadSite(config, file);
+                            e.target.value = '';
+                          }}
+                        />
+                        <Button
+                          onClick={() => document.getElementById(`upload-site-${config.filename}`)?.click()}
+                          disabled={uploadingSite === config.filename}
+                          variant="outline"
+                          className="flex-1"
+                          size="sm"
+                        >
+                          {uploadingSite === config.filename ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <Upload className="mr-2 h-4 w-4" />
+                          )}
+                          Upload Manual
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </CardContent>
@@ -538,8 +617,37 @@ export default function ImageManagement() {
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-muted/50 rounded-lg p-3 aspect-video flex items-center justify-center">
-                      <p className="text-xs text-muted-foreground text-center">Clique em "Gerar Todas" para criar</p>
+                    <div className="space-y-3">
+                      <div className="bg-muted/50 rounded-lg p-3 aspect-video flex items-center justify-center">
+                        <p className="text-xs text-muted-foreground text-center">Clique em "Gerar Todas" ou faça upload</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="file"
+                          id={`upload-blog-${config.id}`}
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleManualUploadBlog(config, file);
+                            e.target.value = '';
+                          }}
+                        />
+                        <Button
+                          onClick={() => document.getElementById(`upload-blog-${config.id}`)?.click()}
+                          disabled={uploadingBlog === config.id}
+                          variant="outline"
+                          className="flex-1"
+                          size="sm"
+                        >
+                          {uploadingBlog === config.id ? (
+                            <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                          ) : (
+                            <Upload className="mr-2 h-3 w-3" />
+                          )}
+                          Upload Manual
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </CardContent>
