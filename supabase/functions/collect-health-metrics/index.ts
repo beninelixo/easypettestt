@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,20 +14,49 @@ serve(async (req) => {
   }
 
   try {
-    // Verify this is being called by service role (cron job)
-    const authHeader = req.headers.get('Authorization');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Check if this is being called by service role (cron job) OR by an admin user
+    const authHeader = req.headers.get('Authorization');
     
-    if (!authHeader || !authHeader.includes(supabaseServiceKey)) {
-      console.error('❌ Unauthorized: This function must be called by service role');
+    if (!authHeader) {
+      console.error('❌ Unauthorized: No authorization header');
       return new Response(
-        JSON.stringify({ error: 'Unauthorized - Service role required' }),
+        JSON.stringify({ error: 'Unauthorized - Authentication required' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Check if it's service role key (cron job)
+    const isServiceRole = token === supabaseServiceKey;
+    
+    if (!isServiceRole) {
+      // It's a user token - verify admin access
+      const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+      
+      if (userError || !user) {
+        console.error('❌ Unauthorized: Invalid token');
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized - Invalid token' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Check admin role using helper (supports multiple roles)
+      const { isAdmin } = await verifyAdminAccess(supabase, user.id);
+      
+      if (!isAdmin) {
+        console.error('❌ Forbidden: User is not admin');
+        return new Response(
+          JSON.stringify({ error: 'Forbidden - Admin access required' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
 
     console.log('📊 Collecting system health metrics...');
 
@@ -121,26 +151,7 @@ serve(async (req) => {
       threshold_critical: 50
     });
 
-    // 6. Edge Function Latency Test
-    const edgeFunctionStart = Date.now();
-    try {
-      await supabase.functions.invoke('health-check', { body: {} });
-    } catch {
-      // Ignorar erro se função não existe
-    }
-    const edgeFunctionLatency = Date.now() - edgeFunctionStart;
-
-    metrics.push({
-      metric_type: 'edge_function_latency',
-      metric_name: 'Edge Function Response Time',
-      metric_value: edgeFunctionLatency,
-      metric_unit: 'ms',
-      status: edgeFunctionLatency < 200 ? 'healthy' : edgeFunctionLatency < 1000 ? 'degraded' : 'critical',
-      threshold_warning: 200,
-      threshold_critical: 1000
-    });
-
-    // 7. System Uptime (simulado - baseado em métricas anteriores)
+    // 6. System Uptime
     const { data: previousMetrics } = await supabase
       .from('system_health_metrics')
       .select('status')

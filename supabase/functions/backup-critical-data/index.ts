@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -35,14 +36,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check admin role
-    const { data: roleData } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!roleData || roleData.role !== 'admin') {
+    // Check admin role using helper (supports multiple roles)
+    const { isAdmin } = await verifyAdminAccess(supabase, user.id);
+    
+    if (!isAdmin) {
       return new Response(
         JSON.stringify({ error: 'Forbidden - Admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -54,7 +51,6 @@ Deno.serve(async (req) => {
       tables: {}
     };
 
-    // Tabelas críticas para backup
     const criticalTables = [
       'appointments',
       'payments',
@@ -88,7 +84,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Registrar backup
     await supabase.from('system_logs').insert({
       module: 'backup_critical_data',
       log_type: 'info',
@@ -115,7 +110,6 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Error creating backup:', error);
     
-    // Registrar falha crítica
     try {
       const supabase = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',

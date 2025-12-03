@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -43,14 +44,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check admin role
-    const { data: roleData, error: roleError } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (roleError || roleData?.role !== 'admin') {
+    // Check admin role using helper (supports multiple roles)
+    const { isAdmin } = await verifyAdminAccess(supabase, user.id);
+    
+    if (!isAdmin) {
       return new Response(
         JSON.stringify({ error: 'Forbidden - Admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -75,12 +72,9 @@ Deno.serve(async (req) => {
     const { data: productsBackup } = await supabase.from('products').select('*');
     backups.products = productsBackup;
 
-    // 2. Remover sessões expiradas (limpeza de auth sessions antigas)
+    // 2. Remover sessões expiradas
     console.log('🔒 Limpando sessões antigas...');
     try {
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
       fixResults.push({
         module: 'Authentication',
         action: 'Cleaned old sessions',
@@ -230,7 +224,6 @@ Deno.serve(async (req) => {
     const hasErrors = fixResults.some(r => !r.success);
     const totalFixed = fixResults.reduce((sum, r) => sum + r.count, 0);
 
-    // Registrar resultado geral
     await supabase.from('system_logs').insert({
       module: 'auto_fix',
       log_type: hasErrors ? 'warning' : 'success',
@@ -241,27 +234,6 @@ Deno.serve(async (req) => {
         backup_created: true,
       },
     });
-
-    // Enviar notificação por e-mail
-    try {
-      const notificationUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/send-notification`;
-      await fetch(notificationUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
-        },
-        body: JSON.stringify({
-          subject: `🔧 Auto-Fix Report - ${totalFixed} issues fixed`,
-          results: fixResults,
-          backups: backups,
-          execution_time_ms: totalTime,
-        }),
-      });
-      console.log('📧 Notification sent');
-    } catch (error) {
-      console.error('Failed to send notification:', error);
-    }
 
     return new Response(
       JSON.stringify({

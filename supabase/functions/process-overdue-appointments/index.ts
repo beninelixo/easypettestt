@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -35,14 +36,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check admin role
-    const { data: roleData } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!roleData || roleData.role !== 'admin') {
+    // Check admin role using helper (supports multiple roles)
+    const { isAdmin } = await verifyAdminAccess(supabase, user.id);
+    
+    if (!isAdmin) {
       return new Response(
         JSON.stringify({ error: 'Forbidden - Admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -96,43 +93,6 @@ Deno.serve(async (req) => {
         }))
       }
     });
-
-    // Enviar alerta por email se houver muitos agendamentos atrasados
-    if (overdueAppointments.length >= 5) {
-      try {
-        await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-alert-email`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
-          },
-          body: JSON.stringify({
-            severity: 'warning',
-            module: 'process_overdue_appointments',
-            subject: `${overdueAppointments.length} agendamentos atrasados cancelados`,
-            message: `O sistema detectou e cancelou automaticamente ${overdueAppointments.length} agendamentos com data passada.`,
-            details: {
-              count: overdueAppointments.length,
-              oldest_date: overdueAppointments[0]?.scheduled_date
-            }
-          })
-        });
-      } catch (emailError) {
-        console.error('Erro ao enviar email de alerta:', emailError);
-      }
-    }
-
-    // TODO: Enviar notificações para clientes
-    // for (const appointment of overdueAppointments) {
-    //   await supabase.from('notifications').insert({
-    //     client_id: appointment.client_id,
-    //     appointment_id: appointment.id,
-    //     notification_type: 'cancelamento',
-    //     channel: 'email',
-    //     message: 'Seu agendamento foi cancelado automaticamente por atraso',
-    //     status: 'pendente'
-    //   });
-    // }
 
     return new Response(
       JSON.stringify({ 

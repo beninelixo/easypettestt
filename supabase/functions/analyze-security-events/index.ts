@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -34,14 +35,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check admin role
-    const { data: roleData } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!roleData || roleData.role !== 'admin') {
+    // Check admin role using helper (supports multiple roles)
+    const { isAdmin } = await verifyAdminAccess(supabase, user.id);
+    
+    if (!isAdmin) {
       return new Response(
         JSON.stringify({ error: 'Admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -51,19 +48,16 @@ Deno.serve(async (req) => {
     const now = new Date();
     const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
     let alertsCreated = 0;
 
     // ===== ANÁLISE 1: Brute Force Detection =====
-    // 5+ tentativas falhas em 15 minutos do mesmo email
     const { data: recentFailures } = await supabase
       .from('login_attempts')
       .select('email, attempt_time')
       .eq('success', false)
       .gte('attempt_time', fifteenMinutesAgo.toISOString());
 
-    // Agrupar manualmente por email
     const attemptsByEmail: Record<string, number> = {};
     for (const failure of recentFailures || []) {
       attemptsByEmail[failure.email] = (attemptsByEmail[failure.email] || 0) + 1;
@@ -71,14 +65,13 @@ Deno.serve(async (req) => {
 
     for (const [email, count] of Object.entries(attemptsByEmail)) {
       if (count >= 5) {
-        // Verificar se já existe alerta recente
         const { data: existingAlert } = await supabase
           .from('security_alerts')
           .select('id')
           .eq('alert_type', 'brute_force_detected')
           .eq('metadata->>email', email)
           .gte('created_at', fifteenMinutesAgo.toISOString())
-          .single();
+          .maybeSingle();
 
         if (!existingAlert) {
           await supabase.from('security_alerts').insert({
@@ -93,14 +86,12 @@ Deno.serve(async (req) => {
     }
 
     // ===== ANÁLISE 2: Multiple Failed Logins =====
-    // 3+ tentativas falhas do mesmo IP em 1 hora
     const { data: ipFailuresData } = await supabase
       .from('login_attempts')
       .select('ip_address, attempt_time')
       .eq('success', false)
       .gte('attempt_time', oneHourAgo.toISOString());
 
-    // Agrupar manualmente por IP
     const attemptsByIp: Record<string, number> = {};
     for (const failure of ipFailuresData || []) {
       if (failure.ip_address && failure.ip_address !== 'unknown') {
@@ -116,7 +107,7 @@ Deno.serve(async (req) => {
           .eq('alert_type', 'multiple_failed_logins')
           .eq('ip_address', ipAddress)
           .gte('created_at', oneHourAgo.toISOString())
-          .single();
+          .maybeSingle();
 
         if (!existingAlert) {
           await supabase.from('security_alerts').insert({
@@ -132,7 +123,6 @@ Deno.serve(async (req) => {
     }
 
     // ===== ANÁLISE 3: Suspicious Login Patterns =====
-    // Logins bem-sucedidos de IPs diferentes em curto período
     const { data: recentLogins } = await supabase
       .from('login_attempts')
       .select('email, ip_address, attempt_time')
@@ -140,7 +130,6 @@ Deno.serve(async (req) => {
       .gte('attempt_time', oneHourAgo.toISOString())
       .order('attempt_time', { ascending: false });
 
-    // Agrupar por email
     const loginsByEmail: Record<string, any[]> = {};
     for (const login of recentLogins || []) {
       if (!loginsByEmail[login.email]) {
@@ -149,7 +138,6 @@ Deno.serve(async (req) => {
       loginsByEmail[login.email].push(login);
     }
 
-    // Detectar IPs diferentes
     for (const [email, logins] of Object.entries(loginsByEmail)) {
       const uniqueIps = new Set(logins.map(l => l.ip_address));
       
@@ -160,7 +148,7 @@ Deno.serve(async (req) => {
           .eq('alert_type', 'suspicious_login')
           .eq('metadata->>email', email)
           .gte('created_at', oneHourAgo.toISOString())
-          .single();
+          .maybeSingle();
 
         if (!existingAlert) {
           await supabase.from('security_alerts').insert({
@@ -177,7 +165,6 @@ Deno.serve(async (req) => {
         }
       }
     }
-
 
     // Log da análise
     await supabase.from('system_logs').insert({
