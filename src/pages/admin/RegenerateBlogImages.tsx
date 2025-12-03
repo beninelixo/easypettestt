@@ -6,9 +6,11 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { updateSiteImage } from "@/hooks/useSiteImages";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Image, RefreshCw, Download, CheckCircle2, XCircle, 
-  Loader2, Sparkles, AlertTriangle, Upload 
+  Loader2, Sparkles, AlertTriangle, Upload, Globe 
 } from "lucide-react";
 import { blogPosts } from "@/data/blogPosts";
 
@@ -20,69 +22,151 @@ interface BlogImageConfig {
   currentImage: string;
 }
 
+// Ultra-realistic 8K professional prompts for blog images
 const blogImageConfigs: BlogImageConfig[] = [
   {
     id: 1,
     slug: "como-aumentar-faturamento-clinica-veterinaria-2025",
     title: "Faturamento Clínica Veterinária",
     currentImage: blogPosts[0]?.image || "",
-    prompt: "Hyperrealistic 8K professional photography. Modern Brazilian veterinary clinic reception with sleek glass desk displaying financial charts on large monitor screen. Young female veterinary clinic manager in professional white coat analyzing revenue data on tablet. Beautiful golden retriever sitting calmly in luxurious waiting area. Clean minimalist interior with premium finishes, indoor plants, natural warm lighting through large windows. Shot with Canon 5D Mark IV, 35mm f/1.4 lens. Magazine quality editorial photography. Ultra detailed textures. NO text, NO logos, NO watermarks."
+    prompt: `[PHOTOREALISM MASTERCLASS - 8K ULTRA HD]
+
+📸 CAMERA: Sony A7R V with Zeiss 35mm f/1.4 | 61MP Full Frame | ISO 100
+💡 LIGHTING: Natural golden hour + professional LED fill | 15+ stops HDR
+
+SCENE: Modern Brazilian veterinary clinic reception with sleek glass desk displaying financial growth charts on large curved monitor. Young female veterinary clinic manager (late 20s, professional white coat) analyzing revenue data on tablet with confident smile. Beautiful golden retriever sitting calmly in luxurious waiting area with designer pet furniture. Clean minimalist interior with premium finishes, large Monstera plants, warm Brazilian sunlight through floor-to-ceiling windows.
+
+TECHNICAL: f/2.8 aperture, shallow DOF, tack-sharp focus on subject's eyes. Magazine editorial color grading with warm skin tones. Individual hair strands visible, fabric texture discernible.
+
+🚫 NO text, NO logos, NO watermarks, NO CGI artifacts`
   },
   {
     id: 2,
     slug: "tecnicas-modernas-grooming-pet-2025",
     title: "Técnicas de Grooming",
     currentImage: blogPosts[1]?.image || "",
-    prompt: "Hyperrealistic 8K professional photography. Brazilian female groomer in teal uniform performing creative grooming on adorable fluffy white Poodle on professional grooming table. Modern grooming salon with chrome fixtures, professional equipment, LED ring lights. Groomer using professional clippers with concentrated expression. Dog looking calm and happy. Visible grooming tools: scissors, brushes, dryer. Soft studio lighting with warm tones. Shot with Sony A7R IV, 85mm f/1.2 portrait lens. Magazine commercial quality. Ultra detailed fur textures. NO text, NO logos, NO watermarks."
+    prompt: `[PHOTOREALISM MASTERCLASS - 8K ULTRA HD]
+
+📸 CAMERA: Canon EOS R5 with RF 85mm f/1.2L | 45MP | ISO 200
+💡 LIGHTING: Professional studio ring lights + natural daylight | Soft diffused shadows
+
+SCENE: Brazilian female groomer (mid-20s, genuine concentrated expression) in premium teal uniform performing creative artistic grooming on adorable fluffy white Toy Poodle on professional hydraulic grooming table. Modern upscale grooming salon with chrome fixtures, LED ring lights, professional grooming tools organized on magnetic strip. Dog calm and happy with tongue out. Visible professional equipment: Japanese scissors, premium clippers, slicker brushes.
+
+TECHNICAL: f/1.8 portrait depth, ultra-detailed fur texture with individual strands, catchlights in both human and dog eyes. Commercial photography color grading.
+
+🚫 NO text, NO logos, NO watermarks, NO artificial look`
   },
   {
     id: 3,
     slug: "produtos-essenciais-pet-shop-2025",
     title: "Produtos Pet Shop",
     currentImage: blogPosts[2]?.image || "",
-    prompt: "Hyperrealistic 8K commercial product photography. Modern premium pet shop interior with beautifully organized wooden shelves displaying colorful premium pet products: gourmet pet food bags, elegant pet accessories, premium toys, health supplements. Focus on product display with artistic arrangement. Warm ambient lighting highlighting product packaging. Clean minimalist aesthetic with natural wood and white elements. Shallow depth of field. Shot with Phase One medium format, 80mm lens. Luxury retail catalog style. Ultra detailed product textures. NO text on products, NO logos, NO watermarks."
+    prompt: `[PHOTOREALISM MASTERCLASS - 8K ULTRA HD]
+
+📸 CAMERA: Phase One IQ4 150MP with Schneider 80mm | Medium Format | ISO 50
+💡 LIGHTING: Professional product photography setup | Multiple softboxes | Color-accurate 5500K
+
+SCENE: Modern premium Brazilian pet shop interior with beautifully organized natural wood shelving displaying colorful premium pet products in artistic arrangement. Gourmet pet food bags, elegant ceramic bowls, premium toys, organic health supplements, designer collars and leashes. Warm ambient spotlighting highlighting product packaging. Clean minimalist aesthetic with white walls, natural wood elements, small indoor plants.
+
+TECHNICAL: f/8 for maximum sharpness, focus stacking for edge-to-edge clarity. Luxury retail catalog style with vibrant but natural colors. Ultra-detailed product textures visible.
+
+🚫 NO readable text on products, NO logos, NO watermarks`
   },
   {
     id: 4,
     slug: "comportamento-felino-gatos-entenda-seu-pet",
     title: "Comportamento Felino",
     currentImage: blogPosts[3]?.image || "",
-    prompt: "Hyperrealistic 8K lifestyle photography. Beautiful orange tabby cat in artistic pose on modern Scandinavian design cat tree, making slow blink expression at camera. Elegant living room with large window letting in golden hour sunlight. Cat showing relaxed body language with tail curled. Visible enrichment elements: scratching posts, cat toys. Warm cozy atmosphere with soft bokeh background. Shot with Canon 5D Mark IV, 85mm f/1.2 portrait lens. National Geographic wildlife quality. Ultra detailed fur and eye textures. NO text, NO logos, NO watermarks."
+    prompt: `[PHOTOREALISM MASTERCLASS - 8K ULTRA HD]
+
+📸 CAMERA: Nikon Z9 with NIKKOR Z 85mm f/1.2 S | 45.7MP | ISO 400
+💡 LIGHTING: Natural golden hour sunlight through large window | Warm ambient fill
+
+SCENE: Beautiful orange tabby cat in artistic relaxed pose on modern Scandinavian design cat tree, making slow blink expression directly at camera showing trust and contentment. Elegant contemporary living room with large window letting in soft golden hour sunlight creating warm glow. Cat showing relaxed body language with tail curled around paws. Visible enrichment: sisal scratching posts, feather toys.
+
+TECHNICAL: f/1.4 ultra-shallow DOF with creamy bokeh, critical focus on cat's eyes. National Geographic wildlife photography quality. Ultra-detailed fur texture with individual whiskers visible.
+
+🚫 NO text, NO logos, NO watermarks, NO artificial lighting`
   },
   {
     id: 5,
     slug: "prontuario-eletronico-clinica-veterinaria",
     title: "Prontuário Eletrônico",
     currentImage: blogPosts[4]?.image || "",
-    prompt: "Hyperrealistic 8K professional photography. Young Brazilian female veterinarian in white coat using modern tablet computer displaying pet medical records interface. Veterinary examination room with stainless steel table, medical equipment in background. Cute beagle puppy sitting on examination table looking at vet. Clean bright clinical environment with professional lighting. Focus on technology integration in veterinary practice. Shot with Sony A7R IV, 50mm f/1.4 lens. Healthcare technology editorial style. Ultra detailed. NO text on screens, NO logos, NO watermarks."
+    prompt: `[PHOTOREALISM MASTERCLASS - 8K ULTRA HD]
+
+📸 CAMERA: Sony A1 with GM 50mm f/1.4 | 50.1MP | ISO 100
+💡 LIGHTING: Clean clinical LED panels + tablet screen glow | 5000K color temperature
+
+SCENE: Young Brazilian female veterinarian (late 20s, caring expression) in pristine white coat using modern tablet displaying clean pet medical records interface. Modern veterinary examination room with stainless steel table, medical equipment in soft-focus background. Adorable beagle puppy sitting on examination table looking up at vet with trusting eyes. Clean bright clinical environment with professional appearance.
+
+TECHNICAL: f/2.0 environmental portrait depth, focus on vet's hands and tablet. Healthcare technology editorial style. Natural skin tones, professional trustworthy appearance.
+
+🚫 NO readable text on screens, NO logos, NO watermarks`
   },
   {
     id: 6,
     slug: "marketing-digital-veterinarios-guia-completo",
     title: "Marketing Digital Veterinário",
     currentImage: blogPosts[5]?.image || "",
-    prompt: "Hyperrealistic 8K creative photography. Marketing professional working on laptop showing social media analytics dashboard for veterinary clinic. Modern co-working space with whiteboard showing marketing strategy diagrams in background. Smartphone displaying Instagram-style pet photos. Coffee cup and plants on desk. Young Brazilian professional in casual business attire smiling. Soft natural lighting from large windows. Shot with Canon 5D Mark IV, 35mm f/1.8 lens. Tech startup editorial style. Ultra detailed textures. NO readable text, NO logos, NO watermarks."
+    prompt: `[PHOTOREALISM MASTERCLASS - 8K ULTRA HD]
+
+📸 CAMERA: Canon EOS R5 with RF 35mm f/1.8 | 45MP | ISO 200
+💡 LIGHTING: Large window natural light + monitor glow | Modern office ambient
+
+SCENE: Young Brazilian marketing professional (late 20s, confident smile) working on MacBook Pro showing social media analytics dashboard for veterinary clinic. Modern co-working space with whiteboard showing marketing strategy mind-map in soft focus background. Smartphone on desk displaying Instagram-style pet photos. Coffee cup, small succulent plant on clean minimalist desk. Casual business attire (light blazer).
+
+TECHNICAL: f/2.8 environmental portrait, warm lifestyle photography color grading. Tech startup editorial style. Genuine confident expression.
+
+🚫 NO readable text on screens, NO logos, NO watermarks`
   },
   {
     id: 7,
     slug: "gestao-estoque-pet-shop-guia-completo",
     title: "Gestão de Estoque Pet Shop",
     currentImage: blogPosts[6]?.image || "",
-    prompt: "Hyperrealistic 8K commercial photography. Modern pet shop inventory management scene. Young Brazilian male employee using handheld scanner checking organized shelves of premium pet products. Clean warehouse-style storage area with labeled sections. Tablet showing inventory management system interface. Professional lighting highlighting organized products. Efficient business operation aesthetic. Shot with Sony A7R IV, 35mm f/1.4 lens. Business operations editorial style. Ultra detailed product packaging textures. NO readable text, NO logos, NO watermarks."
+    prompt: `[PHOTOREALISM MASTERCLASS - 8K ULTRA HD]
+
+📸 CAMERA: Sony A7R IV with 35mm f/1.4 | 61MP | ISO 400
+💡 LIGHTING: Warehouse LED lighting + natural light from windows | Even illumination
+
+SCENE: Young Brazilian male employee (mid-20s, focused professional expression) using handheld barcode scanner checking organized shelves of premium pet products in modern warehouse-style storage area. Tablet on nearby cart showing inventory management dashboard. Clean organized shelving with labeled sections, colorful premium pet food bags, accessories neatly arranged. Professional operations aesthetic.
+
+TECHNICAL: f/2.8 environmental depth, business operations editorial style. Focus on employee and scanner. Ultra-detailed product packaging textures.
+
+🚫 NO readable text, NO logos, NO watermarks`
   },
   {
     id: 8,
     slug: "fidelizacao-clientes-veterinaria-guia",
     title: "Fidelização de Clientes",
     currentImage: blogPosts[7]?.image || "",
-    prompt: "Hyperrealistic 8K lifestyle photography. Happy Brazilian family at veterinary clinic reception receiving loyalty rewards card. Mother, father, and young daughter (8 years) with their adorable Labrador puppy. Friendly female receptionist in professional uniform handing over membership card with warm smile. Modern clinic interior with loyalty program banner visible. Everyone showing genuine happiness. Warm welcoming atmosphere. Shot with Canon 5D Mark IV, 50mm f/1.4 lens. Lifestyle commercial photography. Ultra detailed facial expressions and textures. NO readable text, NO logos, NO watermarks."
+    prompt: `[PHOTOREALISM MASTERCLASS - 8K ULTRA HD]
+
+📸 CAMERA: Nikon Z9 with 50mm f/1.2 | 45.7MP | ISO 200
+💡 LIGHTING: Warm welcoming ambient + large window natural light | Soft shadows
+
+SCENE: Happy diverse Brazilian family at modern veterinary clinic reception. Mother (30s), father (30s), young daughter (8 years, excited expression) with their adorable yellow Labrador puppy receiving loyalty rewards card from friendly female receptionist in professional uniform. Modern clinic interior with comfortable seating, plants. Everyone showing genuine happiness and warm connection.
+
+TECHNICAL: f/1.8 group portrait depth, lifestyle commercial photography style. Genuine warm expressions with crinkled-eye smiles. Ultra-detailed facial features and textures.
+
+🚫 NO readable text, NO logos, NO watermarks`
   },
   {
     id: 9,
     slug: "inteligencia-artificial-medicina-veterinaria",
     title: "IA na Medicina Veterinária",
     currentImage: blogPosts[8]?.image || "",
-    prompt: "Hyperrealistic 8K futuristic photography. Brazilian veterinarian analyzing AI-assisted diagnostic display on large curved monitor showing X-ray with highlighted areas. Modern high-tech veterinary lab with holographic-style interface elements. Cute cat patient on examination table with sensors. Blue and cyan accent lighting creating tech atmosphere. Clean futuristic medical environment. Shot with Sony A7R IV, 24mm f/1.4 lens. Sci-fi medical editorial style. Ultra detailed technology and medical equipment. NO readable text, NO logos, NO watermarks."
+    prompt: `[PHOTOREALISM MASTERCLASS - 8K ULTRA HD]
+
+📸 CAMERA: Sony A1 with 24mm f/1.4 GM | 50.1MP | ISO 100
+💡 LIGHTING: Blue-cyan tech accent lights + clinical white ambient | Futuristic atmosphere
+
+SCENE: Brazilian veterinarian (early 30s, analytical expression) analyzing AI-assisted diagnostic display on large curved ultrawide monitor showing X-ray with highlighted diagnostic areas. Modern high-tech veterinary diagnostic lab with sleek equipment. Calm grey cat patient on examination table with non-invasive monitoring sensors. Blue and cyan accent lighting creating sophisticated tech atmosphere. Clean futuristic medical environment.
+
+TECHNICAL: f/2.0 environmental depth, sci-fi medical editorial style. Focus on vet and monitor. Ultra-detailed technology and equipment textures.
+
+🚫 NO readable text on screens, NO logos, NO watermarks`
   }
 ];
 
@@ -91,11 +175,13 @@ export default function RegenerateBlogImages() {
   const [progress, setProgress] = useState(0);
   const [currentImage, setCurrentImage] = useState<string>("");
   const [generatedImages, setGeneratedImages] = useState<Record<number, string>>({});
+  const [appliedImages, setAppliedImages] = useState<Record<number, boolean>>({});
   const [results, setResults] = useState<{ success: string[]; failed: string[] }>({
     success: [],
     failed: []
   });
   const [replacingImage, setReplacingImage] = useState<number | null>(null);
+  const { user } = useAuth();
 
   const downloadImage = (base64Url: string, filename: string) => {
     const link = document.createElement('a');
@@ -106,7 +192,7 @@ export default function RegenerateBlogImages() {
     document.body.removeChild(link);
   };
 
-  const handleReplaceBlogImage = async (config: BlogImageConfig, base64Url: string) => {
+  const handleApplyToBlog = async (config: BlogImageConfig, base64Url: string) => {
     setReplacingImage(config.id);
     
     try {
@@ -120,31 +206,55 @@ export default function RegenerateBlogImages() {
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: 'image/jpeg' });
 
-      const filename = `${config.slug}.jpg`;
+      const filename = `blog-${config.slug}.jpg`;
 
       // Upload to Supabase Storage
-      const { data, error } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('blog-images')
         .upload(filename, blob, {
           cacheControl: '3600',
           upsert: true
         });
 
-      if (error) throw error;
+      if (uploadError) throw uploadError;
 
       // Get public URL
       const { data: urlData } = supabase.storage
         .from('blog-images')
         .getPublicUrl(filename);
 
-      toast.success(`Imagem substituída! URL: ${urlData.publicUrl}`);
+      // Update site_images table with blog category
+      await updateSiteImage(`blog-${config.slug}`, urlData.publicUrl, user?.id);
+
+      setAppliedImages(prev => ({ ...prev, [config.id]: true }));
+
+      toast.success(`Imagem aplicada no blog! URL: ${urlData.publicUrl}`);
 
     } catch (error) {
-      console.error('Erro ao substituir imagem do blog:', error);
-      toast.error(`Falha ao enviar imagem para o storage`);
+      console.error('Erro ao aplicar imagem do blog:', error);
+      toast.error(`Falha ao aplicar imagem no blog`);
     } finally {
       setReplacingImage(null);
     }
+  };
+
+  const handleApplyAllToBlog = async () => {
+    const imagesToApply = Object.entries(generatedImages);
+    if (imagesToApply.length === 0) {
+      toast.error("Gere as imagens primeiro antes de aplicar");
+      return;
+    }
+
+    for (const [idStr, base64Url] of imagesToApply) {
+      const id = parseInt(idStr);
+      const config = blogImageConfigs.find(c => c.id === id);
+      if (config && !appliedImages[id]) {
+        await handleApplyToBlog(config, base64Url);
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+
+    toast.success("Todas as imagens foram aplicadas no blog!");
   };
 
   const generateSingleImage = async (config: BlogImageConfig): Promise<string | null> => {
@@ -165,7 +275,7 @@ export default function RegenerateBlogImages() {
 
   const handleGenerateSingle = async (config: BlogImageConfig) => {
     setCurrentImage(config.title);
-    toast.info(`Gerando imagem: ${config.title}...`);
+    toast.info(`Gerando imagem 8K: ${config.title}...`);
 
     const imageUrl = await generateSingleImage(config);
 
@@ -183,6 +293,7 @@ export default function RegenerateBlogImages() {
     setProgress(0);
     setResults({ success: [], failed: [] });
     setGeneratedImages({});
+    setAppliedImages({});
 
     const totalImages = blogImageConfigs.length;
     const successList: string[] = [];
@@ -204,7 +315,6 @@ export default function RegenerateBlogImages() {
         failedList.push(config.title);
       }
 
-      // Delay entre gerações para evitar rate limiting
       if (i < totalImages - 1) {
         await new Promise(resolve => setTimeout(resolve, 3000));
       }
@@ -222,6 +332,8 @@ export default function RegenerateBlogImages() {
     }
   };
 
+  const allGenerated = Object.keys(generatedImages).length === blogImageConfigs.length;
+
   return (
     <div className="space-y-6">
       <div>
@@ -230,16 +342,16 @@ export default function RegenerateBlogImages() {
           Regenerar Imagens do Blog
         </h1>
         <p className="text-muted-foreground mt-2">
-          Gere imagens ultra-realistas com IA para cada post do blog
+          Gere imagens ultra-realistas 8K com IA e aplique automaticamente nos posts do blog
         </p>
       </div>
 
       <Alert className="border-primary/20 bg-primary/5">
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
-          As imagens serão geradas usando IA com qualidade 8K fotorealista. 
-          Cada geração pode levar alguns segundos. Após gerar, faça download e atualize manualmente 
-          as URLs em <code className="text-xs bg-muted px-1 py-0.5 rounded">src/data/blogPosts.ts</code>
+          <strong>Qualidade Profissional 8K:</strong> Todas as imagens são geradas com especificações de câmera profissional 
+          (Sony A7R V, Canon EOS R5, Phase One), HDR 15+ stops, e pós-produção editorial. 
+          Clique em <strong>"Aplicar no Blog"</strong> para substituir automaticamente.
         </AlertDescription>
       </Alert>
 
@@ -250,34 +362,47 @@ export default function RegenerateBlogImages() {
             Gerar Todas as Imagens
           </CardTitle>
           <CardDescription>
-            Clique para gerar imagens ultra-realistas para os {blogImageConfigs.length} posts do blog
+            Clique para gerar imagens ultra-realistas 8K para os {blogImageConfigs.length} posts do blog
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button
-            onClick={handleRegenerateAll}
-            disabled={isGenerating}
-            className="w-full"
-            size="lg"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Gerando... {Math.round(progress)}%
-              </>
-            ) : (
-              <>
-                <RefreshCw className="mr-2 h-5 w-5" />
-                Gerar Todas as Imagens ({blogImageConfigs.length})
-              </>
+          <div className="flex gap-3">
+            <Button
+              onClick={handleRegenerateAll}
+              disabled={isGenerating}
+              className="flex-1"
+              size="lg"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Gerando... {Math.round(progress)}%
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="mr-2 h-5 w-5" />
+                  Gerar Todas ({blogImageConfigs.length})
+                </>
+              )}
+            </Button>
+
+            {allGenerated && (
+              <Button
+                onClick={handleApplyAllToBlog}
+                className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                size="lg"
+              >
+                <Globe className="mr-2 h-5 w-5" />
+                Aplicar Todas no Blog
+              </Button>
             )}
-          </Button>
+          </div>
 
           {isGenerating && (
             <div className="space-y-2">
-              <Progress value={progress} className="h-2" />
+              <Progress value={progress} className="h-3" />
               <p className="text-sm text-muted-foreground text-center">
-                Processando: {currentImage}
+                Processando: {currentImage} (Qualidade 8K Ultra HD)
               </p>
             </div>
           )}
@@ -287,11 +412,17 @@ export default function RegenerateBlogImages() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {blogImageConfigs.map((config) => {
           const generated = generatedImages[config.id];
+          const applied = appliedImages[config.id];
           const isSuccess = results.success.includes(config.title);
           const isFailed = results.failed.includes(config.title);
 
           return (
-            <Card key={config.id} className="overflow-hidden">
+            <Card 
+              key={config.id} 
+              className={`overflow-hidden transition-all duration-300 ${
+                applied ? "border-green-500 bg-green-500/5" : generated ? "border-primary/50" : ""
+              }`}
+            >
               <div className="aspect-video bg-muted relative">
                 {generated ? (
                   <img
@@ -305,8 +436,14 @@ export default function RegenerateBlogImages() {
                   </div>
                 )}
                 
-                {isSuccess && (
+                {applied && (
                   <Badge className="absolute top-2 right-2 bg-green-500">
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    Aplicado
+                  </Badge>
+                )}
+                {isSuccess && !applied && (
+                  <Badge className="absolute top-2 right-2 bg-primary">
                     <CheckCircle2 className="h-3 w-3 mr-1" />
                     Gerada
                   </Badge>
@@ -361,12 +498,14 @@ export default function RegenerateBlogImages() {
                       </Button>
                       <Button
                         size="sm"
-                        onClick={() => handleReplaceBlogImage(config, generated)}
-                        disabled={replacingImage === config.id}
-                        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                        onClick={() => handleApplyToBlog(config, generated)}
+                        disabled={replacingImage === config.id || applied}
+                        className={applied ? 'bg-green-500' : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'}
                       >
                         {replacingImage === config.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : applied ? (
+                          <CheckCircle2 className="h-4 w-4" />
                         ) : (
                           <Upload className="h-4 w-4" />
                         )}
@@ -383,19 +522,26 @@ export default function RegenerateBlogImages() {
       {(results.success.length > 0 || results.failed.length > 0) && (
         <Card>
           <CardHeader>
-            <CardTitle>Resumo da Geração</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              Resumo da Geração
+              {Object.keys(appliedImages).length > 0 && (
+                <Badge variant="secondary">
+                  {Object.keys(appliedImages).length} aplicadas no blog
+                </Badge>
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {results.success.length > 0 && (
-              <div>
-                <h4 className="text-sm font-medium text-green-600 mb-2 flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4" />
+              <div className="p-4 bg-green-500/10 rounded-lg">
+                <h3 className="font-semibold text-green-600 mb-2 flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5" />
                   Sucesso ({results.success.length})
-                </h4>
+                </h3>
                 <div className="flex flex-wrap gap-2">
-                  {results.success.map((title) => (
-                    <Badge key={title} variant="secondary" className="bg-green-100 text-green-800">
-                      {title}
+                  {results.success.map(name => (
+                    <Badge key={name} variant="outline" className="text-green-600">
+                      {name}
                     </Badge>
                   ))}
                 </div>
@@ -403,15 +549,15 @@ export default function RegenerateBlogImages() {
             )}
             
             {results.failed.length > 0 && (
-              <div>
-                <h4 className="text-sm font-medium text-red-600 mb-2 flex items-center gap-2">
-                  <XCircle className="h-4 w-4" />
+              <div className="p-4 bg-destructive/10 rounded-lg">
+                <h3 className="font-semibold text-destructive mb-2 flex items-center gap-2">
+                  <XCircle className="h-5 w-5" />
                   Falhas ({results.failed.length})
-                </h4>
+                </h3>
                 <div className="flex flex-wrap gap-2">
-                  {results.failed.map((title) => (
-                    <Badge key={title} variant="destructive">
-                      {title}
+                  {results.failed.map(name => (
+                    <Badge key={name} variant="outline" className="text-destructive">
+                      {name}
                     </Badge>
                   ))}
                 </div>
