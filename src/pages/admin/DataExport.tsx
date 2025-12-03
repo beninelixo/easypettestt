@@ -116,16 +116,16 @@ export default function DataExport() {
     }
     
     if (!isGodUser) {
-      // Verificar se é admin
+      // Verificar se é admin (suporta múltiplas roles)
       const checkAdminRole = async () => {
         const { data } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", user.id)
-          .in("role", ["admin", "super_admin"])
-          .single();
+          .in("role", ["admin", "super_admin"]);
         
-        if (!data) {
+        // Verificar se encontrou alguma role admin
+        if (!data || data.length === 0) {
           toast({
             title: "Acesso Negado",
             description: "Você não tem permissão para acessar esta página.",

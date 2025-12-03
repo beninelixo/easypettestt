@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 import { Resend } from 'https://esm.sh/resend@4.0.0';
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -51,13 +52,10 @@ Deno.serve(async (req) => {
         );
       }
 
-      const { data: roleData } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!roleData || roleData.role !== 'admin') {
+      // Check admin role usando helper (suporta múltiplas roles)
+      const { isAdmin } = await verifyAdminAccess(supabase, user.id);
+      
+      if (!isAdmin) {
         return new Response(
           JSON.stringify({ error: 'Admin access required' }),
           { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
