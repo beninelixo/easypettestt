@@ -1,4 +1,4 @@
-project_id = "zxdbsimthnfprrthszoh"
+project_id = "xkfkrdorghyagtwbxory"
 
 [functions.send-loops-email]
 verify_jwt = true
@@ -202,4 +202,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.admin-reset-password]
+verify_jwt = true
+
+[functions.cleanup-users]
 verify_jwt = true
