@@ -23,7 +23,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SuperAdminUsers } from "@/components/admin/SuperAdminUsers";
 import { SuperAdminPetShops } from "@/components/admin/SuperAdminPetShops";
 import { SuperAdminSystemHealth } from "@/components/admin/SuperAdminSystemHealth";
@@ -39,6 +39,15 @@ export default function UnifiedAdminDashboard() {
   // Auto-select God Mode tab when accessing /admin/god-mode route
   const isGodModeRoute = location.pathname.includes('/admin/god-mode');
   const defaultTab = isGodModeRoute && isGodUser ? "godmode" : "overview";
+  const [activeTab, setActiveTab] = useState(defaultTab);
+  
+  // Sync tab when route changes
+  useEffect(() => {
+    if (isGodModeRoute && isGodUser) {
+      setActiveTab("godmode");
+    }
+  }, [isGodModeRoute, isGodUser]);
+  
   const { executeAction, loadingAction } = useGodActions();
   const { 
     stats: realtimeStats, 
@@ -250,7 +259,7 @@ export default function UnifiedAdminDashboard() {
       </div>
 
       {/* Main Tabs */}
-      <Tabs defaultValue={defaultTab} className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid grid-cols-4 w-full max-w-lg">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
           <TabsTrigger value="activity">Atividade</TabsTrigger>
