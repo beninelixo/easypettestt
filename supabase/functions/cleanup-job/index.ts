@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -35,14 +36,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check if user has admin role
-    const { data: roleData, error: roleError } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (roleError || roleData?.role !== 'admin') {
+    // Check admin role using helper (supports multiple roles)
+    const { isAdmin } = await verifyAdminAccess(supabase, user.id);
+    
+    if (!isAdmin) {
       return new Response(
         JSON.stringify({ error: 'Admin privileges required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -63,7 +60,7 @@ Deno.serve(async (req) => {
     });
 
     // 2. Limpar códigos de reset de senha expirados
-    const { data: resetCodesData, error: resetError } = await supabase.rpc('cleanup_expired_reset_codes');
+    const { error: resetError } = await supabase.rpc('cleanup_expired_reset_codes');
     
     cleanupResults.push({
       task: 'cleanup_expired_reset_codes',
@@ -80,22 +77,16 @@ Deno.serve(async (req) => {
       .update({ updated_at: new Date().toISOString() })
       .lt('updated_at', sevenDaysAgo.toISOString());
 
-    const sessionsCount = 0;
-
     cleanupResults.push({
       task: 'cleanup_inactive_sessions',
       success: !sessionsError,
-      processed_count: sessionsCount || 0,
+      processed_count: 0,
       error: sessionsError?.message,
     });
-
-    // 4. Vacuum analyze (otimização do banco)
-    // Nota: Isso seria feito via manutenção programada do Supabase
 
     const totalTime = Date.now() - startTime;
     const hasErrors = cleanupResults.some(r => !r.success);
 
-    // Registrar resultado da limpeza
     await supabase.from('system_logs').insert({
       module: 'cleanup_job',
       log_type: hasErrors ? 'warning' : 'success',
@@ -124,7 +115,6 @@ Deno.serve(async (req) => {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     const errorStack = error instanceof Error ? error.stack : undefined;
     
-    // Registrar erro crítico
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''

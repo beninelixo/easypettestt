@@ -1,19 +1,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { Resend } from 'https://esm.sh/resend@2.0.0';
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-interface AlertEmailRequest {
-  severity: 'critical' | 'warning' | 'info';
-  module: string;
-  subject: string;
-  message: string;
-  details?: any;
-}
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
@@ -23,10 +16,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Verify authentication
     const authHeader = req.headers.get('Authorization');
@@ -38,27 +30,29 @@ Deno.serve(async (req) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    
+    // Check if it's service role key (internal call from other edge functions)
+    const isServiceRole = token === supabaseServiceKey;
+    
+    if (!isServiceRole) {
+      const { data: { user }, error: userError } = await supabase.auth.getUser(token);
 
-    if (userError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized - Invalid token' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+      if (userError || !user) {
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized - Invalid token' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
 
-    // Check admin role
-    const { data: roleData } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!roleData || roleData.role !== 'admin') {
-      return new Response(
-        JSON.stringify({ error: 'Forbidden - Admin access required' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      // Check admin role using helper (supports multiple roles)
+      const { isAdmin } = await verifyAdminAccess(supabase, user.id);
+      
+      if (!isAdmin) {
+        return new Response(
+          JSON.stringify({ error: 'Forbidden - Admin access required' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     // Validate input with Zod
@@ -103,14 +97,6 @@ Deno.serve(async (req) => {
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    // Buscar emails dos admins
-    const { data: adminProfiles, error: profilesError } = await supabase
-      .from('profiles')
-      .select('id')
-      .in('id', admins.map(a => a.user_id));
-
-    if (profilesError) throw profilesError;
 
     // Buscar auth.users para pegar emails
     const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
@@ -189,32 +175,11 @@ Deno.serve(async (req) => {
                 <pre style="background-color: #f3f4f6; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px;">${JSON.stringify(details, null, 2)}</pre>
               </div>
             ` : ''}
-            
-            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0; font-size: 14px; color: #6b7280;">
-                <strong>Próximos passos:</strong>
-              </p>
-              <ul style="margin: 10px 0; padding-left: 20px; color: #6b7280; font-size: 14px;">
-                ${severity === 'critical' ? `
-                  <li>Verifique o sistema imediatamente</li>
-                  <li>Acesse o painel de administração</li>
-                  <li>Revise os logs do sistema</li>
-                ` : severity === 'warning' ? `
-                  <li>Revise a situação nas próximas 24h</li>
-                  <li>Considere agendamento de manutenção</li>
-                ` : `
-                  <li>Anote para revisão posterior</li>
-                `}
-              </ul>
-            </div>
           </div>
           
           <div style="text-align: center; padding: 20px; color: #6b7280; font-size: 12px;">
             <p style="margin: 0;">
               Este é um email automático do sistema EasyPet.
-            </p>
-            <p style="margin: 5px 0 0;">
-              Por favor, não responda a este email.
             </p>
           </div>
         </body>

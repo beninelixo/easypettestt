@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -43,14 +44,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check if user has admin role
-    const { data: roleData, error: roleError } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (roleError || roleData?.role !== 'admin') {
+    // Check admin role using helper (supports multiple roles)
+    const { isAdmin } = await verifyAdminAccess(supabase, user.id);
+    
+    if (!isAdmin) {
       return new Response(
         JSON.stringify({ error: 'Admin privileges required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -85,16 +82,16 @@ Deno.serve(async (req) => {
     // 2. Check Auth Service
     const authStart = Date.now();
     try {
-      const { data: users, error: authError } = await supabase.auth.admin.listUsers({
+      const { data: users, error: authServiceError } = await supabase.auth.admin.listUsers({
         page: 1,
         perPage: 1,
       });
 
       healthChecks.push({
         service_name: 'authentication',
-        status: authError ? 'warning' : 'healthy',
+        status: authServiceError ? 'warning' : 'healthy',
         response_time_ms: Date.now() - authStart,
-        error_message: authError?.message,
+        error_message: authServiceError?.message,
         metadata: { total_users: users?.users?.length || 0 },
       });
     } catch (error) {
@@ -145,7 +142,6 @@ Deno.serve(async (req) => {
           onConflict: 'service_name',
         });
 
-      // Log critical issues
       if (check.status === 'critical') {
         await supabase.from('system_logs').insert({
           module: 'health_check',

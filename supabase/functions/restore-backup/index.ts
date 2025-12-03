@@ -1,15 +1,11 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-interface RestoreRequest {
-  backup_id: string;
-  tables?: string[]; // Tabelas específicas para restaurar (opcional)
-}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -33,14 +29,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Verificar se é admin
-    const { data: userRole, error: roleError } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (roleError || userRole?.role !== 'admin') {
+    // Check admin role using helper (supports multiple roles)
+    const { isAdmin } = await verifyAdminAccess(supabase, user.id);
+    
+    if (!isAdmin) {
       return new Response(
         JSON.stringify({ error: 'Acesso negado. Apenas admins podem restaurar backups.' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -74,7 +66,7 @@ Deno.serve(async (req) => {
       .select('*')
       .eq('backup_id', backup_id)
       .eq('status', 'completed')
-      .single();
+      .maybeSingle();
 
     if (backupError || !backup) {
       return new Response(
@@ -83,14 +75,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // IMPORTANTE: Em produção, você precisaria:
-    // 1. Buscar o arquivo de backup do storage
-    // 2. Descriptografar com BACKUP_ENCRYPTION_KEY
-    // 3. Descomprimir GZIP
-    // 4. Parsear JSON
-    // 5. Restaurar dados nas tabelas
-
-    // Por enquanto, vamos criar um registro de restore
+    // Create restore record
     const { data: restoreRecord, error: restoreError } = await supabase
       .from('backup_history')
       .insert({

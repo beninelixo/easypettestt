@@ -1,15 +1,11 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-interface AnalysisRequest {
-  timeframe?: string; // 'last_hour' | 'last_24h' | 'last_week'
-  modules?: string[]; // ['auth', 'appointments', 'payments', etc]
-}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -41,14 +37,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check admin role
-    const { data: roleData, error: roleError } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (roleError || roleData?.role !== 'admin') {
+    // Check admin role using helper (supports multiple roles)
+    const { isAdmin } = await verifyAdminAccess(supabase, user.id);
+    
+    if (!isAdmin) {
       return new Response(
         JSON.stringify({ error: 'Forbidden - Admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -76,15 +68,6 @@ Deno.serve(async (req) => {
 
     const body = validation.data;
     const timeframe = body.timeframe || 'last_24h';
-
-    // Definir período de análise
-    const timeRanges: Record<string, string> = {
-      last_hour: "now() - interval '1 hour'",
-      last_24h: "now() - interval '24 hours'",
-      last_week: "now() - interval '7 days'",
-    };
-
-    const timeCondition = timeRanges[timeframe] || timeRanges.last_24h;
 
     // 1. Buscar logs do período
     const { data: logs, error: logsError } = await supabase
@@ -115,7 +98,7 @@ Deno.serve(async (req) => {
       .eq('log_type', 'error')
       .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
 
-    // 5. Preparar contexto para análise da IA
+    // 5. Preparar contexto para análise
     const context = {
       timeframe,
       stats,
@@ -156,7 +139,6 @@ Por favor, forneça:
    - Descrição do problema
    - Causa provável
    - Passo a passo para correção
-   - Exemplo de código (se aplicável)
 
 5. **MÉTRICAS DE SAÚDE**:
    - Tempo de resposta médio
@@ -201,7 +183,6 @@ Forneça a resposta em formato JSON estruturado.`;
     // 8. Tentar parsear resposta JSON da IA
     let analysisResult;
     try {
-      // Extrair JSON da resposta (pode vir com markdown)
       const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         analysisResult = JSON.parse(jsonMatch[0]);

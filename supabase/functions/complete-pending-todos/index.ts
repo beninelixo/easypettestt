@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,7 +13,6 @@ serve(async (req) => {
   }
 
   try {
-    // Verificar autenticação - apenas service role ou admin podem executar
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       console.error('❌ Unauthorized access attempt to maintenance function');
@@ -26,9 +26,12 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    // Verificar se é um admin válido (quando não é service role)
     const token = authHeader.replace('Bearer ', '');
-    if (token !== supabaseServiceKey) {
+    
+    // Check if it's service role key (cron job)
+    const isServiceRole = token === supabaseServiceKey;
+    
+    if (!isServiceRole) {
       const { data: { user }, error: authError } = await supabase.auth.getUser(token);
       
       if (authError || !user) {
@@ -39,14 +42,10 @@ serve(async (req) => {
         );
       }
 
-      // Verificar se é admin
-      const { data: roles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!roles || roles.role !== 'admin') {
+      // Check admin role using helper (supports multiple roles)
+      const { isAdmin } = await verifyAdminAccess(supabase, user.id);
+      
+      if (!isAdmin) {
         console.error('❌ Non-admin user attempted to run maintenance');
         return new Response(
           JSON.stringify({ error: 'Forbidden - Admin access required' }),
@@ -67,7 +66,6 @@ serve(async (req) => {
       console.log(`📧 Enviando emails para ${incompleteProfiles.length} perfis incompletos`);
       
       for (const profile of incompleteProfiles) {
-        // Buscar email do auth
         const { data: authUser } = await supabase.auth.admin.getUserById(profile.id);
         
         if (authUser?.user?.email) {
@@ -92,13 +90,11 @@ serve(async (req) => {
     if (overdueAppointments && overdueAppointments.length > 0) {
       console.log(`📅 Processando ${overdueAppointments.length} agendamentos atrasados`);
       
-      // Cancelar automaticamente
       await supabase
         .from('appointments')
         .update({ status: 'cancelled' })
         .in('id', overdueAppointments.map(a => a.id));
 
-      // Notificar clientes
       for (const appointment of overdueAppointments) {
         await supabase.from('notifications').insert({
           client_id: appointment.client_id,
@@ -138,7 +134,7 @@ serve(async (req) => {
       });
     }
 
-    // Limpar produtos com estoque negativo (corrigir para 0)
+    // Limpar produtos com estoque negativo
     const { data: negativeStock } = await supabase
       .from('products')
       .update({ stock_quantity: 0 })

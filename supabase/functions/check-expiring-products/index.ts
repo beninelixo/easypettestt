@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -35,14 +36,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check admin role
-    const { data: roleData } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!roleData || roleData.role !== 'admin') {
+    // Check admin role using helper (supports multiple roles)
+    const { isAdmin } = await verifyAdminAccess(supabase, user.id);
+    
+    if (!isAdmin) {
       return new Response(
         JSON.stringify({ error: 'Forbidden - Admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -54,7 +51,6 @@ Deno.serve(async (req) => {
     futureDate.setDate(futureDate.getDate() + 30);
     const thirtyDaysFromNow = futureDate.toISOString().split('T')[0];
 
-    // Produtos já vencidos
     const { data: expired, error: expiredError } = await supabase
       .from('products')
       .select('id, name, expiry_date, pet_shop_id')
@@ -63,7 +59,6 @@ Deno.serve(async (req) => {
 
     if (expiredError) throw expiredError;
 
-    // Produtos próximos do vencimento (30 dias)
     const { data: expiring, error: expiringError } = await supabase
       .from('products')
       .select('id, name, expiry_date, pet_shop_id, stock_quantity')
@@ -76,7 +71,6 @@ Deno.serve(async (req) => {
 
     const alerts: any[] = [];
 
-    // Desativar produtos vencidos
     if (expired && expired.length > 0) {
       const { error: deactivateError } = await supabase
         .from('products')
@@ -96,7 +90,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Alertar produtos próximos do vencimento
     if (expiring && expiring.length > 0) {
       alerts.push({
         type: 'expiring_soon',
@@ -114,7 +107,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Registrar log se houver alertas
     if (alerts.length > 0) {
       await supabase.from('system_logs').insert({
         module: 'check_expiring_products',
@@ -122,32 +114,6 @@ Deno.serve(async (req) => {
         message: `Alertas de validade: ${expired?.length || 0} vencidos, ${expiring?.length || 0} a vencer`,
         details: { alerts }
       });
-
-      // Enviar alerta crítico por email se houver produtos vencidos
-      if (expired && expired.length > 0) {
-        try {
-          await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-alert-email`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
-            },
-            body: JSON.stringify({
-              severity: 'critical',
-              module: 'check_expiring_products',
-              subject: `${expired.length} produtos vencidos detectados!`,
-              message: `O sistema detectou ${expired.length} produto(s) com validade expirada que foram desativados automaticamente.`,
-              details: {
-                expired_count: expired.length,
-                expiring_count: expiring?.length || 0,
-                action_taken: 'Produtos desativados automaticamente'
-              }
-            })
-          });
-        } catch (emailError) {
-          console.error('Erro ao enviar email de alerta:', emailError);
-        }
-      }
     }
 
     return new Response(

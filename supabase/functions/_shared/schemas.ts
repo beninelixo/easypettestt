@@ -209,3 +209,41 @@ export function sanitizeEmail(email: string): string {
   }
   return result.data;
 }
+
+// ============= ADMIN ACCESS VERIFICATION =============
+
+/**
+ * Verifies if a user has admin access (admin, super_admin, or god user)
+ * Works correctly with users who have multiple roles
+ * @param supabase Supabase client instance
+ * @param userId User ID to check
+ * @returns Object with isAdmin and isGodUser flags
+ */
+export async function verifyAdminAccess(
+  supabase: any,
+  userId: string
+): Promise<{ isAdmin: boolean; isGodUser: boolean; roles: string[] }> {
+  // Check if is God User first
+  const { data: godUserCheck } = await supabase
+    .rpc('is_god_user', { _user_id: userId });
+  
+  if (godUserCheck === true) {
+    return { isAdmin: true, isGodUser: true, roles: ['god_user'] };
+  }
+
+  // Fetch ALL roles for the user (no .single() - supports multiple roles)
+  const { data: roles, error: rolesError } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', userId);
+
+  if (rolesError) {
+    console.error('Error fetching user roles:', rolesError);
+    return { isAdmin: false, isGodUser: false, roles: [] };
+  }
+
+  const roleList = roles?.map((r: { role: string }) => r.role) || [];
+  const isAdmin = roleList.includes('admin') || roleList.includes('super_admin');
+
+  return { isAdmin, isGodUser: false, roles: roleList };
+}

@@ -8,6 +8,7 @@ const corsHeaders = {
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 interface DiagnosticResult {
   category: string;
@@ -47,14 +48,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check admin role
-    const { data: roleData } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!roleData || roleData.role !== 'admin') {
+    // Check admin role using helper (supports multiple roles)
+    const { isAdmin } = await verifyAdminAccess(supabase, user.id);
+    
+    if (!isAdmin) {
       return new Response(
         JSON.stringify({ error: 'Forbidden - Admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -93,14 +90,12 @@ Deno.serve(async (req) => {
     // ============================================
     console.log('Verificando agendamentos duplicados...');
     
-    // Buscar todos os agendamentos não-cancelados e identificar duplicatas manualmente
     const { data: allAppointments } = await supabase
       .from('appointments')
       .select('id, pet_shop_id, scheduled_date, scheduled_time, created_at')
       .not('status', 'eq', 'cancelled')
       .order('created_at');
 
-    // Agrupar por chave de horário e identificar conflitos
     const appointmentMap = new Map<string, any[]>();
     if (allAppointments) {
       for (const apt of allAppointments) {
@@ -112,7 +107,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Filtrar apenas os que têm duplicatas
     const duplicateAppointments = Array.from(appointmentMap.values()).filter(group => group.length > 1);
 
     if (duplicateAppointments && duplicateAppointments.length > 0) {
@@ -126,9 +120,7 @@ Deno.serve(async (req) => {
       });
 
       if (auto_fix) {
-        // Cancelar agendamentos duplicados mantendo o mais antigo
         for (const group of duplicateAppointments) {
-          // Manter o primeiro (mais antigo) e cancelar os demais
           const toCancel = group.slice(1).map(apt => apt.id);
           
           if (toCancel.length > 0) {
@@ -331,60 +323,7 @@ Deno.serve(async (req) => {
     }
 
     // ============================================
-    // 8. VERIFICAR TENTATIVAS DE LOGIN SUSPEITAS
-    // ============================================
-    console.log('Verificando tentativas de login suspeitas...');
-    
-    // Buscar todas as tentativas de login falhadas na última hora
-    const { data: failedLogins } = await supabase
-      .from('login_attempts')
-      .select('ip_address, attempt_time')
-      .eq('success', false)
-      .gte('attempt_time', new Date(Date.now() - 3600000).toISOString());
-
-    // Agrupar por IP e contar tentativas
-    const ipCounts = new Map<string, number>();
-    if (failedLogins) {
-      for (const login of failedLogins) {
-        const count = ipCounts.get(login.ip_address) || 0;
-        ipCounts.set(login.ip_address, count + 1);
-      }
-    }
-
-    // Filtrar IPs com mais de 10 tentativas
-    const suspiciousLogins = Array.from(ipCounts.entries())
-      .filter(([_, count]) => count > 10)
-      .map(([ip, count]) => ({ ip_address: ip, count }));
-
-    if (suspiciousLogins && suspiciousLogins.length > 0) {
-      criticalIssues++;
-      results.push({
-        category: 'Segurança',
-        issue: 'Tentativas de login suspeitas detectadas',
-        severity: 'critical',
-        status: 'detected',
-        details: `${suspiciousLogins.length} IPs com >10 tentativas na última hora`,
-      });
-
-      // Enviar alerta crítico
-      await fetch(`${supabaseUrl}/functions/v1/send-alert-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseKey}`,
-        },
-        body: JSON.stringify({
-          severity: 'critical',
-          module: 'auto_diagnostico',
-          subject: '🚨 Tentativas de Login Suspeitas',
-          message: `Detectadas ${suspiciousLogins.length} IPs com mais de 10 tentativas falhas na última hora`,
-          details: { ips: suspiciousLogins },
-        }),
-      });
-    }
-
-    // ============================================
-    // 9. VERIFICAR SAÚDE DO BANCO DE DADOS
+    // 8. VERIFICAR SAÚDE DO BANCO DE DADOS
     // ============================================
     console.log('Verificando saúde geral do sistema...');
     const { data: systemHealth } = await supabase.rpc('get_system_health');
@@ -428,24 +367,6 @@ Deno.serve(async (req) => {
         results: results,
       },
     });
-
-    // Enviar alerta se houver problemas críticos
-    if (criticalIssues > 0) {
-      await fetch(`${supabaseUrl}/functions/v1/send-alert-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseKey}`,
-        },
-        body: JSON.stringify({
-          severity: 'critical',
-          module: 'auto_diagnostico',
-          subject: `⚠️ Diagnóstico: ${criticalIssues} Problemas Críticos`,
-          message: `Foram encontrados ${criticalIssues} problemas críticos no sistema`,
-          details: { results: results.filter(r => r.severity === 'critical') },
-        }),
-      });
-    }
 
     console.log(`✅ Diagnóstico concluído. ${fixedCount} correções aplicadas.`);
 
