@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AuditLog {
@@ -17,8 +17,9 @@ interface AuditLog {
 export function useAuditLogs() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isLive, setIsLive] = useState(false);
 
-  const loadLogs = async (filters?: {
+  const loadLogs = useCallback(async (filters?: {
     user_id?: string;
     table_name?: string;
     operation?: string;
@@ -52,9 +53,9 @@ export function useAuditLogs() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const createAuditLog = async (log: Omit<AuditLog, 'id' | 'created_at'>) => {
+  const createAuditLog = useCallback(async (log: Omit<AuditLog, 'id' | 'created_at'>) => {
     try {
       const { error } = await supabase
         .from('audit_logs')
@@ -64,14 +65,14 @@ export function useAuditLogs() {
     } catch (error) {
       console.error('Create audit log error:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadLogs();
 
-    // Realtime para novos logs
+    // Realtime subscription for new logs
     const channel = supabase
-      .channel('audit-logs')
+      .channel('audit-logs-realtime')
       .on(
         'postgres_changes',
         {
@@ -83,16 +84,41 @@ export function useAuditLogs() {
           loadLogs();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        setIsLive(status === 'SUBSCRIBED');
+      });
+
+    // Fallback refresh every 30 seconds
+    const interval = setInterval(() => loadLogs(), 30000);
 
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(interval);
     };
-  }, []);
+  }, [loadLogs]);
+
+  // Computed stats
+  const logsByOperation = logs.reduce((acc, log) => {
+    acc[log.operation] = (acc[log.operation] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const logsByTable = logs.reduce((acc, log) => {
+    acc[log.table_name] = (acc[log.table_name] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const recentLogs = logs.slice(0, 10);
 
   return {
     logs,
     loading,
+    isLive,
+    // Computed
+    logsByOperation,
+    logsByTable,
+    recentLogs,
+    // Actions
     loadLogs,
     createAuditLog,
   };

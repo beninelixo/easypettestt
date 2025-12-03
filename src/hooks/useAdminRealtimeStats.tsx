@@ -49,22 +49,39 @@ export function useAdminRealtimeStats() {
   const queryClient = useQueryClient();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Fetch stats from materialized view
+  // Fetch stats using get_system_stats RPC (more reliable than materialized view)
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useQuery({
     queryKey: ['admin-realtime-stats'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('mv_admin_realtime_stats')
-        .select('*')
-        .single();
+    queryFn: async (): Promise<AdminRealtimeStats | null> => {
+      // Use get_system_stats directly - it's the most reliable source
+      const { data: systemStats, error: systemError } = await supabase.rpc('get_system_stats');
       
-      if (error) {
-        console.error('Error fetching admin stats:', error);
-        // Fallback to RPC if materialized view fails
-        const { data: rpcData } = await supabase.rpc('get_system_stats');
-        return rpcData as unknown as AdminRealtimeStats;
+      // Also fetch security stats for complete picture
+      const { data: securityStats } = await supabase.rpc('get_security_stats');
+      
+      if (systemError) {
+        console.error('Error fetching system stats:', systemError);
+        return null;
       }
-      return data as AdminRealtimeStats;
+      
+      const sys = systemStats as any;
+      const sec = securityStats as any;
+      
+      return {
+        total_users: sys?.total_users || 0,
+        total_pet_shops: sys?.total_pet_shops || 0,
+        appointments_today: sys?.total_appointments_today || 0,
+        completed_appointments: 0,
+        errors_24h: sys?.errors_last_24h || 0,
+        warnings_24h: sys?.warnings_last_24h || 0,
+        unread_alerts: sec?.unresolved_alerts || 0,
+        failed_logins_1h: sec?.failed_logins_24h || 0,
+        successful_logins_24h: sec?.successful_logins_24h || 0,
+        pending_jobs: 0,
+        mfa_enabled_users: sec?.active_mfa_users || 0,
+        blocked_ips: 0,
+        last_refreshed: new Date().toISOString(),
+      };
     },
     staleTime: 10 * 1000, // 10 seconds
     refetchInterval: 15 * 1000, // Refresh every 15 seconds
@@ -161,8 +178,6 @@ export function useAdminRealtimeStats() {
   const refreshAll = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      // Try to refresh materialized view
-      await supabase.rpc('refresh_admin_stats');
       await Promise.all([
         refetchStats(),
         refetchLogs(),
