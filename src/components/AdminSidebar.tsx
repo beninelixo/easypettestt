@@ -69,6 +69,7 @@ const settingsItems = [
   { title: "System Monitor", url: "/admin/monitor", icon: Monitor },
   { title: "Success Stories", url: "/admin/success-stories", icon: Award },
   { title: "Regenerate Images", url: "/admin/regenerate-images", icon: Image },
+  { title: "Imagens do Blog", url: "/admin/regenerate-blog-images", icon: Image, badge: "NEW" },
 ];
 
 export function AdminSidebar() {

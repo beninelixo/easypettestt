@@ -97,6 +97,7 @@ const PaymentSuccess = lazy(() => import("./pages/professional/PaymentSuccess"))
 const PaymentCancelled = lazy(() => import("./pages/professional/PaymentCancelled"));
 const SystemOverview = lazy(() => import("./pages/SystemOverview"));
 const RegenerateImages = lazy(() => import("./pages/admin/RegenerateImages"));
+const RegenerateBlogImages = lazy(() => import("./pages/admin/RegenerateBlogImages"));
 const ConsolidatedDashboard = lazy(() => import("./pages/multi-unit/ConsolidatedDashboard"));
 const UnitsManagement = lazy(() => import("./pages/multi-unit/UnitsManagement"));
 const Analytics = lazy(() => import("@/pages/petshop/Analytics"));
@@ -344,6 +345,7 @@ const App = () => {
             <Route path="monitor" element={<SystemMonitor />} />
             <Route path="success-stories" element={<SuccessStoriesManager />} />
             <Route path="regenerate-images" element={<RegenerateImages />} />
+            <Route path="regenerate-blog-images" element={<RegenerateBlogImages />} />
             <Route path="performance" element={<PerformanceDashboard />} />
             <Route path="ip-whitelist" element={<IPWhitelist />} />
             <Route path="login-history" element={<LoginHistory />} />
