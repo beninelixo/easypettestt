@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useAIMonitor } from "@/hooks/useAIMonitor";
 import { Shield, AlertTriangle, CheckCircle, XCircle, Loader2, Activity } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { SyncStatus } from "@/components/SyncStatus";
 
 export default function AIMonitorDashboard() {
   const { report, loading, runAudit } = useAIMonitor();
@@ -58,6 +59,9 @@ export default function AIMonitorDashboard() {
             )}
           </Button>
         </div>
+
+        {/* Sync Status */}
+        <SyncStatus />
 
         {/* Security Score */}
         {report && (
