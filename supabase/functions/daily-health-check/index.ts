@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-key',
 };
 
 interface HealthCheck {
@@ -29,9 +29,26 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Security: Verify cron job API key or service role authorization
+    const cronKey = req.headers.get('x-cron-key');
+    const authHeader = req.headers.get('authorization');
+    const expectedCronKey = Deno.env.get('CRON_API_KEY');
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    // Allow access if: valid cron key OR service role authorization
+    const isValidCronKey = cronKey && expectedCronKey && cronKey === expectedCronKey;
+    const isServiceRole = authHeader && authHeader.includes(serviceRoleKey);
+    
+    if (!isValidCronKey && !isServiceRole) {
+      console.warn('Unauthorized health check attempt');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized', message: 'Valid API key or service role required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
 
     console.log('🏥 Starting daily health check...');
 
