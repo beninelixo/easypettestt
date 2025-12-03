@@ -1,6 +1,6 @@
 import { 
   Home, Zap, Activity, Brain, Shield, Lock, FileText, Mail, 
-  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown, Gauge, ScrollText, UserCheck, History, BarChart, TestTube, RefreshCw, LineChart, Webhook, Users, TrendingUp, Crown
+  Globe, Bell, Monitor, Award, Image, LogOut, ChevronDown, Gauge, ScrollText, UserCheck, History, BarChart, TestTube, RefreshCw, LineChart, Webhook, Users, TrendingUp, Crown, Download
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -55,6 +55,7 @@ const securityItems = [
 ];
 
 const settingsItems = [
+  { title: "Exportar Dados", url: "/admin/data-export", icon: Download, badge: "EXPORT" },
   { title: "User Management", url: "/admin/user-management", icon: Users, badge: "NEW" },
   { title: "User Analytics", url: "/admin/user-analytics", icon: TrendingUp, badge: "NEW" },
   { title: "Notification Preferences", url: "/admin/notification-preferences", icon: Bell },
