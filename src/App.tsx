@@ -132,6 +132,7 @@ const AuthMonitoring = lazy(() => import("./pages/admin/AuthMonitoring"));
 const AuthMetricsDashboard = lazy(() => import("./pages/admin/AuthMetricsDashboard"));
 const SuperAdminDashboard = lazy(() => import("./pages/admin/SuperAdminDashboard"));
 const GoogleCallback = lazy(() => import("./pages/auth/GoogleCallback"));
+const DataExport = lazy(() => import("./pages/admin/DataExport"));
 
 // Admin Layout
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -358,6 +359,7 @@ const App = () => {
               <Route path="user-management" element={<UserManagement />} />
               <Route path="user-analytics" element={<UserAnalytics />} />
             <Route path="notification-preferences" element={<NotificationPreferences />} />
+            <Route path="data-export" element={<DataExport />} />
           </Route>
 
           {/* Legacy Admin Routes - Redirect to new structure */}
