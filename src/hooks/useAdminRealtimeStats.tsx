@@ -66,8 +66,8 @@ export function useAdminRealtimeStats() {
       }
       return data as AdminRealtimeStats;
     },
-    staleTime: 30 * 1000, // 30 seconds
-    refetchInterval: 60 * 1000, // Refresh every minute
+    staleTime: 10 * 1000, // 10 seconds
+    refetchInterval: 15 * 1000, // Refresh every 15 seconds
   });
 
   // Fetch recent logs
@@ -83,7 +83,8 @@ export function useAdminRealtimeStats() {
       if (error) throw error;
       return (data || []) as SystemLog[];
     },
-    staleTime: 15 * 1000,
+    staleTime: 10 * 1000,
+    refetchInterval: 15 * 1000,
   });
 
   // Fetch unread alerts
@@ -100,7 +101,8 @@ export function useAdminRealtimeStats() {
       if (error) throw error;
       return (data || []) as AdminAlert[];
     },
-    staleTime: 10 * 1000,
+    staleTime: 5 * 1000,
+    refetchInterval: 10 * 1000,
   });
 
   // Fetch recent login attempts
@@ -116,7 +118,8 @@ export function useAdminRealtimeStats() {
       if (error) throw error;
       return (data || []) as LoginAttempt[];
     },
-    staleTime: 15 * 1000,
+    staleTime: 10 * 1000,
+    refetchInterval: 15 * 1000,
   });
 
   // Real-time subscriptions
