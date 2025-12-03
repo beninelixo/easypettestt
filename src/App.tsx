@@ -64,19 +64,12 @@ const EditarPetshop = lazy(() => import("./pages/petshop/EditarPetshop"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
-const SystemMonitoring = lazy(() => import("./pages/SystemMonitoring"));
-const SystemAnalysis = lazy(() => import("./pages/SystemAnalysis"));
-const SystemHealth = lazy(() => import("./pages/SystemHealth"));
 const SystemDiagnostics = lazy(() => import("./pages/SystemDiagnostics"));
-const SystemMonitoringDashboard = lazy(() => import("./pages/SystemMonitoringDashboard"));
-const AIMonitorDashboard = lazy(() => import("./pages/AIMonitorDashboard"));
 const TenantDashboard = lazy(() => import("./features/tenant/pages/TenantDashboard").then(m => ({ default: m.TenantDashboard })));
 const FranchiseDashboard = lazy(() => import("./features/franchise/pages/FranchiseDashboard").then(m => ({ default: m.FranchiseDashboard })));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const UserPrivacy = lazy(() => import("./pages/UserPrivacy"));
 const PaymentHistory = lazy(() => import("./pages/PaymentHistory"));
-const NotificationQueue = lazy(() => import("./pages/admin/NotificationQueue"));
-const SystemMonitor = lazy(() => import("./pages/admin/SystemMonitor"));
 const NotificationPreferences = lazy(() => import("./pages/admin/NotificationPreferences"));
 const ClientLayout = lazy(() => import("./pages/client/ClientLayout"));
 const ClientPets = lazy(() => import("./pages/client/ClientPets"));
@@ -105,39 +98,26 @@ const SuccessStories = lazy(() => import("@/pages/SuccessStories"));
 const SuccessStoriesManager = lazy(() => import("@/pages/admin/SuccessStoriesManager"));
 const SubmitSuccessStory = lazy(() => import("@/pages/petshop/SubmitSuccessStory"));
 const ConsolidatedSecurityDashboard = lazy(() => import("./pages/admin/ConsolidatedSecurityDashboard"));
-const SecurityMonitoring = lazy(() => import("./pages/admin/SecurityMonitoring"));
-const SecurityFixes = lazy(() => import("./pages/admin/SecurityFixes"));
 const PerformanceDashboard = lazy(() => import("./pages/admin/PerformanceDashboard"));
 const BackupManagement = lazy(() => import("./pages/admin/BackupManagement"));
 const AuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
-const EmailSystemTest = lazy(() => import("./pages/admin/EmailSystemTest"));
-const EmailAnalyticsDashboard = lazy(() => import("./pages/admin/EmailAnalyticsDashboard"));
-const ResendDomainSetup = lazy(() => import("./pages/admin/ResendDomainSetup"));
-const GodModeDashboard = lazy(() => import("./pages/admin/GodModeDashboard"));
 const IPWhitelist = lazy(() => import("./pages/admin/IPWhitelist"));
-const LoginHistory = lazy(() => import("./pages/admin/LoginHistory"));
-const SystemErrorLogs = lazy(() => import("./pages/admin/SystemErrorLogs"));
 const SystemHealthDashboard = lazy(() => import("./pages/admin/SystemHealthDashboard"));
 const FailedJobsManagement = lazy(() => import("./pages/admin/FailedJobsManagement"));
-const PerformanceMetricsHistory = lazy(() => import("./pages/admin/PerformanceMetricsHistory"));
-const ConsolidatedHealthDashboard = lazy(() => import("./pages/admin/ConsolidatedHealthDashboard"));
 const WebhookManagement = lazy(() => import("./pages/admin/WebhookManagement"));
-const SystemAnalysisDashboard = lazy(() => import("./pages/admin/SystemAnalysis"));
 const UserAnalytics = lazy(() => import("./pages/admin/UserAnalytics"));
 const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
 const AcceptInvite = lazy(() => import("./pages/admin/AcceptInvite"));
 const MaintenanceDashboard = lazy(() => import("./pages/admin/MaintenanceDashboard"));
 const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 const AuthMonitoring = lazy(() => import("./pages/admin/AuthMonitoring"));
-const AuthMetricsDashboard = lazy(() => import("./pages/admin/AuthMetricsDashboard"));
-const SuperAdminDashboard = lazy(() => import("./pages/admin/SuperAdminDashboard"));
 const GoogleCallback = lazy(() => import("./pages/auth/GoogleCallback"));
 const DataExport = lazy(() => import("./pages/admin/DataExport"));
 const ConnectionTest = lazy(() => import("./pages/admin/ConnectionTest"));
 
 // Admin Layout
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const UnifiedAdminDashboard = lazy(() => import("./pages/admin/UnifiedAdminDashboard"));
 
 const App = () => {
   // Enable error and performance monitoring
@@ -322,61 +302,66 @@ const App = () => {
             }
           >
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="superadmin" element={<SuperAdminDashboard />} />
-            <Route path="god-mode" element={<GodModeDashboard />} />
-            <Route path="system-monitoring" element={<SystemMonitoring />} />
-            <Route path="system-analysis" element={<SystemAnalysisDashboard />} />
-            <Route path="auth-monitoring" element={<AuthMonitoring />} />
-            <Route path="auth-monitor" element={<AuthMonitoring />} />
-            <Route path="auth-metrics" element={<AuthMetricsDashboard />} />
-            <Route path="data-integrity" element={<SystemHealth />} />
+            <Route path="dashboard" element={<UnifiedAdminDashboard />} />
+            {/* Legacy routes - redirect to unified dashboard */}
+            <Route path="superadmin" element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="god-mode" element={<UnifiedAdminDashboard />} />
+            {/* System routes */}
+            <Route path="system-health" element={<SystemHealthDashboard />} />
+            <Route path="system-monitoring" element={<Navigate to="/admin/system-health" replace />} />
+            <Route path="system-analysis" element={<Navigate to="/admin/system-health" replace />} />
+            <Route path="health-dashboard" element={<Navigate to="/admin/system-health" replace />} />
+            <Route path="data-integrity" element={<Navigate to="/admin/system-health" replace />} />
             <Route path="system-diagnostics" element={<SystemDiagnostics />} />
-            <Route path="ai-monitor" element={<AIMonitorDashboard />} />
+            <Route path="ai-monitor" element={<Navigate to="/admin/system-diagnostics" replace />} />
             <Route path="maintenance" element={<MaintenanceDashboard />} />
+            {/* Security routes */}
             <Route path="security" element={<ConsolidatedSecurityDashboard />} />
-            <Route path="security-fixes" element={<SecurityFixes />} />
-            <Route path="security-monitoring" element={<SecurityMonitoring />} />
+            <Route path="security-fixes" element={<Navigate to="/admin/security" replace />} />
+            <Route path="security-monitoring" element={<Navigate to="/admin/security" replace />} />
+            <Route path="auth-monitoring" element={<AuthMonitoring />} />
+            <Route path="auth-monitor" element={<Navigate to="/admin/auth-monitoring" replace />} />
+            <Route path="auth-metrics" element={<Navigate to="/admin/auth-monitoring" replace />} />
+            <Route path="login-history" element={<Navigate to="/admin/auth-monitoring" replace />} />
             <Route path="backups" element={<BackupManagement />} />
             <Route path="audit-logs" element={<AuditLogs />} />
-            <Route path="email-test" element={<EmailSystemTest />} />
-            <Route path="email-analytics" element={<EmailAnalyticsDashboard />} />
-            <Route path="domain-setup" element={<ResendDomainSetup />} />
-            <Route path="loops-domain-setup" element={<LoopsDomainSetup />} />
-            <Route path="notifications" element={<NotificationQueue />} />
-            <Route path="monitor" element={<SystemMonitor />} />
-            <Route path="success-stories" element={<SuccessStoriesManager />} />
+            {/* Users */}
+            <Route path="user-management" element={<UserManagement />} />
+            <Route path="user-analytics" element={<UserAnalytics />} />
+            {/* Settings */}
+            <Route path="notification-preferences" element={<NotificationPreferences />} />
+            <Route path="webhooks" element={<WebhookManagement />} />
             <Route path="regenerate-images" element={<RegenerateImages />} />
             <Route path="regenerate-blog-images" element={<RegenerateBlogImages />} />
-            <Route path="performance" element={<PerformanceDashboard />} />
-            <Route path="ip-whitelist" element={<IPWhitelist />} />
-            <Route path="login-history" element={<LoginHistory />} />
-            <Route path="error-logs" element={<SystemErrorLogs />} />
-            <Route path="system-health" element={<SystemHealthDashboard />} />
-            <Route path="failed-jobs" element={<FailedJobsManagement />} />
-            <Route path="performance-history" element={<PerformanceMetricsHistory />} />
-            <Route path="health-dashboard" element={<ConsolidatedHealthDashboard />} />
-            <Route path="webhooks" element={<WebhookManagement />} />
-              <Route path="user-management" element={<UserManagement />} />
-              <Route path="user-analytics" element={<UserAnalytics />} />
-            <Route path="notification-preferences" element={<NotificationPreferences />} />
             <Route path="data-export" element={<DataExport />} />
             <Route path="connection-test" element={<ConnectionTest />} />
+            <Route path="success-stories" element={<SuccessStoriesManager />} />
+            {/* Performance */}
+            <Route path="performance" element={<PerformanceDashboard />} />
+            <Route path="performance-history" element={<Navigate to="/admin/performance" replace />} />
+            {/* Additional routes with redirects */}
+            <Route path="ip-whitelist" element={<IPWhitelist />} />
+            <Route path="failed-jobs" element={<FailedJobsManagement />} />
+            <Route path="error-logs" element={<Navigate to="/admin/system-diagnostics" replace />} />
+            <Route path="notifications" element={<Navigate to="/admin/notification-preferences" replace />} />
+            <Route path="monitor" element={<Navigate to="/admin/system-health" replace />} />
+            <Route path="email-test" element={<Navigate to="/admin/connection-test" replace />} />
+            <Route path="email-analytics" element={<Navigate to="/admin/performance" replace />} />
+            <Route path="domain-setup" element={<Navigate to="/admin/connection-test" replace />} />
+            <Route path="loops-domain-setup" element={<Navigate to="/admin/connection-test" replace />} />
           </Route>
 
           {/* Legacy Admin Routes - Redirect to new structure */}
           <Route path="/admin-dashboard" element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="/god-mode-dashboard" element={<Navigate to="/admin/god-mode" replace />} />
-          <Route path="/system-monitoring" element={<Navigate to="/admin/system-monitoring" replace />} />
-          <Route path="/system-analysis" element={<Navigate to="/admin/system-analysis" replace />} />
+          <Route path="/god-mode-dashboard" element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="/system-monitoring" element={<Navigate to="/admin/system-health" replace />} />
+          <Route path="/system-analysis" element={<Navigate to="/admin/system-health" replace />} />
           <Route path="/auth-monitoring" element={<Navigate to="/admin/auth-monitoring" replace />} />
           <Route path="/system-health" element={<Navigate to="/admin/system-health" replace />} />
           <Route path="/system-diagnostics" element={<Navigate to="/admin/system-diagnostics" replace />} />
-          <Route path="/ai-monitor" element={<Navigate to="/admin/ai-monitor" replace />} />
-          <Route path="/admin/email-system-test" element={<Navigate to="/admin/email-test" replace />} />
-          <Route path="/admin/resend-domain-setup" element={<Navigate to="/admin/domain-setup" replace />} />
+          <Route path="/ai-monitor" element={<Navigate to="/admin/system-diagnostics" replace />} />
           <Route path="/system-overview" element={<SystemOverview />} />
-          <Route path="/system-monitoring-dashboard" element={<SystemMonitoringDashboard />} />
+          <Route path="/system-monitoring-dashboard" element={<Navigate to="/admin/system-health" replace />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

@@ -4,10 +4,10 @@
  */
 import { lazyLoadWithRetry } from '@/lib/lazyLoad';
 
-// Admin routes (heavy dashboards with charts)
-export const AdminDashboard = lazyLoadWithRetry(
-  () => import('@/pages/AdminDashboard'),
-  'AdminDashboard'
+// Admin routes (unified dashboard)
+export const UnifiedAdminDashboard = lazyLoadWithRetry(
+  () => import('@/pages/admin/UnifiedAdminDashboard'),
+  'UnifiedAdminDashboard'
 );
 
 export const SystemHealthDashboard = lazyLoadWithRetry(
@@ -15,9 +15,9 @@ export const SystemHealthDashboard = lazyLoadWithRetry(
   'SystemHealthDashboard'
 );
 
-export const SecurityMonitoring = lazyLoadWithRetry(
-  () => import('@/pages/admin/SecurityMonitoring'),
-  'SecurityMonitoring'
+export const ConsolidatedSecurityDashboard = lazyLoadWithRetry(
+  () => import('@/pages/admin/ConsolidatedSecurityDashboard'),
+  'ConsolidatedSecurityDashboard'
 );
 
 export const UserManagement = lazyLoadWithRetry(
@@ -53,7 +53,7 @@ export const Analytics = lazyLoadWithRetry(
 
 // Client routes
 export const ClientDashboard = lazyLoadWithRetry(
-  () => import('@/pages/ClientDashboard'),
+  () => import('@/pages/client/ClientLayout'),
   'ClientDashboard'
 );
 
@@ -83,11 +83,6 @@ export const PerformanceDashboard = lazyLoadWithRetry(
   'PerformanceDashboard'
 );
 
-export const ConsolidatedHealthDashboard = lazyLoadWithRetry(
-  () => import('@/pages/admin/ConsolidatedHealthDashboard'),
-  'ConsolidatedHealthDashboard'
-);
-
 // Less critical pages
 export const SuccessStories = lazyLoadWithRetry(
   () => import('@/pages/SuccessStories'),
@@ -97,11 +92,6 @@ export const SuccessStories = lazyLoadWithRetry(
 export const Blog = lazyLoadWithRetry(
   () => import('@/pages/Blog'),
   'Blog'
-);
-
-export const SuperAdminDashboard = lazyLoadWithRetry(
-  () => import('@/pages/admin/SuperAdminDashboard'),
-  'SuperAdminDashboard'
 );
 
 export const GoogleCallback = lazyLoadWithRetry(
