@@ -12,12 +12,14 @@ import { Separator } from "@/components/ui/separator";
 import { Calendar, Clock, ArrowLeft, Share2, Bookmark, Facebook, Twitter, Linkedin } from "lucide-react";
 import { getBlogPostBySlug, blogPosts } from "@/data/blogPosts";
 import { useToast } from "@/hooks/use-toast";
+import { useBlogImages } from "@/hooks/useSiteImages";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const post = getBlogPostBySlug(slug || "");
+  const { images: blogImages } = useBlogImages();
 
   useEffect(() => {
     if (!post) {
@@ -81,7 +83,7 @@ const BlogPost = () => {
       {/* Hero Image */}
       <section className="relative h-[60vh] overflow-hidden">
         <img 
-          src={post.image} 
+          src={blogImages[post.slug] || post.image} 
           alt={post.title}
           className="w-full h-full object-cover"
           loading="eager"
@@ -244,7 +246,7 @@ const BlogPost = () => {
                     <Card className="border-2 border-border hover:border-primary hover:shadow-xl transition-all duration-500 overflow-hidden group cursor-pointer h-full">
                       <div className="relative h-48 overflow-hidden">
                         <img 
-                          src={relatedPost.image} 
+                          src={blogImages[relatedPost.slug] || relatedPost.image} 
                           alt={relatedPost.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                           loading="lazy"

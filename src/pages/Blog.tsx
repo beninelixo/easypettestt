@@ -7,8 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, ArrowRight, TrendingUp, Sparkles } from "lucide-react";
 import { blogPosts } from "@/data/blogPosts";
+import { useBlogImages } from "@/hooks/useSiteImages";
 
 const Blog = () => {
+  const { images: blogImages } = useBlogImages();
   const categories = ["Todos", "Gestão", "Tecnologia", "Marketing", "CRM"];
 
   return (
@@ -73,7 +75,7 @@ const Blog = () => {
                 <div className="grid lg:grid-cols-2 gap-0">
                   <div className="relative h-[300px] lg:h-auto overflow-hidden">
                     <img 
-                      src={post.image} 
+                      src={blogImages[post.slug] || post.image} 
                       alt={post.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       loading="lazy"
@@ -129,7 +131,7 @@ const Blog = () => {
                 >
                   <div className="relative h-48 overflow-hidden">
                     <img 
-                      src={post.image} 
+                      src={blogImages[post.slug] || post.image} 
                       alt={post.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       loading="lazy"

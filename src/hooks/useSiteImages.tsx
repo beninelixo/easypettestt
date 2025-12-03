@@ -9,6 +9,36 @@ const fallbackImages: Record<string, string> = {
   'vet-care': '/src/assets/vet-care.jpg',
 };
 
+// Hook para carregar todas as imagens do blog de uma vez (mais eficiente)
+export function useBlogImages() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['blog-images'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('site_images')
+        .select('key, url')
+        .like('key', 'blog-%');
+
+      if (error) throw error;
+      
+      // Retorna mapa: { 'slug': 'url', ... }
+      return (data || []).reduce((acc, img) => {
+        const slug = img.key.replace('blog-', '');
+        acc[slug] = img.url;
+        return acc;
+      }, {} as Record<string, string>);
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+
+  return {
+    images: data || {},
+    isLoading,
+    error,
+  };
+}
+
 interface SiteImage {
   id: string;
   key: string;
