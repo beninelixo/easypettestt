@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Image, RefreshCw, Download, CheckCircle2, XCircle, 
-  Loader2, Sparkles, AlertTriangle 
+  Loader2, Sparkles, AlertTriangle, Upload 
 } from "lucide-react";
 import { blogPosts } from "@/data/blogPosts";
 
@@ -95,6 +95,7 @@ export default function RegenerateBlogImages() {
     success: [],
     failed: []
   });
+  const [replacingImage, setReplacingImage] = useState<number | null>(null);
 
   const downloadImage = (base64Url: string, filename: string) => {
     const link = document.createElement('a');
@@ -103,6 +104,47 @@ export default function RegenerateBlogImages() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleReplaceBlogImage = async (config: BlogImageConfig, base64Url: string) => {
+    setReplacingImage(config.id);
+    
+    try {
+      // Convert base64 to blob
+      const base64Data = base64Url.split(',')[1];
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'image/jpeg' });
+
+      const filename = `${config.slug}.jpg`;
+
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('blog-images')
+        .upload(filename, blob, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (error) throw error;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('blog-images')
+        .getPublicUrl(filename);
+
+      toast.success(`Imagem substituída! URL: ${urlData.publicUrl}`);
+
+    } catch (error) {
+      console.error('Erro ao substituir imagem do blog:', error);
+      toast.error(`Falha ao enviar imagem para o storage`);
+    } finally {
+      setReplacingImage(null);
+    }
   };
 
   const generateSingleImage = async (config: BlogImageConfig): Promise<string | null> => {
@@ -309,13 +351,27 @@ export default function RegenerateBlogImages() {
                   </Button>
                   
                   {generated && (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => downloadImage(generated, `blog-${config.slug}.png`)}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
+                    <>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => downloadImage(generated, `blog-${config.slug}.png`)}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handleReplaceBlogImage(config, generated)}
+                        disabled={replacingImage === config.id}
+                        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                      >
+                        {replacingImage === config.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Upload className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </>
                   )}
                 </div>
               </CardContent>

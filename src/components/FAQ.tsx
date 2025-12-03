@@ -74,7 +74,7 @@ const FAQ = () => {
     },
     {
       question: "Quantos usuários podem usar o sistema simultaneamente?",
-      answer: "O Plano Pet Gold permite até 3 usuários simultâneos. Isso é perfeito para clínicas e pet shops que precisam de múltiplos funcionários acessando o sistema ao mesmo tempo."
+      answer: "O Plano Pet Gold permite até 3 usuários simultâneos e o Plano Pet Platinum permite até 5 usuários simultâneos. Isso é perfeito para clínicas e pet shops que precisam de múltiplos funcionários acessando o sistema ao mesmo tempo."
     }
   ];
 
