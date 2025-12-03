@@ -2788,7 +2788,24 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      mv_admin_realtime_stats: {
+        Row: {
+          appointments_today: number | null
+          blocked_ips: number | null
+          completed_appointments: number | null
+          errors_24h: number | null
+          failed_logins_1h: number | null
+          last_refreshed: string | null
+          mfa_enabled_users: number | null
+          pending_jobs: number | null
+          successful_logins_24h: number | null
+          total_pet_shops: number | null
+          total_users: number | null
+          unread_alerts: number | null
+          warnings_24h: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_distance: {
@@ -3005,6 +3022,7 @@ export type Database = {
         Returns: string
       }
       mark_alert_read: { Args: { alert_id: string }; Returns: boolean }
+      refresh_admin_stats: { Args: never; Returns: undefined }
       resolve_old_alerts: { Args: never; Returns: number }
       set_current_tenant: { Args: { _tenant_id: string }; Returns: undefined }
       update_global_metrics: { Args: never; Returns: undefined }
