@@ -389,6 +389,36 @@ export type Database = {
         }
         Relationships: []
       }
+      automatic_actions: {
+        Row: {
+          action_description: string
+          action_type: string
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          result: Json | null
+          status: string | null
+        }
+        Insert: {
+          action_description: string
+          action_type: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          result?: Json | null
+          status?: string | null
+        }
+        Update: {
+          action_description?: string
+          action_type?: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          result?: Json | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       backup_history: {
         Row: {
           backup_id: string
@@ -699,6 +729,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      daily_health_reports: {
+        Row: {
+          actions_taken: Json | null
+          checks: Json | null
+          comparison_to_yesterday: Json | null
+          created_at: string | null
+          health_score: number
+          id: string
+          metrics: Json | null
+          overall_status: string
+          recommendations: string[] | null
+          report_date: string
+        }
+        Insert: {
+          actions_taken?: Json | null
+          checks?: Json | null
+          comparison_to_yesterday?: Json | null
+          created_at?: string | null
+          health_score?: number
+          id?: string
+          metrics?: Json | null
+          overall_status?: string
+          recommendations?: string[] | null
+          report_date?: string
+        }
+        Update: {
+          actions_taken?: Json | null
+          checks?: Json | null
+          comparison_to_yesterday?: Json | null
+          created_at?: string | null
+          health_score?: number
+          id?: string
+          metrics?: Json | null
+          overall_status?: string
+          recommendations?: string[] | null
+          report_date?: string
+        }
+        Relationships: []
       }
       employee_permissions: {
         Row: {
