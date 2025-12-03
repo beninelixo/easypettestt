@@ -1,5 +1,11 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 import { TOTP } from 'https://deno.land/x/god_crypto@v1.4.11/mod.ts';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  console.log(`[SETUP-MFA] ${step}${detailsStr}`);
+};
 
 // Base32 encoder simples
 function base32Encode(buffer: Uint8Array): string {
@@ -29,6 +35,9 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema - setup-mfa doesn't require body input
+const requestSchema = z.object({}).optional();
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
