@@ -1,6 +1,7 @@
 import { useCountUp } from "@/hooks/useCountUp";
 import { CheckCircle2, Shield, Clock } from "lucide-react";
-import happyClientsImg from "@/assets/happy-clients.jpg";
+import { useSiteImage } from "@/hooks/useSiteImages";
+import happyClientsFallback from "@/assets/happy-clients.jpg";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 export const StatsSection = () => {
@@ -8,6 +9,11 @@ export const StatsSection = () => {
   const cities = useCountUp({ end: 650 });
   const appointments = useCountUp({ end: 2100 });
   const imageReveal = useScrollReveal({ threshold: 0.3 });
+
+  const { url: happyClientsUrl } = useSiteImage('happy-clients');
+  const happyClientsImg = happyClientsUrl && !happyClientsUrl.includes('/src/assets/') 
+    ? happyClientsUrl 
+    : happyClientsFallback;
 
   return (
     <>

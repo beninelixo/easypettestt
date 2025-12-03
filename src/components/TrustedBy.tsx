@@ -1,6 +1,7 @@
 import { Building2, Users, TrendingUp, Award, CheckCircle2 } from "lucide-react";
 import { useCountUp } from "@/hooks/useCountUp";
-import happyClientsImg from "@/assets/happy-clients.jpg";
+import { useSiteImage } from "@/hooks/useSiteImages";
+import happyClientsFallback from "@/assets/happy-clients.jpg";
 
 const StatCard = ({ stat, index }: { stat: any; index: number }) => {
   const isPercentage = stat.value.includes("%");
@@ -39,6 +40,11 @@ const StatCard = ({ stat, index }: { stat: any; index: number }) => {
 };
 
 const TrustedBy = () => {
+  const { url: happyClientsUrl } = useSiteImage('happy-clients');
+  const happyClientsImg = happyClientsUrl && !happyClientsUrl.includes('/src/assets/') 
+    ? happyClientsUrl 
+    : happyClientsFallback;
+
   const stats = [
     {
       icon: Building2,

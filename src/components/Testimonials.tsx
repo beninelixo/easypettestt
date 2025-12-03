@@ -1,11 +1,17 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Quote } from "lucide-react";
-import vetCareImg from "@/assets/vet-care.jpg";
+import { useSiteImage } from "@/hooks/useSiteImages";
+import vetCareFallback from "@/assets/vet-care.jpg";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const Testimonials = () => {
   const imageReveal = useScrollReveal({ threshold: 0.3 });
   
+  const { url: vetCareUrl } = useSiteImage('vet-care');
+  const vetCareImg = vetCareUrl && !vetCareUrl.includes('/src/assets/') 
+    ? vetCareUrl 
+    : vetCareFallback;
+
   const testimonials = [
     {
       name: "Dr. Carlos Mendes",
