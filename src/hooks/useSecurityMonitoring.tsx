@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -36,9 +36,10 @@ export function useSecurityMonitoring() {
   const [loginAttempts, setLoginAttempts] = useState<LoginAttempt[]>([]);
   const [blockedIps, setBlockedIps] = useState<BlockedIP[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isLive, setIsLive] = useState(false);
   const { toast } = useToast();
 
-  const loadAlerts = async () => {
+  const loadAlerts = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('security_alerts')
@@ -51,9 +52,9 @@ export function useSecurityMonitoring() {
     } catch (error) {
       console.error('Load alerts error:', error);
     }
-  };
+  }, []);
 
-  const loadLoginAttempts = async () => {
+  const loadLoginAttempts = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('login_attempts')
@@ -66,9 +67,9 @@ export function useSecurityMonitoring() {
     } catch (error) {
       console.error('Load login attempts error:', error);
     }
-  };
+  }, []);
 
-  const loadBlockedIps = async () => {
+  const loadBlockedIps = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('blocked_ips')
@@ -81,7 +82,11 @@ export function useSecurityMonitoring() {
     } catch (error) {
       console.error('Load blocked IPs error:', error);
     }
-  };
+  }, []);
+
+  const loadAll = useCallback(async () => {
+    await Promise.all([loadAlerts(), loadLoginAttempts(), loadBlockedIps()]);
+  }, [loadAlerts, loadLoginAttempts, loadBlockedIps]);
 
   const unblockIp = async (ipAddress: string) => {
     try {
@@ -163,44 +168,104 @@ export function useSecurityMonitoring() {
   };
 
   useEffect(() => {
-    loadAlerts();
-    loadLoginAttempts();
-    loadBlockedIps();
+    loadAll();
 
-    // Realtime para novos alertas
+    // Multi-table realtime subscriptions
     const channel = supabase
-      .channel('security-alerts')
+      .channel('security-monitoring-realtime')
       .on(
         'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'security_alerts'
-        },
-        () => {
+        { event: '*', schema: 'public', table: 'security_alerts' },
+        (payload) => {
           loadAlerts();
-          toast({
-            title: "⚠️ Novo Alerta de Segurança",
-            description: "Um novo alerta de segurança foi detectado.",
-            variant: "destructive",
-          });
+          if (payload.eventType === 'INSERT') {
+            const newAlert = payload.new as SecurityAlert;
+            toast({
+              title: "⚠️ Novo Alerta de Segurança",
+              description: newAlert.description || "Um novo alerta foi detectado.",
+              variant: newAlert.severity === 'critical' ? 'destructive' : 'default',
+            });
+          }
         }
       )
-      .subscribe();
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'login_attempts' },
+        (payload) => {
+          loadLoginAttempts();
+          if (payload.eventType === 'INSERT') {
+            const attempt = payload.new as LoginAttempt;
+            if (!attempt.success) {
+              // Only toast for failed attempts from same IP multiple times
+              const recentFails = loginAttempts.filter(
+                a => !a.success && a.ip_address === attempt.ip_address
+              ).length;
+              if (recentFails >= 3) {
+                toast({
+                  title: "🔒 Múltiplas Tentativas Falhadas",
+                  description: `IP: ${attempt.ip_address}`,
+                  variant: "destructive",
+                });
+              }
+            }
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'blocked_ips' },
+        (payload) => {
+          loadBlockedIps();
+          if (payload.eventType === 'INSERT') {
+            const blocked = payload.new as BlockedIP;
+            toast({
+              title: "🚫 IP Bloqueado",
+              description: `${blocked.ip_address} - ${blocked.reason}`,
+              variant: "destructive",
+            });
+          }
+        }
+      )
+      .subscribe((status) => {
+        setIsLive(status === 'SUBSCRIBED');
+      });
+
+    // Refresh every 15 seconds as fallback
+    const interval = setInterval(loadAll, 15000);
 
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(interval);
     };
-  }, []);
+  }, [loadAll, loadAlerts, loadLoginAttempts, loadBlockedIps, toast]);
+
+  // Computed stats
+  const failedLogins24h = loginAttempts.filter(a => {
+    const twentyFourHoursAgo = new Date();
+    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+    return !a.success && new Date(a.attempt_time) > twentyFourHoursAgo;
+  }).length;
+
+  const criticalAlerts = alerts.filter(a => !a.resolved && a.severity === 'critical').length;
+  const unresolvedAlerts = alerts.filter(a => !a.resolved).length;
+  const activeBlockedIps = blockedIps.filter(b => new Date(b.blocked_until) > new Date()).length;
 
   return {
     alerts,
     loginAttempts,
     blockedIps,
     loading,
+    isLive,
+    // Computed stats
+    failedLogins24h,
+    criticalAlerts,
+    unresolvedAlerts,
+    activeBlockedIps,
+    // Actions
     loadAlerts,
     loadLoginAttempts,
     loadBlockedIps,
+    loadAll,
     resolveAlert,
     unblockIp,
     runSecurityAnalysis,

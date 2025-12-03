@@ -1,76 +1,86 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Metric {
   id: string;
   metric_type: string;
   metric_value: number;
+  status?: string;
+  service_name?: string;
   metadata?: any;
-  collected_at: string;
+  measured_at: string;
 }
 
 export function useSystemMetrics() {
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLive, setIsLive] = useState(false);
 
-  const loadMetrics = async () => {
+  const loadMetrics = useCallback(async () => {
     try {
       const { data, error } = await supabase
-        .from('system_metrics')
+        .from('system_health_metrics')
         .select('*')
-        .order('collected_at', { ascending: false })
+        .order('measured_at', { ascending: false })
         .limit(100);
 
       if (error) throw error;
-      setMetrics((data || []) as any);
+      setMetrics((data || []) as Metric[]);
     } catch (error) {
       console.error('Error loading metrics:', error);
       setMetrics([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const collectMetrics = async () => {
+  const collectMetrics = useCallback(async () => {
     try {
-      const { error } = await supabase.functions.invoke('collect-metrics');
+      const { error } = await supabase.functions.invoke('collect-health-metrics');
       if (error) throw error;
       await loadMetrics();
     } catch (error) {
       console.error('Error collecting metrics:', error);
     }
-  };
+  }, [loadMetrics]);
 
-  const getLatestMetricValue = (type: string): number => {
+  const getLatestMetricValue = useCallback((type: string): number => {
     const metric = metrics.find(m => m.metric_type === type);
     return metric?.metric_value || 0;
-  };
+  }, [metrics]);
 
-  const getMetricHistory = (type: string, limit = 20) => {
+  const getMetricHistory = useCallback((type: string, limit = 20) => {
     return metrics
       .filter(m => m.metric_type === type)
       .slice(0, limit)
       .reverse();
-  };
+  }, [metrics]);
+
+  const getMetricsByService = useCallback((serviceName: string) => {
+    return metrics.filter(m => m.service_name === serviceName);
+  }, [metrics]);
 
   useEffect(() => {
     loadMetrics();
 
     const channel = supabase
-      .channel('system_metrics_changes')
+      .channel('system_health_metrics_realtime')
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*',
           schema: 'public',
-          table: 'system_metrics'
+          table: 'system_health_metrics'
         },
         () => {
           loadMetrics();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        setIsLive(status === 'SUBSCRIBED');
+      });
 
+    // Collect metrics every 30 seconds
     const interval = setInterval(() => {
       collectMetrics();
     }, 30000);
@@ -79,14 +89,16 @@ export function useSystemMetrics() {
       supabase.removeChannel(channel);
       clearInterval(interval);
     };
-  }, []);
+  }, [loadMetrics, collectMetrics]);
 
   return {
     metrics,
     loading,
+    isLive,
     loadMetrics,
     collectMetrics,
     getLatestMetricValue,
-    getMetricHistory
+    getMetricHistory,
+    getMetricsByService
   };
 }
