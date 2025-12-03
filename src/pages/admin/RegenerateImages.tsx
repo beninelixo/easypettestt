@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Image, Loader2, Download, CheckCircle2, XCircle } from "lucide-react";
+import { Image, Loader2, Download, CheckCircle2, XCircle, Upload } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { images, generateImage } from "@/scripts/regenerate-images";
 import type { ImageConfig } from "@/scripts/regenerate-images";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function RegenerateImages() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -14,6 +15,7 @@ export default function RegenerateImages() {
   const [currentImage, setCurrentImage] = useState<string>("");
   const [generatedImages, setGeneratedImages] = useState<Record<string, string>>({});
   const [results, setResults] = useState<{ success: string[]; failed: string[] }>({ success: [], failed: [] });
+  const [replacingImage, setReplacingImage] = useState<string | null>(null);
   const { toast } = useToast();
 
   const downloadImage = (base64Url: string, filename: string) => {
@@ -23,6 +25,52 @@ export default function RegenerateImages() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleReplaceImage = async (filename: string, base64Url: string) => {
+    setReplacingImage(filename);
+    
+    try {
+      // Convert base64 to blob
+      const base64Data = base64Url.split(',')[1];
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'image/jpeg' });
+
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('site-images')
+        .upload(filename, blob, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (error) throw error;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('site-images')
+        .getPublicUrl(filename);
+
+      toast({
+        title: "✅ Imagem substituída!",
+        description: `${filename} foi enviada para o storage. URL: ${urlData.publicUrl}`,
+      });
+
+    } catch (error) {
+      console.error('Erro ao substituir imagem:', error);
+      toast({
+        title: "❌ Erro ao substituir",
+        description: `Falha ao enviar ${filename} para o storage`,
+        variant: "destructive",
+      });
+    } finally {
+      setReplacingImage(null);
+    }
   };
 
   const handleRegenerateAll = async () => {
@@ -159,14 +207,28 @@ export default function RegenerateImages() {
                     alt={config.filename}
                     className="w-full rounded-lg border"
                   />
-                  <Button
-                    onClick={() => downloadImage(generatedImages[config.filename], config.filename)}
-                    variant="outline"
-                    className="w-full"
-                  >
-                    <Download className="mr-2 h-4 w-4" />
-                    Baixar Imagem
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => downloadImage(generatedImages[config.filename], config.filename)}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Baixar
+                    </Button>
+                    <Button
+                      onClick={() => handleReplaceImage(config.filename, generatedImages[config.filename])}
+                      disabled={replacingImage === config.filename}
+                      className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                    >
+                      {replacingImage === config.filename ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Upload className="mr-2 h-4 w-4" />
+                      )}
+                      Substituir
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground line-clamp-3">

@@ -162,7 +162,7 @@ const ComparisonTable = () => {
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
                   <li className="flex items-center gap-2">✅ Tudo do Gold +</li>
-                  <li className="flex items-center gap-2">✅ Usuários ilimitados</li>
+                  <li className="flex items-center gap-2">✅ Até 5 usuários</li>
                   <li className="flex items-center gap-2">✅ WhatsApp Business</li>
                   <li className="flex items-center gap-2">✅ Programa de fidelidade</li>
                   <li className="flex items-center gap-2">✅ Multi-unidades</li>

@@ -65,7 +65,7 @@ const Pricing = () => {
       borderColor: "border-slate-400",
       features: [
         "✨ Tudo do Pet Gold, mais:",
-        "Usuários ilimitados",
+        "Até 5 usuários simultâneos",
         "Multi-unidades e franquias",
         "WhatsApp Business integrado",
         "Programa de fidelidade avançado",
@@ -252,7 +252,7 @@ const Pricing = () => {
                 <tbody className="divide-y">
                   {[
                     { name: "Agendamentos", gold: "Ilimitados", platinum: "Ilimitados", annual: "Ilimitados" },
-                    { name: "Usuários simultâneos", gold: "5", platinum: "Ilimitados", annual: "Ilimitados" },
+                    { name: "Usuários simultâneos", gold: "3", platinum: "5", annual: "5" },
                     { name: "Unidades", gold: "1", platinum: "Múltiplas", annual: "Múltiplas" },
                     { name: "Gestão de clientes e pets", gold: true, platinum: true, annual: true },
                     { name: "Controle de estoque", gold: "Básico", platinum: "Avançado", annual: "Avançado" },

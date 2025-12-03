@@ -73,7 +73,7 @@ const SystemOverview = () => {
 
   const competitorComparison = [
     { feature: "Preço (plano básico)", easypet: "R$ 79,90", competitors: "R$ 120+" },
-    { feature: "Usuários simultâneos", easypet: "5", competitors: "1-3" },
+    { feature: "Usuários simultâneos", easypet: "3-5*", competitors: "1-3" },
     { feature: "WhatsApp integrado", easypet: "✓ Grátis", competitors: "⚠️ Add-on ou ✗" },
     { feature: "API aberta", easypet: "✓", competitors: "⚠️ Limitada ou ✗" },
     { feature: "Fidelidade gamificada", easypet: "✓", competitors: "✗" },

@@ -80,7 +80,7 @@ const plans: Plan[] = [
     icon: Building2,
     features: [
       { text: "✨ Tudo do Pet Gold, mais:", included: true },
-      { text: "Usuários ilimitados", included: true },
+      { text: "Até 5 usuários simultâneos", included: true },
       { text: "Multi-unidades e franquias", included: true },
       { text: "WhatsApp Business integrado", included: true },
       { text: "Programa de fidelidade avançado", included: true },
