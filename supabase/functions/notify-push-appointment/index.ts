@@ -3,7 +3,7 @@ import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-trigger-key',
 };
 
 Deno.serve(async (req) => {
@@ -12,6 +12,24 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Security: Verify this is called from database trigger or service role
+    const triggerKey = req.headers.get('x-trigger-key');
+    const authHeader = req.headers.get('authorization');
+    const expectedTriggerKey = Deno.env.get('TRIGGER_API_KEY');
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    // Allow access if: valid trigger key OR service role authorization
+    const isValidTriggerKey = triggerKey && expectedTriggerKey && triggerKey === expectedTriggerKey;
+    const isServiceRole = authHeader && authHeader.includes(serviceRoleKey);
+    
+    if (!isValidTriggerKey && !isServiceRole) {
+      console.warn('Unauthorized push notification attempt');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized', message: 'Valid trigger key or service role required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Validate input with Zod
     const requestSchema = z.object({
       type: z.enum(['INSERT', 'UPDATE']),

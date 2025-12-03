@@ -2935,6 +2935,21 @@ export type Database = {
         Args: { _admin_id: string; _alert_type: string; _channel: string }
         Returns: boolean
       }
+      get_admin_realtime_stats: {
+        Args: never
+        Returns: {
+          active_sessions: number
+          completed_payments: number
+          failed_logins_24h: number
+          pending_payments: number
+          recent_logins: number
+          today_appointments: number
+          total_appointments: number
+          total_revenue: number
+          total_users: number
+          unread_alerts: number
+        }[]
+      }
       get_appointments_by_period: {
         Args: {
           _end_date?: string
