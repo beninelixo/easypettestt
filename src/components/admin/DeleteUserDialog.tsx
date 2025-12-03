@@ -50,17 +50,19 @@ export const DeleteUserDialog = ({
             <AlertTriangle className="h-5 w-5" />
             Excluir Usuário
           </AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
-            <p>
-              Você está prestes a excluir permanentemente o usuário:
-            </p>
-            <div className="bg-muted p-3 rounded-md">
-              <p className="font-medium">{userName}</p>
-              <p className="text-sm text-muted-foreground">{userEmail}</p>
+          <AlertDialogDescription asChild>
+            <div className="space-y-2">
+              <p>
+                Você está prestes a excluir permanentemente o usuário:
+              </p>
+              <div className="bg-muted p-3 rounded-md">
+                <span className="font-medium block">{userName}</span>
+                <span className="text-sm text-muted-foreground block">{userEmail}</span>
+              </div>
+              <p className="text-destructive font-medium">
+                Esta ação é irreversível! Todos os dados do usuário serão removidos.
+              </p>
             </div>
-            <p className="text-destructive font-medium">
-              Esta ação é irreversível! Todos os dados do usuário serão removidos.
-            </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
