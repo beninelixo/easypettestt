@@ -12,7 +12,6 @@ import { StatsSection } from "@/components/home/StatsSection";
 import { SegmentationSection } from "@/components/home/SegmentationSection";
 import { FeaturesSection } from "@/components/home/FeaturesSection";
 import { DifferentialsSection } from "@/components/home/DifferentialsSection";
-import { PricingPreviewSection } from "@/components/home/PricingPreviewSection";
 import { ArrowRight, Rocket, TrendingUp } from "lucide-react";
 
 const Index = () => {
@@ -86,9 +85,6 @@ const Index = () => {
 
       {/* Comparison Table */}
       <ComparisonTable />
-
-      {/* Pricing Preview */}
-      <PricingPreviewSection />
 
       {/* FAQ */}
       <FAQ />
