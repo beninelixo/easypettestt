@@ -1,7 +1,8 @@
 import { 
   Home, Activity, Shield, Lock, Users, Settings, LogOut, 
   Database, Bell, Image, Download, Gauge, ScrollText, 
-  History, TestTube, Webhook, TrendingUp, Zap
+  History, TestTube, Webhook, TrendingUp, Zap, Brain,
+  FileText, AlertTriangle, Trophy
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 // Sistema - Monitoramento e Manutenção
 const systemItems = [
   { title: "Saúde do Sistema", url: "/admin/system-health", icon: Activity },
+  { title: "AI Monitor & Análise", url: "/admin/system-analysis", icon: Brain },
   { title: "Manutenção", url: "/admin/maintenance", icon: Gauge, badge: "AUTO" },
   { title: "Performance", url: "/admin/performance", icon: TrendingUp },
   { title: "Diagnósticos", url: "/admin/system-diagnostics", icon: ScrollText },
@@ -33,7 +35,8 @@ const securityItems = [
   { title: "Segurança", url: "/admin/security", icon: Shield },
   { title: "Auth & Logins", url: "/admin/auth-monitoring", icon: Lock },
   { title: "IP Whitelist", url: "/admin/ip-whitelist", icon: History },
-  { title: "Backups & Audit", url: "/admin/backups", icon: Database },
+  { title: "Backups", url: "/admin/backups", icon: Database },
+  { title: "Audit Logs", url: "/admin/audit-logs", icon: FileText },
 ];
 
 // Usuários
@@ -46,9 +49,15 @@ const userItems = [
 const settingsItems = [
   { title: "Notificações", url: "/admin/notification-preferences", icon: Bell },
   { title: "Webhooks", url: "/admin/webhooks", icon: Webhook },
-  { title: "Imagens", url: "/admin/regenerate-images", icon: Image },
+  { title: "Imagens (Site & Blog)", url: "/admin/images", icon: Image },
   { title: "Exportar Dados", url: "/admin/data-export", icon: Download },
   { title: "Teste de Conexão", url: "/admin/connection-test", icon: TestTube },
+];
+
+// Gestão de Conteúdo
+const contentItems = [
+  { title: "Success Stories", url: "/admin/success-stories", icon: Trophy },
+  { title: "Failed Jobs", url: "/admin/failed-jobs", icon: AlertTriangle },
 ];
 
 export function AdminSidebar() {
@@ -175,6 +184,12 @@ export function AdminSidebar() {
           <SidebarGroupContent className="mb-2">
             {!isCollapsed && <SidebarGroupLabel className="text-xs text-muted-foreground px-4 py-2">⚙️ Configurações</SidebarGroupLabel>}
             {renderMenuItems(settingsItems)}
+          </SidebarGroupContent>
+
+          {/* Gestão de Conteúdo */}
+          <SidebarGroupContent className="mb-2">
+            {!isCollapsed && <SidebarGroupLabel className="text-xs text-muted-foreground px-4 py-2">📋 Gestão</SidebarGroupLabel>}
+            {renderMenuItems(contentItems)}
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

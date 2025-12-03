@@ -89,8 +89,8 @@ const ProfessionalPlans = lazy(() => import("./pages/professional/ProfessionalPl
 const PaymentSuccess = lazy(() => import("./pages/professional/PaymentSuccess"));
 const PaymentCancelled = lazy(() => import("./pages/professional/PaymentCancelled"));
 const SystemOverview = lazy(() => import("./pages/SystemOverview"));
-const RegenerateImages = lazy(() => import("./pages/admin/RegenerateImages"));
-const RegenerateBlogImages = lazy(() => import("./pages/admin/RegenerateBlogImages"));
+const ImageManagement = lazy(() => import("./pages/admin/ImageManagement"));
+const SystemAnalysis = lazy(() => import("./pages/admin/SystemAnalysis"));
 const ConsolidatedDashboard = lazy(() => import("./pages/multi-unit/ConsolidatedDashboard"));
 const UnitsManagement = lazy(() => import("./pages/multi-unit/UnitsManagement"));
 const Analytics = lazy(() => import("@/pages/petshop/Analytics"));
@@ -309,11 +309,11 @@ const App = () => {
             {/* System routes */}
             <Route path="system-health" element={<SystemHealthDashboard />} />
             <Route path="system-monitoring" element={<Navigate to="/admin/system-health" replace />} />
-            <Route path="system-analysis" element={<Navigate to="/admin/system-health" replace />} />
+            <Route path="system-analysis" element={<SystemAnalysis />} />
             <Route path="health-dashboard" element={<Navigate to="/admin/system-health" replace />} />
             <Route path="data-integrity" element={<Navigate to="/admin/system-health" replace />} />
             <Route path="system-diagnostics" element={<SystemDiagnostics />} />
-            <Route path="ai-monitor" element={<Navigate to="/admin/system-diagnostics" replace />} />
+            <Route path="ai-monitor" element={<Navigate to="/admin/system-analysis" replace />} />
             <Route path="maintenance" element={<MaintenanceDashboard />} />
             {/* Security routes */}
             <Route path="security" element={<ConsolidatedSecurityDashboard />} />
@@ -331,8 +331,9 @@ const App = () => {
             {/* Settings */}
             <Route path="notification-preferences" element={<NotificationPreferences />} />
             <Route path="webhooks" element={<WebhookManagement />} />
-            <Route path="regenerate-images" element={<RegenerateImages />} />
-            <Route path="regenerate-blog-images" element={<RegenerateBlogImages />} />
+            <Route path="images" element={<ImageManagement />} />
+            <Route path="regenerate-images" element={<Navigate to="/admin/images" replace />} />
+            <Route path="regenerate-blog-images" element={<Navigate to="/admin/images?tab=blog" replace />} />
             <Route path="data-export" element={<DataExport />} />
             <Route path="connection-test" element={<ConnectionTest />} />
             <Route path="success-stories" element={<SuccessStoriesManager />} />
