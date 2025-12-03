@@ -55,6 +55,9 @@ export function useGodActions() {
         case 'fix_duplicates':
           result = await supabase.functions.invoke('auto-diagnostico');
           break;
+        case 'cleanup_users':
+          result = await supabase.functions.invoke('cleanup-users');
+          break;
       }
 
       // Registrar sucesso na auditoria
@@ -92,6 +95,7 @@ export function useGodActions() {
       ai_analysis: 'Análise com IA',
       fix_rls: 'Verificação RLS',
       fix_duplicates: 'Detecção de duplicatas',
+      cleanup_users: 'Limpeza de usuários de teste',
     };
     return names[action] || action;
   };
