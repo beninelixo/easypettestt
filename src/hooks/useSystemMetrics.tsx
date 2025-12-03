@@ -34,15 +34,8 @@ export function useSystemMetrics() {
     }
   }, []);
 
-  const collectMetrics = useCallback(async () => {
-    try {
-      const { error } = await supabase.functions.invoke('collect-health-metrics');
-      if (error) throw error;
-      await loadMetrics();
-    } catch (error) {
-      console.error('Error collecting metrics:', error);
-    }
-  }, [loadMetrics]);
+  // Note: collectMetrics removed - requires service role auth
+  // Metrics are collected via cron job, frontend only reads existing data
 
   const getLatestMetricValue = useCallback((type: string): number => {
     const metric = metrics.find(m => m.metric_type === type);
@@ -80,23 +73,16 @@ export function useSystemMetrics() {
         setIsLive(status === 'SUBSCRIBED');
       });
 
-    // Collect metrics every 30 seconds
-    const interval = setInterval(() => {
-      collectMetrics();
-    }, 30000);
-
     return () => {
       supabase.removeChannel(channel);
-      clearInterval(interval);
     };
-  }, [loadMetrics, collectMetrics]);
+  }, [loadMetrics]);
 
   return {
     metrics,
     loading,
     isLive,
     loadMetrics,
-    collectMetrics,
     getLatestMetricValue,
     getMetricHistory,
     getMetricsByService
