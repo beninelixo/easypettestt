@@ -18,28 +18,28 @@ export const FloatingBadge: React.FC<FloatingBadgeProps> = ({
   position = "top-right",
 }) => {
   const positionClasses = {
-    "top-left": "-top-4 -left-4",
-    "top-right": "-top-4 -right-4",
-    "bottom-left": "-bottom-4 -left-4",
-    "bottom-right": "-bottom-4 -right-4",
-    "left": "top-1/2 -translate-y-1/2 -left-8",
-    "right": "top-1/2 -translate-y-1/2 -right-8",
+    "top-left": "top-2 left-2",
+    "top-right": "top-2 right-2",
+    "bottom-left": "bottom-2 left-2",
+    "bottom-right": "bottom-12 right-2",
+    "left": "top-1/3 left-2",
+    "right": "top-1/2 -translate-y-1/2 right-2",
   };
 
   return (
     <div
       className={cn(
-        "absolute z-20 flex items-center gap-2 px-3 py-1.5 rounded-full",
-        "bg-background/90 backdrop-blur-sm border border-border/40",
-        "shadow-sm transition-all duration-500 ease-out",
-        "hover:shadow-md hover:scale-102 cursor-default",
+        "absolute z-10 flex items-center gap-2 px-3 py-1.5 rounded-full",
+        "bg-background/95 backdrop-blur-sm border border-border/40",
+        "shadow-sm transition-all duration-300 ease-out",
+        "hover:shadow-md cursor-default",
         "animate-float-badge",
         positionClasses[position],
         className
       )}
       style={{
         animationDelay: `${delay}ms`,
-        animationDuration: '5s',
+        animationDuration: '6s',
       }}
     >
       <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/15 to-secondary/15 flex items-center justify-center">
