@@ -19,7 +19,11 @@ export function useBlogImages() {
         .select('key, url')
         .like('key', 'blog-%');
 
-      if (error) throw error;
+      // On permission error, return empty - use fallbacks
+      if (error) {
+        console.warn('Blog images fetch error (using fallbacks):', error.message);
+        return {};
+      }
       
       // Retorna mapa: { 'slug': 'url', ... }
       return (data || []).reduce((acc, img) => {
@@ -28,8 +32,9 @@ export function useBlogImages() {
         return acc;
       }, {} as Record<string, string>);
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: false, // Don't retry on permission errors
   });
 
   return {
@@ -58,14 +63,19 @@ export function useSiteImage(key: string) {
         .eq('key', key)
         .single();
 
-      if (error) throw error;
+      // On any error, return null - will use fallback
+      if (error) {
+        console.warn(`Site image "${key}" fetch error (using fallback):`, error.message);
+        return null;
+      }
       return data as SiteImage;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: false, // Don't retry on permission errors
   });
 
-  // Return URL with fallback
+  // Return URL with fallback - prioritize fallback on error
   const imageUrl = data?.url || fallbackImages[key] || '';
   const altText = data?.alt_text || key;
 
@@ -89,11 +99,17 @@ export function useSiteImages(category?: string) {
       }
 
       const { data, error } = await query;
-      if (error) throw error;
+      
+      // On permission error, return empty array
+      if (error) {
+        console.warn('Site images fetch error (using fallbacks):', error.message);
+        return [];
+      }
       return data as SiteImage[];
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    retry: false, // Don't retry on permission errors
   });
 
   return {
