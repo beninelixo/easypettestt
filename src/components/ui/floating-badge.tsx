@@ -29,23 +29,23 @@ export const FloatingBadge: React.FC<FloatingBadgeProps> = ({
   return (
     <div
       className={cn(
-        "absolute z-20 flex items-center gap-2 px-4 py-2 rounded-full",
-        "bg-background/95 backdrop-blur-md border border-border/50",
-        "shadow-lg hover:shadow-xl transition-all duration-500",
-        "hover:scale-110 cursor-default",
+        "absolute z-20 flex items-center gap-2 px-3 py-1.5 rounded-full",
+        "bg-background/90 backdrop-blur-sm border border-border/40",
+        "shadow-sm transition-all duration-500 ease-out",
+        "hover:shadow-md hover:scale-102 cursor-default",
         "animate-float-badge",
         positionClasses[position],
         className
       )}
       style={{
         animationDelay: `${delay}ms`,
-        animationDuration: `${3 + Math.random() * 2}s`,
+        animationDuration: '5s',
       }}
     >
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-        <Icon className="h-4 w-4 text-primary" />
+      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/15 to-secondary/15 flex items-center justify-center">
+        <Icon className="h-3.5 w-3.5 text-primary" />
       </div>
-      <span className="text-sm font-semibold text-foreground whitespace-nowrap">{label}</span>
+      <span className="text-xs font-medium text-foreground whitespace-nowrap">{label}</span>
     </div>
   );
 };
