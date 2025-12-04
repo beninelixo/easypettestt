@@ -1,6 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, Users, TrendingUp, Shield, Smartphone, Zap } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { GlassCard } from "@/components/ui/glass-card";
+import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
+import { cn } from "@/lib/utils";
 
 export const FeaturesSection = () => {
   const features = [
@@ -8,46 +11,64 @@ export const FeaturesSection = () => {
       icon: Calendar,
       title: "Agendamento com IA",
       description: "Sistema inteligente que sugere os melhores horários e otimiza sua agenda automaticamente",
+      color: "from-blue-500/20 to-cyan-500/20",
     },
     {
       icon: Clock,
       title: "Gestão de Tempo Real",
       description: "Acompanhe todas as operações ao vivo com dashboards e alertas instantâneos",
+      color: "from-purple-500/20 to-pink-500/20",
     },
     {
       icon: Users,
       title: "CRM Veterinário Completo",
       description: "Histórico completo de cada pet, lembretes automáticos e fidelização inteligente",
+      color: "from-green-500/20 to-emerald-500/20",
     },
     {
       icon: TrendingUp,
       title: "Analytics Avançado",
       description: "BI integrado com previsões, tendências e insights acionáveis para crescimento",
+      color: "from-orange-500/20 to-amber-500/20",
     },
     {
       icon: Shield,
       title: "Segurança LGPD",
       description: "Proteção máxima dos dados com criptografia e conformidade total com LGPD",
+      color: "from-red-500/20 to-rose-500/20",
     },
     {
       icon: Smartphone,
       title: "App Mobile Nativo",
       description: "Aplicativo completo para iOS e Android com sincronização em tempo real",
+      color: "from-indigo-500/20 to-violet-500/20",
     },
   ];
 
   return (
-    <section className="py-24 px-4 bg-muted" aria-labelledby="features-heading">
-      <div className="container mx-auto max-w-7xl">
+    <section className="py-24 px-4 bg-muted relative overflow-hidden" aria-labelledby="features-heading">
+      {/* Background decoration */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
+      
+      <div className="container mx-auto max-w-7xl relative z-10">
         <div className="text-center mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-semibold mb-4">
-            <Zap className="h-4 w-4" aria-hidden="true" />
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-semibold mb-4 animate-fade-in">
+            <Zap className="h-4 w-4 animate-pulse" aria-hidden="true" />
             Funcionalidades Premium
           </div>
-          <h2 id="features-heading" className="text-4xl lg:text-5xl font-black">
-            Tudo que você precisa, e muito mais
+          <h2 
+            id="features-heading" 
+            className="text-4xl lg:text-5xl font-black animate-fade-in"
+            style={{ animationDelay: "0.1s" }}
+          >
+            Tudo que você precisa, <AnimatedGradientText>e muito mais</AnimatedGradientText>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p 
+            className="text-xl text-muted-foreground max-w-3xl mx-auto animate-fade-in"
+            style={{ animationDelay: "0.2s" }}
+          >
             Sistema completo com inteligência artificial para revolucionar sua gestão veterinária
           </p>
         </div>
@@ -63,27 +84,31 @@ export const FeaturesSection = () => {
                 className={`scroll-reveal scroll-reveal-up ${isVisible ? 'visible' : ''}`}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <Card
-                  className="border-2 border-border hover:border-primary hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-background group cursor-pointer relative overflow-hidden h-full"
+                <GlassCard
+                  hover3D
+                  glow
+                  className="h-full cursor-pointer group"
                   tabIndex={0}
                   role="article"
                   aria-label={feature.title}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" aria-hidden="true" />
-                  <CardHeader className="relative space-y-4">
-                    <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
-                      <feature.icon className="h-7 w-7 text-primary" aria-hidden="true" />
+                  <div className="space-y-4">
+                    <div className={cn(
+                      "w-14 h-14 rounded-xl flex items-center justify-center",
+                      "bg-gradient-to-br shadow-lg",
+                      "group-hover:scale-110 group-hover:rotate-6 transition-all duration-500",
+                      feature.color
+                    )}>
+                      <feature.icon className="h-7 w-7 text-primary group-hover:animate-icon-bounce" aria-hidden="true" />
                     </div>
-                    <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors duration-300">
+                    <h3 className="text-xl font-bold group-hover:text-primary transition-colors duration-300">
                       {feature.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="relative">
-                    <CardDescription className="text-base leading-relaxed">
+                    </h3>
+                    <p className="text-muted-foreground leading-relaxed">
                       {feature.description}
-                    </CardDescription>
-                  </CardContent>
-                </Card>
+                    </p>
+                  </div>
+                </GlassCard>
               </div>
             );
           })}
