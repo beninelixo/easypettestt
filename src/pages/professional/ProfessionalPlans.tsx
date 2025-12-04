@@ -93,6 +93,25 @@ const plans: Plan[] = [
       { text: "SLA de uptime 99.9%", included: true },
     ],
   },
+  {
+    id: "pet_platinum_anual",
+    name: "Pet Platinum Anual",
+    price: 1348.50,
+    description: "25% de economia - Melhor custo-benefício",
+    icon: Building2,
+    features: [
+      { text: "✨ Tudo do Pet Platinum, mais:", included: true },
+      { text: "Economia de R$ 450,30/ano (25% OFF)", included: true },
+      { text: "Equivalente a R$ 112,38/mês", included: true },
+      { text: "Preço bloqueado por 12 meses", included: true },
+      { text: "Prioridade máxima no suporte", included: true },
+      { text: "Treinamento gratuito para equipe", included: true },
+      { text: "Consultoria trimestral presencial", included: true },
+      { text: "Onboarding personalizado", included: true },
+      { text: "Backup premium com retenção estendida", included: true },
+      { text: "Suporte dedicado WhatsApp", included: true },
+    ],
+  },
 ];
 
 const ProfessionalPlans = () => {

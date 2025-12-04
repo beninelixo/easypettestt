@@ -29,12 +29,13 @@ interface ManageUserPlanDialogProps {
   onConfirm: (petShopId: string, plan: string, expiryDate: string | null) => Promise<{ success: boolean }>;
 }
 
+// Only existing plans in database - pet_gold_anual does NOT exist
 const planOptions = [
   { value: "free", label: "Gratuito" },
-  { value: "gold", label: "Gold (Mensal)" },
-  { value: "platinum", label: "Platinum (Mensal)" },
-  { value: "pet_gold_anual", label: "Gold (Anual)" },
-  { value: "pet_platinum_anual", label: "Platinum (Anual)" },
+  { value: "gratuito", label: "Gratuito (Legacy)" },
+  { value: "pet_gold", label: "Pet Gold (Mensal)" },
+  { value: "pet_platinum", label: "Pet Platinum (Mensal)" },
+  { value: "pet_platinum_anual", label: "Pet Platinum (Anual)" },
 ];
 
 export const ManageUserPlanDialog = ({

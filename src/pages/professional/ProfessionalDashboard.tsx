@@ -20,12 +20,11 @@ import { ServiceBreakdownChart } from "@/components/dashboard/ServiceBreakdownCh
 import { useRealtimeMetrics } from "@/hooks/useRealtimeMetrics";
 import { usePlanTheme } from "@/hooks/usePlanTheme";
 
-// Plan display configuration
+// Plan display configuration - Only existing plans (pet_gold_anual removed - does not exist)
 const PLAN_CONFIG: Record<string, { name: string; icon: typeof Crown; gradient: string; badge: string }> = {
   'gratuito': { name: 'Plano Gratuito', icon: Star, gradient: 'from-slate-500 to-slate-600', badge: 'bg-slate-500/20 text-slate-400' },
   'free': { name: 'Plano Gratuito', icon: Star, gradient: 'from-slate-500 to-slate-600', badge: 'bg-slate-500/20 text-slate-400' },
   'pet_gold': { name: 'Pet Gold Mensal', icon: Crown, gradient: 'from-amber-400 to-yellow-500', badge: 'bg-amber-500/20 text-amber-400' },
-  'pet_gold_anual': { name: 'Pet Gold Anual', icon: Crown, gradient: 'from-amber-400 to-yellow-500', badge: 'bg-amber-500/20 text-amber-400' },
   'pet_platinum': { name: 'Pet Platinum Mensal', icon: Crown, gradient: 'from-slate-300 to-slate-400', badge: 'bg-slate-300/20 text-slate-300' },
   'pet_platinum_anual': { name: 'Pet Platinum Anual', icon: Crown, gradient: 'from-slate-300 to-slate-400', badge: 'bg-slate-300/20 text-slate-300' },
   'enterprise': { name: 'Enterprise', icon: Crown, gradient: 'from-violet-500 to-purple-600', badge: 'bg-violet-500/20 text-violet-400' },

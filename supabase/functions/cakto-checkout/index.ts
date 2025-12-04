@@ -7,10 +7,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Validation schema
+// Validation schema - ONLY existing plans: pet_gold, pet_platinum, pet_platinum_anual
 const checkoutSchema = z.object({
-  plan: z.enum(['pet_gold', 'pet_platinum', 'pet_gold_anual'], {
-    errorMap: () => ({ message: 'Invalid plan' })
+  plan: z.enum(['pet_gold', 'pet_platinum', 'pet_platinum_anual'], {
+    errorMap: () => ({ message: 'Invalid plan. Valid options: pet_gold, pet_platinum, pet_platinum_anual' })
   }),
   petshop_id: z.string().uuid('Invalid petshop ID'),
 });
@@ -18,20 +18,20 @@ const checkoutSchema = z.object({
 const PLAN_PRICES = {
   pet_gold: 7990, // R$ 79,90 in cents
   pet_platinum: 14990, // R$ 149,90 in cents
-  pet_gold_anual: 79900, // R$ 799,00 in cents (10 meses pelo preço de 12)
+  pet_platinum_anual: 134850, // R$ 1.348,50 in cents (25% desconto - 9 meses pelo preço de 12)
 };
 
 const PLAN_NAMES = {
   pet_gold: 'Pet Gold Mensal',
   pet_platinum: 'Pet Platinum Mensal',
-  pet_gold_anual: 'Pet Gold Anual',
+  pet_platinum_anual: 'Pet Platinum Anual',
 };
 
-// Direct payment links from Cakto dashboard (already created offers)
+// Direct payment links from Cakto dashboard
 const PLAN_CHECKOUT_URLS = {
   pet_gold: 'https://pay.cakto.com.br/f72gob9_634441',
   pet_platinum: 'https://pay.cakto.com.br/qym84js_634453',
-  pet_gold_anual: 'https://pay.cakto.com.br/f72gob9_634441', // Annual Gold checkout
+  pet_platinum_anual: 'https://pay.cakto.com.br/platinum_anual', // TODO: Configure actual URL in Cakto
 };
 
 serve(async (req) => {
