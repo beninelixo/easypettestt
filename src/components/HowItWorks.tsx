@@ -1,5 +1,4 @@
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useSiteImage } from "@/hooks/useSiteImages";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
@@ -7,6 +6,64 @@ import { MagneticButton } from "@/components/ui/magnetic-button";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 import { GlassCard } from "@/components/ui/glass-card";
 import systemDashboardFallback from "@/assets/system-dashboard.jpg";
+
+interface StepData {
+  number: string;
+  title: string;
+  description: string;
+  items: string[];
+}
+
+interface StepCardProps {
+  step: StepData;
+  index: number;
+}
+
+// Componente separado para evitar erro de Hooks
+const StepCard = ({ step, index }: StepCardProps) => {
+  const { ref, isVisible } = useScrollReveal({ threshold: 0.2 });
+  const isLeft = index % 2 === 0;
+  
+  return (
+    <div
+      ref={ref}
+      className={`relative group scroll-reveal ${isLeft ? 'scroll-reveal-left' : 'scroll-reveal-right'} ${isVisible ? 'visible' : ''}`}
+      style={{ transitionDelay: `${index * 150}ms` }}
+    >
+      {/* Step number indicator on the line */}
+      <div className="absolute top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-primary rounded-full hidden lg:block z-10 group-hover:scale-150 transition-transform duration-300" />
+      
+      <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500" />
+      <GlassCard hover3D className="relative">
+        <div className="flex items-start gap-6">
+          <div className="text-6xl font-black bg-gradient-to-br from-primary/20 to-secondary/20 bg-clip-text text-transparent group-hover:from-primary group-hover:to-secondary transition-all duration-500">
+            {step.number}
+          </div>
+          <div className="flex-1 space-y-4">
+            <h3 className="text-2xl font-bold group-hover:text-primary transition-colors duration-300">
+              {step.title}
+            </h3>
+            <p className="text-muted-foreground group-hover:text-foreground/80 transition-colors">
+              {step.description}
+            </p>
+            <ul className="space-y-2">
+              {step.items.map((item, i) => (
+                <li 
+                  key={i} 
+                  className="flex items-center gap-2 text-sm group/item"
+                  style={{ transitionDelay: `${i * 50}ms` }}
+                >
+                  <CheckCircle2 className="h-4 w-4 text-accent flex-shrink-0 group-hover/item:scale-125 group-hover/item:text-primary transition-all duration-300" />
+                  <span className="group-hover/item:text-primary transition-colors">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </GlassCard>
+    </div>
+  );
+};
 
 const HowItWorks = () => {
   const { url: systemDashboardUrl } = useSiteImage('system-dashboard');
@@ -16,7 +73,7 @@ const HowItWorks = () => {
 
   const imageReveal = useScrollReveal({ threshold: 0.3 });
 
-  const steps = [
+  const steps: StepData[] = [
     {
       number: "01",
       title: "Cadastre-se Gratuitamente",
@@ -110,51 +167,9 @@ const HowItWorks = () => {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-primary/20 via-secondary/20 to-primary/20 hidden lg:block rounded-full" />
           
           <div className="grid md:grid-cols-2 gap-8 mb-12">
-            {steps.map((step, index) => {
-              const { ref, isVisible } = useScrollReveal({ threshold: 0.2 });
-              const isLeft = index % 2 === 0;
-              
-              return (
-                <div
-                  key={index}
-                  ref={ref}
-                  className={`relative group scroll-reveal ${isLeft ? 'scroll-reveal-left' : 'scroll-reveal-right'} ${isVisible ? 'visible' : ''}`}
-                  style={{ transitionDelay: `${index * 150}ms` }}
-                >
-                  {/* Step number indicator on the line */}
-                  <div className="absolute top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-primary rounded-full hidden lg:block z-10 group-hover:scale-150 transition-transform duration-300" />
-                  
-                  <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500" />
-                  <GlassCard hover3D className="relative">
-                    <div className="flex items-start gap-6">
-                      <div className="text-6xl font-black bg-gradient-to-br from-primary/20 to-secondary/20 bg-clip-text text-transparent group-hover:from-primary group-hover:to-secondary transition-all duration-500">
-                        {step.number}
-                      </div>
-                      <div className="flex-1 space-y-4">
-                        <h3 className="text-2xl font-bold group-hover:text-primary transition-colors duration-300">
-                          {step.title}
-                        </h3>
-                        <p className="text-muted-foreground group-hover:text-foreground/80 transition-colors">
-                          {step.description}
-                        </p>
-                        <ul className="space-y-2">
-                          {step.items.map((item, i) => (
-                            <li 
-                              key={i} 
-                              className="flex items-center gap-2 text-sm group/item"
-                              style={{ transitionDelay: `${i * 50}ms` }}
-                            >
-                              <CheckCircle2 className="h-4 w-4 text-accent flex-shrink-0 group-hover/item:scale-125 group-hover/item:text-primary transition-all duration-300" />
-                              <span className="group-hover/item:text-primary transition-colors">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </GlassCard>
-                </div>
-              );
-            })}
+            {steps.map((step, index) => (
+              <StepCard key={index} step={step} index={index} />
+            ))}
           </div>
         </div>
 

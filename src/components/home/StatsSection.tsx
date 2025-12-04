@@ -1,4 +1,4 @@
-import { CheckCircle2, Shield, Clock, Sparkles } from "lucide-react";
+import { CheckCircle2, Shield, Clock, Sparkles, LucideIcon } from "lucide-react";
 import { useSiteImage } from "@/hooks/useSiteImages";
 import happyClientsFallback from "@/assets/happy-clients.jpg";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
@@ -6,8 +6,55 @@ import { ParallaxContainer } from "@/components/ui/parallax-container";
 import { GlassCard } from "@/components/ui/glass-card";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 import { AnimatedCounter, AnimatedCounterWithParticles } from "@/components/ui/animated-counter";
-import { WaveBackground } from "@/components/ui/wave-background";
 import { cn } from "@/lib/utils";
+
+interface TrustItemData {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  color: string;
+}
+
+interface TrustItemProps {
+  item: TrustItemData;
+  index: number;
+}
+
+// Componente separado para evitar erro de Hooks
+const TrustItem = ({ item, index }: TrustItemProps) => {
+  const { ref, isVisible } = useScrollReveal({ threshold: 0.3 });
+  
+  return (
+    <div
+      ref={ref}
+      className={`scroll-reveal scroll-reveal-right ${isVisible ? 'visible' : ''}`}
+      style={{ transitionDelay: `${index * 150}ms` }}
+    >
+      <GlassCard hover3D className="group">
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0">
+            <div className={cn(
+              "w-12 h-12 rounded-full flex items-center justify-center",
+              "bg-gradient-to-br shadow-lg",
+              "group-hover:scale-110 group-hover:rotate-12 transition-all duration-500",
+              item.color
+            )}>
+              <item.icon className="h-6 w-6 text-primary group-hover:animate-icon-bounce" />
+            </div>
+          </div>
+          <div>
+            <p className="text-foreground font-bold mb-1 group-hover:text-primary transition-colors">
+              {item.title}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {item.description}
+            </p>
+          </div>
+        </div>
+      </GlassCard>
+    </div>
+  );
+};
 
 export const StatsSection = () => {
   const imageReveal = useScrollReveal({ threshold: 0.3 });
@@ -23,7 +70,7 @@ export const StatsSection = () => {
     { value: 2.1, suffix: " mi", label: "Atendimentos", hasParticles: false, decimals: 1 },
   ];
 
-  const trustItems = [
+  const trustItems: TrustItemData[] = [
     {
       icon: Shield,
       title: "100% Cloud & Seguro",
@@ -148,44 +195,9 @@ export const StatsSection = () => {
                 </p>
               </div>
               <div className="space-y-4">
-                {trustItems.map((item, index) => {
-                  const { ref, isVisible } = useScrollReveal({ threshold: 0.3 });
-                  
-                  return (
-                    <div
-                      key={index}
-                      ref={ref}
-                      className={`scroll-reveal scroll-reveal-right ${isVisible ? 'visible' : ''}`}
-                      style={{ transitionDelay: `${index * 150}ms` }}
-                    >
-                      <GlassCard
-                        hover3D
-                        className="group"
-                      >
-                        <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
-                            <div className={cn(
-                              "w-12 h-12 rounded-full flex items-center justify-center",
-                              "bg-gradient-to-br shadow-lg",
-                              "group-hover:scale-110 group-hover:rotate-12 transition-all duration-500",
-                              item.color
-                            )}>
-                              <item.icon className="h-6 w-6 text-primary group-hover:animate-icon-bounce" />
-                            </div>
-                          </div>
-                          <div>
-                            <p className="text-foreground font-bold mb-1 group-hover:text-primary transition-colors">
-                              {item.title}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {item.description}
-                            </p>
-                          </div>
-                        </div>
-                      </GlassCard>
-                    </div>
-                  );
-                })}
+                {trustItems.map((item, index) => (
+                  <TrustItem key={index} item={item} index={index} />
+                ))}
               </div>
             </div>
           </div>

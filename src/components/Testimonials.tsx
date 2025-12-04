@@ -5,7 +5,80 @@ import vetCareFallback from "@/assets/vet-care.jpg";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 import { GlowingBorder } from "@/components/ui/glowing-border";
-import { cn } from "@/lib/utils";
+
+interface TestimonialData {
+  name: string;
+  role: string;
+  location: string;
+  image: string;
+  rating: number;
+  text: string;
+  highlight: string;
+}
+
+interface TestimonialCardProps {
+  testimonial: TestimonialData;
+  index: number;
+}
+
+// Componente separado para evitar erro de Hooks
+const TestimonialCard = ({ testimonial, index }: TestimonialCardProps) => {
+  const { ref, isVisible } = useScrollReveal({ threshold: 0.2 });
+  
+  return (
+    <div
+      ref={ref}
+      className={`scroll-reveal scroll-reveal-up ${isVisible ? 'visible' : ''}`}
+      style={{ transitionDelay: `${index * 150}ms` }}
+    >
+      <GlowingBorder
+        glowColor="hsl(var(--primary))"
+        intensity="low"
+        borderRadius="1rem"
+      >
+        <Card className="border-border hover:shadow-2xl transition-all duration-500 h-full group bg-card">
+          <CardContent className="p-6 space-y-4">
+            {/* Quote icon */}
+            <Quote className="h-10 w-10 text-primary/20 group-hover:text-primary/40 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500" />
+            
+            {/* Stars */}
+            <div className="flex gap-1">
+              {Array.from({ length: testimonial.rating }).map((_, i) => (
+                <Star 
+                  key={i} 
+                  className="h-5 w-5 fill-secondary text-secondary transition-all duration-300 hover:scale-125"
+                  style={{ animationDelay: `${i * 100}ms` }}
+                />
+              ))}
+            </div>
+
+            {/* Testimonial text */}
+            <p className="text-muted-foreground leading-relaxed group-hover:text-foreground/80 transition-colors">
+              "{testimonial.text}"
+            </p>
+
+            {/* Author info */}
+            <div className="flex items-center gap-4 pt-4 border-t border-border">
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <img
+                  src={testimonial.image}
+                  alt={testimonial.name}
+                  className="w-12 h-12 rounded-full relative group-hover:scale-110 transition-transform duration-300"
+                />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{testimonial.name}</p>
+                <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                <p className="text-xs text-muted-foreground">{testimonial.location}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </GlowingBorder>
+    </div>
+  );
+};
 
 const Testimonials = () => {
   const imageReveal = useScrollReveal({ threshold: 0.3 });
@@ -15,7 +88,7 @@ const Testimonials = () => {
     ? vetCareUrl 
     : vetCareFallback;
 
-  const testimonials = [
+  const testimonials: TestimonialData[] = [
     {
       name: "Dr. Carlos Mendes",
       role: "Veterinário - Pet Care Center",
@@ -78,64 +151,9 @@ const Testimonials = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => {
-            const { ref, isVisible } = useScrollReveal({ threshold: 0.2 });
-            
-            return (
-              <div
-                key={index}
-                ref={ref}
-                className={`scroll-reveal scroll-reveal-up ${isVisible ? 'visible' : ''}`}
-                style={{ transitionDelay: `${index * 150}ms` }}
-              >
-                <GlowingBorder
-                  glowColor="hsl(var(--primary))"
-                  intensity="low"
-                  borderRadius="1rem"
-                >
-                  <Card className="border-border hover:shadow-2xl transition-all duration-500 h-full group bg-card">
-                    <CardContent className="p-6 space-y-4">
-                      {/* Quote icon */}
-                      <Quote className="h-10 w-10 text-primary/20 group-hover:text-primary/40 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500" />
-                      
-                      {/* Stars */}
-                      <div className="flex gap-1">
-                        {Array.from({ length: testimonial.rating }).map((_, i) => (
-                          <Star 
-                            key={i} 
-                            className="h-5 w-5 fill-secondary text-secondary transition-all duration-300 hover:scale-125"
-                            style={{ animationDelay: `${i * 100}ms` }}
-                          />
-                        ))}
-                      </div>
-
-                      {/* Testimonial text */}
-                      <p className="text-muted-foreground leading-relaxed group-hover:text-foreground/80 transition-colors">
-                        "{testimonial.text}"
-                      </p>
-
-                      {/* Author info */}
-                      <div className="flex items-center gap-4 pt-4 border-t border-border">
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-primary/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                          <img
-                            src={testimonial.image}
-                            alt={testimonial.name}
-                            className="w-12 h-12 rounded-full relative group-hover:scale-110 transition-transform duration-300"
-                          />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{testimonial.name}</p>
-                          <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                          <p className="text-xs text-muted-foreground">{testimonial.location}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </GlowingBorder>
-              </div>
-            );
-          })}
+          {testimonials.map((testimonial, index) => (
+            <TestimonialCard key={index} testimonial={testimonial} index={index} />
+          ))}
         </div>
       </div>
     </section>

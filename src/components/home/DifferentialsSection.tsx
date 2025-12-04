@@ -1,12 +1,73 @@
-import { CheckCircle2, Zap, Smartphone, Wallet, Building2, HeadphonesIcon, Award } from "lucide-react";
+import { CheckCircle2, Zap, Smartphone, Wallet, Building2, HeadphonesIcon, Award, LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
-import { GlowingBorder } from "@/components/ui/glowing-border";
 import { cn } from "@/lib/utils";
 
+interface DifferentialData {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  color: string;
+}
+
+interface DifferentialCardProps {
+  item: DifferentialData;
+  index: number;
+}
+
+// Componente separado para evitar erro de Hooks
+const DifferentialCard = ({ item, index }: DifferentialCardProps) => {
+  const { ref, isVisible } = useScrollReveal({ threshold: 0.2 });
+  const direction = index % 2 === 0 ? 'scroll-reveal-left' : 'scroll-reveal-right';
+  
+  return (
+    <div
+      ref={ref}
+      className={`scroll-reveal ${direction} ${isVisible ? 'visible' : ''}`}
+      style={{ transitionDelay: `${index * 100}ms` }}
+    >
+      <Card
+        className="border-2 border-border hover:border-primary/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 bg-card group cursor-pointer h-full relative overflow-hidden"
+        tabIndex={0}
+        role="article"
+        aria-label={item.title}
+      >
+        {/* Gradient border effect on hover */}
+        <div className={cn(
+          "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500",
+          "bg-gradient-to-r",
+          item.color,
+          "blur-xl -z-10"
+        )} />
+        
+        <CardContent className="p-6 space-y-4 relative">
+          <div className={cn(
+            "w-14 h-14 rounded-xl flex items-center justify-center",
+            "bg-gradient-to-br shadow-lg",
+            "group-hover:scale-110 group-hover:rotate-12 transition-all duration-500",
+            "group-hover:shadow-xl",
+            item.color.replace('from-', 'from-').replace('to-', 'to-') + '/20'
+          )}>
+            <item.icon className="h-7 w-7 text-primary group-hover:text-white transition-colors duration-300" aria-hidden="true" />
+          </div>
+          <h3 className="font-bold text-lg group-hover:text-primary transition-colors duration-300">
+            {item.title}
+          </h3>
+          <p className="text-muted-foreground text-sm leading-relaxed group-hover:text-foreground/80 transition-colors">
+            {item.description}
+          </p>
+          
+          {/* Decorative line */}
+          <div className="h-1 w-0 group-hover:w-full bg-gradient-to-r from-primary to-secondary transition-all duration-500 rounded-full" />
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
 export const DifferentialsSection = () => {
-  const differentials = [
+  const differentials: DifferentialData[] = [
     {
       icon: Smartphone,
       title: "API Aberta para Integrações",
@@ -66,55 +127,9 @@ export const DifferentialsSection = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {differentials.map((item, index) => {
-            const { ref, isVisible } = useScrollReveal({ threshold: 0.2 });
-            const direction = index % 2 === 0 ? 'scroll-reveal-left' : 'scroll-reveal-right';
-            
-            return (
-              <div
-                key={index}
-                ref={ref}
-                className={`scroll-reveal ${direction} ${isVisible ? 'visible' : ''}`}
-                style={{ transitionDelay: `${index * 100}ms` }}
-              >
-                <Card
-                  className="border-2 border-border hover:border-primary/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 bg-card group cursor-pointer h-full relative overflow-hidden"
-                  tabIndex={0}
-                  role="article"
-                  aria-label={item.title}
-                >
-                  {/* Gradient border effect on hover */}
-                  <div className={cn(
-                    "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500",
-                    "bg-gradient-to-r",
-                    item.color,
-                    "blur-xl -z-10"
-                  )} />
-                  
-                  <CardContent className="p-6 space-y-4 relative">
-                    <div className={cn(
-                      "w-14 h-14 rounded-xl flex items-center justify-center",
-                      "bg-gradient-to-br shadow-lg",
-                      "group-hover:scale-110 group-hover:rotate-12 transition-all duration-500",
-                      "group-hover:shadow-xl",
-                      item.color.replace('from-', 'from-').replace('to-', 'to-') + '/20'
-                    )}>
-                      <item.icon className="h-7 w-7 text-primary group-hover:text-white transition-colors duration-300" aria-hidden="true" />
-                    </div>
-                    <h3 className="font-bold text-lg group-hover:text-primary transition-colors duration-300">
-                      {item.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed group-hover:text-foreground/80 transition-colors">
-                      {item.description}
-                    </p>
-                    
-                    {/* Decorative line */}
-                    <div className="h-1 w-0 group-hover:w-full bg-gradient-to-r from-primary to-secondary transition-all duration-500 rounded-full" />
-                  </CardContent>
-                </Card>
-              </div>
-            );
-          })}
+          {differentials.map((item, index) => (
+            <DifferentialCard key={index} item={item} index={index} />
+          ))}
         </div>
       </div>
     </section>
