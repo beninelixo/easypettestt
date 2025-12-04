@@ -7,6 +7,7 @@ export type PlanType = "free" | "gold" | "platinum";
 export interface PlanTheme {
   plan: PlanType;
   rawPlan: string;
+  planName: string;
   primaryColor: string;
   secondaryColor: string;
   gradientClass: string;
@@ -35,6 +36,7 @@ export const usePlanTheme = () => {
   const [theme, setTheme] = useState<PlanTheme>({
     plan: "free",
     rawPlan: "gratuito",
+    planName: "Plano Gratuito",
     primaryColor: "hsl(var(--primary))",
     secondaryColor: "hsl(var(--secondary))",
     gradientClass: "from-primary to-secondary",
@@ -85,6 +87,17 @@ export const usePlanTheme = () => {
         }
 
         const plan = normalizePlan(rawPlan);
+        
+        // Get display name for plan
+        const getPlanName = (raw: string): string => {
+          const names: Record<string, string> = {
+            'gratuito': 'Plano Gratuito',
+            'pet_gold': 'Pet Gold',
+            'pet_platinum': 'Pet Platinum',
+            'pet_platinum_anual': 'Pet Platinum Anual',
+          };
+          return names[raw.toLowerCase()] || 'Plano Gratuito';
+        };
 
         // Definir tema baseado no plano normalizado
         let planTheme: PlanTheme;
@@ -94,6 +107,7 @@ export const usePlanTheme = () => {
             planTheme = {
               plan: "gold",
               rawPlan,
+              planName: getPlanName(rawPlan),
               primaryColor: "hsl(var(--plan-gold-primary))",
               secondaryColor: "hsl(var(--plan-gold-secondary))",
               gradientClass: "from-amber-400 via-yellow-500 to-orange-500",
@@ -110,6 +124,7 @@ export const usePlanTheme = () => {
             planTheme = {
               plan: "platinum",
               rawPlan,
+              planName: getPlanName(rawPlan),
               primaryColor: "hsl(var(--plan-platinum-primary))",
               secondaryColor: "hsl(var(--plan-platinum-secondary))",
               gradientClass: "from-slate-300 via-gray-400 to-slate-500",
@@ -126,6 +141,7 @@ export const usePlanTheme = () => {
             planTheme = {
               plan: "free",
               rawPlan,
+              planName: getPlanName(rawPlan),
               primaryColor: "hsl(var(--primary))",
               secondaryColor: "hsl(var(--secondary))",
               gradientClass: "from-primary to-secondary",

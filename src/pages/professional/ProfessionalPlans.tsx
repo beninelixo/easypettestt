@@ -356,7 +356,7 @@ const ProfessionalPlans = () => {
       {/* Available Plans */}
       <div>
         <h2 className="text-2xl font-bold mb-6">Planos Disponíveis</h2>
-        <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
           {plans.map((plan) => {
             const Icon = plan.icon;
             const isActive = isPlanActive(plan.id);
