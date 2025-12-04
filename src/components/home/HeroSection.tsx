@@ -86,19 +86,19 @@ export const HeroSection = () => {
                 <MagneticButton
                   strength={0.15}
                   glowColor="hsl(var(--primary))"
-                  className="text-lg px-8 py-4 font-bold shadow-md bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-xl hover:shadow-lg transition-all duration-250 hover:-translate-y-0.5 group w-full sm:w-auto"
+                  className="text-base px-6 py-3 font-bold shadow-md bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-xl hover:shadow-lg transition-all duration-250 hover:-translate-y-0.5 group w-full sm:w-auto"
                 >
                   <span className="flex items-center gap-2">
                     Ver Planos e Preços
-                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-250" />
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-250" />
                   </span>
                 </MagneticButton>
               </Link>
               <Link to="/system-overview">
                 <Button 
-                  size="lg" 
+                  size="default" 
                   variant="outline"
-                  className="text-lg px-8 py-4 font-bold border-2 hover:bg-primary/5 hover:border-primary transition-all duration-250 w-full sm:w-auto hover:shadow-md group"
+                  className="text-base px-6 py-3 font-bold border-2 hover:bg-primary/5 hover:border-primary transition-all duration-250 w-full sm:w-auto hover:shadow-md group"
                 >
                   <span className="group-hover:text-primary transition-colors duration-250">Conhecer o Sistema</span>
                 </Button>
@@ -107,11 +107,11 @@ export const HeroSection = () => {
 
             {/* Free Trial Badge */}
             <div 
-              className="inline-flex items-center gap-2 px-6 py-3 bg-accent/15 rounded-full border border-accent/20 animate-fade-in hover:scale-[1.02] hover:bg-accent/20 transition-all duration-250 cursor-default group"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-accent/15 rounded-full border border-accent/20 animate-fade-in hover:scale-[1.02] hover:bg-accent/20 transition-all duration-250 cursor-default group"
               style={{ animationDelay: "0.5s" }}
             >
-              <span className="text-2xl">🎁</span>
-              <span className="font-bold text-accent-foreground group-hover:text-primary transition-colors duration-250">Teste Grátis 30 Dias - Sem Cartão de Crédito</span>
+              <span className="text-xl">🎁</span>
+              <span className="font-semibold text-sm text-accent-foreground group-hover:text-primary transition-colors duration-250">Teste Grátis 30 Dias - Sem Cartão</span>
             </div>
 
             {/* Trust Indicators */}
