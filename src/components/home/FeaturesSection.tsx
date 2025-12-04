@@ -1,12 +1,71 @@
-import { Calendar, Clock, Users, TrendingUp, Shield, Smartphone, Zap } from "lucide-react";
+import { Calendar, Clock, Users, TrendingUp, Shield, Smartphone, Zap, LucideIcon } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { GlassCard } from "@/components/ui/glass-card";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 import { GlowingBorder } from "@/components/ui/glowing-border";
 import { cn } from "@/lib/utils";
 
+interface FeatureData {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  color: string;
+  glowColor: string;
+}
+
+interface FeatureCardProps {
+  feature: FeatureData;
+  index: number;
+}
+
+// Componente separado para evitar erro de Hooks
+const FeatureCard = ({ feature, index }: FeatureCardProps) => {
+  const { ref, isVisible } = useScrollReveal({ threshold: 0.2 });
+  
+  return (
+    <div
+      ref={ref}
+      className={`scroll-reveal scroll-reveal-up ${isVisible ? 'visible' : ''}`}
+      style={{ transitionDelay: `${index * 100}ms` }}
+    >
+      <GlowingBorder
+        glowColor={feature.glowColor}
+        intensity="medium"
+        borderRadius="1rem"
+      >
+        <GlassCard
+          hover3D
+          glow
+          className="h-full cursor-pointer group"
+          tabIndex={0}
+          role="article"
+          aria-label={feature.title}
+        >
+          <div className="space-y-4">
+            <div className={cn(
+              "w-14 h-14 rounded-xl flex items-center justify-center",
+              "bg-gradient-to-br shadow-lg",
+              "group-hover:scale-110 group-hover:rotate-6 transition-all duration-500",
+              "group-hover:shadow-xl",
+              feature.color
+            )}>
+              <feature.icon className="h-7 w-7 text-primary group-hover:animate-icon-bounce" aria-hidden="true" />
+            </div>
+            <h3 className="text-xl font-bold group-hover:text-primary transition-colors duration-300">
+              {feature.title}
+            </h3>
+            <p className="text-muted-foreground leading-relaxed group-hover:text-foreground/80 transition-colors">
+              {feature.description}
+            </p>
+          </div>
+        </GlassCard>
+      </GlowingBorder>
+    </div>
+  );
+};
+
 export const FeaturesSection = () => {
-  const features = [
+  const features: FeatureData[] = [
     {
       icon: Calendar,
       title: "Agendamento com IA",
@@ -80,51 +139,9 @@ export const FeaturesSection = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => {
-            const { ref, isVisible } = useScrollReveal({ threshold: 0.2 });
-            
-            return (
-              <div
-                key={index}
-                ref={ref}
-                className={`scroll-reveal scroll-reveal-up ${isVisible ? 'visible' : ''}`}
-                style={{ transitionDelay: `${index * 100}ms` }}
-              >
-                <GlowingBorder
-                  glowColor={feature.glowColor}
-                  intensity="medium"
-                  borderRadius="1rem"
-                >
-                  <GlassCard
-                    hover3D
-                    glow
-                    className="h-full cursor-pointer group"
-                    tabIndex={0}
-                    role="article"
-                    aria-label={feature.title}
-                  >
-                    <div className="space-y-4">
-                      <div className={cn(
-                        "w-14 h-14 rounded-xl flex items-center justify-center",
-                        "bg-gradient-to-br shadow-lg",
-                        "group-hover:scale-110 group-hover:rotate-6 transition-all duration-500",
-                        "group-hover:shadow-xl",
-                        feature.color
-                      )}>
-                        <feature.icon className="h-7 w-7 text-primary group-hover:animate-icon-bounce" aria-hidden="true" />
-                      </div>
-                      <h3 className="text-xl font-bold group-hover:text-primary transition-colors duration-300">
-                        {feature.title}
-                      </h3>
-                      <p className="text-muted-foreground leading-relaxed group-hover:text-foreground/80 transition-colors">
-                        {feature.description}
-                      </p>
-                    </div>
-                  </GlassCard>
-                </GlowingBorder>
-              </div>
-            );
-          })}
+          {features.map((feature, index) => (
+            <FeatureCard key={index} feature={feature} index={index} />
+          ))}
         </div>
       </div>
     </section>
