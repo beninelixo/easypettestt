@@ -86,11 +86,11 @@ export const HeroSection = () => {
                 <MagneticButton
                   strength={0.15}
                   glowColor="hsl(var(--primary))"
-                  className="text-xl px-12 py-8 font-bold shadow-lg bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group w-full sm:w-auto"
+                  className="text-lg px-8 py-4 font-bold shadow-md bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-xl hover:shadow-lg transition-all duration-250 hover:-translate-y-0.5 group w-full sm:w-auto"
                 >
                   <span className="flex items-center gap-2">
                     Ver Planos e Preços
-                    <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform duration-250" />
+                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-250" />
                   </span>
                 </MagneticButton>
               </Link>
@@ -98,7 +98,7 @@ export const HeroSection = () => {
                 <Button 
                   size="lg" 
                   variant="outline"
-                  className="text-xl px-12 py-8 font-bold border-2 hover:bg-primary/5 hover:border-primary transition-all duration-250 w-full sm:w-auto hover:shadow-md group"
+                  className="text-lg px-8 py-4 font-bold border-2 hover:bg-primary/5 hover:border-primary transition-all duration-250 w-full sm:w-auto hover:shadow-md group"
                 >
                   <span className="group-hover:text-primary transition-colors duration-250">Conhecer o Sistema</span>
                 </Button>
@@ -186,7 +186,7 @@ export const HeroSection = () => {
               {/* Floating Stats */}
               <div 
                 ref={statsReveal.ref}
-                className={`absolute -bottom-6 -left-6 bg-background/95 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-border/50 scroll-reveal scroll-reveal-zoom ${statsReveal.isVisible ? 'visible' : ''} hover:scale-[1.02] transition-transform duration-250`}
+                className={`absolute -bottom-6 -left-6 z-20 bg-background/95 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-border/50 scroll-reveal scroll-reveal-zoom ${statsReveal.isVisible ? 'visible' : ''} hover:scale-[1.02] transition-transform duration-250`}
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-primary/15 to-secondary/15 rounded-full flex items-center justify-center">
