@@ -163,6 +163,22 @@ export function ProfessionalSidebar() {
           </SidebarTrigger>
         </div>
 
+        {/* Plan Badge */}
+        {!isCollapsed && planTheme.plan !== 'free' && (
+          <div className="mx-4 mt-2 mb-4">
+            <Badge 
+              className={`w-full justify-center py-1.5 text-xs font-semibold ${
+                planTheme.plan.includes('gold') 
+                  ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-950 shadow-lg shadow-amber-500/25' 
+                  : 'bg-gradient-to-r from-slate-400 via-gray-500 to-slate-600 text-white shadow-lg shadow-slate-500/25'
+              }`}
+            >
+              <Sparkles className="h-3 w-3 mr-1.5" />
+              {planTheme.planName}
+            </Badge>
+          </div>
+        )}
+
         <Separator className="mx-4 bg-border/50" />
 
         {/* Main Menu */}
