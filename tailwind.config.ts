@@ -257,6 +257,77 @@ export default {
             transform: "rotateY(-2deg) rotateX(2deg)"
           }
         },
+        // New advanced animations
+        "float-badge": {
+          "0%, 100%": {
+            transform: "translateY(0px) rotate(0deg)"
+          },
+          "50%": {
+            transform: "translateY(-12px) rotate(2deg)"
+          }
+        },
+        "gradient-flow": {
+          "0%": {
+            backgroundPosition: "0% 50%"
+          },
+          "50%": {
+            backgroundPosition: "100% 50%"
+          },
+          "100%": {
+            backgroundPosition: "0% 50%"
+          }
+        },
+        "blob-morph": {
+          "0%, 100%": {
+            borderRadius: "60% 40% 30% 70%/60% 30% 70% 40%",
+            transform: "rotate(0deg)"
+          },
+          "50%": {
+            borderRadius: "30% 60% 70% 40%/50% 60% 30% 60%",
+            transform: "rotate(180deg)"
+          }
+        },
+        "blink-cursor": {
+          "0%, 50%": {
+            opacity: "1"
+          },
+          "51%, 100%": {
+            opacity: "0"
+          }
+        },
+        "tilt-3d": {
+          "0%": {
+            transform: "perspective(1000px) rotateX(0) rotateY(0)"
+          },
+          "100%": {
+            transform: "perspective(1000px) rotateX(5deg) rotateY(-5deg)"
+          }
+        },
+        "icon-bounce": {
+          "0%, 100%": {
+            transform: "scale(1) rotate(0deg)"
+          },
+          "25%": {
+            transform: "scale(1.2) rotate(-10deg)"
+          },
+          "50%": {
+            transform: "scale(1) rotate(10deg)"
+          },
+          "75%": {
+            transform: "scale(1.1) rotate(-5deg)"
+          }
+        },
+        "count-up-glow": {
+          "0%": {
+            textShadow: "0 0 0 transparent"
+          },
+          "50%": {
+            textShadow: "0 0 30px hsl(var(--primary) / 0.8)"
+          },
+          "100%": {
+            textShadow: "0 0 10px hsl(var(--primary) / 0.3)"
+          }
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -277,6 +348,14 @@ export default {
         "spring": "spring 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
         "spring-out": "spring-out 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
         "tilt": "tilt 10s ease-in-out infinite",
+        // New advanced animations
+        "float-badge": "float-badge 4s ease-in-out infinite",
+        "gradient-flow": "gradient-flow 4s ease infinite",
+        "blob-morph": "blob-morph 8s ease-in-out infinite",
+        "blink-cursor": "blink-cursor 1s step-end infinite",
+        "tilt-3d": "tilt-3d 0.3s ease-out forwards",
+        "icon-bounce": "icon-bounce 0.6s ease-in-out",
+        "count-up-glow": "count-up-glow 0.5s ease-out",
       },
     },
   },
