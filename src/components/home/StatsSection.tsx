@@ -1,4 +1,3 @@
-import { useCountUp } from "@/hooks/useCountUp";
 import { CheckCircle2, Shield, Clock, Sparkles } from "lucide-react";
 import { useSiteImage } from "@/hooks/useSiteImages";
 import happyClientsFallback from "@/assets/happy-clients.jpg";
@@ -6,12 +5,11 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { ParallaxContainer } from "@/components/ui/parallax-container";
 import { GlassCard } from "@/components/ui/glass-card";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
+import { AnimatedCounter, AnimatedCounterWithParticles } from "@/components/ui/animated-counter";
+import { WaveBackground } from "@/components/ui/wave-background";
 import { cn } from "@/lib/utils";
 
 export const StatsSection = () => {
-  const activeUsers = useCountUp({ end: 2500 });
-  const cities = useCountUp({ end: 650 });
-  const appointments = useCountUp({ end: 2100 });
   const imageReveal = useScrollReveal({ threshold: 0.3 });
 
   const { url: happyClientsUrl } = useSiteImage('happy-clients');
@@ -20,9 +18,9 @@ export const StatsSection = () => {
     : happyClientsFallback;
 
   const stats = [
-    { ref: activeUsers.ref, value: activeUsers.count, suffix: "+", label: "Usuários Ativos", format: true },
-    { ref: cities.ref, value: cities.count, suffix: "+", label: "Cidades no Brasil", format: false },
-    { ref: appointments.ref, value: appointments.count / 1000, suffix: " mi", label: "Atendimentos", format: true, toFixed: 1 },
+    { value: 2500, suffix: "+", label: "Usuários Ativos", hasParticles: true },
+    { value: 650, suffix: "+", label: "Cidades no Brasil", hasParticles: false },
+    { value: 2.1, suffix: " mi", label: "Atendimentos", hasParticles: false, decimals: 1 },
   ];
 
   const trustItems = [
@@ -53,11 +51,11 @@ export const StatsSection = () => {
         <div className="absolute inset-0 bg-grid-pattern opacity-10" />
         
         {/* Animated particles */}
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(20)].map((_, i) => (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(25)].map((_, i) => (
             <Sparkles
               key={i}
-              className="absolute text-white/20 animate-float"
+              className="absolute text-white/30 animate-float-enhanced"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
@@ -75,20 +73,26 @@ export const StatsSection = () => {
             {stats.map((stat, index) => (
               <div 
                 key={index}
-                className="text-center space-y-2 animate-fade-in group" 
-                ref={stat.ref}
+                className="text-center space-y-2 group" 
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="text-5xl lg:text-6xl font-black text-white group-hover:animate-count-up-glow transition-all duration-300">
-                  {stat.suffix === "+" && stat.suffix}
-                  {stat.format 
-                    ? (stat.toFixed 
-                        ? (stat.value as number).toFixed(stat.toFixed) 
-                        : stat.value.toLocaleString('pt-BR'))
-                    : stat.value}
-                  {stat.suffix !== "+" && stat.suffix}
+                <div className="text-5xl lg:text-6xl font-black text-white transition-all duration-300 group-hover:scale-110">
+                  {stat.hasParticles ? (
+                    <AnimatedCounterWithParticles
+                      end={stat.value}
+                      suffix={stat.suffix}
+                      duration={2500}
+                      particleCount={12}
+                    />
+                  ) : (
+                    <AnimatedCounter
+                      end={stat.value}
+                      suffix={stat.suffix}
+                      duration={2000}
+                    />
+                  )}
                 </div>
-                <div className="text-sm lg:text-base font-semibold text-white/90 uppercase tracking-wide">
+                <div className="text-sm lg:text-base font-semibold text-white/90 uppercase tracking-wide group-hover:text-white transition-colors">
                   {stat.label}
                 </div>
               </div>
@@ -96,10 +100,10 @@ export const StatsSection = () => {
             
             {/* Plan highlight */}
             <div 
-              className="text-center space-y-2 animate-fade-in bg-gradient-to-br from-yellow-500/20 to-amber-500/20 rounded-2xl p-4 border-2 border-yellow-500/30 hover:scale-105 transition-transform duration-300 hover:shadow-xl" 
+              className="text-center space-y-2 bg-gradient-to-br from-yellow-500/20 to-amber-500/20 rounded-2xl p-4 border-2 border-yellow-500/30 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:border-yellow-500/50 group cursor-default animate-fade-in" 
               style={{ animationDelay: "0.3s" }}
             >
-              <div className="text-5xl lg:text-6xl font-black text-white">
+              <div className="text-5xl lg:text-6xl font-black text-white group-hover:animate-pulse-ring">
                 R$ 79,90
               </div>
               <div className="text-sm lg:text-base font-semibold text-white/90 uppercase tracking-wide">
@@ -113,22 +117,24 @@ export const StatsSection = () => {
       {/* Trust Section */}
       <section className="py-20 px-4 bg-muted relative overflow-hidden">
         {/* Background decoration */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: "4s" }} />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: "5s", animationDelay: "1s" }} />
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <ParallaxContainer speed={0.2}>
               <div 
                 ref={imageReveal.ref}
-                className={`relative scroll-reveal scroll-reveal-left ${imageReveal.isVisible ? 'visible' : ''}`}
+                className={`relative scroll-reveal scroll-reveal-left ${imageReveal.isVisible ? 'visible' : ''} group`}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-2xl blur-xl animate-pulse-glow" />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-2xl blur-xl animate-pulse-glow group-hover:blur-2xl transition-all duration-500" />
                 <img
                   src={happyClientsImg}
                   alt="Clientes satisfeitos com seus pets em ambiente de pet shop"
-                  className="relative rounded-2xl shadow-xl w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500"
+                  className="relative rounded-2xl shadow-xl w-full h-auto object-cover group-hover:scale-[1.02] transition-transform duration-500"
                 />
+                {/* Overlay on hover */}
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </div>
             </ParallaxContainer>
             
@@ -161,7 +167,7 @@ export const StatsSection = () => {
                             <div className={cn(
                               "w-12 h-12 rounded-full flex items-center justify-center",
                               "bg-gradient-to-br shadow-lg",
-                              "group-hover:scale-110 transition-transform duration-300",
+                              "group-hover:scale-110 group-hover:rotate-12 transition-all duration-500",
                               item.color
                             )}>
                               <item.icon className="h-6 w-6 text-primary group-hover:animate-icon-bounce" />
