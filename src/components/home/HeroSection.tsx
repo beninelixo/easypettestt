@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle2, Calendar, MessageSquare, TrendingUp, Smartphone, CreditCard, Shield } from "lucide-react";
+import { ArrowRight, CheckCircle2, Calendar, MessageSquare, TrendingUp, Smartphone, CreditCard, Shield, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useSiteImage } from "@/hooks/useSiteImages";
@@ -8,6 +8,9 @@ import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 import { TypewriterText } from "@/components/ui/typewriter-text";
 import { AnimatedBlobsBackground } from "@/components/ui/animated-blob";
 import { ParallaxContainer } from "@/components/ui/parallax-container";
+import { ParticlesBackground } from "@/components/ui/particles-background";
+import { MagneticButton } from "@/components/ui/magnetic-button";
+import { WaveBackground } from "@/components/ui/wave-background";
 
 // Fallback local image
 import heroImageFallback from "@/assets/hero-petshop.jpg";
@@ -29,7 +32,15 @@ export const HeroSection = () => {
   ];
   
   return (
-    <section className="relative pt-32 pb-20 px-4 overflow-hidden min-h-[90vh] flex items-center">
+    <section className="relative pt-32 pb-20 px-4 overflow-hidden min-h-[100vh] flex items-center">
+      {/* Particles Background */}
+      <ParticlesBackground 
+        particleCount={40}
+        color="hsl(var(--primary))"
+        connectDistance={120}
+        className="opacity-40"
+      />
+      
       {/* Animated Blobs Background */}
       <AnimatedBlobsBackground />
       
@@ -37,15 +48,19 @@ export const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 animate-gradient" />
       <div className="absolute inset-0 bg-grid-pattern opacity-5" />
       
+      {/* Wave at bottom */}
+      <WaveBackground position="bottom" color="hsl(var(--muted))" opacity={0.5} speed="slow" />
+      
       <div className="container mx-auto max-w-7xl relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
           <div className="space-y-8">
             <div 
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary font-semibold text-sm animate-fade-in"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary font-semibold text-sm animate-fade-in hover:bg-primary/20 transition-colors duration-300 cursor-default group"
               style={{ animationDelay: "0.1s" }}
             >
-              🐾 Sistema Completo para Pet Shops, Banho & Tosa e Clínicas
+              <span className="animate-bounce-enter" style={{ animationDelay: "0.3s" }}>🐾</span>
+              <span className="group-hover:translate-x-1 transition-transform duration-300">Sistema Completo para Pet Shops, Banho & Tosa e Clínicas</span>
             </div>
             
             <h1 
@@ -76,32 +91,35 @@ export const HeroSection = () => {
               style={{ animationDelay: "0.4s" }}
             >
               <Link to="/pricing">
-                <Button 
-                  size="lg" 
-                  className="text-xl px-12 py-8 font-bold shadow-2xl hover:shadow-primary/50 transition-all duration-500 hover:-translate-y-2 hover:scale-105 group w-full sm:w-auto bg-gradient-to-r from-primary to-secondary relative overflow-hidden shine"
+                <MagneticButton
+                  strength={0.2}
+                  glowColor="hsl(var(--primary))"
+                  className="text-xl px-12 py-8 font-bold shadow-2xl bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-xl hover:shadow-primary/50 transition-all duration-500 hover:-translate-y-2 group w-full sm:w-auto"
                 >
-                  Ver Planos e Preços
-                  <ArrowRight className="ml-2 h-6 w-6 group-hover:translate-x-3 transition-transform duration-300" />
-                </Button>
+                  <span className="flex items-center gap-2">
+                    Ver Planos e Preços
+                    <ArrowRight className="h-6 w-6 group-hover:translate-x-3 transition-transform duration-300" />
+                  </span>
+                </MagneticButton>
               </Link>
               <Link to="/system-overview">
                 <Button 
                   size="lg" 
                   variant="outline"
-                  className="text-xl px-12 py-8 font-bold border-2 hover:bg-primary/10 hover:border-primary transition-all duration-300 w-full sm:w-auto hover:shadow-lg"
+                  className="text-xl px-12 py-8 font-bold border-2 hover:bg-primary/10 hover:border-primary transition-all duration-300 w-full sm:w-auto hover:shadow-lg group"
                 >
-                  Conhecer o Sistema
+                  <span className="group-hover:text-primary transition-colors">Conhecer o Sistema</span>
                 </Button>
               </Link>
             </div>
 
             {/* Free Trial Badge */}
             <div 
-              className="inline-flex items-center gap-2 px-6 py-3 bg-accent/20 rounded-full border-2 border-accent/30 animate-fade-in hover:scale-105 transition-transform duration-300"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-accent/20 rounded-full border-2 border-accent/30 animate-fade-in hover:scale-105 hover:bg-accent/30 transition-all duration-300 cursor-default group"
               style={{ animationDelay: "0.5s" }}
             >
-              <span className="text-2xl">🎁</span>
-              <span className="font-bold text-accent-foreground">Teste Grátis 30 Dias - Sem Cartão de Crédito</span>
+              <span className="text-2xl animate-bounce-enter" style={{ animationDelay: "0.6s" }}>🎁</span>
+              <span className="font-bold text-accent-foreground group-hover:text-primary transition-colors">Teste Grátis 30 Dias - Sem Cartão de Crédito</span>
             </div>
 
             {/* Trust Indicators */}
@@ -116,9 +134,10 @@ export const HeroSection = () => {
               ].map((item, index) => (
                 <div 
                   key={index}
-                  className="flex items-center gap-2 group hover:scale-110 transition-transform duration-300"
+                  className="flex items-center gap-2 group hover:scale-110 transition-all duration-300"
+                  style={{ animationDelay: `${0.7 + index * 0.1}s` }}
                 >
-                  <div className="p-1 bg-green-100 dark:bg-green-900/30 rounded-full group-hover:animate-icon-bounce">
+                  <div className="p-1 bg-green-100 dark:bg-green-900/30 rounded-full group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">
                     <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
                   </div>
                   <span className="text-sm font-semibold group-hover:text-primary transition-colors">{item.label}</span>
@@ -203,6 +222,12 @@ export const HeroSection = () => {
               </div>
             </FloatingBadgesContainer>
           </ParallaxContainer>
+        </div>
+        
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce hidden lg:flex flex-col items-center gap-2 text-muted-foreground">
+          <span className="text-sm font-medium">Rolar para baixo</span>
+          <ChevronDown className="h-6 w-6" />
         </div>
       </div>
     </section>
