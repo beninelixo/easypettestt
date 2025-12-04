@@ -86,6 +86,7 @@ const ProfessionalReports = lazy(() => import("./pages/professional/Professional
 const ProfessionalBackup = lazy(() => import("./pages/professional/ProfessionalBackup"));
 const ProfessionalProfile = lazy(() => import("./pages/professional/ProfessionalProfile"));
 const ProfessionalPlans = lazy(() => import("./pages/professional/ProfessionalPlans"));
+const ProfessionalSubscription = lazy(() => import("./pages/professional/ProfessionalSubscription"));
 const PaymentSuccess = lazy(() => import("./pages/professional/PaymentSuccess"));
 const PaymentCancelled = lazy(() => import("./pages/professional/PaymentCancelled"));
 const SystemOverview = lazy(() => import("./pages/SystemOverview"));
@@ -272,6 +273,7 @@ const App = () => {
             <Route path="backup" element={<ProfessionalBackup />} />
             <Route path="settings" element={<ProfessionalSettings />} />
             <Route path="plans" element={<ProfessionalPlans />} />
+            <Route path="subscription" element={<ProfessionalSubscription />} />
             <Route path="payment-success" element={<PaymentSuccess />} />
             <Route path="payment-cancelled" element={<PaymentCancelled />} />
             <Route path="profile" element={<ProfessionalProfile />} />

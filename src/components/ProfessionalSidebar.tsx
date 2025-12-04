@@ -93,6 +93,12 @@ const protectedMenuItems = [
     gradient: "from-slate-500 to-slate-600"
   },
   { 
+    title: "Minha Assinatura", 
+    url: "/professional/subscription", 
+    icon: CreditCard,
+    gradient: "from-emerald-500 to-green-600"
+  },
+  { 
     title: "Planos", 
     url: "/professional/plans", 
     icon: CreditCard,
