@@ -79,11 +79,11 @@ Deno.serve(async (req) => {
 
     const { severity, module, subject, message, details } = validation.data;
 
-    // Buscar emails dos admins
+    // Buscar emails dos admins (incluindo super_admin)
     const { data: admins, error: adminsError } = await supabase
       .from('user_roles')
       .select('user_id')
-      .eq('role', 'admin');
+      .in('role', ['admin', 'super_admin']);
 
     if (adminsError) throw adminsError;
 

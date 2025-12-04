@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -37,14 +38,8 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    // Verificar se é admin ou god user
-    const { data: roleData } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', adminUser.id)
-      .single();
-
-    const isAdmin = roleData?.role === 'admin' || roleData?.role === 'super_admin' || adminUser.email === 'beninelixo@gmail.com';
+    // Verificar se é admin ou god user usando helper (suporta múltiplas roles)
+    const { isAdmin } = await verifyAdminAccess(supabase, adminUser.id);
     
     if (!isAdmin) {
       throw new Error('Permission denied: Admin access required');
