@@ -21,7 +21,7 @@ interface ParticlesBackgroundProps {
 
 export const ParticlesBackground: React.FC<ParticlesBackgroundProps> = ({
   className,
-  particleCount = 50,
+  particleCount = 15,
   color = "hsl(var(--primary))",
   connectDistance = 100,
   showConnections = true,
@@ -51,10 +51,10 @@ export const ParticlesBackground: React.FC<ParticlesBackgroundProps> = ({
         id: i,
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: Math.random() * 3 + 1,
-        speedX: (Math.random() - 0.5) * 0.5,
-        speedY: (Math.random() - 0.5) * 0.5,
-        opacity: Math.random() * 0.5 + 0.2,
+        size: Math.random() * 2 + 0.5,
+        speedX: (Math.random() - 0.5) * 0.2,
+        speedY: (Math.random() - 0.5) * 0.2,
+        opacity: Math.random() * 0.3 + 0.1,
       }));
     };
 
@@ -76,7 +76,7 @@ export const ParticlesBackground: React.FC<ParticlesBackgroundProps> = ({
           const distance = Math.sqrt(dx * dx + dy * dy);
 
           if (distance < connectDistance) {
-            const opacity = (1 - distance / connectDistance) * 0.2;
+            const opacity = (1 - distance / connectDistance) * 0.1;
             ctx.beginPath();
             ctx.strokeStyle = color.replace(')', `, ${opacity})`).replace('hsl', 'hsla');
             ctx.lineWidth = 0.5;
@@ -93,18 +93,20 @@ export const ParticlesBackground: React.FC<ParticlesBackgroundProps> = ({
         particle.x += particle.speedX;
         particle.y += particle.speedY;
 
-        // Mouse interaction
+        // Gentle mouse interaction
         const dx = mouseRef.current.x - particle.x;
         const dy = mouseRef.current.y - particle.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < 100) {
-          particle.x -= dx * 0.01;
-          particle.y -= dy * 0.01;
+        if (distance < 80) {
+          particle.x -= dx * 0.003;
+          particle.y -= dy * 0.003;
         }
 
-        // Bounce off walls
-        if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1;
-        if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1;
+        // Wrap around edges smoothly
+        if (particle.x < 0) particle.x = canvas.width;
+        if (particle.x > canvas.width) particle.x = 0;
+        if (particle.y < 0) particle.y = canvas.height;
+        if (particle.y > canvas.height) particle.y = 0;
       });
     };
 
@@ -149,6 +151,7 @@ export const ParticlesBackground: React.FC<ParticlesBackgroundProps> = ({
     <canvas
       ref={canvasRef}
       className={cn("absolute inset-0 pointer-events-none", className)}
+      style={{ opacity: 0.5 }}
     />
   );
 };
