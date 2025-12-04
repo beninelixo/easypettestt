@@ -75,11 +75,11 @@ serve(async (req) => {
     if (['critical', 'emergency'].includes(alertData.severity)) {
       console.log('📧 Sending email notification to admins...');
       
-      // Buscar todos os admins
+      // Buscar todos os admins (incluindo super_admin)
       const { data: adminUsers } = await supabase
         .from('user_roles')
         .select('user_id, profiles!inner(full_name)')
-        .eq('role', 'admin');
+        .in('role', ['admin', 'super_admin']);
 
       const { data: adminAuth } = await supabase.auth.admin.listUsers();
       const adminEmails = adminAuth?.users

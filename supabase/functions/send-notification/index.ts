@@ -1,9 +1,10 @@
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { verifyAdminAccess } from '../_shared/schemas.ts';
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 interface NotificationRequest {
   subject: string;
@@ -44,14 +45,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check admin role
-    const { data: roleData, error: roleError } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
+    // Check admin role usando helper (suporta múltiplas roles)
+    const { isAdmin } = await verifyAdminAccess(supabase, user.id);
 
-    if (roleError || roleData?.role !== 'admin') {
+    if (!isAdmin) {
       return new Response(
         JSON.stringify({ error: 'Forbidden - Admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -166,7 +163,7 @@ Deno.serve(async (req) => {
     const { data: adminRoles } = await supabase
       .from('user_roles')
       .select('user_id')
-      .eq('role', 'admin');
+      .in('role', ['admin', 'super_admin']);
 
     const adminIds = adminRoles?.map(r => r.user_id) || [];
     

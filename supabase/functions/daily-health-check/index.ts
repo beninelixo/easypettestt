@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { verifyAdminAccess } from '../_shared/schemas.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -29,26 +30,36 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Security: Verify cron job API key or service role authorization
+    // Security: Verify cron job API key, service role, OR admin JWT authorization
     const cronKey = req.headers.get('x-cron-key');
     const authHeader = req.headers.get('authorization');
     const expectedCronKey = Deno.env.get('CRON_API_KEY');
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
     
-    // Allow access if: valid cron key OR service role authorization
+    // Allow access if: valid cron key OR service role authorization OR admin JWT
     const isValidCronKey = cronKey && expectedCronKey && cronKey === expectedCronKey;
     const isServiceRole = authHeader && authHeader.includes(serviceRoleKey);
     
-    if (!isValidCronKey && !isServiceRole) {
+    // Check for admin JWT token
+    let isAdminUser = false;
+    if (!isValidCronKey && !isServiceRole && authHeader) {
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user } } = await supabase.auth.getUser(token);
+      if (user) {
+        const { isAdmin } = await verifyAdminAccess(supabase, user.id);
+        isAdminUser = isAdmin;
+      }
+    }
+    
+    if (!isValidCronKey && !isServiceRole && !isAdminUser) {
       console.warn('Unauthorized health check attempt');
       return new Response(
-        JSON.stringify({ error: 'Unauthorized', message: 'Valid API key or service role required' }),
+        JSON.stringify({ error: 'Unauthorized', message: 'Valid API key, service role, or admin access required' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
 
     console.log('🏥 Starting daily health check...');
 

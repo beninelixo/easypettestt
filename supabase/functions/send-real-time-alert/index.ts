@@ -39,12 +39,12 @@ Deno.serve(async (req) => {
     console.log(`🚨 Sending ${alertData.severity} alert: ${alertData.title}`);
 
     // ============================================
-    // 1. BUSCAR TODOS OS ADMINS
+    // 1. BUSCAR TODOS OS ADMINS (incluindo super_admin)
     // ============================================
     const { data: adminUsers } = await supabase
       .from('user_roles')
       .select('user_id')
-      .eq('role', 'admin');
+      .in('role', ['admin', 'super_admin']);
 
     if (!adminUsers || adminUsers.length === 0) {
       console.warn('No admin users found to notify');
