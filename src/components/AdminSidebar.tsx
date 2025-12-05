@@ -42,7 +42,7 @@ const securityItems = [
 // Usuários
 const userItems = [
   { title: "Gerenciar Usuários", url: "/admin/user-management", icon: Users },
-  { title: "Analytics", url: "/admin/user-analytics", icon: TrendingUp },
+  { title: "Analytics de Usuários", url: "/admin/user-analytics", icon: TrendingUp },
 ];
 
 // Configurações
@@ -54,10 +54,10 @@ const settingsItems = [
   { title: "Teste de Conexão", url: "/admin/connection-test", icon: TestTube },
 ];
 
-// Gestão de Conteúdo
+// Gestão de Conteúdo e Jobs
 const contentItems = [
   { title: "Success Stories", url: "/admin/success-stories", icon: Trophy },
-  { title: "Failed Jobs", url: "/admin/failed-jobs", icon: AlertTriangle },
+  { title: "Jobs Falhos", url: "/admin/failed-jobs", icon: AlertTriangle },
 ];
 
 export function AdminSidebar() {
