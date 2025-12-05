@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { CheckCircle2, Crown, Trophy, ArrowRight, Sparkles } from "lucide-react";
+import { openCaktoCheckout, type CaktoPlanId } from "@/lib/payment-routes";
 
 export const PricingPreviewSection = () => {
   const plans = [
@@ -20,6 +21,7 @@ export const PricingPreviewSection = () => {
       icon: Sparkles,
       popular: false,
       highlight: false,
+      planId: null, // Free plan links to /pricing
     },
     {
       name: "Plano Pet Gold",
@@ -37,6 +39,7 @@ export const PricingPreviewSection = () => {
       icon: Trophy,
       popular: true,
       highlight: true,
+      planId: "pet_gold" as CaktoPlanId,
     },
     {
       name: "Pet Platinum",
@@ -55,6 +58,7 @@ export const PricingPreviewSection = () => {
       icon: Crown,
       popular: false,
       highlight: false,
+      planId: "pet_platinum" as CaktoPlanId,
     },
   ];
 
@@ -120,8 +124,9 @@ export const PricingPreviewSection = () => {
                   ))}
                 </ul>
 
-                <Link to="/pricing" className="block">
+                {plan.planId ? (
                   <Button 
+                    onClick={() => openCaktoCheckout(plan.planId!)}
                     className={`w-full text-base py-6 ${
                       plan.highlight 
                         ? "bg-primary hover:bg-primary/90 shadow-lg" 
@@ -132,7 +137,17 @@ export const PricingPreviewSection = () => {
                     {plan.cta}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                </Link>
+                ) : (
+                  <Link to="/pricing" className="block">
+                    <Button 
+                      className="w-full text-base py-6"
+                      variant="outline"
+                    >
+                      {plan.cta}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                )}
               </CardContent>
             </Card>
           ))}
