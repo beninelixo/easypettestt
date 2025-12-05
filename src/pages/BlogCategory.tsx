@@ -7,17 +7,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, ArrowLeft, Layers } from "lucide-react";
 import { blogPosts } from "@/data/blogPosts";
+import { useBlogImages } from "@/hooks/useSiteImages";
 import { useToast } from "@/hooks/use-toast";
 
 const BlogCategory = () => {
   const { category } = useParams<{ category: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { images: blogImages } = useBlogImages();
   const [categoryName, setCategoryName] = useState("");
 
-  // Convert URL slug to category name
+  // Complete category map with all 7 categories from blogPosts.ts
   const categoryMap: Record<string, string> = {
     "gestao": "Gestão",
+    "banho-tosa": "Banho & Tosa",
+    "pet-shop": "Pet Shop",
+    "comportamento": "Comportamento",
     "tecnologia": "Tecnologia",
     "marketing": "Marketing",
     "crm": "CRM"
@@ -49,7 +54,7 @@ const BlogCategory = () => {
       <SEO 
         title={`${categoryName} - Blog EasyPet | Artigos sobre ${categoryName}`}
         description={`Confira todos os artigos sobre ${categoryName} no blog do EasyPet. Dicas, insights e estratégias para sua clínica veterinária.`}
-        url={`https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/blog/categoria/${category}`}
+        url={`${window.location.origin}/blog/categoria/${category}`}
       />
       <Navigation />
 
@@ -123,7 +128,7 @@ const BlogCategory = () => {
                   >
                     <div className="relative h-48 overflow-hidden">
                       <img 
-                        src={post.image} 
+                        src={blogImages[post.slug] || post.image} 
                         alt={post.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                         loading="lazy"
