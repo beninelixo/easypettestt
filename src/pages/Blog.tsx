@@ -10,6 +10,7 @@ import { Calendar, Clock, ArrowRight, TrendingUp, Sparkles, Loader2 } from "luci
 import { blogPosts } from "@/data/blogPosts";
 import { useBlogImages } from "@/hooks/useSiteImages";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 
 const emailSchema = z.string().email("Por favor, insira um e-mail válido");
@@ -51,7 +52,7 @@ const Blog = () => {
     return slugMap[category] || category.toLowerCase();
   };
 
-  // Newsletter submit handler
+  // Newsletter submit handler - integrado com Supabase
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -68,16 +69,38 @@ const Blog = () => {
     
     setIsSubmitting(true);
     
-    // Simulate API call (replace with actual newsletter service integration)
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Inscrição realizada!",
-      description: "Você receberá nossos conteúdos exclusivos semanalmente.",
-    });
-    
-    setEmail("");
-    setIsSubmitting(false);
+    try {
+      const { error } = await supabase
+        .from('newsletter_subscribers')
+        .insert({ email, source: 'blog' });
+      
+      if (error) {
+        // Verificar se é erro de email duplicado
+        if (error.code === '23505') {
+          toast({
+            title: "E-mail já cadastrado",
+            description: "Este e-mail já está inscrito em nossa newsletter.",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Inscrição realizada!",
+          description: "Você receberá nossos conteúdos exclusivos semanalmente.",
+        });
+        setEmail("");
+      }
+    } catch (error) {
+      console.error('Erro ao inscrever na newsletter:', error);
+      toast({
+        title: "Erro ao inscrever",
+        description: "Ocorreu um erro. Por favor, tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Load more posts
@@ -104,7 +127,7 @@ const Blog = () => {
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center space-y-6 max-w-4xl mx-auto animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-full text-primary text-sm font-semibold">
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
               Conteúdo Exclusivo
             </div>
             <h1 className="text-5xl lg:text-7xl font-black leading-tight">
@@ -118,7 +141,7 @@ const Blog = () => {
       </section>
 
       {/* Categories */}
-      <section className="py-8 px-4 border-b border-border">
+      <section className="py-8 px-4 border-b border-border" id="main-content">
         <div className="container mx-auto max-w-7xl">
           <div className="flex flex-wrap gap-3 justify-center">
             {categories.map((category) => {
@@ -174,17 +197,17 @@ const Blog = () => {
                     </p>
                     <div className="flex items-center gap-6 text-sm text-muted-foreground mb-6">
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
+                        <Calendar className="h-4 w-4" aria-hidden="true" />
                         {post.date}
                       </div>
                       <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" />
+                        <Clock className="h-4 w-4" aria-hidden="true" />
                         {post.readTime}
                       </div>
                     </div>
                     <div className="flex items-center text-primary font-semibold group-hover:gap-4 transition-all duration-300">
                       Ler artigo completo
-                      <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-2 transition-transform duration-300" />
+                      <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-2 transition-transform duration-300" aria-hidden="true" />
                     </div>
                   </div>
                 </div>
@@ -195,9 +218,9 @@ const Blog = () => {
       ))}
 
       {/* Blog Grid */}
-      <section className="py-16 px-4 bg-muted">
+      <section className="py-16 px-4 bg-muted" aria-labelledby="latest-posts-heading">
         <div className="container mx-auto max-w-7xl">
-          <h2 className="text-3xl font-bold mb-12 text-center">Últimos artigos</h2>
+          <h2 id="latest-posts-heading" className="text-3xl font-bold mb-12 text-center">Últimos artigos</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {visiblePosts.map((post, index) => (
               <Link key={post.id} to={`/blog/${post.slug}`}>
@@ -229,11 +252,11 @@ const Blog = () => {
                   <CardContent>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
+                        <Calendar className="h-4 w-4" aria-hidden="true" />
                         {post.date}
                       </div>
                       <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" />
+                        <Clock className="h-4 w-4" aria-hidden="true" />
                         {post.readTime}
                       </div>
                     </div>
@@ -260,12 +283,12 @@ const Blog = () => {
       </section>
 
       {/* Newsletter CTA */}
-      <section className="py-24 px-4 bg-gradient-to-r from-primary via-secondary to-primary">
+      <section className="py-24 px-4 bg-gradient-to-r from-primary via-secondary to-primary" aria-labelledby="newsletter-heading">
         <div className="container mx-auto max-w-3xl text-center space-y-6">
           <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto backdrop-blur-sm">
-            <TrendingUp className="h-8 w-8 text-white" />
+            <TrendingUp className="h-8 w-8 text-white" aria-hidden="true" />
           </div>
-          <h2 className="text-3xl lg:text-4xl font-black text-white">
+          <h2 id="newsletter-heading" className="text-3xl lg:text-4xl font-black text-white">
             Receba conteúdos exclusivos
           </h2>
           <p className="text-lg text-white/90">
@@ -275,7 +298,9 @@ const Blog = () => {
             onSubmit={handleNewsletterSubmit}
             className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto pt-4"
           >
+            <label htmlFor="newsletter-email" className="sr-only">Seu melhor e-mail</label>
             <input 
+              id="newsletter-email"
               type="email" 
               placeholder="Seu melhor e-mail"
               value={email}
@@ -292,7 +317,7 @@ const Blog = () => {
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
                   Inscrevendo...
                 </>
               ) : (
