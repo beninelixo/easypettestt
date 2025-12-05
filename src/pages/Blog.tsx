@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -5,20 +6,95 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, ArrowRight, TrendingUp, Sparkles } from "lucide-react";
+import { Calendar, Clock, ArrowRight, TrendingUp, Sparkles, Loader2 } from "lucide-react";
 import { blogPosts } from "@/data/blogPosts";
 import { useBlogImages } from "@/hooks/useSiteImages";
+import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+
+const emailSchema = z.string().email("Por favor, insira um e-mail válido");
 
 const Blog = () => {
   const { images: blogImages } = useBlogImages();
-  const categories = ["Todos", "Gestão", "Tecnologia", "Marketing", "CRM"];
+  const { toast } = useToast();
+  
+  // Newsletter state
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Pagination state
+  const [visibleCount, setVisibleCount] = useState(6);
+  
+  // All categories from blogPosts.ts
+  const categories = [
+    "Todos", 
+    "Gestão", 
+    "Banho & Tosa", 
+    "Pet Shop", 
+    "Comportamento", 
+    "Tecnologia", 
+    "Marketing", 
+    "CRM"
+  ];
+
+  // Get category slug for URL
+  const getCategorySlug = (category: string): string => {
+    const slugMap: Record<string, string> = {
+      "Gestão": "gestao",
+      "Banho & Tosa": "banho-tosa",
+      "Pet Shop": "pet-shop",
+      "Comportamento": "comportamento",
+      "Tecnologia": "tecnologia",
+      "Marketing": "marketing",
+      "CRM": "crm"
+    };
+    return slugMap[category] || category.toLowerCase();
+  };
+
+  // Newsletter submit handler
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      emailSchema.parse(email);
+    } catch {
+      toast({
+        title: "E-mail inválido",
+        description: "Por favor, insira um endereço de e-mail válido.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    // Simulate API call (replace with actual newsletter service integration)
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    toast({
+      title: "Inscrição realizada!",
+      description: "Você receberá nossos conteúdos exclusivos semanalmente.",
+    });
+    
+    setEmail("");
+    setIsSubmitting(false);
+  };
+
+  // Load more posts
+  const loadMorePosts = () => {
+    setVisibleCount(prev => prev + 6);
+  };
+
+  const nonFeaturedPosts = blogPosts.filter(p => !p.featured);
+  const hasMorePosts = visibleCount < nonFeaturedPosts.length;
+  const visiblePosts = nonFeaturedPosts.slice(0, visibleCount);
 
   return (
     <div className="min-h-screen bg-background">
       <SEO 
         title="Blog - EasyPet | Dicas e Insights para Clínicas Veterinárias e Pet Shops"
         description="Acesse nosso blog com conteúdo exclusivo sobre gestão veterinária, marketing digital, tecnologia pet e dicas práticas para aumentar o faturamento da sua clínica."
-        url="https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/blog"
+        url={`${window.location.origin}/blog`}
       />
       <Navigation />
 
@@ -46,7 +122,7 @@ const Blog = () => {
         <div className="container mx-auto max-w-7xl">
           <div className="flex flex-wrap gap-3 justify-center">
             {categories.map((category) => {
-              const categorySlug = category.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+              const categorySlug = getCategorySlug(category);
               return (
                 <Link 
                   key={category} 
@@ -123,7 +199,7 @@ const Blog = () => {
         <div className="container mx-auto max-w-7xl">
           <h2 className="text-3xl font-bold mb-12 text-center">Últimos artigos</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogPosts.filter(p => !p.featured).map((post, index) => (
+            {visiblePosts.map((post, index) => (
               <Link key={post.id} to={`/blog/${post.slug}`}>
                 <Card 
                   className="border-2 border-border hover:border-primary hover:shadow-2xl transition-all duration-500 overflow-hidden group cursor-pointer h-full animate-fade-in hover-lift"
@@ -168,11 +244,18 @@ const Blog = () => {
           </div>
 
           {/* Load More */}
-          <div className="text-center mt-12">
-            <Button size="lg" variant="outline" className="px-10 py-6 text-lg font-semibold">
-              Carregar mais artigos
-            </Button>
-          </div>
+          {hasMorePosts && (
+            <div className="text-center mt-12">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="px-10 py-6 text-lg font-semibold"
+                onClick={loadMorePosts}
+              >
+                Carregar mais artigos ({nonFeaturedPosts.length - visibleCount} restantes)
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -188,16 +271,35 @@ const Blog = () => {
           <p className="text-lg text-white/90">
             Assine nossa newsletter e receba semanalmente dicas, novidades e cases de sucesso
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto pt-4">
+          <form 
+            onSubmit={handleNewsletterSubmit}
+            className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto pt-4"
+          >
             <input 
               type="email" 
               placeholder="Seu melhor e-mail"
-              className="flex-1 px-6 py-4 rounded-full border-2 border-white/20 bg-white/10 backdrop-blur-sm text-white placeholder:text-white/60 focus:outline-none focus:border-white"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isSubmitting}
+              required
+              className="flex-1 px-6 py-4 rounded-full border-2 border-white/20 bg-white/10 backdrop-blur-sm text-white placeholder:text-white/60 focus:outline-none focus:border-white disabled:opacity-50"
             />
-            <Button size="lg" className="bg-white text-primary hover:bg-white/90 px-8 rounded-full font-bold">
-              Inscrever
+            <Button 
+              type="submit"
+              size="lg" 
+              disabled={isSubmitting}
+              className="bg-white text-primary hover:bg-white/90 px-8 rounded-full font-bold disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Inscrevendo...
+                </>
+              ) : (
+                "Inscrever"
+              )}
             </Button>
-          </div>
+          </form>
         </div>
       </section>
 
