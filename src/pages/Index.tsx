@@ -1,11 +1,7 @@
+import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import Testimonials from "@/components/Testimonials";
-import HowItWorks from "@/components/HowItWorks";
-import ComparisonTable from "@/components/ComparisonTable";
-import FAQ from "@/components/FAQ";
 import { SEO } from "@/components/SEO";
 import { HeroSection } from "@/components/home/HeroSection";
 import { StatsSection } from "@/components/home/StatsSection";
@@ -14,10 +10,22 @@ import { FeaturesSection } from "@/components/home/FeaturesSection";
 import { DifferentialsSection } from "@/components/home/DifferentialsSection";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { AnimatedSection } from "@/components/ui/animated-section";
-import { MagneticButton } from "@/components/ui/magnetic-button";
-import { ParticlesBackground } from "@/components/ui/particles-background";
-import { WaveBackground } from "@/components/ui/wave-background";
 import { ArrowRight, Rocket, TrendingUp, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+// Lazy load heavy animation components
+const MagneticButton = lazy(() => import("@/components/ui/magnetic-button").then(m => ({ default: m.MagneticButton })));
+const ParticlesBackground = lazy(() => import("@/components/ui/particles-background").then(m => ({ default: m.ParticlesBackground })));
+const WaveBackground = lazy(() => import("@/components/ui/wave-background").then(m => ({ default: m.WaveBackground })));
+
+// Lazy load below-fold sections
+const Testimonials = lazy(() => import("@/components/Testimonials"));
+const HowItWorks = lazy(() => import("@/components/HowItWorks"));
+const ComparisonTable = lazy(() => import("@/components/ComparisonTable"));
+const FAQ = lazy(() => import("@/components/FAQ"));
+
+// Simple fallback for lazy components
+const LazyFallback = () => <div className="h-4" />;
 
 const Index = () => {
   return (
@@ -32,7 +40,7 @@ const Index = () => {
       />
       <Navigation />
 
-      {/* Hero Section */}
+      {/* Hero Section - Critical for LCP */}
       <HeroSection />
 
       {/* Stats + Trust Section Combined */}
@@ -43,7 +51,9 @@ const Index = () => {
 
       {/* CTA 1 - After Segmentation */}
       <section className="py-16 px-4 bg-background relative overflow-hidden">
-        <ParticlesBackground particleCount={20} color="hsl(var(--primary))" className="opacity-20" />
+        <Suspense fallback={<LazyFallback />}>
+          <ParticlesBackground particleCount={20} color="hsl(var(--primary))" className="opacity-20" />
+        </Suspense>
         <AnimatedSection animation="zoom" className="container mx-auto max-w-4xl text-center">
           <div className="space-y-6 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-3xl p-12 border border-primary/10 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl group relative overflow-hidden">
             {/* Animated background glow */}
@@ -57,16 +67,22 @@ const Index = () => {
               30 dias para testar todas as funcionalidades. Sem cartão de crédito.
             </p>
             <Link to="/pricing" className="relative inline-block">
-              <MagneticButton
-                strength={0.15}
-                glowColor="hsl(var(--primary))"
-                className="bg-primary text-primary-foreground text-lg px-10 py-6 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                <span className="flex items-center gap-2">
-                  Começar Agora
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform" />
-                </span>
-              </MagneticButton>
+              <Suspense fallback={
+                <Button size="lg" className="bg-primary text-primary-foreground text-lg px-10 py-6">
+                  Começar Agora <ArrowRight className="h-5 w-5 ml-2" />
+                </Button>
+              }>
+                <MagneticButton
+                  strength={0.15}
+                  glowColor="hsl(var(--primary))"
+                  className="bg-primary text-primary-foreground text-lg px-10 py-6 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <span className="flex items-center gap-2">
+                    Começar Agora
+                    <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform" />
+                  </span>
+                </MagneticButton>
+              </Suspense>
             </Link>
           </div>
         </AnimatedSection>
@@ -78,8 +94,10 @@ const Index = () => {
       {/* Differentials */}
       <DifferentialsSection />
 
-      {/* How It Works */}
-      <HowItWorks />
+      {/* How It Works - Lazy loaded */}
+      <Suspense fallback={<div className="py-20 bg-muted" />}>
+        <HowItWorks />
+      </Suspense>
 
       {/* CTA 2 - After How It Works */}
       <section className="py-16 px-4 bg-muted relative overflow-hidden">
@@ -96,29 +114,41 @@ const Index = () => {
               Empresas que já transformaram sua gestão com o EasyPet
             </p>
             <Link to="/pricing" className="relative inline-block">
-              <MagneticButton
-                strength={0.15}
-                glowColor="hsl(var(--primary))"
-                className="bg-primary text-primary-foreground text-lg px-10 py-6 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                <span className="flex items-center gap-2">
-                  Ver Planos
-                  <ArrowRight className="h-5 w-5" />
-                </span>
-              </MagneticButton>
+              <Suspense fallback={
+                <Button size="lg" className="bg-primary text-primary-foreground text-lg px-10 py-6">
+                  Ver Planos <ArrowRight className="h-5 w-5 ml-2" />
+                </Button>
+              }>
+                <MagneticButton
+                  strength={0.15}
+                  glowColor="hsl(var(--primary))"
+                  className="bg-primary text-primary-foreground text-lg px-10 py-6 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <span className="flex items-center gap-2">
+                    Ver Planos
+                    <ArrowRight className="h-5 w-5" />
+                  </span>
+                </MagneticButton>
+              </Suspense>
             </Link>
           </div>
         </AnimatedSection>
       </section>
 
-      {/* Testimonials */}
-      <Testimonials />
+      {/* Testimonials - Lazy loaded */}
+      <Suspense fallback={<div className="py-20" />}>
+        <Testimonials />
+      </Suspense>
 
-      {/* Comparison Table */}
-      <ComparisonTable />
+      {/* Comparison Table - Lazy loaded */}
+      <Suspense fallback={<div className="py-20 bg-muted" />}>
+        <ComparisonTable />
+      </Suspense>
 
-      {/* FAQ */}
-      <FAQ />
+      {/* FAQ - Lazy loaded */}
+      <Suspense fallback={<div className="py-20" />}>
+        <FAQ />
+      </Suspense>
 
       {/* Final CTA */}
       <section className="py-20 px-4 bg-gradient-to-r from-primary via-secondary to-primary relative overflow-hidden">
@@ -141,7 +171,9 @@ const Index = () => {
         </div>
         
         {/* Wave at top */}
-        <WaveBackground position="top" color="hsl(var(--background))" opacity={0.1} speed="slow" flip />
+        <Suspense fallback={null}>
+          <WaveBackground position="top" color="hsl(var(--background))" opacity={0.1} speed="slow" flip />
+        </Suspense>
         
         <AnimatedSection animation="zoom" className="container mx-auto max-w-3xl text-center space-y-6 relative z-10">
           <h2 className="text-4xl font-black text-white">
@@ -151,16 +183,22 @@ const Index = () => {
             Comece hoje mesmo e veja a diferença em poucos dias
           </p>
           <Link to="/pricing">
-            <MagneticButton
-              strength={0.2}
-              glowColor="hsl(0, 0%, 100%)"
-              className="bg-white text-primary hover:bg-white/90 text-xl px-12 py-8 rounded-xl font-bold shadow-2xl transition-all duration-300"
-            >
-              <span className="flex items-center gap-2">
-                Ver Planos e Preços
-                <ArrowRight className="h-6 w-6" />
-              </span>
-            </MagneticButton>
+            <Suspense fallback={
+              <Button size="lg" className="bg-white text-primary text-xl px-12 py-8">
+                Ver Planos e Preços <ArrowRight className="h-6 w-6 ml-2" />
+              </Button>
+            }>
+              <MagneticButton
+                strength={0.2}
+                glowColor="hsl(0, 0%, 100%)"
+                className="bg-white text-primary hover:bg-white/90 text-xl px-12 py-8 rounded-xl font-bold shadow-2xl transition-all duration-300"
+              >
+                <span className="flex items-center gap-2">
+                  Ver Planos e Preços
+                  <ArrowRight className="h-6 w-6" />
+                </span>
+              </MagneticButton>
+            </Suspense>
           </Link>
         </AnimatedSection>
       </section>

@@ -8,9 +8,7 @@ export const useAdminAlertSubscription = () => {
   const { userRole } = useAuth();
 
   useEffect(() => {
-    if (userRole !== 'admin') return;
-
-    console.log('🔔 Subscribing to admin alerts...');
+    if (userRole !== 'admin' && userRole !== 'super_admin') return;
 
     const channel = supabase
       .channel('admin_alerts_realtime')
@@ -35,10 +33,8 @@ export const useAdminAlertSubscription = () => {
           // Audio alert para críticos
           if (alert.severity === 'critical' || alert.severity === 'high') {
             const audio = new Audio('/notification.mp3');
-            audio.play().catch(e => console.log('Audio play failed:', e));
+            audio.play().catch(() => {});
           }
-
-          console.log('🚨 New admin alert received:', alert);
         }
       )
       .subscribe();

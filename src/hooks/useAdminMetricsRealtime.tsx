@@ -138,7 +138,9 @@ export function useAdminMetricsRealtime() {
 
       setIsLoading(false);
     } catch (error) {
-      console.error('Error fetching admin metrics:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error fetching admin metrics:', error);
+      }
       setIsLoading(false);
     }
   }, []);
@@ -161,55 +163,21 @@ export function useAdminMetricsRealtime() {
     const channel = supabase
       .channel('admin-metrics-realtime')
       // Core data tables
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, () => {
-        console.log('📅 Appointments changed - refreshing metrics');
-        debouncedRefresh();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, () => {
-        console.log('💰 Payments changed - refreshing metrics');
-        debouncedRefresh();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'pet_shops' }, () => {
-        console.log('🏪 Pet shops changed - refreshing metrics');
-        debouncedRefresh();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-        console.log('👤 Profiles changed - refreshing metrics');
-        debouncedRefresh();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'pets' }, () => {
-        console.log('🐕 Pets changed - refreshing metrics');
-        debouncedRefresh();
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pet_shops' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pets' }, debouncedRefresh)
       // Security tables
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'login_attempts' }, () => {
-        console.log('🔐 Login attempt - refreshing metrics');
-        debouncedRefresh();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'blocked_ips' }, () => {
-        console.log('🚫 Blocked IPs changed - refreshing metrics');
-        debouncedRefresh();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'admin_alerts' }, () => {
-        console.log('⚠️ Admin alerts changed - refreshing metrics');
-        debouncedRefresh();
-      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'login_attempts' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'blocked_ips' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'admin_alerts' }, debouncedRefresh)
       // System tables
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'system_logs' }, () => {
-        console.log('📝 System log added - refreshing metrics');
-        debouncedRefresh();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'failed_jobs' }, () => {
-        console.log('⚙️ Failed jobs changed - refreshing metrics');
-        debouncedRefresh();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'system_health_metrics' }, () => {
-        console.log('💓 System health changed - refreshing metrics');
-        debouncedRefresh();
-      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'system_logs' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'failed_jobs' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'system_health_metrics' }, debouncedRefresh)
       .subscribe((status) => {
         setIsLive(status === 'SUBSCRIBED');
-        console.log('📡 Admin metrics realtime status:', status);
       });
 
     // Periodic refresh every 30 seconds as fallback
