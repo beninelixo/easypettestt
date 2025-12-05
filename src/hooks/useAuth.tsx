@@ -38,7 +38,9 @@ export const useAuth = () => {
         error_message: errorMessage || null,
       });
     } catch (error) {
-      console.error('Failed to log auth event:', error);
+      if (import.meta.env.DEV) {
+        console.error('Failed to log auth event:', error);
+      }
     }
   };
 
@@ -106,7 +108,9 @@ export const useAuth = () => {
         }
       }
     } catch (error) {
-      console.error('❌ Error ensuring user data:', error);
+      if (import.meta.env.DEV) {
+        console.error('❌ Error ensuring user data:', error);
+      }
     }
   }, []);
 
@@ -182,7 +186,9 @@ export const useAuth = () => {
         await logAuthEvent(userId, 'role_fetch', 'error', undefined, undefined, 'No roles found in database');
       }
     } catch (error) {
-      console.error("❌ Error fetching user role:", error);
+      if (import.meta.env.DEV) {
+        console.error("❌ Error fetching user role:", error);
+      }
     } finally {
       setLoading(false);
     }
@@ -201,7 +207,9 @@ export const useAuth = () => {
 
         // ✅ If God User, set role immediately without DB query
         if (godUser && session?.user) {
-          console.log('👑 God User login detected - setting super_admin immediately');
+          if (import.meta.env.DEV) {
+            console.log('👑 God User login detected - setting super_admin immediately');
+          }
           setUserRole('super_admin');
           setRoleSource('database');
           setLoading(false);
@@ -210,7 +218,7 @@ export const useAuth = () => {
         }
 
         // Handle token refresh
-        if (event === 'TOKEN_REFRESHED') {
+        if (event === 'TOKEN_REFRESHED' && import.meta.env.DEV) {
           console.log('Token refreshed successfully');
         }
 
@@ -254,7 +262,9 @@ export const useAuth = () => {
 
       // ✅ If God User, set role immediately
       if (godUser && session?.user) {
-        console.log('👑 God User session detected - setting super_admin immediately');
+        if (import.meta.env.DEV) {
+          console.log('👑 God User session detected - setting super_admin immediately');
+        }
         setUserRole('super_admin');
         setRoleSource('database');
         setLoading(false);
@@ -322,7 +332,7 @@ export const useAuth = () => {
 
   const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
     try {
-      console.log('🔐 Starting login for:', email);
+      const isDev = import.meta.env.DEV;
       
       // Get client IP and user agent for rate limiting
       let ipAddress = 'unknown';
@@ -339,10 +349,7 @@ export const useAuth = () => {
         ipAddress = 'unknown'; // Fallback seguro
       }
 
-      console.log('📍 IP address:', ipAddress);
-
       // Call rate-limited login Edge Function
-      console.log('🚀 Calling login edge function...');
       const { data: functionData, error: functionError } = await supabase.functions.invoke('login-with-rate-limit', {
         body: {
           email,
@@ -354,7 +361,7 @@ export const useAuth = () => {
 
       // Handle edge function errors with specific messages
       if (functionError) {
-        console.error('❌ Edge function error:', functionError);
+        if (isDev) console.error('❌ Edge function error:', functionError);
         let errorMsg = '🔒 Erro ao fazer login. ';
         
         if (functionError.message.includes('non-2xx')) {
@@ -370,10 +377,8 @@ export const useAuth = () => {
         throw new Error(errorMsg);
       }
       
-      console.log('📦 Edge function response:', functionData);
-      
       if (functionData?.error) {
-        console.error('❌ Function returned error:', functionData.error);
+        if (isDev) console.error('❌ Function returned error:', functionData.error);
         // Handle rate limiting specifically
         if (functionData.blocked) {
           throw new Error('⏱️ ' + (functionData.message || 'Muitas tentativas de login. Aguarde alguns minutos.'));
@@ -381,15 +386,12 @@ export const useAuth = () => {
         throw new Error('❌ ' + functionData.error);
       }
 
-      console.log('✅ Setting session...');
       // Set session from Edge Function response
       const { session: returnedSession, user: returnedUser } = functionData;
       await supabase.auth.setSession({
         access_token: returnedSession.access_token,
         refresh_token: returnedSession.refresh_token
       });
-
-      console.log('💾 Session set successfully');
 
       // Save email for remember me if enabled
       if (rememberMe) {
@@ -407,8 +409,6 @@ export const useAuth = () => {
         title: `Bem-vindo de volta, ${userName}!`,
         description: rememberMe ? "Você será conectado automaticamente na próxima visita." : "Login realizado com sucesso.",
       });
-
-      console.log('✅ Login completed successfully');
       
       // Log successful login
       await logAuthEvent(returnedUser.id, 'login', 'success', roleSource || undefined, userRole || undefined);
@@ -480,7 +480,9 @@ export const useAuth = () => {
   const forceRefreshAuth = async () => {
     if (!user) return;
     
-    console.log('🔄 Force refreshing authentication...');
+    if (import.meta.env.DEV) {
+      console.log('🔄 Force refreshing authentication...');
+    }
     setLoading(true);
     
     try {
@@ -495,7 +497,9 @@ export const useAuth = () => {
         description: "Roles recarregadas do banco de dados",
       });
     } catch (error) {
-      console.error('❌ Error force refreshing auth:', error);
+      if (import.meta.env.DEV) {
+        console.error('❌ Error force refreshing auth:', error);
+      }
       toast({
         title: "❌ Erro ao Atualizar",
         description: "Não foi possível recarregar as permissões",

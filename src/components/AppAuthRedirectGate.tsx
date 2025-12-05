@@ -14,6 +14,7 @@ export const AppAuthRedirectGate = () => {
   const [waitingForRole, setWaitingForRole] = useState(false);
   const refreshAttemptedRef = useRef(false);
   const timeoutRef = useRef<NodeJS.Timeout>();
+  const isDev = import.meta.env.DEV;
 
   useEffect(() => {
     // Clear timeout on cleanup
@@ -25,13 +26,15 @@ export const AppAuthRedirectGate = () => {
   }, []);
 
   useEffect(() => {
-    console.log('🚪 AppAuthRedirectGate:', { 
-      loading, 
-      user: user?.email, 
-      userRole, 
-      currentPath: location.pathname,
-      waitingForRole 
-    });
+    if (isDev) {
+      console.log('🚪 AppAuthRedirectGate:', { 
+        loading, 
+        user: user?.email, 
+        userRole, 
+        currentPath: location.pathname,
+        waitingForRole 
+      });
+    }
 
     // Don't do anything while auth is loading
     if (loading) {
@@ -50,46 +53,53 @@ export const AppAuthRedirectGate = () => {
     if (userRole) {
       // Role is available, redirect to appropriate dashboard
       const targetPath = getRoleBasedPath(userRole);
-      console.log('✅ Gate: Redirecting to', targetPath, 'for role', userRole);
+      if (isDev) {
+        console.log('✅ Gate: Redirecting to', targetPath, 'for role', userRole);
+      }
       setWaitingForRole(false);
       refreshAttemptedRef.current = false; // Reset after successful redirect
       navigate(targetPath, { replace: true });
     } else {
       // User exists but role is not loaded yet
       if (!waitingForRole && !refreshAttemptedRef.current) {
-        console.log('⏳ Gate: Waiting for role to load...');
+        if (isDev) {
+          console.log('⏳ Gate: Waiting for role to load...');
+        }
         setWaitingForRole(true);
         
-        // ✅ Reduced timeout to 1s for faster redirection
+        // Reduced timeout to 1s for faster redirection
         timeoutRef.current = setTimeout(async () => {
           if (!userRole && user && !refreshAttemptedRef.current) {
-            console.log('🔄 Gate: Role still missing, forcing refresh...');
+            if (isDev) {
+              console.log('🔄 Gate: Role still missing, forcing refresh...');
+            }
             refreshAttemptedRef.current = true;
             await forceRefreshAuth();
             
             // After force refresh, wait 1s more
             setTimeout(() => {
               if (!userRole) {
-                // Still no role after refresh, try to get from metadata as last resort
-                console.log('⚠️ Gate: Role still missing after refresh, checking fallbacks...');
-                
-                // If still nothing, default to client
-                console.log('⚠️ Gate: Using fallback, defaulting to /client/pets');
+                // Still no role after refresh, default to client
+                if (isDev) {
+                  console.log('⚠️ Gate: Using fallback, defaulting to /client/pets');
+                }
                 setWaitingForRole(false);
                 navigate('/client/pets', { replace: true });
               } else {
                 // Role finally loaded, redirect
                 const targetPath = getRoleBasedPath(userRole);
-                console.log('✅ Gate: Role loaded after refresh, redirecting to', targetPath);
+                if (isDev) {
+                  console.log('✅ Gate: Role loaded after refresh, redirecting to', targetPath);
+                }
                 setWaitingForRole(false);
                 navigate(targetPath, { replace: true });
               }
-            }, 1000); // ✅ Reduced from 1500ms to 1000ms
+            }, 1000);
           }
-        }, 1000); // ✅ Reduced from 1500ms to 1000ms
+        }, 1000);
       }
     }
-  }, [user, userRole, loading, location.pathname, navigate, forceRefreshAuth, waitingForRole]);
+  }, [user, userRole, loading, location.pathname, navigate, forceRefreshAuth, waitingForRole, isDev]);
 
   // Show loading overlay when waiting for role
   if (waitingForRole && user && !userRole) {

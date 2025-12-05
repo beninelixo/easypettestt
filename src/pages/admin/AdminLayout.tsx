@@ -20,8 +20,6 @@ export default function AdminLayout() {
   // ✅ NOVO: Enable real-time admin alerts
   useAdminAlertSubscription();
 
-  console.log('🎯 AdminLayout - userRole:', userRole, 'user:', user?.email);
-
   return (
     <SidebarProvider defaultOpen>
       <div className="min-h-screen flex w-full bg-background">
