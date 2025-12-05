@@ -3068,6 +3068,10 @@ export type Database = {
           pending: number
         }[]
       }
+      has_appointment_at_petshop: {
+        Args: { _pet_shop_id: string; _user_id: string }
+        Returns: boolean
+      }
       has_feature: {
         Args: { _feature_key: string; _user_id: string }
         Returns: Json
@@ -3111,6 +3115,10 @@ export type Database = {
         | { Args: { _user_id: string }; Returns: boolean }
       is_god_user_safe: { Args: never; Returns: boolean }
       is_ip_blocked: { Args: { _ip_address: string }; Returns: boolean }
+      is_pet_shop_owner: {
+        Args: { _pet_shop_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_tenant_admin: {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean
