@@ -28,6 +28,13 @@ import logo from "@/assets/easypet-logo.png";
 
 const professionalMenuItems = [
   { 
+    title: "Dashboard", 
+    url: "/petshop-dashboard", 
+    icon: LayoutDashboard,
+    gradient: "from-cyan-500 to-blue-600",
+    protected: false
+  },
+  { 
     title: "Serviços", 
     url: "/professional/services", 
     icon: Scissors,

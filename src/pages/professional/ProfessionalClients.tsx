@@ -108,19 +108,24 @@ const ProfessionalClients = () => {
         return;
       }
 
-      const clientsWithPets = await Promise.all(
-        clientsData.map(async (client) => {
-          const { data: pets } = await supabase
-            .from("pets")
-            .select("name, breed")
-            .eq("owner_id", client.id);
+      // Fetch pets data in batch instead of N+1 queries
+      const { data: petsData } = await supabase
+        .from("pets")
+        .select("owner_id, name, breed")
+        .in("owner_id", clientIds);
+      
+      // Group pets by owner_id
+      const petsMap = new Map<string, Array<{ name: string; breed?: string }>>();
+      (petsData || []).forEach(pet => {
+        const existing = petsMap.get(pet.owner_id) || [];
+        existing.push({ name: pet.name, breed: pet.breed || undefined });
+        petsMap.set(pet.owner_id, existing);
+      });
 
-          return {
-            ...client,
-            pets: pets || [],
-          };
-        })
-      );
+      const clientsWithPets = clientsData.map(client => ({
+        ...client,
+        pets: petsMap.get(client.id) || [],
+      }));
 
       setClients(clientsWithPets);
     } catch (error) {
