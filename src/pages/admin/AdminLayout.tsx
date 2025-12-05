@@ -3,9 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { SecurityNotificationsPanel } from "@/components/admin/SecurityNotificationsPanel";
-import { AdminAlertsPanel } from "@/components/admin/AdminAlertsPanel";
-import { AdminNotificationsPanel } from "@/components/admin/AdminNotificationsPanel";
+import { UnifiedNotificationsPanel } from "@/components/admin/UnifiedNotificationsPanel";
 import { DebugAuthPanel } from "@/components/admin/DebugAuthPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { useNewUserNotifications } from "@/hooks/useNewUserNotifications";
@@ -57,12 +55,9 @@ export default function AdminLayout() {
                 )}
               </div>
               
-              {/* Alertas Panel */}
+              {/* Unified Notifications Panel */}
               {(userRole === 'admin' || userRole === 'super_admin' || isGodUser) && (
-                <div className="flex items-center gap-2">
-                  <AdminNotificationsPanel />
-                  <AdminAlertsPanel />
-                </div>
+                <UnifiedNotificationsPanel />
               )}
             </div>
           </header>
@@ -81,9 +76,6 @@ export default function AdminLayout() {
             )}
           </div>
         </div>
-
-        {/* Real-time Security Notifications (only for admins) */}
-        {(userRole === 'admin' || userRole === 'super_admin' || isGodUser) && <SecurityNotificationsPanel />}
       </div>
     </SidebarProvider>
   );
