@@ -1,8 +1,10 @@
 import { Component, ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Home, Lightbulb, ChevronDown, ChevronUp, Copy, Check, ArrowRight, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { getErrorTipFromMessage, ErrorTip } from '@/lib/error-tips';
+import { Badge } from '@/components/ui/badge';
 
 interface Props {
   children: ReactNode;
@@ -13,10 +15,13 @@ interface State {
   hasError: boolean;
   error: Error | null;
   retryCount: number;
+  showTip: boolean;
+  copied: boolean;
 }
 
 export class AdminRouteGuard extends Component<Props, State> {
   private maxRetries = 3;
+  private tip: ErrorTip | null = null;
 
   constructor(props: Props) {
     super(props);
@@ -24,6 +29,8 @@ export class AdminRouteGuard extends Component<Props, State> {
       hasError: false,
       error: null,
       retryCount: 0,
+      showTip: true,
+      copied: false,
     };
   }
 
@@ -32,8 +39,8 @@ export class AdminRouteGuard extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log the error to system_logs
     this.logError(error, errorInfo);
+    this.tip = getErrorTipFromMessage(error.message);
   }
 
   private async logError(error: Error, errorInfo: React.ErrorInfo) {
@@ -51,7 +58,6 @@ export class AdminRouteGuard extends Component<Props, State> {
         } as any,
       }]);
 
-      // Create admin alert for critical errors
       await supabase.from('admin_alerts').insert([{
         alert_type: 'admin_route_error',
         severity: 'high',
@@ -81,11 +87,40 @@ export class AdminRouteGuard extends Component<Props, State> {
     window.location.href = '/admin/dashboard';
   };
 
+  private handleClearCache = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.reload();
+  };
+
+  private handleCopyError = async () => {
+    const errorText = `
+Erro: ${this.state.error?.message}
+Rota: ${this.props.routePath}
+Timestamp: ${new Date().toISOString()}
+Stack: ${this.state.error?.stack || 'N/A'}
+    `.trim();
+
+    try {
+      await navigator.clipboard.writeText(errorText);
+      this.setState({ copied: true });
+      setTimeout(() => this.setState({ copied: false }), 2000);
+    } catch {
+      console.error('Failed to copy');
+    }
+  };
+
+  private toggleTip = () => {
+    this.setState(prev => ({ showTip: !prev.showTip }));
+  };
+
   render() {
     if (this.state.hasError) {
+      const tip = this.tip || getErrorTipFromMessage(this.state.error?.message || '');
+      
       return (
         <div className="flex items-center justify-center min-h-[50vh] p-4">
-          <Card className="max-w-md w-full border-destructive/50">
+          <Card className="max-w-lg w-full border-destructive/50">
             <CardHeader className="text-center">
               <div className="mx-auto w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
                 <AlertTriangle className="h-6 w-6 text-destructive" />
@@ -105,16 +140,105 @@ export class AdminRouteGuard extends Component<Props, State> {
                 </div>
               )}
 
-              <div className="flex gap-2 justify-center">
+              {/* Error Tip Section */}
+              {tip && (
+                <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
+                  <button
+                    onClick={this.toggleTip}
+                    className="w-full flex items-center justify-between p-3 text-left hover:bg-amber-100/50 dark:hover:bg-amber-900/30 rounded-lg transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-full bg-amber-100 dark:bg-amber-900">
+                        <Lightbulb className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                      </div>
+                      <span className="font-medium text-sm">Como resolver este erro</span>
+                      <Badge variant={
+                        tip.severity === 'critical' || tip.severity === 'high' 
+                          ? 'destructive' 
+                          : tip.severity === 'medium' 
+                            ? 'default' 
+                            : 'secondary'
+                      } className="text-xs">
+                        {tip.category}
+                      </Badge>
+                    </div>
+                    {this.state.showTip ? (
+                      <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </button>
+
+                  {this.state.showTip && (
+                    <div className="px-3 pb-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
+                      <p className="text-sm text-muted-foreground pl-9">
+                        {tip.description}
+                      </p>
+
+                      <div className="pl-9">
+                        <h4 className="text-sm font-medium mb-2">Passos para resolver:</h4>
+                        <ol className="space-y-1.5">
+                          {tip.steps.map((step, index) => (
+                            <li key={index} className="flex items-start gap-2 text-sm">
+                              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center font-medium">
+                                {index + 1}
+                              </span>
+                              <span className="text-muted-foreground">{step}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+
+                      {tip.quickAction && (
+                        <div className="pl-9 pt-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => window.location.href = tip.quickAction!.route}
+                            className="gap-1"
+                          >
+                            <ArrowRight className="h-3.5 w-3.5" />
+                            {tip.quickAction.label}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-2 justify-center">
                 {this.state.retryCount < this.maxRetries && (
                   <Button onClick={this.handleRetry} variant="outline" size="sm">
                     <RefreshCw className="h-4 w-4 mr-2" />
-                    Tentar Novamente ({this.maxRetries - this.state.retryCount} restantes)
+                    Tentar Novamente ({this.maxRetries - this.state.retryCount})
                   </Button>
                 )}
                 <Button onClick={this.handleGoHome} size="sm">
                   <Home className="h-4 w-4 mr-2" />
-                  Voltar ao Dashboard
+                  Dashboard
+                </Button>
+              </div>
+
+              {/* Secondary Actions */}
+              <div className="flex flex-wrap gap-2 justify-center pt-2 border-t">
+                <Button onClick={this.handleClearCache} variant="ghost" size="sm">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Limpar Cache
+                </Button>
+                <Button onClick={this.handleCopyError} variant="ghost" size="sm">
+                  {this.state.copied ? (
+                    <>
+                      <Check className="h-4 w-4 mr-2" />
+                      Copiado!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copiar Erro
+                    </>
+                  )}
                 </Button>
               </div>
 
