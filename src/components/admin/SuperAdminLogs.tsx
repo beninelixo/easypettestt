@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, AlertCircle, Info, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ErrorTipCard } from "./ErrorTipCard";
+import { getErrorTipFromMessage } from "@/lib/error-tips";
 
 interface SystemLog {
   id: string;
@@ -21,6 +23,7 @@ export const SuperAdminLogs = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [logType, setLogType] = useState("all");
+  const [expandedTips, setExpandedTips] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   useEffect(() => {
@@ -83,12 +86,24 @@ export const SuperAdminLogs = () => {
     }
   };
 
+  const toggleTip = (logId: string) => {
+    setExpandedTips(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(logId)) {
+        newSet.delete(logId);
+      } else {
+        newSet.add(logId);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Logs do Sistema</CardTitle>
         <CardDescription>
-          Visualize todos os logs e eventos do sistema
+          Visualize todos os logs e eventos do sistema com dicas de resolução
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -121,32 +136,48 @@ export const SuperAdminLogs = () => {
           </div>
         ) : (
           <div className="space-y-2 max-h-[600px] overflow-y-auto">
-            {filteredLogs.map((log) => (
-              <Card key={log.id}>
-                <CardContent className="pt-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3 flex-1">
-                      {getLogIcon(log.log_type)}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium">{log.module}</span>
-                          {getLogBadge(log.log_type)}
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(log.created_at).toLocaleString('pt-BR')}
-                          </span>
+            {filteredLogs.map((log) => {
+              const tip = (log.log_type === 'error' || log.log_type === 'warning') 
+                ? getErrorTipFromMessage(log.message) 
+                : null;
+              
+              return (
+                <Card key={log.id}>
+                  <CardContent className="pt-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3 flex-1">
+                        {getLogIcon(log.log_type)}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium">{log.module}</span>
+                            {getLogBadge(log.log_type)}
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(log.created_at).toLocaleString('pt-BR')}
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{log.message}</p>
+                          {log.details && (
+                            <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-x-auto">
+                              {JSON.stringify(log.details, null, 2)}
+                            </pre>
+                          )}
+                          
+                          {/* Error Tip for errors and warnings */}
+                          {tip && (
+                            <div className="mt-3">
+                              <ErrorTipCard 
+                                tip={tip} 
+                                defaultExpanded={expandedTips.has(log.id)}
+                              />
+                            </div>
+                          )}
                         </div>
-                        <p className="text-sm text-muted-foreground">{log.message}</p>
-                        {log.details && (
-                          <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-x-auto">
-                            {JSON.stringify(log.details, null, 2)}
-                          </pre>
-                        )}
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
 
