@@ -8,6 +8,7 @@ import { Store, Clock, MapPin, Phone, Mail, FileText, Plus, Save, User } from "l
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { PrivacyNotice } from "@/components/shared/PrivacyNotice";
 
 const ProfessionalProfile = () => {
   const [loading, setLoading] = useState(true);
@@ -272,6 +273,10 @@ const ProfessionalProfile = () => {
               <p className="text-center text-sm text-muted-foreground mt-2">
                 Clique para alterar a foto
               </p>
+              <PrivacyNotice 
+                message="O logo do seu pet shop será visível publicamente para seus clientes. Evite usar imagens com informações sensíveis."
+                className="mt-3 max-w-xs"
+              />
             </div>
           </CardContent>
         </Card>
