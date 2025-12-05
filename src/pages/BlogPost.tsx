@@ -14,6 +14,26 @@ import { getBlogPostBySlug, blogPosts } from "@/data/blogPosts";
 import { useToast } from "@/hooks/use-toast";
 import { useBlogImages } from "@/hooks/useSiteImages";
 
+// Função para parsear datas em português brasileiro (ex: "20 Dez 2024")
+const parseBrazilianDate = (dateStr: string): Date | null => {
+  const months: Record<string, number> = {
+    'jan': 0, 'fev': 1, 'mar': 2, 'abr': 3, 'mai': 4, 'jun': 5,
+    'jul': 6, 'ago': 7, 'set': 8, 'out': 9, 'nov': 10, 'dez': 11
+  };
+  
+  const parts = dateStr.toLowerCase().trim().split(' ');
+  if (parts.length !== 3) return null;
+  
+  const day = parseInt(parts[0], 10);
+  const monthKey = parts[1].substring(0, 3);
+  const month = months[monthKey];
+  const year = parseInt(parts[2], 10);
+  
+  if (isNaN(day) || month === undefined || isNaN(year)) return null;
+  
+  return new Date(year, month, day);
+};
+
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -64,16 +84,20 @@ const BlogPost = () => {
     });
   };
 
+  // Parse da data para SEO - com fallback seguro
+  const parsedDate = parseBrazilianDate(post.date);
+  const publishedTimeISO = parsedDate ? parsedDate.toISOString() : new Date().toISOString();
+
   return (
     <div className="min-h-screen bg-background">
       <SEO 
         title={`${post.title} - Blog EasyPet`}
         description={post.excerpt}
-        url={`https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/blog/${post.slug}`}
-        image={post.image}
+        url={`${window.location.origin}/blog/${post.slug}`}
+        image={blogImages[post.slug] || post.image}
         type="article"
         article={{
-          publishedTime: new Date(post.date).toISOString(),
+          publishedTime: publishedTimeISO,
           author: post.author.name,
           tags: post.tags,
         }}
@@ -92,11 +116,11 @@ const BlogPost = () => {
       </section>
 
       {/* Article Content */}
-      <article className="relative -mt-40 px-4 pb-24">
+      <article className="relative -mt-40 px-4 pb-24" id="main-content">
         <div className="container mx-auto max-w-4xl">
           {/* Back Button */}
           <Link to="/blog" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8 group">
-            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
             Voltar para o blog
           </Link>
 
@@ -133,11 +157,11 @@ const BlogPost = () => {
                   
                   <div className="flex items-center gap-6 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      {post.date}
+                      <Calendar className="h-4 w-4" aria-hidden="true" />
+                      <time dateTime={publishedTimeISO}>{post.date}</time>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
+                      <Clock className="h-4 w-4" aria-hidden="true" />
                       {post.readTime}
                     </div>
                   </div>
@@ -154,7 +178,7 @@ const BlogPost = () => {
                       className="hover:bg-blue-600 hover:text-white hover:border-blue-600"
                       aria-label="Compartilhar no Facebook"
                     >
-                      <Facebook className="h-4 w-4" />
+                      <Facebook className="h-4 w-4" aria-hidden="true" />
                     </Button>
                     <Button
                       size="sm"
@@ -163,7 +187,7 @@ const BlogPost = () => {
                       className="hover:bg-sky-500 hover:text-white hover:border-sky-500"
                       aria-label="Compartilhar no Twitter"
                     >
-                      <Twitter className="h-4 w-4" />
+                      <Twitter className="h-4 w-4" aria-hidden="true" />
                     </Button>
                     <Button
                       size="sm"
@@ -172,7 +196,7 @@ const BlogPost = () => {
                       className="hover:bg-blue-700 hover:text-white hover:border-blue-700"
                       aria-label="Compartilhar no LinkedIn"
                     >
-                      <Linkedin className="h-4 w-4" />
+                      <Linkedin className="h-4 w-4" aria-hidden="true" />
                     </Button>
                     <Button
                       size="sm"
@@ -181,7 +205,7 @@ const BlogPost = () => {
                       className="hover:bg-green-600 hover:text-white hover:border-green-600"
                       aria-label="Compartilhar no WhatsApp"
                     >
-                      <Share2 className="h-4 w-4" />
+                      <Share2 className="h-4 w-4" aria-hidden="true" />
                     </Button>
                     <Button
                       size="sm"
@@ -189,7 +213,7 @@ const BlogPost = () => {
                       onClick={handleCopyLink}
                       aria-label="Copiar link"
                     >
-                      <Bookmark className="h-4 w-4" />
+                      <Bookmark className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </div>
                 </div>
@@ -238,8 +262,8 @@ const BlogPost = () => {
 
           {/* Related Posts */}
           {relatedPosts.length > 0 && (
-            <section className="mt-24">
-              <h2 className="text-3xl font-bold mb-8">Artigos relacionados</h2>
+            <section className="mt-24" aria-labelledby="related-posts-heading">
+              <h2 id="related-posts-heading" className="text-3xl font-bold mb-8">Artigos relacionados</h2>
               <div className="grid md:grid-cols-3 gap-6">
                 {relatedPosts.map((relatedPost) => (
                   <Link key={relatedPost.id} to={`/blog/${relatedPost.slug}`}>

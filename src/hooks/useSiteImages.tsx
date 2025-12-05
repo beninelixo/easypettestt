@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 // Fallback images from assets
@@ -11,7 +11,7 @@ const fallbackImages: Record<string, string> = {
 
 // Hook para carregar todas as imagens do blog de uma vez (mais eficiente)
 export function useBlogImages() {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['blog-images'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -32,8 +32,8 @@ export function useBlogImages() {
         return acc;
       }, {} as Record<string, string>);
     },
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    staleTime: 1 * 60 * 1000, // 1 minuto para atualização mais rápida
+    gcTime: 5 * 60 * 1000,
     retry: false, // Don't retry on permission errors
   });
 
@@ -41,6 +41,18 @@ export function useBlogImages() {
     images: data || {},
     isLoading,
     error,
+    refetch,
+  };
+}
+
+// Hook para invalidar cache de imagens do blog (usado após upload)
+export function useInvalidateBlogImages() {
+  const queryClient = useQueryClient();
+  
+  return () => {
+    queryClient.invalidateQueries({ queryKey: ['blog-images'] });
+    queryClient.invalidateQueries({ queryKey: ['site-images'] });
+    queryClient.invalidateQueries({ queryKey: ['site-image'] });
   };
 }
 
@@ -70,8 +82,8 @@ export function useSiteImage(key: string) {
       }
       return data as SiteImage;
     },
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    staleTime: 1 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
     retry: false, // Don't retry on permission errors
   });
 
@@ -107,8 +119,8 @@ export function useSiteImages(category?: string) {
       }
       return data as SiteImage[];
     },
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    staleTime: 1 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
     retry: false, // Don't retry on permission errors
   });
 

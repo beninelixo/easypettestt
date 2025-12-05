@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { updateSiteImage } from "@/hooks/useSiteImages";
+import { updateSiteImage, useInvalidateBlogImages } from "@/hooks/useSiteImages";
 import { useAuth } from "@/hooks/useAuth";
 import { images, generateImage } from "@/scripts/regenerate-images";
 import { blogPosts } from "@/data/blogPosts";
@@ -131,6 +131,7 @@ export default function ImageManagement() {
   
   const { toast } = useToast();
   const { user } = useAuth();
+  const invalidateBlogImages = useInvalidateBlogImages();
 
   useEffect(() => {
     loadBuckets();
@@ -180,6 +181,9 @@ export default function ImageManagement() {
       const { data: urlData } = supabase.storage.from('site-images').getPublicUrl(filename);
       await updateSiteImage(key, urlData.publicUrl, user?.id);
 
+      // Invalida o cache para atualização imediata em todo o site
+      invalidateBlogImages();
+
       setAppliedSiteImages(prev => ({ ...prev, [filename]: true }));
       toast({ title: "✅ Aplicado no Site!", description: `${filename} foi aplicada com sucesso.` });
     } catch (error) {
@@ -202,6 +206,9 @@ export default function ImageManagement() {
 
       const { data: urlData } = supabase.storage.from('site-images').getPublicUrl(config.filename);
       await updateSiteImage(config.key, urlData.publicUrl, user?.id);
+
+      // Invalida o cache para atualização imediata em todo o site
+      invalidateBlogImages();
 
       setAppliedSiteImages(prev => ({ ...prev, [config.filename]: true }));
       toast({ title: "✅ Upload realizado!", description: `${config.filename} foi aplicada com sucesso.` });
@@ -271,8 +278,11 @@ export default function ImageManagement() {
       const { data: urlData } = supabase.storage.from('blog-images').getPublicUrl(filename);
       await updateSiteImage(`blog-${config.slug}`, urlData.publicUrl, user?.id);
 
+      // Invalida o cache para atualização imediata nas páginas do blog
+      invalidateBlogImages();
+
       setAppliedBlogImages(prev => ({ ...prev, [config.id]: true }));
-      sonnerToast.success(`Imagem aplicada no blog!`);
+      sonnerToast.success(`Imagem aplicada no blog! Páginas atualizadas.`);
     } catch (error) {
       console.error('Erro ao aplicar imagem do blog:', error);
       sonnerToast.error(`Falha ao aplicar imagem no blog`);
@@ -295,6 +305,9 @@ export default function ImageManagement() {
 
       const { data: urlData } = supabase.storage.from('blog-images').getPublicUrl(filename);
       await updateSiteImage(`blog-${config.slug}`, urlData.publicUrl, user?.id);
+
+      // Invalida o cache para atualização imediata nas páginas do blog
+      invalidateBlogImages();
 
       setAppliedBlogImages(prev => ({ ...prev, [config.id]: true }));
       sonnerToast.success(`Upload realizado! Imagem aplicada no blog.`);

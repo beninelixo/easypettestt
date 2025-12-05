@@ -43,6 +43,14 @@ const Navigation = () => {
           : "bg-background/80 backdrop-blur-md border-b border-transparent py-4"
       )}
     >
+      {/* Skip to main content - Acessibilidade WCAG 2.1 AA */}
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none"
+      >
+        Pular para o conteúdo principal
+      </a>
+
       <div className="container mx-auto px-4 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group relative">
@@ -108,8 +116,8 @@ const Navigation = () => {
         <div className="md:hidden">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="sm" className="p-2 relative group">
-                <Menu className="h-6 w-6 transition-transform duration-300 group-hover:scale-110" />
+              <Button variant="ghost" size="sm" className="p-2 relative group" aria-label="Abrir menu">
+                <Menu className="h-6 w-6 transition-transform duration-300 group-hover:scale-110" aria-hidden="true" />
                 <span className="absolute inset-0 bg-primary/10 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300" />
               </Button>
             </SheetTrigger>

@@ -1304,6 +1304,30 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscribers: {
+        Row: {
+          active: boolean | null
+          email: string
+          id: string
+          source: string | null
+          subscribed_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          email: string
+          id?: string
+          source?: string | null
+          subscribed_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          email?: string
+          id?: string
+          source?: string | null
+          subscribed_at?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           appointment_id: string | null
