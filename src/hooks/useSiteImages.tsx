@@ -73,7 +73,7 @@ export function useSiteImage(key: string) {
         .from('site_images')
         .select('*')
         .eq('key', key)
-        .single();
+        .maybeSingle(); // Usar maybeSingle() para evitar erro quando não há resultado
 
       // On any error, return null - will use fallback
       if (error) {
