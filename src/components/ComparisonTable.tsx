@@ -5,6 +5,7 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { cn } from "@/lib/utils";
+import { CAKTO_CHECKOUT_URLS } from "@/lib/payment-routes";
 
 const ComparisonTable = () => {
   const headerReveal = useScrollReveal({ threshold: 0.3 });
@@ -159,7 +160,7 @@ const ComparisonTable = () => {
                     </li>
                   ))}
                 </ul>
-                <a href="https://pay.cakto.com.br/f72gob9_634441" target="_blank" rel="noopener noreferrer" className="block mt-6">
+                <a href={CAKTO_CHECKOUT_URLS.pet_gold} target="_blank" rel="noopener noreferrer" className="block mt-6">
                   <MagneticButton
                     strength={0.1}
                     glowColor="hsl(45, 100%, 50%)"
@@ -188,7 +189,7 @@ const ComparisonTable = () => {
                     </li>
                   ))}
                 </ul>
-                <a href="https://pay.cakto.com.br/qym84js_634453" target="_blank" rel="noopener noreferrer" className="block mt-6">
+                <a href={CAKTO_CHECKOUT_URLS.pet_platinum} target="_blank" rel="noopener noreferrer" className="block mt-6">
                   <MagneticButton
                     strength={0.1}
                     glowColor="hsl(220, 10%, 50%)"
@@ -225,7 +226,7 @@ const ComparisonTable = () => {
                     </li>
                   ))}
                 </ul>
-                <a href="https://pay.cakto.com.br/3997ify_634474" target="_blank" rel="noopener noreferrer" className="block mt-6">
+                <a href={CAKTO_CHECKOUT_URLS.pet_platinum_anual} target="_blank" rel="noopener noreferrer" className="block mt-6">
                   <MagneticButton
                     strength={0.1}
                     glowColor="hsl(150, 80%, 40%)"

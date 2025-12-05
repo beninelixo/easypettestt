@@ -7,9 +7,11 @@ import { Check, Crown, Award, TrendingDown, Shield, X, ArrowRight, Sparkles } fr
 import ComparisonTable from "@/components/ComparisonTable";
 import FAQ from "@/components/FAQ";
 import { SEO } from "@/components/SEO";
+import { CAKTO_CHECKOUT_URLS, openCaktoCheckout, type CaktoPlanId } from "@/lib/payment-routes";
 
 const Pricing = () => {
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annual">("monthly");
+  
   const plans = [
     {
       name: "Plano Gratuito",
@@ -28,6 +30,7 @@ const Pricing = () => {
       ],
       ctaText: "🎁 Começar Grátis",
       ctaLink: "/auth?redirect=/professional/plans%3FstartFree%3D1",
+      planId: null, // Free plan uses link
       highlighted: false,
       buttonClass: "bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white",
     },
@@ -51,7 +54,8 @@ const Pricing = () => {
         "Suporte prioritário",
       ],
       ctaText: "🏆 Começar Agora",
-      ctaLink: "/auth?redirect=/professional/plans",
+      ctaLink: null,
+      planId: "pet_gold" as CaktoPlanId,
       highlighted: true,
       buttonClass: "bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white",
     },
@@ -78,7 +82,8 @@ const Pricing = () => {
         "SLA de uptime 99.9%",
       ],
       ctaText: "💎 Upgrade Premium",
-      ctaLink: "/auth?redirect=/professional/plans",
+      ctaLink: null,
+      planId: "pet_platinum" as CaktoPlanId,
       highlighted: false,
       buttonClass: "bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white",
     },
@@ -105,11 +110,18 @@ const Pricing = () => {
         "🎯 Onboarding personalizado VIP",
       ],
       ctaText: "💰 Garantir 25% OFF",
-      ctaLink: "/auth?redirect=/professional/plans",
+      ctaLink: null,
+      planId: "pet_platinum_anual" as CaktoPlanId,
       highlighted: true,
       buttonClass: "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white",
     },
   ];
+
+  const handlePlanClick = (plan: typeof plans[0]) => {
+    if (plan.planId) {
+      openCaktoCheckout(plan.planId);
+    }
+  };
 
   const displayedPlans = billingPeriod === "monthly" 
     ? plans.filter(p => p.name !== "Pet Platinum Anual")
@@ -223,14 +235,24 @@ const Pricing = () => {
                   ))}
                 </CardContent>
                 <CardFooter>
-                  <a href={plan.ctaLink} target="_blank" rel="noopener noreferrer" className="w-full">
+                  {plan.ctaLink ? (
+                    <a href={plan.ctaLink} className="w-full">
+                      <Button
+                        className={`w-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${plan.buttonClass}`}
+                        size="lg"
+                      >
+                        {plan.ctaText}
+                      </Button>
+                    </a>
+                  ) : (
                     <Button
+                      onClick={() => handlePlanClick(plan)}
                       className={`w-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${plan.buttonClass}`}
                       size="lg"
                     >
                       {plan.ctaText}
                     </Button>
-                  </a>
+                  )}
                 </CardFooter>
               </Card>
             ))}
@@ -325,15 +347,17 @@ const Pricing = () => {
           
           <div className={`grid ${billingPeriod === "monthly" ? "md:grid-cols-3" : "md:grid-cols-1 max-w-xs mx-auto"} gap-4 mt-12`}>
             {displayedPlans.map((plan, idx) => (
-              <a key={idx} href={plan.ctaLink} target="_blank" rel="noopener noreferrer" className="block">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border-2 border-white/20 hover:bg-white/20 transition-all duration-300 hover:-translate-y-1">
-                  <p className="text-sm text-white/80 mb-2">{plan.name}</p>
-                  <p className="text-3xl font-black text-white mb-4">{plan.price}<span className="text-sm">{plan.period}</span></p>
-                  <Button className={`w-full ${plan.buttonClass}`}>
-                    {plan.ctaText}
-                  </Button>
-                </div>
-              </a>
+              <div 
+                key={idx} 
+                onClick={() => plan.planId ? handlePlanClick(plan) : window.location.href = plan.ctaLink!}
+                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border-2 border-white/20 hover:bg-white/20 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+              >
+                <p className="text-sm text-white/80 mb-2">{plan.name}</p>
+                <p className="text-3xl font-black text-white mb-4">{plan.price}<span className="text-sm">{plan.period}</span></p>
+                <Button className={`w-full ${plan.buttonClass}`}>
+                  {plan.ctaText}
+                </Button>
+              </div>
             ))}
           </div>
 

@@ -31,7 +31,7 @@ const PLAN_NAMES = {
 const PLAN_CHECKOUT_URLS = {
   pet_gold: 'https://pay.cakto.com.br/f72gob9_634441',
   pet_platinum: 'https://pay.cakto.com.br/qym84js_634453',
-  pet_platinum_anual: 'https://pay.cakto.com.br/platinum_anual', // TODO: Configure actual URL in Cakto
+  pet_platinum_anual: 'https://pay.cakto.com.br/3997ify_634474',
 };
 
 serve(async (req) => {
