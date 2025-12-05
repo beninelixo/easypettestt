@@ -114,6 +114,7 @@ export default function ImageManagement() {
   const [resultsSite, setResultsSite] = useState<{ success: string[]; failed: string[] }>({ success: [], failed: [] });
   const [replacingImageSite, setReplacingImageSite] = useState<string | null>(null);
   const [uploadingSite, setUploadingSite] = useState<string | null>(null);
+  const [isApplyingAllSite, setIsApplyingAllSite] = useState(false);
   
   // Blog images state
   const [isGeneratingBlog, setIsGeneratingBlog] = useState(false);
@@ -124,6 +125,7 @@ export default function ImageManagement() {
   const [resultsBlog, setResultsBlog] = useState<{ success: string[]; failed: string[] }>({ success: [], failed: [] });
   const [replacingImageBlog, setReplacingImageBlog] = useState<number | null>(null);
   const [uploadingBlog, setUploadingBlog] = useState<number | null>(null);
+  const [isApplyingAllBlog, setIsApplyingAllBlog] = useState(false);
   
   // Storage state
   const [buckets, setBuckets] = useState<BucketInfo[]>([]);
@@ -376,8 +378,73 @@ export default function ImageManagement() {
     }
   };
 
+  // Função para aplicar todas as imagens do site de uma vez
+  const handleApplyAllSite = async () => {
+    const pendingImages = images.filter(config => 
+      generatedSiteImages[config.filename] && !appliedSiteImages[config.filename]
+    );
+    
+    if (pendingImages.length === 0) {
+      toast({ title: "Nenhuma imagem pendente", description: "Todas as imagens já foram aplicadas." });
+      return;
+    }
+
+    setIsApplyingAllSite(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const config of pendingImages) {
+      const base64Url = generatedSiteImages[config.filename];
+      try {
+        await handleApplyToSite(config.filename, config.key, base64Url);
+        successCount++;
+      } catch (error) {
+        console.error(`Erro ao aplicar ${config.filename}:`, error);
+        failCount++;
+      }
+    }
+
+    setIsApplyingAllSite(false);
+    toast({ 
+      title: "✅ Aplicação em massa concluída!", 
+      description: `${successCount} aplicadas, ${failCount} falhas.` 
+    });
+  };
+
+  // Função para aplicar todas as imagens do blog de uma vez
+  const handleApplyAllBlog = async () => {
+    const pendingImages = blogImageConfigs.filter(config => 
+      generatedBlogImages[config.id] && !appliedBlogImages[config.id]
+    );
+    
+    if (pendingImages.length === 0) {
+      sonnerToast.info("Todas as imagens já foram aplicadas no blog.");
+      return;
+    }
+
+    setIsApplyingAllBlog(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const config of pendingImages) {
+      const base64Url = generatedBlogImages[config.id];
+      try {
+        await handleApplyToBlog(config, base64Url);
+        successCount++;
+      } catch (error) {
+        console.error(`Erro ao aplicar ${config.title}:`, error);
+        failCount++;
+      }
+    }
+
+    setIsApplyingAllBlog(false);
+    sonnerToast.success(`Aplicação em massa concluída! ${successCount} aplicadas, ${failCount} falhas.`);
+  };
+
   const allSiteGenerated = Object.keys(generatedSiteImages).length === images.length;
   const allBlogGenerated = Object.keys(generatedBlogImages).length === blogImageConfigs.length;
+  const pendingSiteCount = images.filter(c => generatedSiteImages[c.filename] && !appliedSiteImages[c.filename]).length;
+  const pendingBlogCount = blogImageConfigs.filter(c => generatedBlogImages[c.id] && !appliedBlogImages[c.id]).length;
 
   return (
     <div className="space-y-6">
@@ -428,7 +495,7 @@ export default function ImageManagement() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <Button onClick={handleRegenerateAllSite} disabled={isGeneratingSite} className="flex-1" size="lg">
                   {isGeneratingSite ? (
                     <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Gerando {currentImageSite}...</>
@@ -437,22 +504,18 @@ export default function ImageManagement() {
                   )}
                 </Button>
 
-                {allSiteGenerated && (
+                {pendingSiteCount > 0 && (
                   <Button
-                    onClick={async () => {
-                      for (const [filename, base64Url] of Object.entries(generatedSiteImages)) {
-                        const config = images.find(img => img.filename === filename);
-                        if (config && !appliedSiteImages[filename]) {
-                          await handleApplyToSite(filename, config.key, base64Url);
-                          await new Promise(resolve => setTimeout(resolve, 500));
-                        }
-                      }
-                    }}
+                    onClick={handleApplyAllSite}
+                    disabled={isApplyingAllSite}
                     className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                     size="lg"
                   >
-                    <Globe className="mr-2 h-5 w-5" />
-                    Aplicar Todas
+                    {isApplyingAllSite ? (
+                      <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Aplicando...</>
+                    ) : (
+                      <><Globe className="mr-2 h-5 w-5" />Aplicar Todas no Site ({pendingSiteCount})</>
+                    )}
                   </Button>
                 )}
               </div>
@@ -559,7 +622,7 @@ export default function ImageManagement() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <Button onClick={handleRegenerateAllBlog} disabled={isGeneratingBlog} className="flex-1" size="lg">
                   {isGeneratingBlog ? (
                     <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Gerando... {Math.round(progressBlog)}%</>
@@ -568,23 +631,18 @@ export default function ImageManagement() {
                   )}
                 </Button>
 
-                {allBlogGenerated && (
+                {pendingBlogCount > 0 && (
                   <Button
-                    onClick={async () => {
-                      for (const [idStr, base64Url] of Object.entries(generatedBlogImages)) {
-                        const id = parseInt(idStr);
-                        const config = blogImageConfigs.find(c => c.id === id);
-                        if (config && !appliedBlogImages[id]) {
-                          await handleApplyToBlog(config, base64Url);
-                          await new Promise(resolve => setTimeout(resolve, 500));
-                        }
-                      }
-                    }}
+                    onClick={handleApplyAllBlog}
+                    disabled={isApplyingAllBlog}
                     className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                     size="lg"
                   >
-                    <Globe className="mr-2 h-5 w-5" />
-                    Aplicar Todas no Blog
+                    {isApplyingAllBlog ? (
+                      <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Aplicando...</>
+                    ) : (
+                      <><Globe className="mr-2 h-5 w-5" />Aplicar Todas no Blog ({pendingBlogCount})</>
+                    )}
                   </Button>
                 )}
               </div>
