@@ -84,7 +84,7 @@ const ProfessionalCalendar = () => {
         .from("pet_shops")
         .select("id")
         .eq("owner_id", user?.id)
-        .single();
+        .maybeSingle();
 
       if (!petShop) return;
 
@@ -110,21 +110,21 @@ const ProfessionalCalendar = () => {
 
       if (error) throw error;
       
-      // Fetch client data separately
-      const appointmentsWithClients = await Promise.all(
-        (data || []).map(async (apt) => {
-          const { data: clientData } = await supabase
-            .from("profiles")
-            .select("full_name, phone")
-            .eq("id", apt.client_id)
-            .single();
-
-          return {
-            ...apt,
-            client: clientData || { full_name: "N/A", phone: "" },
-          };
-        })
+      // Fetch client data in batch instead of N+1 queries
+      const clientIds = [...new Set((data || []).map(apt => apt.client_id))];
+      const { data: clientsData } = await supabase
+        .from("profiles")
+        .select("id, full_name, phone")
+        .in("id", clientIds);
+      
+      const clientsMap = new Map(
+        (clientsData || []).map(c => [c.id, { full_name: c.full_name, phone: c.phone }])
       );
+
+      const appointmentsWithClients = (data || []).map(apt => ({
+        ...apt,
+        client: clientsMap.get(apt.client_id) || { full_name: "N/A", phone: "" },
+      }));
 
       setAppointments(appointmentsWithClients);
       // Atualiza lista de próximos agendamentos (independente da data selecionada)
@@ -158,17 +158,21 @@ const ProfessionalCalendar = () => {
       .limit(10);
 
     if (!error && data) {
-      // Enriquecer com dados do cliente
-      const withClients = await Promise.all(
-        data.map(async (apt) => {
-          const { data: clientData } = await supabase
-            .from("profiles")
-            .select("full_name, phone")
-            .eq("id", apt.client_id)
-            .single();
-          return { ...apt, client: clientData || { full_name: "Cliente não encontrado", phone: "" } } as any;
-        })
+      // Fetch client data in batch instead of N+1 queries
+      const clientIds = [...new Set(data.map(apt => apt.client_id))];
+      const { data: clientsData } = await supabase
+        .from("profiles")
+        .select("id, full_name, phone")
+        .in("id", clientIds);
+      
+      const clientsMap = new Map(
+        (clientsData || []).map(c => [c.id, { full_name: c.full_name, phone: c.phone }])
       );
+      
+      const withClients = data.map(apt => ({
+        ...apt,
+        client: clientsMap.get(apt.client_id) || { full_name: "Cliente não encontrado", phone: "" }
+      }));
       setUpcomingAppointments(withClients as any);
     }
   };
@@ -178,7 +182,7 @@ const ProfessionalCalendar = () => {
       .from("pet_shops")
       .select("id")
       .eq("owner_id", user?.id)
-      .single();
+      .maybeSingle();
 
     if (!petShop) return;
 
@@ -196,7 +200,7 @@ const ProfessionalCalendar = () => {
       .from("pet_shops")
       .select("id")
       .eq("owner_id", user?.id)
-      .single();
+      .maybeSingle();
 
     if (!petShop) return;
 
@@ -256,7 +260,7 @@ const ProfessionalCalendar = () => {
         .from("pet_shops")
         .select("id")
         .eq("owner_id", user?.id)
-        .single();
+        .maybeSingle();
 
       if (!petShop) {
         toast({

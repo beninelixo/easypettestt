@@ -236,7 +236,7 @@ const ProfessionalServices = () => {
         <div className="flex gap-2">
           {isOwner && (
             <Button asChild variant="outline" className="bg-gradient-to-r from-cyan-500 to-green-500 text-white border-0 hover:from-cyan-600 hover:to-green-600">
-              <Link to="/petshop-dashboard/service-templates">
+              <Link to="/professional/service-templates">
                 <Sparkles className="mr-2 h-4 w-4" />
                 Catálogo de Serviços
               </Link>
@@ -342,7 +342,7 @@ const ProfessionalServices = () => {
               </div>
             </div>
             <Button asChild size="lg" className="bg-gradient-to-r from-cyan-500 to-green-500 hover:from-cyan-600 hover:to-green-600">
-              <Link to="/petshop-dashboard/service-templates">
+              <Link to="/professional/service-templates">
                 Ver Catálogo
               </Link>
             </Button>

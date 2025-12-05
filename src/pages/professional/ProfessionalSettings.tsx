@@ -62,10 +62,18 @@ const ProfessionalSettings = () => {
         .from("pet_shops")
         .select("id")
         .eq("owner_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      setPetShopId(data.id);
+      if (data) {
+        setPetShopId(data.id);
+      } else {
+        toast({
+          title: "Pet Shop não encontrado",
+          description: "Você não possui um pet shop cadastrado",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Error loading pet shop:", error);
       toast({

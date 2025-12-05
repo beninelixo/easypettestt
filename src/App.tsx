@@ -264,7 +264,8 @@ const App = () => {
               <ProfessionalLayout />
             </ProtectedRoute>
           }>
-            <Route index element={<Navigate to="/professional/services" replace />} />
+            <Route index element={<Navigate to="/petshop-dashboard" replace />} />
+            <Route path="dashboard" element={<ProfessionalDashboard />} />
             <Route path="services" element={<ProfessionalServices />} />
             <Route path="calendar" element={<ProfessionalCalendar />} />
             <Route path="clients" element={<ProfessionalClients />} />
