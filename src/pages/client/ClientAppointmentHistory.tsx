@@ -1,20 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar as CalendarIcon, Filter, TrendingUp, Calendar, Clock, MapPin } from "lucide-react";
+import { Calendar as CalendarIcon, Filter, TrendingUp, Calendar, Clock, MapPin, Star } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { RatingDialog } from "@/components/client/RatingDialog";
+import { SEO } from "@/components/SEO";
 
 export default function ClientAppointmentHistory() {
   const [dateFilter, setDateFilter] = useState<string>("30");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [petShopFilter, setPetShopFilter] = useState<string>("all");
+  const [selectedAppointment, setSelectedAppointment] = useState<string | null>(null);
+  const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
 
   const { data: session } = useQuery({
     queryKey: ['session'],
@@ -24,7 +28,7 @@ export default function ClientAppointmentHistory() {
     },
   });
 
-  const { data: appointments, isLoading } = useQuery({
+  const { data: appointments, isLoading, refetch } = useQuery({
     queryKey: ['client-history', session?.user?.id, dateFilter, statusFilter, petShopFilter],
     queryFn: async () => {
       if (!session?.user?.id) return [];
@@ -37,7 +41,8 @@ export default function ClientAppointmentHistory() {
           pet:pets(name),
           pet_shop:pet_shops(id, name, city)
         `)
-        .eq('client_id', session.user.id);
+        .eq('client_id', session.user.id)
+        .is('deleted_at', null);
 
       // Filtro de data
       if (dateFilter !== 'all') {
@@ -64,6 +69,36 @@ export default function ClientAppointmentHistory() {
     },
     enabled: !!session?.user?.id,
   });
+
+  // Realtime subscription for appointments
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    const channel = supabase
+      .channel('client-history-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'appointments',
+          filter: `client_id=eq.${session.user.id}`
+        },
+        () => {
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session?.user?.id, refetch]);
+
+  const handleOpenRating = (appointmentId: string) => {
+    setSelectedAppointment(appointmentId);
+    setRatingDialogOpen(true);
+  };
 
   const { data: petShops } = useQuery({
     queryKey: ['client-petshops', session?.user?.id],
@@ -123,21 +158,30 @@ export default function ClientAppointmentHistory() {
   }, []) || [];
 
   const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-      pending: { label: 'Pendente', variant: 'outline' },
-      confirmed: { label: 'Confirmado', variant: 'default' },
-      completed: { label: 'Concluído', variant: 'secondary' },
+    const statusMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; className?: string }> = {
+      pending: { label: 'Pendente', variant: 'outline', className: 'border-yellow-500 text-yellow-600' },
+      confirmed: { label: 'Confirmado', variant: 'default', className: 'bg-blue-500' },
+      completed: { label: 'Concluído', variant: 'secondary', className: 'bg-green-500 text-white' },
       cancelled: { label: 'Cancelado', variant: 'destructive' },
     };
     const statusInfo = statusMap[status] || { label: status, variant: 'outline' };
-    return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>;
+    return (
+      <Badge 
+        variant={statusInfo.variant} 
+        className={statusInfo.className}
+        role="status"
+        aria-label={`Status: ${statusInfo.label}`}
+      >
+        {statusInfo.label}
+      </Badge>
+    );
   };
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-8 px-4 space-y-6">
+      <div className="container mx-auto py-8 px-4 space-y-6" role="status" aria-label="Carregando histórico">
         <Skeleton className="h-12 w-64" />
-        <div className="grid md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Skeleton className="h-32" />
           <Skeleton className="h-32" />
           <Skeleton className="h-32" />
@@ -149,28 +193,35 @@ export default function ClientAppointmentHistory() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Histórico de Agendamentos</h1>
-        <p className="text-muted-foreground mt-2">
-          Visualize e analise todos os seus agendamentos
-        </p>
-      </div>
+    <>
+      <SEO 
+        title="Histórico de Agendamentos | EasyPet"
+        description="Veja todo o histórico de serviços realizados para seus pets"
+      />
+      <div className="container mx-auto py-8 px-4 space-y-6">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+            Histórico de Agendamentos
+          </h1>
+          <p className="text-muted-foreground mt-2 text-sm md:text-base">
+            Visualize e analise todos os seus agendamentos
+          </p>
+        </div>
 
       {/* Filtros */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
+            <Filter className="h-5 w-5" aria-hidden="true" />
             Filtros
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Período</label>
+              <label htmlFor="date-filter" className="text-sm font-medium mb-2 block">Período</label>
               <Select value={dateFilter} onValueChange={setDateFilter}>
-                <SelectTrigger>
+                <SelectTrigger id="date-filter" aria-label="Filtrar por período">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -185,9 +236,9 @@ export default function ClientAppointmentHistory() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Status</label>
+              <label htmlFor="status-filter" className="text-sm font-medium mb-2 block">Status</label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
+                <SelectTrigger id="status-filter" aria-label="Filtrar por status">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -201,9 +252,9 @@ export default function ClientAppointmentHistory() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Pet Shop</label>
+              <label htmlFor="petshop-filter" className="text-sm font-medium mb-2 block">Pet Shop</label>
               <Select value={petShopFilter} onValueChange={setPetShopFilter}>
-                <SelectTrigger>
+                <SelectTrigger id="petshop-filter" aria-label="Filtrar por pet shop">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -221,24 +272,24 @@ export default function ClientAppointmentHistory() {
       </Card>
 
       {/* Estatísticas */}
-      <div className="grid md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4" role="region" aria-label="Estatísticas de agendamentos">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Agendamentos</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <Calendar className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
+            <div className="text-xl md:text-2xl font-bold" aria-label={`${stats.total} agendamentos no total`}>{stats.total}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Concluídos</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-600" />
+            <TrendingUp className="h-4 w-4 text-green-600" aria-hidden="true" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
+            <div className="text-xl md:text-2xl font-bold text-green-600">{stats.completed}</div>
             <p className="text-xs text-muted-foreground">
               {stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}% do total
             </p>
@@ -248,10 +299,10 @@ export default function ClientAppointmentHistory() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Cancelados</CardTitle>
-            <CalendarIcon className="h-4 w-4 text-red-600" />
+            <CalendarIcon className="h-4 w-4 text-red-600" aria-hidden="true" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.cancelled}</div>
+            <div className="text-xl md:text-2xl font-bold text-red-600">{stats.cancelled}</div>
             <p className="text-xs text-muted-foreground">
               {stats.total > 0 ? Math.round((stats.cancelled / stats.total) * 100) : 0}% do total
             </p>
@@ -261,23 +312,23 @@ export default function ClientAppointmentHistory() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Gasto</CardTitle>
-            <TrendingUp className="h-4 w-4 text-primary" />
+            <TrendingUp className="h-4 w-4 text-primary" aria-hidden="true" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">R$ {stats.totalSpent.toFixed(2)}</div>
+            <div className="text-xl md:text-2xl font-bold text-primary">R$ {stats.totalSpent.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">Em serviços concluídos</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Gráficos */}
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Agendamentos por Status</CardTitle>
             <CardDescription>Distribuição de status dos agendamentos</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent role="img" aria-label="Gráfico de pizza mostrando distribuição de agendamentos por status">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -355,22 +406,43 @@ export default function ClientAppointmentHistory() {
                       </span>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="flex flex-col items-end gap-2">
                     <p className="font-bold text-primary">
                       R$ {appointment.service?.price?.toFixed(2)}
                     </p>
+                    {appointment.status === 'completed' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleOpenRating(appointment.id)}
+                        className="gap-1 min-h-[44px]"
+                        aria-label={`Avaliar serviço ${appointment.service?.name}`}
+                      >
+                        <Star className="h-4 w-4" aria-hidden="true" />
+                        Avaliar
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <div className="text-center py-8 text-muted-foreground" role="status">
+              <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" aria-hidden="true" />
               <p>Nenhum agendamento encontrado com os filtros selecionados</p>
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Rating Dialog */}
+      <RatingDialog
+        open={ratingDialogOpen}
+        onOpenChange={setRatingDialogOpen}
+        appointmentId={selectedAppointment}
+        onSuccess={() => refetch()}
+      />
     </div>
+    </>
   );
 }

@@ -73,12 +73,19 @@ export function useMFA() {
 
   const checkMFAStatus = async () => {
     try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session?.user?.id) return false;
+
       const { data, error } = await supabase
         .from('mfa_secrets')
         .select('enabled')
-        .single();
+        .eq('user_id', session.session.user.id)
+        .maybeSingle();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Check MFA status error:', error);
+        return false;
+      }
       
       return data?.enabled || false;
     } catch (error) {

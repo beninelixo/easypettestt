@@ -1,16 +1,22 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Heart, Award, TrendingUp, Star } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Calendar, Clock, Heart, Award, TrendingUp, Star, Plus } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState } from "react";
+import { RatingDialog } from "./RatingDialog";
 
 export function EnhancedClientDashboard() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [selectedAppointment, setSelectedAppointment] = useState<string | null>(null);
+  const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
+
   const { data: session } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
@@ -19,7 +25,7 @@ export function EnhancedClientDashboard() {
     },
   });
 
-  const { data: appointments, isLoading: loadingAppointments } = useQuery({
+  const { data: appointments, isLoading: loadingAppointments, refetch } = useQuery({
     queryKey: ['client-appointments', session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return [];
@@ -32,6 +38,7 @@ export function EnhancedClientDashboard() {
           pet_shop:pet_shops(name, city)
         `)
         .eq('client_id', session.user.id)
+        .is('deleted_at', null)
         .order('scheduled_date', { ascending: false })
         .limit(5);
 
@@ -57,6 +64,36 @@ export function EnhancedClientDashboard() {
     },
     enabled: !!session?.user?.id,
   });
+
+  // Realtime subscription for appointments
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    const channel = supabase
+      .channel('client-dashboard-appointments')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'appointments',
+          filter: `client_id=eq.${session.user.id}`
+        },
+        () => {
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session?.user?.id, refetch]);
+
+  const handleOpenRating = (appointmentId: string) => {
+    setSelectedAppointment(appointmentId);
+    setRatingDialogOpen(true);
+  };
 
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
@@ -86,53 +123,64 @@ export function EnhancedClientDashboard() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* CTA Button */}
+      <Button 
+        size="lg" 
+        onClick={() => navigate('/client/schedule')}
+        className="w-full md:w-auto gap-2 min-h-[48px]"
+        aria-label="Agendar novo serviço para seu pet"
+      >
+        <Plus className="h-5 w-5" aria-hidden="true" />
+        Agendar Serviço
+      </Button>
+
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-t-4 border-t-primary">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <Card className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border-t-4 border-t-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
               Pontos de Fidelidade
             </CardTitle>
-            <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+            <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors" aria-hidden="true">
               <Award className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-extrabold text-primary tracking-tight">{loyaltyPoints}</div>
+            <div className="text-2xl md:text-3xl font-extrabold text-primary tracking-tight" aria-label={`${loyaltyPoints} pontos de fidelidade`}>{loyaltyPoints}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Próxima recompensa em {Math.max(0, 100 - (loyaltyPoints % 100))} pontos
+              Próxima recompensa em {Math.max(0, 100 - ((loyaltyPoints || 0) % 100))} pontos
             </p>
           </CardContent>
         </Card>
 
-        <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-t-4 border-t-accent">
+        <Card className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border-t-4 border-t-accent">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
               Serviços Realizados
             </CardTitle>
-            <div className="p-2 rounded-lg bg-accent/10 group-hover:bg-accent/20 transition-colors">
+            <div className="p-2 rounded-lg bg-accent/10 group-hover:bg-accent/20 transition-colors" aria-hidden="true">
               <Heart className="h-5 w-5 text-accent group-hover:scale-110 transition-transform" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-extrabold text-foreground tracking-tight">{completedCount}</div>
+            <div className="text-2xl md:text-3xl font-extrabold text-foreground tracking-tight" aria-label={`${completedCount} serviços realizados`}>{completedCount}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Total de serviços concluídos
             </p>
           </CardContent>
         </Card>
 
-        <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-t-4 border-t-secondary">
+        <Card className="group hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border-t-4 border-t-secondary sm:col-span-2 lg:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
               Próximos Agendamentos
             </CardTitle>
-            <div className="p-2 rounded-lg bg-secondary/10 group-hover:bg-secondary/20 transition-colors">
+            <div className="p-2 rounded-lg bg-secondary/10 group-hover:bg-secondary/20 transition-colors" aria-hidden="true">
               <Calendar className="h-5 w-5 text-secondary group-hover:scale-110 transition-transform" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-extrabold text-foreground tracking-tight">{upcomingCount}</div>
+            <div className="text-2xl md:text-3xl font-extrabold text-foreground tracking-tight" aria-label={`${upcomingCount} agendamentos futuros`}>{upcomingCount}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Serviços agendados
             </p>
@@ -186,10 +234,11 @@ export function EnhancedClientDashboard() {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="mt-2"
-                        onClick={() => navigate('/client/appointments')}
+                        className="mt-2 min-h-[44px] min-w-[44px]"
+                        onClick={() => handleOpenRating(appointment.id)}
+                        aria-label={`Avaliar serviço ${appointment.service?.name}`}
                       >
-                        <Star className="h-4 w-4 mr-1" />
+                        <Star className="h-4 w-4 mr-1" aria-hidden="true" />
                         Avaliar
                       </Button>
                     )}
@@ -229,10 +278,17 @@ export function EnhancedClientDashboard() {
           <div className="space-y-4">
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span>Progresso para próxima recompensa</span>
+                <span id="loyalty-progress-label">Progresso para próxima recompensa</span>
                 <span className="font-medium">{((loyaltyPoints || 0) % 100)}/100 pontos</span>
               </div>
-              <div className="w-full bg-muted rounded-full h-2">
+              <div 
+                className="w-full bg-muted rounded-full h-2" 
+                role="progressbar"
+                aria-labelledby="loyalty-progress-label"
+                aria-valuenow={(loyaltyPoints || 0) % 100}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
                 <div
                   className="bg-primary h-2 rounded-full transition-all"
                   style={{ width: `${((loyaltyPoints || 0) % 100)}%` }}
@@ -241,17 +297,25 @@ export function EnhancedClientDashboard() {
             </div>
             <div className="grid grid-cols-2 gap-4 pt-4">
               <div className="text-center p-4 bg-background rounded-lg border">
-                <p className="text-2xl font-bold text-primary">{Math.floor((loyaltyPoints || 0) / 100)}</p>
+                <p className="text-xl md:text-2xl font-bold text-primary">{Math.floor((loyaltyPoints || 0) / 100)}</p>
                 <p className="text-xs text-muted-foreground">Recompensas ganhas</p>
               </div>
               <div className="text-center p-4 bg-background rounded-lg border">
-                <p className="text-2xl font-bold text-accent">{completedCount * 10}</p>
+                <p className="text-xl md:text-2xl font-bold text-accent">{completedCount * 10}</p>
                 <p className="text-xs text-muted-foreground">Pontos totais ganhos</p>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Rating Dialog */}
+      <RatingDialog
+        open={ratingDialogOpen}
+        onOpenChange={setRatingDialogOpen}
+        appointmentId={selectedAppointment}
+        onSuccess={() => refetch()}
+      />
     </div>
   );
 }

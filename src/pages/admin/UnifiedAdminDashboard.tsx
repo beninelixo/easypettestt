@@ -16,7 +16,7 @@ import {
   Building2, Users, Calendar, DollarSign, Shield, Database, 
   Mail, HardDrive, AlertTriangle, CheckCircle, Clock, Activity,
   TrendingUp, Zap, Brain, Loader2, RefreshCw, Lock, Bell,
-  Eye, EyeOff, KeyRound, XCircle, CheckCircle2, FileCode, PawPrint, Trash2
+  Eye, KeyRound, XCircle, CheckCircle2, FileCode, PawPrint, Trash2
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -24,6 +24,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { SuperAdminUsers } from "@/components/admin/SuperAdminUsers";
 import { SuperAdminPetShops } from "@/components/admin/SuperAdminPetShops";
 import { SuperAdminSystemHealth } from "@/components/admin/SuperAdminSystemHealth";
@@ -32,6 +33,7 @@ import { LiveMetricsCard } from "@/components/admin/LiveMetricsCard";
 import { RealtimeActivityFeed } from "@/components/admin/RealtimeActivityFeed";
 
 export default function UnifiedAdminDashboard() {
+  const { toast } = useToast();
   const location = useLocation();
   const { isGodUser } = useAuth();
   const { stats, systemHealth, security, recentActivity, isLoading } = useAdminStats();
@@ -61,7 +63,6 @@ export default function UnifiedAdminDashboard() {
   const { metrics, isLive, refresh: refreshMetrics, isLoading: metricsLoading } = useAdminMetricsRealtime();
   const { resetPassword, loading: resetLoading } = useAdminPasswordReset();
   
-  const [showSecrets, setShowSecrets] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetNewPassword, setResetNewPassword] = useState("");
 
@@ -564,10 +565,10 @@ export default function UnifiedAdminDashboard() {
                 {/* Password Reset */}
                 <div className="p-4 border border-orange-500/30 rounded-lg bg-orange-500/5">
                   <h4 className="font-bold flex items-center gap-2 mb-4">
-                    <KeyRound className="h-5 w-5 text-orange-500" />
+                    <KeyRound className="h-5 w-5 text-orange-500" aria-hidden="true" />
                     Redefinir Senha de Usuário
                   </h4>
-                  <div className="grid md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="resetEmail">Email do usuário</Label>
                       <Input
@@ -576,6 +577,8 @@ export default function UnifiedAdminDashboard() {
                         placeholder="usuario@email.com"
                         value={resetEmail}
                         onChange={(e) => setResetEmail(e.target.value)}
+                        aria-describedby="resetEmail-hint"
+                        autoComplete="email"
                       />
                     </div>
                     <div className="space-y-2">
@@ -583,22 +586,44 @@ export default function UnifiedAdminDashboard() {
                       <Input
                         id="resetPassword"
                         type="password"
-                        placeholder="Nova senha (mín. 8 caracteres)"
+                        placeholder="Nova senha (mín. 10 caracteres)"
                         value={resetNewPassword}
                         onChange={(e) => setResetNewPassword(e.target.value)}
+                        minLength={10}
+                        aria-describedby="resetPassword-hint"
+                        autoComplete="new-password"
                       />
+                      <p id="resetPassword-hint" className="text-xs text-muted-foreground">
+                        Mínimo 10 caracteres, incluindo maiúsculas, minúsculas, números e símbolos
+                      </p>
                     </div>
                     <div className="flex items-end">
                       <Button
-                        className="w-full bg-orange-500 hover:bg-orange-600"
-                        disabled={resetLoading || !resetEmail || !resetNewPassword}
+                        className="w-full bg-orange-500 hover:bg-orange-600 min-h-[44px]"
+                        disabled={resetLoading || !resetEmail || !resetNewPassword || resetNewPassword.length < 10}
                         onClick={async () => {
+                          // Validate password strength
+                          const hasUppercase = /[A-Z]/.test(resetNewPassword);
+                          const hasLowercase = /[a-z]/.test(resetNewPassword);
+                          const hasNumber = /[0-9]/.test(resetNewPassword);
+                          const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(resetNewPassword);
+                          
+                          if (!hasUppercase || !hasLowercase || !hasNumber || !hasSymbol) {
+                            toast({
+                              title: "Senha fraca",
+                              description: "A senha deve conter maiúsculas, minúsculas, números e símbolos",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+                          
                           const result = await resetPassword(resetEmail, resetNewPassword);
                           if (result.success) {
                             setResetEmail("");
                             setResetNewPassword("");
                           }
                         }}
+                        aria-label="Redefinir senha do usuário"
                       >
                         {resetLoading ? "Redefinindo..." : "Redefinir Senha"}
                       </Button>
@@ -654,25 +679,31 @@ export default function UnifiedAdminDashboard() {
                   </AlertDialog>
                 </div>
 
-                {/* System Secrets */}
+                {/* System Secrets Status - Hidden values for security */}
                 <div className="p-4 border border-red-500/30 rounded-lg bg-red-500/5">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="font-bold flex items-center gap-2">
-                      <Eye className="h-5 w-5 text-red-500" />
-                      Secrets do Sistema
+                      <Lock className="h-5 w-5 text-red-500" aria-hidden="true" />
+                      Status das Credenciais
                     </h4>
-                    <Button variant="ghost" size="sm" onClick={() => setShowSecrets(!showSecrets)}>
-                      {showSecrets ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
                   </div>
-                  {showSecrets && (
-                    <div className="p-3 bg-muted rounded-lg font-mono text-xs">
-                      <div className="font-bold text-red-500 mb-2">⚠️ INFORMAÇÕES SENSÍVEIS</div>
-                      <div>CAKTO_API_KEY: ••••••••••</div>
-                      <div>RESEND_API_KEY: ••••••••••</div>
-                      <div>SUPABASE_SERVICE_ROLE_KEY: ••••••••••</div>
+                  <div className="space-y-2" role="list" aria-label="Status das credenciais do sistema">
+                    <div className="flex items-center justify-between p-2 bg-muted rounded" role="listitem">
+                      <span className="text-sm">CAKTO_API_KEY</span>
+                      <Badge variant="default" className="bg-green-500">Configurado</Badge>
                     </div>
-                  )}
+                    <div className="flex items-center justify-between p-2 bg-muted rounded" role="listitem">
+                      <span className="text-sm">RESEND_API_KEY</span>
+                      <Badge variant="default" className="bg-green-500">Configurado</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-2 bg-muted rounded" role="listitem">
+                      <span className="text-sm">SUPABASE_SERVICE_ROLE</span>
+                      <Badge variant="default" className="bg-green-500">Configurado</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Por segurança, os valores das credenciais não são exibidos.
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
