@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Phone, Store, Search } from "lucide-react";
+import { MapPin, Phone, Store, Search, LogIn } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PetShop {
   id: string;
@@ -25,9 +26,20 @@ export default function ClientSelectPetShop() {
   const [filteredPetShops, setFilteredPetShops] = useState<PetShop[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
+  // Check authentication first
   useEffect(() => {
-    loadPetShops();
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+      if (session) {
+        loadPetShops();
+      } else {
+        setLoading(false);
+      }
+    };
+    checkAuth();
   }, []);
 
   useEffect(() => {
@@ -48,17 +60,17 @@ export default function ClientSelectPetShop() {
     try {
       const { data, error } = await supabase
         .from('pet_shops')
-        .select('*')
+        .select('id, name, address, city, phone, code')
+        .is('deleted_at', null)
         .order('name');
 
       if (error) throw error;
       setPetShops(data || []);
       setFilteredPetShops(data || []);
     } catch (error: any) {
-      console.error('Error loading pet shops:', error);
       toast({
         title: "Erro ao carregar pet shops",
-        description: error.message,
+        description: "Não foi possível carregar a lista de pet shops. Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -84,23 +96,55 @@ export default function ClientSelectPetShop() {
             </p>
           </div>
 
-          <div className="mb-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-              <Input
-                placeholder="Buscar por nome, cidade ou código..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
+          {/* Show login prompt if not authenticated */}
+          {isAuthenticated === false && (
+            <Card className="mb-6 border-primary/20 bg-primary/5">
+              <CardContent className="py-8 text-center">
+                <LogIn className="w-12 h-12 mx-auto mb-4 text-primary" />
+                <h3 className="text-xl font-semibold mb-2">Faça login para continuar</h3>
+                <p className="text-muted-foreground mb-4">
+                  Para ver e selecionar pet shops, você precisa estar logado.
+                </p>
+                <Button onClick={() => navigate('/auth')} className="gap-2">
+                  <LogIn className="w-4 h-4" />
+                  Fazer Login
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
-          {loading ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">Carregando pet shops...</p>
-            </div>
-          ) : filteredPetShops.length === 0 ? (
+          {/* Show content only when authenticated */}
+          {isAuthenticated && (
+            <>
+              <div className="mb-6">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                  <Input
+                    placeholder="Buscar por nome, cidade ou código..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              {loading ? (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <Card key={i}>
+                      <CardHeader>
+                        <Skeleton className="h-6 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-2/3" />
+                        <Skeleton className="h-10 w-full" />
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : filteredPetShops.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <Store className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
@@ -157,7 +201,9 @@ export default function ClientSelectPetShop() {
                   </CardContent>
                 </Card>
               ))}
-            </div>
+              </div>
+            )}
+            </>
           )}
         </div>
       </main>

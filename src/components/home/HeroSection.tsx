@@ -176,11 +176,17 @@ export const HeroSection = () => {
               {isLoading ? (
                 <div className="rounded-3xl shadow-lg w-full h-full border border-border/50 bg-muted animate-pulse min-h-[400px]" />
               ) : (
-                <img
-                  src={heroImage}
-                  alt="Sistema EasyPet em ação"
-                  className="rounded-3xl shadow-lg object-cover w-full h-full border border-border/50 hover:scale-[1.01] transition-transform duration-300"
-                />
+                <>
+                  <link rel="preload" as="image" href={heroImage} />
+                  <img
+                    src={heroImage}
+                    alt="Sistema EasyPet em ação - Dashboard completo para gestão de pet shops"
+                    className="rounded-3xl shadow-lg object-cover w-full h-full border border-border/50 hover:scale-[1.01] transition-transform duration-300"
+                    fetchPriority="high"
+                    loading="eager"
+                    decoding="async"
+                  />
+                </>
               )}
               
               {/* Floating Stats */}
