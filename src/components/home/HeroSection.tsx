@@ -44,7 +44,7 @@ export const HeroSection = () => {
       <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
       
       <div className="container mx-auto max-w-7xl relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
           {/* Left Content */}
           <div className="space-y-8">
             <div 
@@ -60,15 +60,16 @@ export const HeroSection = () => {
               style={{ animationDelay: "0.2s" }}
             >
               A Solução Completa para{" "}
-              <AnimatedGradientText shimmer glow>
-                <TypewriterText 
-                  words={typewriterWords}
-                  typingSpeed={80}
-                  deletingSpeed={40}
-                  pauseDuration={2500}
-                  className="min-w-[280px] sm:min-w-[320px] lg:min-w-[380px]"
-                />
-              </AnimatedGradientText>
+              <span className="block mt-2">
+                <AnimatedGradientText shimmer glow>
+                  <TypewriterText 
+                    words={typewriterWords}
+                    typingSpeed={80}
+                    deletingSpeed={40}
+                    pauseDuration={2500}
+                  />
+                </AnimatedGradientText>
+              </span>
             </h1>
             
             <p 
