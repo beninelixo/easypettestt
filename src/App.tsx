@@ -28,7 +28,7 @@ import { ThemeToggle } from "./components/ThemeToggle";
 import { PushNotificationButton } from "./components/PushNotificationButton";
 import { LoadingFallback } from "./components/LoadingFallback";
 import { ScrollToTop } from "./components/ui/scroll-to-top";
-import { lazy, Suspense, useEffect } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useErrorMonitoring } from "./hooks/useErrorMonitoring";
 import { usePerformanceMonitoring } from "./hooks/usePerformanceMonitoring";
@@ -274,6 +274,10 @@ const App = () => {
             <Route path="reports" element={<ProfessionalReports />} />
             <Route path="backup" element={<ProfessionalBackup />} />
             <Route path="settings" element={<ProfessionalSettings />} />
+            <Route path="notifications" element={<Suspense fallback={<LoadingFallback />}>{React.createElement(lazy(() => import('./pages/professional/ProfessionalNotifications')))}</Suspense>} />
+            <Route path="security" element={<Suspense fallback={<LoadingFallback />}>{React.createElement(lazy(() => import('./pages/professional/ProfessionalSecurity')))}</Suspense>} />
+            <Route path="integrations" element={<Suspense fallback={<LoadingFallback />}>{React.createElement(lazy(() => import('./pages/professional/ProfessionalIntegrations')))}</Suspense>} />
+            <Route path="privacy" element={<Suspense fallback={<LoadingFallback />}>{React.createElement(lazy(() => import('./pages/professional/ProfessionalPrivacy')))}</Suspense>} />
             <Route path="billing" element={<ProfessionalBilling />} />
             <Route path="plans" element={<Navigate to="/professional/billing" replace />} />
             <Route path="subscription" element={<Navigate to="/professional/billing" replace />} />
