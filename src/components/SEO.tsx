@@ -14,11 +14,13 @@ interface SEOProps {
   };
 }
 
+const SITE_URL = 'https://easypet.lovable.app';
+
 export const SEO = ({
   title = 'EasyPet - Sistema Completo de Gestão para Pet Shops, Banho & Tosa e Clínicas',
   description = 'Sistema completo de gestão para seu pet shop, banho e tosa ou clínica veterinária. Agendamento inteligente, CRM, controle financeiro e muito mais. Teste grátis por 14 dias.',
-  image = 'https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com/og-image.jpg',
-  url = 'https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com',
+  image = `${SITE_URL}/og-image.jpg`,
+  url = SITE_URL,
   type = 'website',
   article,
 }: SEOProps) => {
@@ -160,7 +162,7 @@ export const SEO = ({
       </script>
 
       {/* Breadcrumb Schema (for internal pages) */}
-      {url !== 'https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com' && (
+      {url !== SITE_URL && (
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',
@@ -170,7 +172,7 @@ export const SEO = ({
                 '@type': 'ListItem',
                 position: 1,
                 name: 'Home',
-                item: 'https://fee7e0fa-1989-41d0-b964-a2da81396f8b.lovableproject.com',
+                item: SITE_URL,
               },
               {
                 '@type': 'ListItem',
