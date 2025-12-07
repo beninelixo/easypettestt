@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Shield, Bell, Mail, MessageSquare, Lock, AlertTriangle } from "lucide-react";
+import { ExportUserData } from "@/components/user/ExportUserData";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -271,6 +272,9 @@ const UserPrivacy = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Export User Data - LGPD Art. 18 */}
+        <ExportUserData />
 
         {/* GDPR Info */}
         <Card className="border-2 shadow-lg bg-muted/30">
