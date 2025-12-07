@@ -203,6 +203,7 @@ export function ProfessionalSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
+                      aria-label={`Navegar para ${item.title}`}
                       className={({ isActive }) => {
                         const baseClass = `group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
                         
@@ -263,6 +264,7 @@ export function ProfessionalSidebar() {
                       <SidebarMenuButton asChild>
                         <NavLink
                           to={item.url}
+                          aria-label={`Navegar para ${item.title}`}
                           className={({ isActive }) => {
                             const baseClass = `group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
                             
@@ -315,6 +317,7 @@ export function ProfessionalSidebar() {
                       <SidebarMenuButton asChild>
                         <NavLink
                           to={item.url}
+                          aria-label={`Navegar para ${item.title}`}
                           className={({ isActive }) => {
                             const baseClass = `group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
                             
@@ -351,30 +354,7 @@ export function ProfessionalSidebar() {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Upgrade Banner */}
-        {!isCollapsed && planTheme.plan === 'free' && (
-          <div className="mx-4 mb-4">
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/10 p-4 border border-primary/20">
-              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-primary/30 to-transparent rounded-full blur-2xl" />
-              <div className="relative">
-                <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-semibold text-foreground">Upgrade Pro</span>
-                </div>
-                <p className="text-xs text-muted-foreground mb-3">
-                  Desbloqueie recursos avançados
-                </p>
-                <Button 
-                  size="sm" 
-                  className="w-full rounded-lg bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-white"
-                  onClick={() => navigate('/professional/plans')}
-                >
-                  Ver Planos
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Upgrade Banner removed - redundant with "Planos" menu item */}
 
         {/* Separador antes dos botões de ação */}
         <Separator className="mx-4 bg-border/50" />

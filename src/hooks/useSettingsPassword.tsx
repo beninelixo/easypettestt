@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useToast } from "./use-toast";
+
+const SETTINGS_AUTH_KEY = 'easypet_settings_unlocked';
 
 interface SettingsPassword {
   id: string;
@@ -16,7 +18,30 @@ export const useSettingsPassword = (petShopId: string | undefined) => {
   const { toast } = useToast();
   const [hasPassword, setHasPassword] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Fix: Initialize from sessionStorage to persist authentication during session
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return sessionStorage.getItem(SETTINGS_AUTH_KEY) === 'true';
+  });
+
+  // Fix: Sync with sessionStorage changes (e.g., from useSettingsProtection)
+  useEffect(() => {
+    const syncAuth = () => {
+      const unlocked = sessionStorage.getItem(SETTINGS_AUTH_KEY) === 'true';
+      if (unlocked !== isAuthenticated) {
+        setIsAuthenticated(unlocked);
+      }
+    };
+
+    // Check periodically for changes from other hooks
+    const interval = setInterval(syncAuth, 500);
+    window.addEventListener('storage', syncAuth);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', syncAuth);
+    };
+  }, [isAuthenticated]);
 
   useEffect(() => {
     checkPasswordExists();
@@ -91,6 +116,8 @@ export const useSettingsPassword = (petShopId: string | undefined) => {
 
       setHasPassword(true);
       setIsAuthenticated(true);
+      // Fix: Persist to sessionStorage so password isn't asked again
+      sessionStorage.setItem(SETTINGS_AUTH_KEY, 'true');
       
       toast({
         title: "Sucesso",
@@ -150,6 +177,8 @@ export const useSettingsPassword = (petShopId: string | undefined) => {
 
       if (verifyData?.valid) {
         setIsAuthenticated(true);
+        // Fix: Persist to sessionStorage so password isn't asked again
+        sessionStorage.setItem(SETTINGS_AUTH_KEY, 'true');
         toast({
           title: "Acesso Liberado",
           description: "Senha verificada com sucesso!",
@@ -221,6 +250,7 @@ export const useSettingsPassword = (petShopId: string | undefined) => {
 
   const resetAuthentication = () => {
     setIsAuthenticated(false);
+    sessionStorage.removeItem(SETTINGS_AUTH_KEY);
   };
 
   return {
