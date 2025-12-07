@@ -1307,24 +1307,30 @@ export type Database = {
       newsletter_subscribers: {
         Row: {
           active: boolean | null
+          created_at: string | null
           email: string
           id: string
           source: string | null
           subscribed_at: string | null
+          subscriber_ip: string | null
         }
         Insert: {
           active?: boolean | null
+          created_at?: string | null
           email: string
           id?: string
           source?: string | null
           subscribed_at?: string | null
+          subscriber_ip?: string | null
         }
         Update: {
           active?: boolean | null
+          created_at?: string | null
           email?: string
           id?: string
           source?: string | null
           subscribed_at?: string | null
+          subscriber_ip?: string | null
         }
         Relationships: []
       }
@@ -2917,6 +2923,10 @@ export type Database = {
         Returns: boolean
       }
       check_employee_limit: { Args: { _pet_shop_id: string }; Returns: boolean }
+      check_newsletter_rate_limit: {
+        Args: { check_ip: string }
+        Returns: boolean
+      }
       cleanup_expired_blocks: { Args: never; Returns: number }
       cleanup_expired_invites: { Args: never; Returns: number }
       cleanup_expired_mfa_sessions: { Args: never; Returns: number }

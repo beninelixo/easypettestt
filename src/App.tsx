@@ -27,7 +27,7 @@ import { AppAuthRedirectGate } from "./components/AppAuthRedirectGate";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { PushNotificationButton } from "./components/PushNotificationButton";
 import { LoadingFallback } from "./components/LoadingFallback";
-import ScrollToTop from "./components/ScrollToTop";
+import { ScrollToTop } from "./components/ui/scroll-to-top";
 import { lazy, Suspense, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useErrorMonitoring } from "./hooks/useErrorMonitoring";
