@@ -6,7 +6,7 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { UpdateNotification } from "@/components/UpdateNotification";
 import { ImpersonationBanner } from "@/components/admin/ImpersonationBanner";
-
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 // Configuração otimizada de cache para performance
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -374,6 +374,7 @@ const App = () => {
           </Routes>
               </Suspense>
           </BrowserRouter>
+          <CookieConsentBanner />
         </TooltipProvider>
       </TenantProvider>
     </QueryClientProvider>
