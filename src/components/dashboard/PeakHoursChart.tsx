@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { useIsMobile } from "@/utils/breakpoints";
 
 interface PeakHoursChartProps {
   data: Array<{ hour: number; appointment_count: number }>;
@@ -8,9 +9,9 @@ interface PeakHoursChartProps {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-card/95 backdrop-blur-sm border border-border/50 rounded-xl p-3 shadow-xl">
-        <p className="text-sm font-medium text-foreground mb-1">{label}</p>
-        <p className="text-lg font-bold text-violet-500">
+      <div className="bg-card/95 backdrop-blur-sm border border-border/50 rounded-xl p-2 sm:p-3 shadow-xl">
+        <p className="text-xs sm:text-sm font-medium text-foreground mb-1">{label}</p>
+        <p className="text-sm sm:text-lg font-bold text-violet-500">
           {payload[0].value} agendamento{payload[0].value !== 1 ? 's' : ''}
         </p>
       </div>
@@ -20,6 +21,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export const PeakHoursChart = memo(({ data }: PeakHoursChartProps) => {
+  const isMobile = useIsMobile();
+  const chartHeight = isMobile ? 200 : 280;
+  
   const formattedData = data.map(item => ({
     hour: `${String(item.hour).padStart(2, '0')}h`,
     appointments: item.appointment_count
@@ -28,8 +32,16 @@ export const PeakHoursChart = memo(({ data }: PeakHoursChartProps) => {
   const maxCount = Math.max(...data.map(d => d.appointment_count), 1);
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
-      <BarChart data={formattedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+    <ResponsiveContainer width="100%" height={chartHeight}>
+      <BarChart 
+        data={formattedData} 
+        margin={{ 
+          top: 10, 
+          right: isMobile ? 5 : 10, 
+          left: isMobile ? -15 : 0, 
+          bottom: isMobile ? 10 : 0 
+        }}
+      >
         <defs>
           <linearGradient id="peakGradient" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#8b5cf6" stopOpacity={1}/>
@@ -46,24 +58,25 @@ export const PeakHoursChart = memo(({ data }: PeakHoursChartProps) => {
           dataKey="hour" 
           axisLine={false}
           tickLine={false}
-          tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+          tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: isMobile ? 9 : 11 }}
           dy={10}
-          interval={0}
-          angle={-45}
+          interval={isMobile ? 2 : 0}
+          angle={isMobile ? -45 : -45}
           textAnchor="end"
-          height={50}
+          height={isMobile ? 40 : 50}
         />
         <YAxis 
           axisLine={false}
           tickLine={false}
-          tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+          tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: isMobile ? 10 : 12 }}
           dx={-10}
+          width={isMobile ? 25 : 35}
         />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }} />
         <Bar 
           dataKey="appointments" 
-          radius={[6, 6, 0, 0]}
-          maxBarSize={35}
+          radius={[4, 4, 0, 0]}
+          maxBarSize={isMobile ? 20 : 35}
         >
           {formattedData.map((entry, index) => (
             <Cell 
