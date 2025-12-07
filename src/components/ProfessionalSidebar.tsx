@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { 
   Calendar, Scissors, Users, LogOut, Building2, 
   LayoutDashboard, Settings, ChevronRight, Sparkles, Moon, Sun,
-  PanelLeftClose, PanelLeft, Lock, BarChart3, Database, CreditCard, UserCircle
+  PanelLeftClose, PanelLeft, Lock, BarChart3, HardDrive, Wallet, UserCircle, UserCog
 } from "lucide-react";
 import {
   Sidebar,
@@ -79,12 +79,12 @@ const multiUnitMenuItems = [
   },
 ];
 
-// Protected menu items (visible after settings password)
+// Protected menu items (visible after settings password) - Unificado e sem duplicatas
 const protectedMenuItems = [
   { 
     title: "Funcionários", 
     url: "/professional/employees", 
-    icon: Users,
+    icon: UserCog, // Ícone diferenciado
     gradient: "from-violet-500 to-purple-600"
   },
   { 
@@ -96,23 +96,17 @@ const protectedMenuItems = [
   { 
     title: "Backup", 
     url: "/professional/backup", 
-    icon: Database,
+    icon: HardDrive, // Ícone diferenciado
     gradient: "from-slate-500 to-slate-600"
   },
   { 
-    title: "Minha Assinatura", 
-    url: "/professional/subscription", 
-    icon: CreditCard,
-    gradient: "from-emerald-500 to-green-600"
-  },
-  { 
-    title: "Planos", 
-    url: "/professional/plans", 
-    icon: CreditCard,
+    title: "Assinatura & Planos", 
+    url: "/professional/billing", 
+    icon: Wallet, // Ícone unificado e diferenciado
     gradient: "from-amber-500 to-orange-600"
   },
   { 
-    title: "Perfil", 
+    title: "Perfil do Negócio", 
     url: "/professional/profile", 
     icon: UserCircle,
     gradient: "from-cyan-500 to-blue-600"

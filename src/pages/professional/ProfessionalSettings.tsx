@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  Settings, Bell, Lock, CreditCard, Users, Scissors, Key, 
-  BarChart3, Database, AlertCircle, Shield, ChevronRight
+  Settings, Bell, Lock, Key, Shield, ChevronRight,
+  Clock, Link2, FileText, UserCog
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSettingsPassword } from "@/hooks/useSettingsPassword";
 import { SettingsPasswordDialog } from "@/components/settings/SettingsPasswordDialog";
+import { ChangeSettingsPasswordDialog } from "@/components/settings/ChangeSettingsPasswordDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,6 +25,7 @@ const ProfessionalSettings = () => {
   const [dialogMode, setDialogMode] = useState<"create" | "verify">("verify");
   const [loadingPetShop, setLoadingPetShop] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   
   const {
     hasPassword,
@@ -31,6 +33,7 @@ const ProfessionalSettings = () => {
     isAuthenticated,
     createPassword,
     verifyPassword,
+    updatePassword,
   } = useSettingsPassword(petShopId);
 
   useEffect(() => {
@@ -102,11 +105,9 @@ const ProfessionalSettings = () => {
           title: "✅ Senha criada!",
           description: "Configurações desbloqueadas! Redirecionando...",
         });
-        // Store unlock state and dispatch event for cross-component sync
         sessionStorage.setItem('easypet_settings_unlocked', 'true');
         window.dispatchEvent(new Event('storage'));
         setDialogOpen(false);
-        // Redirect to dashboard after creating password
         setTimeout(() => {
           navigate("/petshop-dashboard");
         }, 500);
@@ -130,19 +131,20 @@ const ProfessionalSettings = () => {
         setAttempts(0);
         toast({
           title: "✅ Senha verificada!",
-          description: "Configurações desbloqueadas! Redirecionando...",
+          description: "Configurações desbloqueadas!",
         });
-        // Store unlock state and dispatch event for cross-component sync
         sessionStorage.setItem('easypet_settings_unlocked', 'true');
         window.dispatchEvent(new Event('storage'));
         setDialogOpen(false);
-        // Redirect to dashboard after verification
-        setTimeout(() => {
-          navigate("/petshop-dashboard");
-        }, 500);
+        setShowSettings(true);
       }
       return success;
     }
+  };
+
+  const handleChangePassword = async (currentPassword: string, newPassword: string) => {
+    const success = await updatePassword(currentPassword, newPassword);
+    return success;
   };
 
   const handleDialogClose = (open: boolean) => {
@@ -192,82 +194,61 @@ const ProfessionalSettings = () => {
     );
   }
 
+  // Configurações reais - não redundantes com o menu
   const settingsSections = [
     {
-      title: "Gerenciar Serviços",
-      description: "Adicione, edite ou remova serviços oferecidos",
-      icon: Scissors,
-      gradient: "from-emerald-500 to-green-600",
-      onClick: () => navigate("/professional/services"),
-    },
-    {
-      title: "Relatórios",
-      description: "Visualize relatórios e análises detalhadas",
-      icon: BarChart3,
-      gradient: "from-pink-500 to-rose-600",
-      onClick: () => navigate("/professional/reports"),
-    },
-    {
-      title: "Perfil do Negócio",
-      description: "Edite as informações do seu pet shop",
-      icon: Users,
-      gradient: "from-cyan-500 to-blue-600",
-      onClick: () => navigate("/professional/profile"),
-    },
-    {
-      title: "Funcionários",
-      description: "Gerencie funcionários e permissões",
-      icon: Users,
-      gradient: "from-violet-500 to-purple-600",
-      onClick: () => navigate("/professional/employees"),
-    },
-    {
-      title: "Backup",
-      description: "Realize backup dos seus dados",
-      icon: Database,
-      gradient: "from-slate-500 to-slate-600",
-      onClick: () => navigate("/professional/backup"),
-    },
-    {
-      title: "Planos e Pagamentos",
-      description: "Configure métodos de pagamento e planos",
-      icon: CreditCard,
-      gradient: "from-amber-500 to-orange-600",
-      onClick: () => navigate("/professional/plans"),
-    },
-    {
       title: "Alterar Senha de Configurações",
-      description: "Atualize sua senha de acesso às configurações",
+      description: "Atualize sua senha de acesso às configurações protegidas",
       icon: Key,
       gradient: "from-red-500 to-rose-600",
-      onClick: () => {
-        toast({
-          title: "Funcionalidade em desenvolvimento",
-          description: "Alterar senha estará disponível em breve",
-        });
-      },
+      onClick: () => setChangePasswordOpen(true),
     },
     {
       title: "Notificações",
-      description: "Configure lembretes e alertas",
+      description: "Configure lembretes e alertas automáticos",
       icon: Bell,
       gradient: "from-teal-500 to-cyan-600",
-      onClick: () =>
-        toast({
-          title: "Funcionalidade em desenvolvimento",
-          description: "Configurar notificações estará disponível em breve",
-        }),
+      onClick: () => toast({
+        title: "Em breve",
+        description: "Configurações de notificações estará disponível em breve",
+      }),
     },
     {
-      title: "Segurança",
-      description: "Altere sua senha e configurações de segurança",
-      icon: Lock,
+      title: "Segurança & MFA",
+      description: "Autenticação de dois fatores e sessões ativas",
+      icon: Shield,
       gradient: "from-indigo-500 to-blue-600",
-      onClick: () =>
-        toast({
-          title: "Funcionalidade em desenvolvimento",
-          description: "Gerenciar segurança estará disponível em breve",
-        }),
+      onClick: () => toast({
+        title: "Em breve",
+        description: "Configurações de segurança estará disponível em breve",
+      }),
+    },
+    {
+      title: "Horários de Atendimento",
+      description: "Configure os horários de funcionamento do pet shop",
+      icon: Clock,
+      gradient: "from-violet-500 to-purple-600",
+      onClick: () => navigate("/professional/profile"),
+    },
+    {
+      title: "Integrações",
+      description: "WhatsApp Business, APIs externas e webhooks",
+      icon: Link2,
+      gradient: "from-emerald-500 to-green-600",
+      onClick: () => toast({
+        title: "Em breve",
+        description: "Configurações de integrações estará disponível em breve",
+      }),
+    },
+    {
+      title: "Privacidade & Dados",
+      description: "LGPD, exportar dados e gerenciar conta",
+      icon: FileText,
+      gradient: "from-amber-500 to-orange-600",
+      onClick: () => toast({
+        title: "Em breve",
+        description: "Configurações de privacidade estará disponível em breve",
+      }),
     },
   ];
 
@@ -289,15 +270,14 @@ const ProfessionalSettings = () => {
                   Configurações
                 </h1>
                 <p className="text-muted-foreground text-sm mt-1">
-                  Gerencie todas as configurações do seu pet shop
+                  Gerencie as configurações do sistema
                 </p>
               </div>
             </div>
             
-            {/* Back Button */}
             <Button
               variant="outline"
-              onClick={() => navigate("/professional/services")}
+              onClick={() => navigate("/petshop-dashboard")}
               className="flex items-center gap-2 rounded-xl border-border/50 hover:bg-muted/60"
             >
               <ChevronRight className="h-4 w-4 rotate-180" />
@@ -333,6 +313,13 @@ const ProfessionalSettings = () => {
           ))}
         </div>
       </div>
+
+      {/* Change Password Dialog */}
+      <ChangeSettingsPasswordDialog
+        open={changePasswordOpen}
+        onOpenChange={setChangePasswordOpen}
+        onSubmit={handleChangePassword}
+      />
     </div>
   );
 };
