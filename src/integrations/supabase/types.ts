@@ -2905,6 +2905,36 @@ export type Database = {
         }
         Relationships: []
       }
+      public_site_images: {
+        Row: {
+          alt_text: string | null
+          category: string | null
+          created_at: string | null
+          id: string | null
+          key: string | null
+          updated_at: string | null
+          url: string | null
+        }
+        Insert: {
+          alt_text?: string | null
+          category?: string | null
+          created_at?: string | null
+          id?: string | null
+          key?: string | null
+          updated_at?: string | null
+          url?: string | null
+        }
+        Update: {
+          alt_text?: string | null
+          category?: string | null
+          created_at?: string | null
+          id?: string | null
+          key?: string | null
+          updated_at?: string | null
+          url?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_distance: {
