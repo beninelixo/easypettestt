@@ -28,7 +28,7 @@ const ProfessionalLayout = () => {
           </header>
 
           {/* Main Content - Add padding bottom for mobile nav */}
-          <main className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide pb-20 lg:pb-0">
+          <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden scrollbar-hide pb-20 lg:pb-0">
             <Outlet />
           </main>
           
