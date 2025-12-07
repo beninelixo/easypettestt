@@ -19,6 +19,8 @@ import { NoShowMetrics } from "@/components/dashboard/NoShowMetrics";
 import { ServiceBreakdownChart } from "@/components/dashboard/ServiceBreakdownChart";
 import { useRealtimeMetrics } from "@/hooks/useRealtimeMetrics";
 import { usePlanTheme } from "@/hooks/usePlanTheme";
+import { useIsMobile } from "@/utils/breakpoints";
+import { cn } from "@/lib/utils";
 
 // Plan display configuration - Only existing plans (pet_gold_anual removed - does not exist)
 const PLAN_CONFIG: Record<string, { name: string; icon: typeof Crown; gradient: string; badge: string }> = {
@@ -34,6 +36,7 @@ const ProfessionalDashboard = () => {
   const { user, isGodUser } = useAuth();
   const navigate = useNavigate();
   const planTheme = usePlanTheme();
+  const isMobile = useIsMobile();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [petShopId, setPetShopId] = useState<string>("");
   const [petShopName, setPetShopName] = useState<string>("");
@@ -340,30 +343,45 @@ const ProfessionalDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="max-w-7xl mx-auto p-6 lg:p-8 space-y-8">
-        {/* Premium Header */}
-        <header className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/5 border border-border/50 p-8">
+      <div className={cn(
+        "max-w-7xl mx-auto space-y-6",
+        isMobile ? "p-3" : "p-6 lg:p-8 space-y-8"
+      )}>
+        {/* Premium Header - Compact on mobile */}
+        <header className={cn(
+          "relative overflow-hidden bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/5 border border-border/50",
+          isMobile ? "rounded-2xl p-4" : "rounded-3xl p-8"
+        )}>
           <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-primary/20 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          {!isMobile && (
+            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-primary/20 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          )}
           
-          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-2xl bg-gradient-to-br from-primary to-secondary shadow-lg shadow-primary/25">
-                  <PawPrint className="h-7 w-7 text-primary-foreground" />
+          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className={cn(
+                  "rounded-xl md:rounded-2xl bg-gradient-to-br from-primary to-secondary shadow-lg shadow-primary/25",
+                  isMobile ? "p-2" : "p-3"
+                )}>
+                  <PawPrint className={cn(isMobile ? "h-5 w-5" : "h-7 w-7", "text-primary-foreground")} />
                 </div>
                 <div>
-                  <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text">
+                  <h1 className={cn(
+                    "font-bold bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text",
+                    isMobile ? "text-xl" : "text-3xl lg:text-4xl"
+                  )}>
                     {petShopName || "Dashboard"}
                   </h1>
-                  <p className="text-muted-foreground text-sm mt-1">
-                    {format(new Date(), "EEEE, dd 'de' MMMM", { locale: ptBR })}
+                  <p className={cn("text-muted-foreground", isMobile ? "text-xs" : "text-sm mt-1")}>
+                    {format(new Date(), isMobile ? "dd/MM/yyyy" : "EEEE, dd 'de' MMMM", { locale: ptBR })}
                   </p>
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
+            {/* Hide action buttons on mobile - they're in bottom nav */}
+            <div className="hidden md:flex items-center gap-3">
               <Button 
                 variant="outline" 
                 size="icon"
@@ -457,75 +475,84 @@ const ProfessionalDashboard = () => {
           })()}
         </section>
 
-        {/* Stats Cards */}
-        <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Stats Cards - 2 cols on mobile */}
+        <section className={cn(
+          "grid gap-3 md:gap-6",
+          isMobile ? "grid-cols-2" : "md:grid-cols-2 lg:grid-cols-4"
+        )}>
           {statsArray.map((stat, index) => (
             <Card 
               key={index} 
               className="group relative overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-500 hover:-translate-y-1"
             >
               <div className={`absolute inset-0 ${stat.bgGlow} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-              <CardContent className="relative p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
-                    <stat.icon className="h-5 w-5 text-white" />
+              <CardContent className={cn("relative", isMobile ? "p-3" : "p-6")}>
+                <div className="flex items-start justify-between mb-2 md:mb-4">
+                  <div className={cn(
+                    "rounded-lg md:rounded-xl bg-gradient-to-br shadow-lg",
+                    stat.gradient,
+                    isMobile ? "p-2" : "p-3"
+                  )}>
+                    <stat.icon className={cn(isMobile ? "h-4 w-4" : "h-5 w-5", "text-white")} />
                   </div>
-                  <Sparkles className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />
+                  {!isMobile && <Sparkles className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />}
                 </div>
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground font-medium">{stat.title}</p>
-                  <p className="text-3xl font-bold tracking-tight">{stat.value}</p>
+                <div className="space-y-0.5">
+                  <p className={cn("text-muted-foreground font-medium", isMobile ? "text-[10px]" : "text-sm")}>{stat.title}</p>
+                  <p className={cn("font-bold tracking-tight", isMobile ? "text-lg" : "text-3xl")}>{stat.value}</p>
                 </div>
               </CardContent>
             </Card>
           ))}
         </section>
 
-        {/* Quick Actions */}
-        <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {quickActions.map((action, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              className="group h-auto py-6 flex flex-col items-center gap-3 rounded-2xl border-border/50 bg-card/50 hover:bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-              onClick={() => navigate(action.path)}
-            >
-              <div className={`p-3 rounded-xl bg-gradient-to-br ${action.color} shadow-md group-hover:scale-110 transition-transform`}>
-                <action.icon className="h-5 w-5 text-white" />
-              </div>
-              <span className="font-medium text-sm">{action.label}</span>
-            </Button>
-          ))}
-        </section>
+        {/* Quick Actions - Hide on mobile (in bottom nav) */}
+        {!isMobile && (
+          <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {quickActions.map((action, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                className="group h-auto py-6 flex flex-col items-center gap-3 rounded-2xl border-border/50 bg-card/50 hover:bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                onClick={() => navigate(action.path)}
+              >
+                <div className={`p-3 rounded-xl bg-gradient-to-br ${action.color} shadow-md group-hover:scale-110 transition-transform`}>
+                  <action.icon className="h-5 w-5 text-white" />
+                </div>
+                <span className="font-medium text-sm">{action.label}</span>
+              </Button>
+            ))}
+          </section>
+        )}
 
         {/* Charts Grid */}
-        <section className="grid lg:grid-cols-2 gap-6">
+        <section className={cn("grid gap-4", isMobile ? "grid-cols-1" : "lg:grid-cols-2 gap-6")}>
           <Card className="border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
-            <CardHeader className="border-b border-border/50 bg-muted/20">
+            <CardHeader className={cn("border-b border-border/50 bg-muted/20", isMobile && "p-3")}>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-lg">Faturamento</CardTitle>
-                  <CardDescription>Últimos 6 meses</CardDescription>
+                  <CardTitle className={cn(isMobile ? "text-sm" : "text-lg")}>Faturamento</CardTitle>
+                  <CardDescription className={cn(isMobile && "text-xs")}>Últimos 6 meses</CardDescription>
                 </div>
-                <DollarSign className="h-5 w-5 text-emerald-500" />
+                <DollarSign className={cn(isMobile ? "h-4 w-4" : "h-5 w-5", "text-emerald-500")} />
               </div>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className={cn(isMobile ? "p-3" : "p-6")}>
               <RevenueChart data={revenueData} />
             </CardContent>
           </Card>
 
           <Card className="border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
-            <CardHeader className="border-b border-border/50 bg-muted/20">
+            <CardHeader className={cn("border-b border-border/50 bg-muted/20", isMobile && "p-3")}>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-lg">Agendamentos</CardTitle>
-                  <CardDescription>Esta semana</CardDescription>
+                  <CardTitle className={cn(isMobile ? "text-sm" : "text-lg")}>Agendamentos</CardTitle>
+                  <CardDescription className={cn(isMobile && "text-xs")}>Esta semana</CardDescription>
                 </div>
-                <Calendar className="h-5 w-5 text-cyan-500" />
+                <Calendar className={cn(isMobile ? "h-4 w-4" : "h-5 w-5", "text-cyan-500")} />
               </div>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className={cn(isMobile ? "p-3" : "p-6")}>
               <AppointmentsChart data={weekData} />
             </CardContent>
           </Card>

@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ProfessionalSidebar } from "@/components/ProfessionalSidebar";
+import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import { Menu } from "lucide-react";
 import logo from "@/assets/easypet-logo.png";
 
@@ -26,10 +27,13 @@ const ProfessionalLayout = () => {
             </div>
           </header>
 
-          {/* Main Content */}
-          <main className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide">
+          {/* Main Content - Add padding bottom for mobile nav */}
+          <main className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide pb-20 lg:pb-0">
             <Outlet />
           </main>
+          
+          {/* Mobile Bottom Navigation */}
+          <MobileBottomNav variant="professional" />
         </div>
       </div>
     </SidebarProvider>
