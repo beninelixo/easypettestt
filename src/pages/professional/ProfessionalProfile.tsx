@@ -4,11 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState, useRef } from "react";
-import { Store, Clock, MapPin, Phone, Mail, FileText, Plus, Save, User } from "lucide-react";
+import { Store, Clock, MapPin, Phone, Mail, FileText, Plus, Save, User, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { PrivacyNotice } from "@/components/shared/PrivacyNotice";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { petShopProfileSchema, PetShopProfileFormData, formatCNPJ, formatPhone } from "@/lib/schemas/profile.schema";
 
 const ProfessionalProfile = () => {
   const [loading, setLoading] = useState(true);
@@ -18,18 +21,29 @@ const ProfessionalProfile = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    cnpj: "",
-    phone: "",
-    email: "",
-    address: "",
-    city: "",
-    state: "",
-    hours: "",
-    description: "",
-    logo_url: "",
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isDirty },
+  } = useForm<PetShopProfileFormData>({
+    resolver: zodResolver(petShopProfileSchema),
+    defaultValues: {
+      name: "",
+      cnpj: "",
+      phone: "",
+      email: "",
+      address: "",
+      city: "",
+      state: "",
+      hours: "",
+      description: "",
+      logo_url: "",
+    },
   });
+
+  const logoUrl = watch("logo_url");
 
   useEffect(() => {
     if (user) {
@@ -48,18 +62,16 @@ const ProfessionalProfile = () => {
       if (error) throw error;
 
       if (petShop) {
-        setFormData({
-          name: petShop.name || "",
-          cnpj: "",
-          phone: petShop.phone || "",
-          email: petShop.email || "",
-          address: petShop.address || "",
-          city: petShop.city || "",
-          state: petShop.state || "",
-          hours: petShop.hours || "",
-          description: petShop.description || "",
-          logo_url: petShop.logo_url || "",
-        });
+        setValue("name", petShop.name || "");
+        setValue("cnpj", "");
+        setValue("phone", petShop.phone || "");
+        setValue("email", petShop.email || "");
+        setValue("address", petShop.address || "");
+        setValue("city", petShop.city || "");
+        setValue("state", petShop.state || "");
+        setValue("hours", petShop.hours || "");
+        setValue("description", petShop.description || "");
+        setValue("logo_url", petShop.logo_url || "");
       }
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
@@ -76,7 +88,6 @@ const ProfessionalProfile = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
         title: "Erro",
@@ -86,7 +97,6 @@ const ProfessionalProfile = () => {
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "Erro",
@@ -113,9 +123,8 @@ const ProfessionalProfile = () => {
         return;
       }
 
-      // Delete old avatar if exists
-      if (formData.logo_url) {
-        const oldPath = formData.logo_url.split('/').pop();
+      if (logoUrl) {
+        const oldPath = logoUrl.split('/').pop();
         if (oldPath) {
           await supabase.storage
             .from('avatars')
@@ -123,7 +132,6 @@ const ProfessionalProfile = () => {
         }
       }
 
-      // Upload new avatar
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `${user?.id}/${fileName}`;
@@ -134,12 +142,10 @@ const ProfessionalProfile = () => {
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
-      // Update database
       const { error: updateError } = await supabase
         .from("pet_shops")
         .update({ logo_url: publicUrl })
@@ -147,7 +153,7 @@ const ProfessionalProfile = () => {
 
       if (updateError) throw updateError;
 
-      setFormData({ ...formData, logo_url: publicUrl });
+      setValue("logo_url", publicUrl);
 
       toast({
         title: "Foto atualizada!",
@@ -165,7 +171,7 @@ const ProfessionalProfile = () => {
     }
   };
 
-  const handleSave = async () => {
+  const onSubmit = async (data: PetShopProfileFormData) => {
     setSaving(true);
     try {
       const { data: petShop } = await supabase
@@ -186,15 +192,15 @@ const ProfessionalProfile = () => {
       const { error } = await supabase
         .from("pet_shops")
         .update({
-          name: formData.name,
-          phone: formData.phone,
-          email: formData.email,
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          hours: formData.hours,
-          description: formData.description,
-          logo_url: formData.logo_url,
+          name: data.name,
+          phone: data.phone,
+          email: data.email,
+          address: data.address,
+          city: data.city,
+          state: data.state?.toUpperCase(),
+          hours: data.hours,
+          description: data.description,
+          logo_url: data.logo_url,
         })
         .eq("id", petShop.id);
 
@@ -215,15 +221,25 @@ const ProfessionalProfile = () => {
     }
   };
 
+  const handleCNPJChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCNPJ(e.target.value);
+    setValue("cnpj", formatted, { shouldValidate: true });
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhone(e.target.value);
+    setValue("phone", formatted, { shouldValidate: true });
+  };
+
   if (loading) {
     return <p className="text-muted-foreground">Carregando...</p>;
   }
 
   return (
-    <div className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Perfil do PetShop</h1>
-        <Button onClick={handleSave} disabled={saving}>
+        <Button type="submit" disabled={saving || !isDirty}>
           <Save className="mr-2 h-4 w-4" />
           {saving ? "Salvando..." : "Salvar Alterações"}
         </Button>
@@ -244,13 +260,14 @@ const ProfessionalProfile = () => {
                 className="hidden"
               />
               <button
+                type="button"
                 onClick={handleAvatarClick}
                 disabled={uploading}
                 className="relative group h-32 w-32 rounded-full overflow-hidden border-4 border-primary/20 hover:border-primary transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-primary/50"
               >
-                {formData.logo_url ? (
+                {logoUrl ? (
                   <img
-                    src={formData.logo_url}
+                    src={logoUrl}
                     alt="Foto de perfil"
                     className="h-full w-full object-cover"
                   />
@@ -260,7 +277,6 @@ const ProfessionalProfile = () => {
                   </div>
                 )}
                 
-                {/* Overlay on hover */}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                   {uploading ? (
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
@@ -274,7 +290,7 @@ const ProfessionalProfile = () => {
                 Clique para alterar a foto
               </p>
               <PrivacyNotice 
-                message="O logo do seu pet shop será visível publicamente para seus clientes. Evite usar imagens com informações sensíveis."
+                message="O logo do seu pet shop será visível publicamente para seus clientes."
                 className="mt-3 max-w-xs"
               />
             </div>
@@ -290,25 +306,35 @@ const ProfessionalProfile = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Nome do PetShop</Label>
+              <Label>Nome do PetShop *</Label>
               <Input
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
+                {...register("name")}
                 placeholder="Nome do estabelecimento"
+                className={errors.name ? "border-red-500" : ""}
               />
+              {errors.name && (
+                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.name.message}
+                </p>
+              )}
             </div>
 
             <div>
               <Label>CNPJ</Label>
               <Input
-                value={formData.cnpj}
-                onChange={(e) =>
-                  setFormData({ ...formData, cnpj: e.target.value })
-                }
+                {...register("cnpj")}
+                onChange={handleCNPJChange}
                 placeholder="00.000.000/0000-00"
+                maxLength={18}
+                className={errors.cnpj ? "border-red-500" : ""}
               />
+              {errors.cnpj && (
+                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.cnpj.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -317,12 +343,18 @@ const ProfessionalProfile = () => {
                 Telefone
               </Label>
               <Input
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
+                {...register("phone")}
+                onChange={handlePhoneChange}
                 placeholder="(00) 00000-0000"
+                maxLength={15}
+                className={errors.phone ? "border-red-500" : ""}
               />
+              {errors.phone && (
+                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.phone.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -332,12 +364,16 @@ const ProfessionalProfile = () => {
               </Label>
               <Input
                 type="email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
+                {...register("email")}
                 placeholder="contato@petshop.com"
+                className={errors.email ? "border-red-500" : ""}
               />
+              {errors.email && (
+                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.email.message}
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -353,36 +389,48 @@ const ProfessionalProfile = () => {
             <div>
               <Label>Endereço Completo</Label>
               <Input
-                value={formData.address}
-                onChange={(e) =>
-                  setFormData({ ...formData, address: e.target.value })
-                }
+                {...register("address")}
                 placeholder="Rua, número, bairro"
+                className={errors.address ? "border-red-500" : ""}
               />
+              {errors.address && (
+                <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.address.message}
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Cidade</Label>
                 <Input
-                  value={formData.city}
-                  onChange={(e) =>
-                    setFormData({ ...formData, city: e.target.value })
-                  }
+                  {...register("city")}
                   placeholder="Cidade"
+                  className={errors.city ? "border-red-500" : ""}
                 />
+                {errors.city && (
+                  <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {errors.city.message}
+                  </p>
+                )}
               </div>
 
               <div>
                 <Label>Estado</Label>
                 <Input
-                  value={formData.state}
-                  onChange={(e) =>
-                    setFormData({ ...formData, state: e.target.value })
-                  }
+                  {...register("state")}
                   placeholder="UF"
                   maxLength={2}
+                  className={`uppercase ${errors.state ? "border-red-500" : ""}`}
                 />
+                {errors.state && (
+                  <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {errors.state.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -392,10 +440,7 @@ const ProfessionalProfile = () => {
                 Horário de Funcionamento
               </Label>
               <Input
-                value={formData.hours}
-                onChange={(e) =>
-                  setFormData({ ...formData, hours: e.target.value })
-                }
+                {...register("hours")}
                 placeholder="Ex: Seg-Sex: 8h-18h, Sáb: 8h-12h"
               />
             </div>
@@ -411,21 +456,27 @@ const ProfessionalProfile = () => {
           </CardHeader>
           <CardContent>
             <Textarea
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              {...register("description")}
               placeholder="Descreva seu petshop, serviços oferecidos, diferenciais..."
               maxLength={1000}
               rows={6}
+              className={errors.description ? "border-red-500" : ""}
             />
-            <p className="text-xs text-muted-foreground mt-2">
-              {formData.description.length}/1000 caracteres
-            </p>
+            <div className="flex justify-between mt-2">
+              {errors.description && (
+                <p className="text-xs text-red-500 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.description.message}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground ml-auto">
+                {watch("description")?.length || 0}/1000 caracteres
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>
-    </div>
+    </form>
   );
 };
 
