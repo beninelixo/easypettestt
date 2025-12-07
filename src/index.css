@@ -202,10 +202,38 @@ All colors MUST be HSL.
 
   html {
     scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* GPU Acceleration for animations - 60fps */
+  .animate-fade-in,
+  .animate-scale-in,
+  .animate-slide-up,
+  .animate-float,
+  .animate-bounce-subtle,
+  .animate-blob-morph,
+  .hover-lift,
+  .hover-scale,
+  .card-hover,
+  .enhanced-card {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* Smooth scroll for sections */
+  section {
+    scroll-margin-top: 80px;
+  }
+
+  /* Focus visible for keyboard navigation */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary/50 ring-offset-2 ring-offset-background;
   }
 
   /* Smoother, lighter animations */
@@ -723,6 +751,23 @@ All colors MUST be HSL.
   /* Button press effect */
   .btn-press {
     @apply transition-transform duration-100 ease-out active:scale-[0.98];
+  }
+
+  /* Loading skeleton pulse */
+  .skeleton-pulse {
+    @apply animate-pulse bg-muted rounded;
+  }
+
+  /* Smooth reveal for intersection observer */
+  .reveal-hidden {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
   }
 }
 
