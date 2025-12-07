@@ -44,8 +44,8 @@ export const TypewriterText: React.FC<TypewriterTextProps> = ({
   }, [currentText, isDeleting, currentWordIndex, words, typingSpeed, deletingSpeed, pauseDuration]);
 
   return (
-    <span className={cn("inline-flex items-center", className)}>
-      <span className="whitespace-nowrap">{currentText}</span>
+    <span className={cn("inline-flex items-center flex-wrap", className)}>
+      <span>{currentText}</span>
       <span className="ml-1 w-[3px] h-[1em] bg-primary animate-blink-cursor flex-shrink-0" />
     </span>
   );
