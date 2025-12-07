@@ -23,10 +23,10 @@ export const HeroSection = () => {
     : heroImageFallback;
 
   const typewriterWords = [
-    "Pet Shop",
+    "Pet Shops",
     "Banho & Tosa",
-    "Clínica Veterinária",
-    "Hospital Pet",
+    "Clínicas Veterinárias",
+    "Hospitais Pet",
   ];
   
   return (
@@ -59,13 +59,14 @@ export const HeroSection = () => {
               className="text-5xl lg:text-7xl font-black leading-tight animate-fade-in"
               style={{ animationDelay: "0.2s" }}
             >
-              Transforme Seu{" "}
+              A Solução Completa para{" "}
               <AnimatedGradientText shimmer glow>
                 <TypewriterText 
                   words={typewriterWords}
                   typingSpeed={80}
                   deletingSpeed={40}
                   pauseDuration={2500}
+                  className="min-w-[280px] sm:min-w-[320px] lg:min-w-[380px]"
                 />
               </AnimatedGradientText>
             </h1>
