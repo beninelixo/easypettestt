@@ -127,7 +127,7 @@ export function ProfessionalSidebar() {
 
   return (
     <Sidebar 
-      className={isCollapsed ? "w-[70px]" : "w-72"} 
+      className={isCollapsed ? "w-[70px]" : "w-60"} 
       collapsible="icon"
     >
       <SidebarContent className="bg-gradient-to-b from-card via-card to-card/95 border-r border-border/50 overflow-hidden scrollbar-hide">
@@ -199,7 +199,7 @@ export function ProfessionalSidebar() {
                       to={item.url}
                       aria-label={`Navegar para ${item.title}`}
                       className={({ isActive }) => {
-                        const baseClass = `group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
+                        const baseClass = `group flex items-center gap-2 px-2 py-2 rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
                         
                         if (isActive) {
                           return `${baseClass} bg-gradient-to-r ${item.gradient} text-white shadow-lg shadow-primary/20`;
@@ -210,11 +210,11 @@ export function ProfessionalSidebar() {
                     >
                       {({ isActive }) => (
                         <>
-                          <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-9 h-9'} rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
+                          <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-7 h-7'} rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
                             {item.protected && !isUnlocked ? (
-                              <Lock className={`h-5 w-5 ${isActive ? 'text-white' : 'text-muted-foreground'}`} />
+                              <Lock className={`h-4 w-4 ${isActive ? 'text-white' : 'text-muted-foreground'}`} />
                             ) : (
-                              <item.icon className={`h-5 w-5 ${isActive ? 'text-white' : ''}`} />
+                              <item.icon className={`h-4 w-4 ${isActive ? 'text-white' : ''}`} />
                             )}
                           </div>
                           {!isCollapsed && (
@@ -260,7 +260,7 @@ export function ProfessionalSidebar() {
                           to={item.url}
                           aria-label={`Navegar para ${item.title}`}
                           className={({ isActive }) => {
-                            const baseClass = `group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
+                            const baseClass = `group flex items-center gap-2 px-2 py-2 rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
                             
                             if (isActive) {
                               return `${baseClass} bg-gradient-to-r ${item.gradient} text-white shadow-lg shadow-primary/20`;
@@ -271,8 +271,8 @@ export function ProfessionalSidebar() {
                         >
                           {({ isActive }) => (
                             <>
-                              <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-9 h-9'} rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
-                                <item.icon className={`h-5 w-5 ${isActive ? 'text-white' : ''}`} />
+                              <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-7 h-7'} rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
+                                <item.icon className={`h-4 w-4 ${isActive ? 'text-white' : ''}`} />
                               </div>
                               {!isCollapsed && (
                                 <>
@@ -313,7 +313,7 @@ export function ProfessionalSidebar() {
                           to={item.url}
                           aria-label={`Navegar para ${item.title}`}
                           className={({ isActive }) => {
-                            const baseClass = `group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
+                            const baseClass = `group flex items-center gap-2 px-2 py-2 rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
                             
                             if (isActive) {
                               return `${baseClass} bg-gradient-to-r ${item.gradient} text-white shadow-lg shadow-primary/20`;
@@ -324,8 +324,8 @@ export function ProfessionalSidebar() {
                         >
                           {({ isActive }) => (
                             <>
-                              <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-9 h-9'} rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
-                                <item.icon className={`h-5 w-5 ${isActive ? 'text-white' : ''}`} />
+                              <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-7 h-7'} rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
+                                <item.icon className={`h-4 w-4 ${isActive ? 'text-white' : ''}`} />
                               </div>
                               {!isCollapsed && (
                                 <>
