@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Key, Check, X, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Key, Loader2 } from "lucide-react";
 import { usePasswordValidation } from "@/hooks/usePasswordValidation";
 import { Progress } from "@/components/ui/progress";
 
@@ -33,24 +33,13 @@ export function ChangeSettingsPasswordDialog({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { strength, checks, isValid } = usePasswordValidation(newPassword);
+  const passwordValidation = usePasswordValidation(newPassword);
 
   const passwordsMatch = newPassword === confirmPassword && confirmPassword.length > 0;
-  const canSubmit = currentPassword.length > 0 && isValid && passwordsMatch && !loading;
+  const canSubmit = currentPassword.length > 0 && passwordValidation.isValid && passwordsMatch && !loading;
 
-  const getStrengthColor = () => {
-    if (strength <= 25) return "bg-red-500";
-    if (strength <= 50) return "bg-orange-500";
-    if (strength <= 75) return "bg-yellow-500";
-    return "bg-green-500";
-  };
-
-  const getStrengthLabel = () => {
-    if (strength <= 25) return "Muito fraca";
-    if (strength <= 50) return "Fraca";
-    if (strength <= 75) return "Boa";
-    return "Forte";
-  };
+  // Convert score (0-5) to percentage for progress bar
+  const strengthPercentage = (passwordValidation.score / 5) * 100;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,33 +133,19 @@ export function ChangeSettingsPasswordDialog({
               <div className="space-y-2 mt-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Força da senha:</span>
-                  <span className={`font-medium ${
-                    strength <= 25 ? 'text-red-500' :
-                    strength <= 50 ? 'text-orange-500' :
-                    strength <= 75 ? 'text-yellow-500' : 'text-green-500'
-                  }`}>
-                    {getStrengthLabel()}
+                  <span className={`font-medium ${passwordValidation.color.replace('bg-', 'text-')}`}>
+                    {passwordValidation.label}
                   </span>
                 </div>
-                <Progress value={strength} className={`h-2 [&>div]:${getStrengthColor()}`} />
+                <Progress value={strengthPercentage} className={`h-2 [&>div]:${passwordValidation.color}`} />
                 
-                <div className="grid grid-cols-2 gap-1 text-xs mt-2">
-                  {Object.entries(checks).map(([key, value]) => (
-                    <div 
-                      key={key} 
-                      className={`flex items-center gap-1 ${value ? 'text-green-600' : 'text-muted-foreground'}`}
-                    >
-                      {value ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-                      <span>
-                        {key === 'minLength' && 'Mín. 10 caracteres'}
-                        {key === 'hasUppercase' && 'Letra maiúscula'}
-                        {key === 'hasLowercase' && 'Letra minúscula'}
-                        {key === 'hasNumber' && 'Número'}
-                        {key === 'hasSpecialChar' && 'Caractere especial'}
-                      </span>
-                    </div>
+                <ul className="text-xs text-muted-foreground space-y-1 mt-2">
+                  {passwordValidation.feedback.map((msg, i) => (
+                    <li key={i} className={passwordValidation.isValid ? 'text-green-600' : ''}>
+                      • {msg}
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
             )}
           </div>
