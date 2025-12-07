@@ -208,20 +208,14 @@ const ProfessionalSettings = () => {
       description: "Configure lembretes e alertas automáticos",
       icon: Bell,
       gradient: "from-teal-500 to-cyan-600",
-      onClick: () => toast({
-        title: "Em breve",
-        description: "Configurações de notificações estará disponível em breve",
-      }),
+      onClick: () => navigate("/professional/notifications"),
     },
     {
       title: "Segurança & MFA",
       description: "Autenticação de dois fatores e sessões ativas",
       icon: Shield,
       gradient: "from-indigo-500 to-blue-600",
-      onClick: () => toast({
-        title: "Em breve",
-        description: "Configurações de segurança estará disponível em breve",
-      }),
+      onClick: () => navigate("/professional/security"),
     },
     {
       title: "Horários de Atendimento",
@@ -235,20 +229,14 @@ const ProfessionalSettings = () => {
       description: "WhatsApp Business, APIs externas e webhooks",
       icon: Link2,
       gradient: "from-emerald-500 to-green-600",
-      onClick: () => toast({
-        title: "Em breve",
-        description: "Configurações de integrações estará disponível em breve",
-      }),
+      onClick: () => navigate("/professional/integrations"),
     },
     {
       title: "Privacidade & Dados",
       description: "LGPD, exportar dados e gerenciar conta",
       icon: FileText,
       gradient: "from-amber-500 to-orange-600",
-      onClick: () => toast({
-        title: "Em breve",
-        description: "Configurações de privacidade estará disponível em breve",
-      }),
+      onClick: () => navigate("/professional/privacy"),
     },
   ];
 
