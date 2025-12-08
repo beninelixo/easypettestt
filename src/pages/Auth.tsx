@@ -151,7 +151,7 @@ const Auth = () => {
       case "client":
         return "/client/pets";
       case "pet_shop":
-        return "/professional/dashboard";
+        return "/petshop-dashboard";
       case "admin":
       case "super_admin":
         return "/admin/dashboard";
