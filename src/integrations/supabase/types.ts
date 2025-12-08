@@ -65,6 +65,13 @@ export type Database = {
             referencedRelation: "pet_shops"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "access_audit_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops_public_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       admin_alerts: {
@@ -293,10 +300,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "appointments_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets_basic_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "appointments_pet_shop_id_fkey"
             columns: ["pet_shop_id"]
             isOneToOne: false
             referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops_public_view"
             referencedColumns: ["id"]
           },
           {
@@ -668,6 +689,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "commissions_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops_public_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "commissions_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
@@ -726,6 +754,13 @@ export type Database = {
             columns: ["unit_id"]
             isOneToOne: false
             referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compliance_audits_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops_public_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1078,6 +1113,13 @@ export type Database = {
             referencedRelation: "pet_shops"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "loyalty_points_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops_public_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       loyalty_transactions: {
@@ -1171,6 +1213,13 @@ export type Database = {
             columns: ["pet_shop_id"]
             isOneToOne: false
             referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_campaigns_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops_public_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1572,6 +1621,13 @@ export type Database = {
             referencedRelation: "pets"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "pet_photos_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets_basic_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       pet_shops: {
@@ -1766,6 +1822,13 @@ export type Database = {
             referencedRelation: "pet_shops"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "petshop_employees_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops_public_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       plan_features: {
@@ -1858,6 +1921,13 @@ export type Database = {
             referencedRelation: "pet_shops"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "products_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops_public_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       professional_backups: {
@@ -1912,6 +1982,13 @@ export type Database = {
             columns: ["pet_shop_id"]
             isOneToOne: false
             referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_backups_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops_public_view"
             referencedColumns: ["id"]
           },
         ]
@@ -2062,6 +2139,13 @@ export type Database = {
             columns: ["unit_id"]
             isOneToOne: false
             referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "royalties_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops_public_view"
             referencedColumns: ["id"]
           },
         ]
@@ -2272,6 +2356,13 @@ export type Database = {
             referencedRelation: "pet_shops"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "services_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops_public_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       settings_passwords: {
@@ -2302,6 +2393,13 @@ export type Database = {
             columns: ["pet_shop_id"]
             isOneToOne: true
             referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_pet_shop"
+            columns: ["pet_shop_id"]
+            isOneToOne: true
+            referencedRelation: "pet_shops_public_view"
             referencedColumns: ["id"]
           },
         ]
@@ -2346,6 +2444,13 @@ export type Database = {
             columns: ["pet_shop_id"]
             isOneToOne: false
             referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_schedule_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops_public_view"
             referencedColumns: ["id"]
           },
         ]
@@ -2417,6 +2522,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_movements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products_catalog_view"
             referencedColumns: ["id"]
           },
         ]
@@ -2524,6 +2636,13 @@ export type Database = {
             columns: ["pet_shop_id"]
             isOneToOne: false
             referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "success_stories_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops_public_view"
             referencedColumns: ["id"]
           },
         ]
@@ -2767,6 +2886,13 @@ export type Database = {
             referencedRelation: "pet_shops"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_hierarchy_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops_public_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_roles: {
@@ -2883,6 +3009,13 @@ export type Database = {
             referencedRelation: "pet_shops"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "whatsapp_settings_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: true
+            referencedRelation: "pet_shops_public_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
@@ -2902,6 +3035,204 @@ export type Database = {
           total_users: number | null
           unread_alerts: number | null
           warnings_24h: number | null
+        }
+        Relationships: []
+      }
+      pet_shops_public_view: {
+        Row: {
+          address: string | null
+          city: string | null
+          code: string | null
+          created_at: string | null
+          description: string | null
+          email: string | null
+          hours: string | null
+          id: string | null
+          latitude: number | null
+          logo_url: string | null
+          longitude: number | null
+          name: string | null
+          phone: string | null
+          state: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          code?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          hours?: string | null
+          id?: string | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          name?: string | null
+          phone?: string | null
+          state?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          code?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          hours?: string | null
+          id?: string | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          name?: string | null
+          phone?: string | null
+          state?: string | null
+        }
+        Relationships: []
+      }
+      pets_basic_view: {
+        Row: {
+          age: number | null
+          birth_date: string | null
+          breed: string | null
+          coat_color: string | null
+          coat_type: string | null
+          created_at: string | null
+          deleted_at: string | null
+          gender: string | null
+          grooming_preferences: string | null
+          id: string | null
+          name: string | null
+          neutered: boolean | null
+          owner_id: string | null
+          photo_url: string | null
+          size: string | null
+          species: string | null
+          temperament: string | null
+          updated_at: string | null
+          weight: number | null
+        }
+        Insert: {
+          age?: number | null
+          birth_date?: string | null
+          breed?: string | null
+          coat_color?: string | null
+          coat_type?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          gender?: string | null
+          grooming_preferences?: string | null
+          id?: string | null
+          name?: string | null
+          neutered?: boolean | null
+          owner_id?: string | null
+          photo_url?: string | null
+          size?: string | null
+          species?: string | null
+          temperament?: string | null
+          updated_at?: string | null
+          weight?: number | null
+        }
+        Update: {
+          age?: number | null
+          birth_date?: string | null
+          breed?: string | null
+          coat_color?: string | null
+          coat_type?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          gender?: string | null
+          grooming_preferences?: string | null
+          id?: string | null
+          name?: string | null
+          neutered?: boolean | null
+          owner_id?: string | null
+          photo_url?: string | null
+          size?: string | null
+          species?: string | null
+          temperament?: string | null
+          updated_at?: string | null
+          weight?: number | null
+        }
+        Relationships: []
+      }
+      products_catalog_view: {
+        Row: {
+          active: boolean | null
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          name: string | null
+          pet_shop_id: string | null
+          sale_price: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          name?: string | null
+          pet_shop_id?: string | null
+          sale_price?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          name?: string | null
+          pet_shop_id?: string | null
+          sale_price?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_pet_shop_id_fkey"
+            columns: ["pet_shop_id"]
+            isOneToOne: false
+            referencedRelation: "pet_shops_public_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles_limited_view: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+          phone: string | null
+          updated_at: string | null
+          user_code: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          phone?: string | null
+          updated_at?: string | null
+          user_code?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          phone?: string | null
+          updated_at?: string | null
+          user_code?: string | null
         }
         Relationships: []
       }
@@ -2943,6 +3274,18 @@ export type Database = {
       }
       calculate_next_retry: { Args: { attempt_count: number }; Returns: string }
       calculate_pet_age: { Args: { birth_date: string }; Returns: number }
+      can_view_full_profile: {
+        Args: { _profile_id: string; _user_id: string }
+        Returns: boolean
+      }
+      can_view_pet_medical_data: {
+        Args: { _pet_id: string; _user_id: string }
+        Returns: boolean
+      }
+      can_view_pet_shop_details: {
+        Args: { _pet_shop_id: string; _user_id: string }
+        Returns: boolean
+      }
       check_admin_rate_limit: {
         Args: {
           p_admin_id: string
