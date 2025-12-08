@@ -13,6 +13,7 @@ import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { FeatureGate } from "@/components/FeatureGate";
 
 interface BackupOptions {
   includeClients: boolean;
@@ -152,14 +153,15 @@ const ProfessionalBackup = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-3">
-        <Database className="h-8 w-8 text-primary" />
-        <div>
-          <h1 className="text-3xl font-bold">Backup de Dados</h1>
-          <p className="text-muted-foreground">Exporte todos os dados do seu pet shop de forma segura</p>
+    <FeatureGate featureKey="backup_automatico" requiredPlan="platinum">
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center gap-3">
+          <Database className="h-8 w-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold">Backup de Dados</h1>
+            <p className="text-muted-foreground">Exporte todos os dados do seu pet shop de forma segura</p>
+          </div>
         </div>
-      </div>
 
       <Alert>
         <AlertCircle className="h-4 w-4" />
@@ -351,20 +353,21 @@ const ProfessionalBackup = () => {
         </CardContent>
       </Card>
 
-      {/* Info Card */}
-      <Card className="border-primary/50 bg-primary/5">
-        <CardHeader>
-          <CardTitle className="text-lg">💡 Dicas de Segurança</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <p>• Faça backups regulares (recomendado: semanalmente)</p>
-          <p>• Armazene os backups em local seguro (nuvem + cópia local)</p>
-          <p>• Teste a restauração dos backups periodicamente</p>
-          <p>• Mantenha pelo menos 3 versões de backup</p>
-          <p>• Não compartilhe seus arquivos de backup com terceiros</p>
-        </CardContent>
-      </Card>
-    </div>
+        {/* Info Card */}
+        <Card className="border-primary/50 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="text-lg">💡 Dicas de Segurança</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <p>• Faça backups regulares (recomendado: semanalmente)</p>
+            <p>• Armazene os backups em local seguro (nuvem + cópia local)</p>
+            <p>• Teste a restauração dos backups periodicamente</p>
+            <p>• Mantenha pelo menos 3 versões de backup</p>
+            <p>• Não compartilhe seus arquivos de backup com terceiros</p>
+          </CardContent>
+        </Card>
+      </div>
+    </FeatureGate>
   );
 };
 

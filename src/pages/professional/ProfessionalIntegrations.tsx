@@ -21,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { FeatureGate } from "@/components/FeatureGate";
 
 interface WebhookConfig {
   id: string;
@@ -187,198 +188,204 @@ const ProfessionalIntegrations = () => {
           </div>
         </header>
 
-        {/* WhatsApp Business */}
-        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5 text-green-500" />
-                  WhatsApp Business
-                </CardTitle>
-                <CardDescription>
-                  Envie notificações automáticas para clientes
-                </CardDescription>
-              </div>
-              <Badge 
-                variant={whatsappConnected ? "default" : "secondary"}
-                className={whatsappConnected ? "bg-green-500/10 text-green-500 border-green-500/20" : ""}
-              >
-                {whatsappConnected ? (
-                  <>
-                    <CheckCircle2 className="h-3 w-3 mr-1" />
-                    Conectado
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle className="h-3 w-3 mr-1" />
-                    Desconectado
-                  </>
-                )}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {!whatsappConnected ? (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="whatsapp-number">Número WhatsApp Business</Label>
-                  <Input
-                    id="whatsapp-number"
-                    placeholder="(11) 99999-9999"
-                    value={whatsappNumber}
-                    onChange={(e) => setWhatsappNumber(e.target.value)}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Use seu número do WhatsApp Business API
-                  </p>
+        {/* WhatsApp Business - Platinum Only */}
+        <FeatureGate featureKey="whatsapp_integration" requiredPlan="platinum">
+          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5 text-green-500" />
+                    WhatsApp Business
+                  </CardTitle>
+                  <CardDescription>
+                    Envie notificações automáticas para clientes
+                  </CardDescription>
                 </div>
-                <Button 
-                  onClick={handleConnectWhatsApp}
-                  className="bg-green-500 hover:bg-green-600"
+                <Badge 
+                  variant={whatsappConnected ? "default" : "secondary"}
+                  className={whatsappConnected ? "bg-green-500/10 text-green-500 border-green-500/20" : ""}
                 >
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Conectar WhatsApp
-                </Button>
-              </>
-            ) : (
-              <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/20">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-green-500" />
-                    <div>
-                      <p className="font-medium">WhatsApp conectado</p>
-                      <p className="text-sm text-muted-foreground">{whatsappNumber}</p>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setWhatsappConnected(false)}
-                    className="text-red-500"
-                  >
-                    Desconectar
-                  </Button>
-                </div>
+                  {whatsappConnected ? (
+                    <>
+                      <CheckCircle2 className="h-3 w-3 mr-1" />
+                      Conectado
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="h-3 w-3 mr-1" />
+                      Desconectado
+                    </>
+                  )}
+                </Badge>
               </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Google Calendar */}
-        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-blue-500" />
-                  Google Calendar
-                </CardTitle>
-                <CardDescription>
-                  Sincronize agendamentos com seu calendário
-                </CardDescription>
-              </div>
-              <Badge 
-                variant={calendarConnected ? "default" : "secondary"}
-                className={calendarConnected ? "bg-blue-500/10 text-blue-500 border-blue-500/20" : ""}
-              >
-                {calendarConnected ? "Sincronizado" : "Desconectado"}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {!calendarConnected ? (
-              <Button onClick={handleConnectCalendar} variant="outline">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Conectar Google Calendar
-              </Button>
-            ) : (
-              <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-blue-500" />
-                    <div>
-                      <p className="font-medium">Calendário sincronizado</p>
-                      <p className="text-sm text-muted-foreground">Agendamentos aparecem no seu Google Calendar</p>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setCalendarConnected(false)}
-                    className="text-red-500"
-                  >
-                    Desconectar
-                  </Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Webhooks */}
-        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Webhook className="h-5 w-5 text-purple-500" />
-                  Webhooks
-                </CardTitle>
-                <CardDescription>
-                  Receba eventos em tempo real na sua aplicação
-                </CardDescription>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowWebhookDialog(true)}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Adicionar
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {webhooks.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                Nenhum webhook configurado
-              </p>
-            ) : (
-              webhooks.map((webhook) => (
-                <div 
-                  key={webhook.id}
-                  className="flex items-center justify-between p-4 rounded-xl border border-border/50"
-                >
-                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <Switch
-                      checked={webhook.active}
-                      onCheckedChange={() => handleToggleWebhook(webhook.id)}
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!whatsappConnected ? (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="whatsapp-number">Número WhatsApp Business</Label>
+                    <Input
+                      id="whatsapp-number"
+                      placeholder="(11) 99999-9999"
+                      value={whatsappNumber}
+                      onChange={(e) => setWhatsappNumber(e.target.value)}
                     />
-                    <div className="min-w-0">
-                      <p className="font-mono text-sm truncate">{webhook.url}</p>
-                      <div className="flex gap-1 mt-1">
-                        {webhook.events.map((event) => (
-                          <Badge key={event} variant="secondary" className="text-xs">
-                            {event}
-                          </Badge>
-                        ))}
+                    <p className="text-xs text-muted-foreground">
+                      Use seu número do WhatsApp Business API
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={handleConnectWhatsApp}
+                    className="bg-green-500 hover:bg-green-600"
+                  >
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Conectar WhatsApp
+                  </Button>
+                </>
+              ) : (
+                <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      <div>
+                        <p className="font-medium">WhatsApp conectado</p>
+                        <p className="text-sm text-muted-foreground">{whatsappNumber}</p>
                       </div>
                     </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setWhatsappConnected(false)}
+                      className="text-red-500"
+                    >
+                      Desconectar
+                    </Button>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => handleRemoveWebhook(webhook.id)}
-                    className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
                 </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+              )}
+            </CardContent>
+          </Card>
+        </FeatureGate>
+
+        {/* Google Calendar - Gold+ */}
+        <FeatureGate featureKey="calendar_sync" requiredPlan="gold">
+          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-blue-500" />
+                    Google Calendar
+                  </CardTitle>
+                  <CardDescription>
+                    Sincronize agendamentos com seu calendário
+                  </CardDescription>
+                </div>
+                <Badge 
+                  variant={calendarConnected ? "default" : "secondary"}
+                  className={calendarConnected ? "bg-blue-500/10 text-blue-500 border-blue-500/20" : ""}
+                >
+                  {calendarConnected ? "Sincronizado" : "Desconectado"}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {!calendarConnected ? (
+                <Button onClick={handleConnectCalendar} variant="outline">
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Conectar Google Calendar
+                </Button>
+              ) : (
+                <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-blue-500" />
+                      <div>
+                        <p className="font-medium">Calendário sincronizado</p>
+                        <p className="text-sm text-muted-foreground">Agendamentos aparecem no seu Google Calendar</p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setCalendarConnected(false)}
+                      className="text-red-500"
+                    >
+                      Desconectar
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </FeatureGate>
+
+        {/* Webhooks - Platinum Only */}
+        <FeatureGate featureKey="webhook_integration" requiredPlan="platinum">
+          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Webhook className="h-5 w-5 text-purple-500" />
+                    Webhooks
+                  </CardTitle>
+                  <CardDescription>
+                    Receba eventos em tempo real na sua aplicação
+                  </CardDescription>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowWebhookDialog(true)}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Adicionar
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {webhooks.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Nenhum webhook configurado
+                </p>
+              ) : (
+                webhooks.map((webhook) => (
+                  <div 
+                    key={webhook.id}
+                    className="flex items-center justify-between p-4 rounded-xl border border-border/50"
+                  >
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      <Switch
+                        checked={webhook.active}
+                        onCheckedChange={() => handleToggleWebhook(webhook.id)}
+                      />
+                      <div className="min-w-0">
+                        <p className="font-mono text-sm truncate">{webhook.url}</p>
+                        <div className="flex gap-1 mt-1">
+                          {webhook.events.map((event) => (
+                            <Badge key={event} variant="secondary" className="text-xs">
+                              {event}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => handleRemoveWebhook(webhook.id)}
+                      className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </FeatureGate>
 
         {/* API Keys */}
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm">

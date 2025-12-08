@@ -5,6 +5,7 @@ import { DollarSign, Calendar, TrendingUp, Award, CheckCircle, XCircle } from "l
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { FeatureGate } from "@/components/FeatureGate";
 
 interface Stats {
   totalRevenue: number;
@@ -174,9 +175,10 @@ const ProfessionalReports = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Relatórios e Análises</h1>
+    <FeatureGate featureKey="financial_reports" requiredPlan="gold">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold">Relatórios e Análises</h1>
         <Select value={period} onValueChange={setPeriod}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Selecione o período" />
@@ -248,7 +250,8 @@ const ProfessionalReports = () => {
           </Card>
         </>
       )}
-    </div>
+      </div>
+    </FeatureGate>
   );
 };
 

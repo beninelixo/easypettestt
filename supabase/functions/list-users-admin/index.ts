@@ -44,14 +44,13 @@ serve(async (req) => {
       );
     }
 
-    // Verificar se é admin
+    // Verificar se é admin (suporta múltiplos roles)
     const { data: roleData } = await supabase
       .from('user_roles')
       .select('role')
-      .eq('user_id', adminUser.id)
-      .maybeSingle();
+      .eq('user_id', adminUser.id);
 
-    const isAdmin = roleData?.role === 'admin' || roleData?.role === 'super_admin' || adminUser.email === 'beninelixo@gmail.com';
+    const isAdmin = roleData?.some(r => r.role === 'admin' || r.role === 'super_admin') || adminUser.email === 'beninelixo@gmail.com';
     
     if (!isAdmin) {
       return new Response(
