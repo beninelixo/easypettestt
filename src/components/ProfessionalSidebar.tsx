@@ -130,32 +130,32 @@ export function ProfessionalSidebar() {
       className={isCollapsed ? "w-[70px]" : "w-60"} 
       collapsible="icon"
     >
-      <SidebarContent className="bg-gradient-to-b from-card via-card to-card/95 border-r border-border/50 overflow-hidden scrollbar-hide">
+      <SidebarContent className="bg-gradient-to-b from-card via-card to-card/95 border-r border-border/50 overflow-y-auto scrollbar-hide">
         {/* Logo Section with Toggle */}
-        <div className={`flex items-center ${isCollapsed ? 'justify-center py-5' : 'justify-between px-5 py-6'}`}>
-          <div className={`flex items-center ${isCollapsed ? '' : 'gap-3'}`}>
+        <div className={`flex items-center ${isCollapsed ? 'justify-center py-3' : 'justify-between px-4 py-3'}`}>
+          <div className={`flex items-center ${isCollapsed ? '' : 'gap-2'}`}>
             <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative p-2 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-border/50">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-lg blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative p-1.5 rounded-lg bg-gradient-to-br from-primary/10 to-secondary/10 border border-border/50">
                 <img 
                   src={logo} 
                   alt="EasyPet" 
-                  className="h-8 w-8 object-contain"
+                  className="h-6 w-6 object-contain"
                 />
               </div>
             </div>
             {!isCollapsed && (
               <div>
-                <h1 className="font-bold text-lg bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                <h1 className="font-bold text-base bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                   EasyPet
                 </h1>
-                <p className="text-xs text-muted-foreground">Área Profissional</p>
+                <p className="text-[10px] text-muted-foreground">Área Profissional</p>
               </div>
             )}
           </div>
           
           {/* Desktop Toggle Button */}
-          <SidebarTrigger className="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted/60 transition-all text-muted-foreground hover:text-foreground">
+          <SidebarTrigger className="hidden lg:flex h-7 w-7 items-center justify-center rounded-lg hover:bg-muted/60 transition-all text-muted-foreground hover:text-foreground">
             {isCollapsed ? (
               <PanelLeft className="h-4 w-4" />
             ) : (
@@ -166,32 +166,32 @@ export function ProfessionalSidebar() {
 
         {/* Plan Badge */}
         {!isCollapsed && planTheme.plan !== 'free' && (
-          <div className="mx-4 mt-2 mb-4">
+          <div className="mx-3 my-1.5">
             <Badge 
-              className={`w-full justify-center py-1.5 text-xs font-semibold ${
+              className={`w-full justify-center py-1 text-xs font-semibold ${
                 planTheme.plan.includes('gold') 
                   ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-950 shadow-lg shadow-amber-500/25' 
                   : 'bg-gradient-to-r from-slate-400 via-gray-500 to-slate-600 text-white shadow-lg shadow-slate-500/25'
               }`}
             >
-              <Sparkles className="h-3 w-3 mr-1.5" />
+              <Sparkles className="h-3 w-3 mr-1" />
               {planTheme.planName}
             </Badge>
           </div>
         )}
 
-        <Separator className="mx-4 bg-border/50" />
+        <Separator className="mx-3 bg-border/50" />
 
         {/* Main Menu */}
-        <SidebarGroup className="px-3 py-4">
+        <SidebarGroup className="px-2 py-2">
           {!isCollapsed && (
-            <SidebarGroupLabel className="text-xs text-muted-foreground/70 uppercase tracking-wider font-medium px-3 mb-2">
+            <SidebarGroupLabel className="text-[10px] text-muted-foreground/70 uppercase tracking-wider font-medium px-2 mb-1">
               Menu Principal
             </SidebarGroupLabel>
           )}
           
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
+            <SidebarMenu className="space-y-0.5">
               {professionalMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
@@ -199,10 +199,10 @@ export function ProfessionalSidebar() {
                       to={item.url}
                       aria-label={`Navegar para ${item.title}`}
                       className={({ isActive }) => {
-                        const baseClass = `group flex items-center gap-2 px-2 py-2 rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
+                        const baseClass = `group flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
                         
                         if (isActive) {
-                          return `${baseClass} bg-gradient-to-r ${item.gradient} text-white shadow-lg shadow-primary/20`;
+                          return `${baseClass} bg-gradient-to-r ${item.gradient} text-white shadow-md shadow-primary/20`;
                         }
                         
                         return `${baseClass} hover:bg-muted/60 text-muted-foreground hover:text-foreground`;
@@ -210,23 +210,23 @@ export function ProfessionalSidebar() {
                     >
                       {({ isActive }) => (
                         <>
-                          <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-7 h-7'} rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
+                          <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-6 h-6'} rounded-md ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
                             {item.protected && !isUnlocked ? (
-                              <Lock className={`h-4 w-4 ${isActive ? 'text-white' : 'text-muted-foreground'}`} />
+                              <Lock className={`h-3.5 w-3.5 ${isActive ? 'text-white' : 'text-muted-foreground'}`} />
                             ) : (
-                              <item.icon className={`h-4 w-4 ${isActive ? 'text-white' : ''}`} />
+                              <item.icon className={`h-3.5 w-3.5 ${isActive ? 'text-white' : ''}`} />
                             )}
                           </div>
                           {!isCollapsed && (
                             <>
-                              <span className="font-medium flex-1">{item.title}</span>
+                              <span className="font-medium flex-1 text-sm">{item.title}</span>
                               {item.protected && !isUnlocked && (
-                                <Badge variant="outline" className="text-xs px-1.5 py-0 h-5 border-amber-500/50 text-amber-600 dark:text-amber-400">
-                                  <Lock className="h-3 w-3 mr-1" />
+                                <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 border-amber-500/50 text-amber-600 dark:text-amber-400">
+                                  <Lock className="h-2.5 w-2.5 mr-0.5" />
                                   Protegido
                                 </Badge>
                               )}
-                              <ChevronRight className={`h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all ${isActive ? 'text-white/70' : 'text-muted-foreground'}`} />
+                              <ChevronRight className={`h-3.5 w-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all ${isActive ? 'text-white/70' : 'text-muted-foreground'}`} />
                             </>
                           )}
                         </>
@@ -242,17 +242,17 @@ export function ProfessionalSidebar() {
         {/* Multi-Unit Section */}
         {showMultiUnit && (
           <>
-            <Separator className="mx-4 bg-border/50" />
-            <SidebarGroup className="px-3 py-4">
+            <Separator className="mx-3 bg-border/50" />
+            <SidebarGroup className="px-2 py-2">
               {!isCollapsed && (
-                <SidebarGroupLabel className="text-xs text-muted-foreground/70 uppercase tracking-wider font-medium px-3 mb-2 flex items-center gap-2">
-                  <Building2 className="h-3 w-3" />
+                <SidebarGroupLabel className="text-[10px] text-muted-foreground/70 uppercase tracking-wider font-medium px-2 mb-1 flex items-center gap-1.5">
+                  <Building2 className="h-2.5 w-2.5" />
                   Multi-Unidades
                 </SidebarGroupLabel>
               )}
               
               <SidebarGroupContent>
-                <SidebarMenu className="space-y-1">
+                <SidebarMenu className="space-y-0.5">
                   {multiUnitMenuItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
@@ -260,10 +260,10 @@ export function ProfessionalSidebar() {
                           to={item.url}
                           aria-label={`Navegar para ${item.title}`}
                           className={({ isActive }) => {
-                            const baseClass = `group flex items-center gap-2 px-2 py-2 rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
+                            const baseClass = `group flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
                             
                             if (isActive) {
-                              return `${baseClass} bg-gradient-to-r ${item.gradient} text-white shadow-lg shadow-primary/20`;
+                              return `${baseClass} bg-gradient-to-r ${item.gradient} text-white shadow-md shadow-primary/20`;
                             }
                             
                             return `${baseClass} hover:bg-muted/60 text-muted-foreground hover:text-foreground`;
@@ -271,13 +271,13 @@ export function ProfessionalSidebar() {
                         >
                           {({ isActive }) => (
                             <>
-                              <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-7 h-7'} rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
-                                <item.icon className={`h-4 w-4 ${isActive ? 'text-white' : ''}`} />
+                              <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-6 h-6'} rounded-md ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
+                                <item.icon className={`h-3.5 w-3.5 ${isActive ? 'text-white' : ''}`} />
                               </div>
                               {!isCollapsed && (
                                 <>
-                                  <span className="font-medium flex-1">{item.title}</span>
-                                  <ChevronRight className={`h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all ${isActive ? 'text-white/70' : 'text-muted-foreground'}`} />
+                                  <span className="font-medium flex-1 text-sm">{item.title}</span>
+                                  <ChevronRight className={`h-3.5 w-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all ${isActive ? 'text-white/70' : 'text-muted-foreground'}`} />
                                 </>
                               )}
                             </>
@@ -295,17 +295,17 @@ export function ProfessionalSidebar() {
         {/* Protected Menus - Visible after settings password */}
         {isUnlocked && (
           <>
-            <Separator className="mx-4 bg-border/50" />
-            <SidebarGroup className="px-3 py-4">
+            <Separator className="mx-3 bg-border/50" />
+            <SidebarGroup className="px-2 py-2">
               {!isCollapsed && (
-                <SidebarGroupLabel className="text-xs text-muted-foreground/70 uppercase tracking-wider font-medium px-3 mb-2 flex items-center gap-2">
-                  <Lock className="h-3 w-3" />
+                <SidebarGroupLabel className="text-[10px] text-muted-foreground/70 uppercase tracking-wider font-medium px-2 mb-1 flex items-center gap-1.5">
+                  <Lock className="h-2.5 w-2.5" />
                   Área Protegida
                 </SidebarGroupLabel>
               )}
               
               <SidebarGroupContent>
-                <SidebarMenu className="space-y-1">
+                <SidebarMenu className="space-y-0.5">
                   {protectedMenuItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
@@ -313,10 +313,10 @@ export function ProfessionalSidebar() {
                           to={item.url}
                           aria-label={`Navegar para ${item.title}`}
                           className={({ isActive }) => {
-                            const baseClass = `group flex items-center gap-2 px-2 py-2 rounded-xl transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
+                            const baseClass = `group flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`;
                             
                             if (isActive) {
-                              return `${baseClass} bg-gradient-to-r ${item.gradient} text-white shadow-lg shadow-primary/20`;
+                              return `${baseClass} bg-gradient-to-r ${item.gradient} text-white shadow-md shadow-primary/20`;
                             }
                             
                             return `${baseClass} hover:bg-muted/60 text-muted-foreground hover:text-foreground`;
@@ -324,13 +324,13 @@ export function ProfessionalSidebar() {
                         >
                           {({ isActive }) => (
                             <>
-                              <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-7 h-7'} rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
-                                <item.icon className={`h-4 w-4 ${isActive ? 'text-white' : ''}`} />
+                              <div className={`flex items-center justify-center ${isCollapsed ? '' : 'w-6 h-6'} rounded-md ${isActive ? 'bg-white/20' : `bg-gradient-to-br ${item.gradient}/10`} transition-all group-hover:scale-105`}>
+                                <item.icon className={`h-3.5 w-3.5 ${isActive ? 'text-white' : ''}`} />
                               </div>
                               {!isCollapsed && (
                                 <>
-                                  <span className="font-medium flex-1">{item.title}</span>
-                                  <ChevronRight className={`h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all ${isActive ? 'text-white/70' : 'text-muted-foreground'}`} />
+                                  <span className="font-medium flex-1 text-sm">{item.title}</span>
+                                  <ChevronRight className={`h-3.5 w-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all ${isActive ? 'text-white/70' : 'text-muted-foreground'}`} />
                                 </>
                               )}
                             </>
@@ -345,34 +345,31 @@ export function ProfessionalSidebar() {
           </>
         )}
 
-        {/* Spacer */}
-        <div className="flex-1" />
-
-        {/* Upgrade Banner removed - redundant with "Planos" menu item */}
-
         {/* Separador antes dos botões de ação */}
-        <Separator className="mx-4 bg-border/50" />
+        <Separator className="mx-3 bg-border/50 mt-auto" />
 
         {/* Tema e Sair - DENTRO do SidebarContent */}
-        <div className="px-3 pb-4 pt-2 space-y-2">
+        <div className="px-2 pb-3 pt-1.5 space-y-1">
           {/* Theme Toggle */}
           <Button
             variant="ghost"
+            size="sm"
             onClick={toggleTheme}
-            className={`w-full ${isCollapsed ? 'justify-center px-0' : 'justify-start gap-3'} text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-xl transition-all`}
+            className={`w-full h-8 ${isCollapsed ? 'justify-center px-0' : 'justify-start gap-2'} text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-lg transition-all`}
           >
-            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            {!isCollapsed && <span>{theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}</span>}
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {!isCollapsed && <span className="text-sm">{theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}</span>}
           </Button>
           
           {/* Logout */}
           <Button
             variant="ghost"
+            size="sm"
             onClick={signOut}
-            className={`w-full ${isCollapsed ? 'justify-center px-0' : 'justify-start gap-3'} text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all`}
+            className={`w-full h-8 ${isCollapsed ? 'justify-center px-0' : 'justify-start gap-2'} text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all`}
           >
-            <LogOut className="h-5 w-5" />
-            {!isCollapsed && <span>Sair</span>}
+            <LogOut className="h-4 w-4" />
+            {!isCollapsed && <span className="text-sm">Sair</span>}
           </Button>
         </div>
       </SidebarContent>
