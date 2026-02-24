@@ -362,19 +362,34 @@ export const useAuth = () => {
       // Handle edge function errors with specific messages
       if (functionError) {
         if (isDev) console.error('❌ Edge function error:', functionError);
-        let errorMsg = '🔒 Erro ao fazer login. ';
         
-        if (functionError.message.includes('non-2xx')) {
-          errorMsg += 'Servidor temporariamente indisponível. Tente novamente em alguns instantes.';
+        // Try to parse the actual error response from the edge function
+        let errorMsg = '🔒 Erro ao fazer login. ';
+        let errorData: any = null;
+        
+        try {
+          // FunctionsHttpError contains the response context
+          if (functionError.context && typeof functionError.context.json === 'function') {
+            errorData = await functionError.context.json();
+          }
+        } catch {
+          // ignore parse errors
+        }
+
+        if (errorData?.blocked) {
+          throw new Error('⏱️ ' + (errorData.error || 'Muitas tentativas de login. Aguarde alguns minutos.'));
+        } else if (errorData?.error) {
+          throw new Error('❌ ' + errorData.error);
         } else if (functionError.message.includes('network')) {
           errorMsg += 'Verifique sua conexão com a internet.';
+          throw new Error(errorMsg);
         } else if (functionError.message.includes('timeout')) {
           errorMsg += 'A requisição demorou muito. Tente novamente.';
+          throw new Error(errorMsg);
         } else {
-          errorMsg = functionError.message;
+          errorMsg += 'Tente novamente em alguns instantes.';
+          throw new Error(errorMsg);
         }
-        
-        throw new Error(errorMsg);
       }
       
       if (functionData?.error) {
